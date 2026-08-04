@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import { Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
+import { JsonLd, Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
 import { AttractionCard } from '@/components/Cards';
 import { HowWeChooseCallout } from '@/components/Trust';
 import { attractions, guides } from '@/lib/content';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, itemListSchema } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Things to Do in Nashville',
@@ -19,6 +19,12 @@ export default function ThingsToDoIndex() {
 
   return (
     <div className="shell pb-16">
+      <JsonLd
+        data={itemListSchema(
+          attractions.map((x) => ({ name: x.title, url: `/things-to-do/${x.slug}/`, description: x.summary })),
+          'Things to Do in Nashville',
+        )}
+      />
       <Breadcrumbs trail={[{ name: 'Things to Do', href: '/things-to-do/' }]} />
       <PageHeader
         eyebrow="Explore"

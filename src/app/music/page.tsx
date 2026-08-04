@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import { Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
+import { JsonLd, Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
 import { EventCard, VenueCard } from '@/components/Cards';
 import { HowWeChooseCallout } from '@/components/Trust';
 import { venues, guides, upcomingEvents } from '@/lib/content';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, itemListSchema } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Live Music in Nashville',
@@ -18,6 +18,12 @@ export default function MusicIndex() {
 
   return (
     <div className="shell pb-16">
+      <JsonLd
+        data={itemListSchema(
+          venues.map((x) => ({ name: x.title, url: `/music/${x.slug}/`, description: x.summary })),
+          'Nashville Live Music Venues',
+        )}
+      />
       <Breadcrumbs trail={[{ name: 'Music', href: '/music/' }]} />
       <PageHeader
         eyebrow="Live music"

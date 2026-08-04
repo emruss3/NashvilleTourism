@@ -152,6 +152,39 @@ export function FactTable({ rows }: { rows: { label: string; value: React.ReactN
 }
 
 /**
+ * Answer-first summary block.
+ *
+ * Answer engines quote the passage that most directly answers the query. Giving
+ * that passage a stable class, a real heading, and a definition list makes it
+ * cheap to extract correctly instead of leaving the model to guess which
+ * paragraph is the answer. Pairs with `speakableSchema`.
+ */
+export function KeyFacts({
+  title = 'Key facts',
+  answer,
+  facts,
+}: {
+  title?: string;
+  answer?: string;
+  facts: { label: string; value: string }[];
+}) {
+  return (
+    <section className="short-answer rounded-card border-l-4 border-clay bg-clay-wash p-5">
+      <h2 className="eyebrow mb-2 text-clay-deep">{title}</h2>
+      {answer && <p className="mb-3 max-w-prose text-[17px] leading-relaxed text-ink">{answer}</p>}
+      <dl className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
+        {facts.map((f) => (
+          <div key={f.label} className="flex flex-wrap gap-x-2 text-[15px]">
+            <dt className="font-semibold text-ink">{f.label}:</dt>
+            <dd className="text-ink-soft">{f.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
+/**
  * Wrapper for wide tables.
  *
  * A container that scrolls horizontally must be reachable by keyboard,

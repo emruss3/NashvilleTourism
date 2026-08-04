@@ -5,7 +5,7 @@ import { GuideCard, PhotoSlot } from '@/components/Cards';
 import { Byline, VerificationBadge } from '@/components/Trust';
 import ScrollDepth from '@/components/ScrollDepth';
 import { guides, getGuide, getAuthor } from '@/lib/content';
-import { articleSchema, buildMetadata, faqSchema } from '@/lib/seo';
+import { articleSchema, buildMetadata, faqSchema, speakableSchema } from '@/lib/seo';
 
 export function generateStaticParams() {
   return guides.map((g) => ({ slug: g.slug }));
@@ -41,7 +41,13 @@ export default function GuidePage({ params }: { params: { slug: string } }) {
 
   return (
     <div className="shell pb-16">
-      <JsonLd data={[articleSchema(g, author, path), ...(g.faqs.length ? [faqSchema(g.faqs)] : [])]} />
+      <JsonLd
+        data={[
+          articleSchema(g, author, path),
+          speakableSchema(['.short-answer', 'h1']),
+          ...(g.faqs.length ? [faqSchema(g.faqs)] : []),
+        ]}
+      />
       <ScrollDepth slug={g.slug} />
       <Breadcrumbs
         trail={[
@@ -64,7 +70,7 @@ export default function GuidePage({ params }: { params: { slug: string } }) {
       </div>
 
       {/* Short answer sits above the fold so readers can leave satisfied fast. */}
-      <div className="mt-8 max-w-prose rounded-card border-l-4 border-clay bg-clay-wash p-5">
+      <div className="short-answer mt-8 max-w-prose rounded-card border-l-4 border-clay bg-clay-wash p-5">
         <p className="eyebrow mb-1.5 text-clay-deep">The short answer</p>
         <p className="text-[17px] leading-relaxed text-ink">{g.shortAnswer}</p>
       </div>

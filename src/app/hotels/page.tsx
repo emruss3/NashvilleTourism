@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import { Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
+import { JsonLd, Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
 import { HotelCard } from '@/components/Cards';
 import { AffiliateDisclosure, HowWeChooseCallout } from '@/components/Trust';
 import { hotels, guides, neighborhoods } from '@/lib/content';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, itemListSchema } from '@/lib/seo';
 
 // Deliberately distinct from the /guides/where-to-stay-nashville/ title so the
 // index and the guide do not compete for the same query.
@@ -20,6 +20,12 @@ export default function HotelsIndex() {
 
   return (
     <div className="shell pb-16">
+      <JsonLd
+        data={itemListSchema(
+          hotels.map((x) => ({ name: x.title, url: `/hotels/${x.slug}/`, description: x.summary })),
+          'Nashville Hotels',
+        )}
+      />
       <Breadcrumbs trail={[{ name: 'Hotels', href: '/hotels/' }]} />
       <PageHeader
         eyebrow="Where to stay"

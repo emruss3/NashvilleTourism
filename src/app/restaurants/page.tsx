@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import { Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
+import { JsonLd, Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
 import { RestaurantCard } from '@/components/Cards';
 import { HowWeChooseCallout } from '@/components/Trust';
 import { restaurants, guides, neighborhoods } from '@/lib/content';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, itemListSchema } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Nashville Restaurants',
@@ -18,6 +18,12 @@ export default function RestaurantsIndex() {
 
   return (
     <div className="shell pb-16">
+      <JsonLd
+        data={itemListSchema(
+          restaurants.map((x) => ({ name: x.title, url: `/restaurants/${x.slug}/`, description: x.summary })),
+          'Nashville Restaurants',
+        )}
+      />
       <Breadcrumbs trail={[{ name: 'Restaurants', href: '/restaurants/' }]} />
       <PageHeader
         eyebrow="Eat and drink"

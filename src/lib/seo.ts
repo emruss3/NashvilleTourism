@@ -63,14 +63,24 @@ export function buildMetadata({
 
 /* --------------------------------- JSON-LD --------------------------------- */
 
+/**
+ * Publisher entity.
+ *
+ * Typed as an Organization rather than a bare Organization so answer engines
+ * can classify what kind of source this is. `publishingPrinciples`,
+ * `correctionsPolicy`, and `ownershipFundingInfo` are the properties Google and
+ * the major answer engines read as provenance signals, and they are exactly
+ * the pages a reader would want anyway.
+ */
 export function organizationSchema() {
   return {
     '@context': 'https://schema.org',
-    '@type': 'Organization',
+    '@type': ['Organization', 'NewsMediaOrganization'],
     '@id': `${site.url}/#organization`,
     name: site.name,
     url: site.url,
     description: site.description,
+    slogan: site.tagline,
     email: site.org.email,
     address: {
       '@type': 'PostalAddress',
@@ -80,7 +90,68 @@ export function organizationSchema() {
       postalCode: site.org.address.postalCode,
       addressCountry: site.org.address.country,
     },
+    areaServed: {
+      '@type': 'City',
+      name: 'Nashville',
+      addressRegion: 'TN',
+      addressCountry: 'US',
+    },
+    knowsAbout: [
+      'Nashville travel',
+      'Nashville restaurants',
+      'Nashville hotels',
+      'Nashville live music',
+      'Nashville neighborhoods',
+      'Trip planning',
+    ],
+    publishingPrinciples: `${site.url}/editorial-standards/`,
+    correctionsPolicy: `${site.url}/corrections/`,
+    ownershipFundingInfo: `${site.url}/advertising/`,
+    diversityPolicy: `${site.url}/editorial-standards/`,
+    actionableFeedbackPolicy: `${site.url}/corrections/`,
     sameAs: [site.social.instagram, site.social.x, site.social.facebook],
+  };
+}
+
+/**
+ * ItemList for index and hub pages.
+ *
+ * Answer engines lean on ItemList to extract ranked "best X in Y" sets. Without
+ * it they have to infer the list from markup, which is where mangled or
+ * partial answers come from.
+ */
+export function itemListSchema(
+  items: { name: string; url: string; description?: string }[],
+  listName: string,
+) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: listName,
+    numberOfItems: items.length,
+    itemListOrder: 'https://schema.org/ItemListUnordered',
+    itemListElement: items.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.name,
+      url: canonical(item.url),
+      ...(item.description ? { description: item.description } : {}),
+    })),
+  };
+}
+
+/**
+ * Marks the answer-first block on a page as the passage worth reading aloud or
+ * quoting. Used with the `shortAnswer` pattern on guides.
+ */
+export function speakableSchema(cssSelectors: string[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: cssSelectors,
+    },
   };
 }
 
