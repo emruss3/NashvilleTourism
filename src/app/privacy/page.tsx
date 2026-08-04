@@ -8,6 +8,7 @@ export const metadata = buildMetadata({
   description:
     'What data this site collects, how analytics and affiliate tracking work, how email addresses are handled, and how to exercise your data rights.',
   path: '/privacy/',
+  noindex: true,
 });
 
 export default function PrivacyPage() {

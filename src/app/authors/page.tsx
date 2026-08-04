@@ -8,6 +8,7 @@ export const metadata = buildMetadata({
   description:
     'The people who write and edit this guide, what they cover, and how to reach them.',
   path: '/authors/',
+  noindex: true,
 });
 
 export default function AuthorsIndex() {
@@ -22,7 +23,7 @@ export default function AuthorsIndex() {
       <div className="grid gap-5 py-10 sm:grid-cols-2 lg:grid-cols-3">
         {authors.map((a) => (
           <article key={a.slug} className="card p-5">
-            <h2 className="font-display text-xl">
+            <h2 className="font-sans text-xl font-bold">
               <Link href={`/authors/${a.slug}/`} className="hover:text-clay">
                 {a.name}
               </Link>

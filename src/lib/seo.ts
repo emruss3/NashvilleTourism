@@ -1,13 +1,29 @@
 import type { Metadata } from 'next';
-import { site } from './site';
-import type { Guide, Hotel, NashvilleEvent, Neighborhood, Restaurant, Attraction, Author } from './types';
+import { hasLaunchIdentity, site } from './site';
+import type { Guide, Hotel, NashvilleEvent, Neighborhood, Restaurant, Attraction, Author, Venue } from './types';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || '';
+
+/** Indexing requires an explicit production opt-in and a real public identity. */
+export const allowIndexing =
+  process.env.NEXT_PUBLIC_ALLOW_INDEXING === 'true' && hasLaunchIdentity;
 
 /** Absolute canonical URL for a site-relative path. */
 export function canonical(path: string): string {
   const clean = path.startsWith('/') ? path : `/${path}`;
-  return `${site.url}${clean}`;
+  return `${site.url}${BASE}${clean}`;
+}
+
+/** Demo records must not become searchable entities before human verification. */
+export function isIndexableRecord(record: {
+  title: string;
+  dataStatus: string;
+}): boolean {
+  return !record.title.startsWith('[Sample]') && record.dataStatus !== 'unverified';
+}
+
+function isPlaceholder(value: string | undefined): boolean {
+  return !value || value.includes('[') || value.includes('placeholder');
 }
 
 interface MetaArgs {
@@ -35,13 +51,22 @@ export function buildMetadata({
 }: MetaArgs): Metadata {
   const url = canonical(path);
   const fullTitle = title.includes(site.name) ? title : `${title} | ${site.name}`;
+  const ogImage = {
+    url: canonical('/media/hero/lower-broadway-day.jpg'),
+    width: 2400,
+    height: 1600,
+    alt: 'Nashville skyline across the Cumberland River',
+  };
   return {
     // `absolute` stops the root layout's title template from appending the
     // brand a second time.
     title: { absolute: fullTitle },
     description,
     alternates: { canonical: url },
-    robots: noindex ? { index: false, follow: true } : { index: true, follow: true },
+    robots:
+      noindex || !allowIndexing
+        ? { index: false, follow: true }
+        : { index: true, follow: true },
     openGraph: {
       title: fullTitle,
       description,
@@ -49,6 +74,7 @@ export function buildMetadata({
       siteName: site.name,
       locale: site.locale,
       type,
+      images: [ogImage],
       ...(publishedTime ? { publishedTime } : {}),
       ...(modifiedTime ? { modifiedTime } : {}),
       ...(authorName ? { authors: [authorName] } : {}),
@@ -57,6 +83,7 @@ export function buildMetadata({
       card: 'summary_large_image',
       title: fullTitle,
       description,
+      images: [ogImage.url],
     },
   };
 }
@@ -73,23 +100,32 @@ export function buildMetadata({
  * the pages a reader would want anyway.
  */
 export function organizationSchema() {
+  const sameAs = [site.social.instagram, site.social.x, site.social.facebook].filter(
+    (url) => !isPlaceholder(url),
+  );
+  const hasAddress = !isPlaceholder(site.org.address.street) && !isPlaceholder(site.org.address.postalCode);
+
   return {
     '@context': 'https://schema.org',
     '@type': ['Organization', 'NewsMediaOrganization'],
-    '@id': `${site.url}/#organization`,
+    '@id': canonical('/#organization'),
     name: site.name,
-    url: site.url,
+    url: canonical('/'),
     description: site.description,
     slogan: site.tagline,
-    email: site.org.email,
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: site.org.address.street,
-      addressLocality: site.org.address.city,
-      addressRegion: site.org.address.region,
-      postalCode: site.org.address.postalCode,
-      addressCountry: site.org.address.country,
-    },
+    ...(!isPlaceholder(site.org.email) ? { email: site.org.email } : {}),
+    ...(hasAddress
+      ? {
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: site.org.address.street,
+            addressLocality: site.org.address.city,
+            addressRegion: site.org.address.region,
+            postalCode: site.org.address.postalCode,
+            addressCountry: site.org.address.country,
+          },
+        }
+      : {}),
     areaServed: {
       '@type': 'City',
       name: 'Nashville',
@@ -104,12 +140,12 @@ export function organizationSchema() {
       'Nashville neighborhoods',
       'Trip planning',
     ],
-    publishingPrinciples: `${site.url}/editorial-standards/`,
-    correctionsPolicy: `${site.url}/corrections/`,
-    ownershipFundingInfo: `${site.url}/advertising/`,
-    diversityPolicy: `${site.url}/editorial-standards/`,
-    actionableFeedbackPolicy: `${site.url}/corrections/`,
-    sameAs: [site.social.instagram, site.social.x, site.social.facebook],
+    publishingPrinciples: canonical('/editorial-standards/'),
+    correctionsPolicy: canonical('/corrections/'),
+    ownershipFundingInfo: canonical('/advertising/'),
+    diversityPolicy: canonical('/editorial-standards/'),
+    actionableFeedbackPolicy: canonical('/corrections/'),
+    ...(sameAs.length ? { sameAs } : {}),
   };
 }
 
@@ -159,16 +195,16 @@ export function websiteSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    '@id': `${site.url}/#website`,
-    url: site.url,
+    '@id': canonical('/#website'),
+    url: canonical('/'),
     name: site.name,
     description: site.description,
-    publisher: { '@id': `${site.url}/#organization` },
+    publisher: { '@id': canonical('/#organization') },
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${site.url}/search/?q={search_term_string}`,
+        urlTemplate: `${canonical('/search/')}?q={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },
@@ -192,13 +228,13 @@ export function personSchema(author: Author) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
-    '@id': `${site.url}/authors/${author.slug}/#person`,
+    '@id': canonical(`/authors/${author.slug}/#person`),
     name: author.name,
     jobTitle: author.role,
     description: author.bio,
     email: author.email,
     knowsAbout: author.covers,
-    worksFor: { '@id': `${site.url}/#organization` },
+    worksFor: { '@id': canonical('/#organization') },
   };
 }
 
@@ -210,11 +246,12 @@ export function articleSchema(guide: Guide, author: Author | undefined, path: st
     description: guide.summary,
     datePublished: guide.datePublished,
     dateModified: guide.dateUpdated || guide.datePublished,
+    image: canonical('/media/hero/lower-broadway-day.jpg'),
     mainEntityOfPage: { '@type': 'WebPage', '@id': canonical(path) },
     author: author
       ? { '@type': 'Person', name: author.name, url: canonical(`/authors/${author.slug}/`) }
-      : undefined,
-    publisher: { '@id': `${site.url}/#organization` },
+      : { '@id': canonical('/#organization') },
+    publisher: { '@id': canonical('/#organization') },
   };
 }
 
@@ -231,6 +268,7 @@ export function faqSchema(faqs: { question: string; answer: string }[]) {
 }
 
 export function restaurantSchema(r: Restaurant, neighborhoodName: string, path: string) {
+  const hasAddress = !isPlaceholder(r.address);
   return {
     '@context': 'https://schema.org',
     '@type': 'Restaurant',
@@ -239,18 +277,23 @@ export function restaurantSchema(r: Restaurant, neighborhoodName: string, path: 
     servesCuisine: r.cuisine,
     priceRange: r.priceRange,
     url: canonical(path),
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: r.address,
-      addressLocality: 'Nashville',
-      addressRegion: 'TN',
-      addressCountry: 'US',
-    },
+    ...(hasAddress
+      ? {
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: r.address,
+            addressLocality: 'Nashville',
+            addressRegion: 'TN',
+            addressCountry: 'US',
+          },
+        }
+      : {}),
     areaServed: neighborhoodName,
   };
 }
 
 export function hotelSchema(h: Hotel, neighborhoodName: string, path: string) {
+  const hasAddress = !isPlaceholder(h.address);
   return {
     '@context': 'https://schema.org',
     '@type': 'Hotel',
@@ -259,13 +302,17 @@ export function hotelSchema(h: Hotel, neighborhoodName: string, path: string) {
     priceRange: h.priceCategory,
     url: canonical(path),
     amenityFeature: h.amenities.map((a) => ({ '@type': 'LocationFeatureSpecification', name: a })),
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: h.address,
-      addressLocality: 'Nashville',
-      addressRegion: 'TN',
-      addressCountry: 'US',
-    },
+    ...(hasAddress
+      ? {
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: h.address,
+            addressLocality: 'Nashville',
+            addressRegion: 'TN',
+            addressCountry: 'US',
+          },
+        }
+      : {}),
     areaServed: neighborhoodName,
   };
 }
@@ -280,6 +327,8 @@ export function eventSchema(e: NashvilleEvent, path: string) {
     ...(e.endDate ? { endDate: e.endDate } : {}),
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    image: canonical('/media/hero/lower-broadway-day.jpg'),
+    organizer: { '@id': canonical('/#organization') },
     url: canonical(path),
     location: {
       '@type': 'Place',
@@ -294,7 +343,30 @@ export function eventSchema(e: NashvilleEvent, path: string) {
   };
 }
 
+export function musicVenueSchema(v: Venue, path: string) {
+  const hasAddress = !isPlaceholder(v.address);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'MusicVenue',
+    name: v.title,
+    description: v.summary,
+    url: canonical(path),
+    ...(hasAddress
+      ? {
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: v.address,
+            addressLocality: 'Nashville',
+            addressRegion: 'TN',
+            addressCountry: 'US',
+          },
+        }
+      : {}),
+  };
+}
+
 export function attractionSchema(a: Attraction, path: string) {
+  const hasAddress = !isPlaceholder(a.address);
   return {
     '@context': 'https://schema.org',
     '@type': 'TouristAttraction',
@@ -302,13 +374,17 @@ export function attractionSchema(a: Attraction, path: string) {
     description: a.summary,
     url: canonical(path),
     isAccessibleForFree: a.priceNote.toLowerCase().includes('free'),
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: a.address,
-      addressLocality: 'Nashville',
-      addressRegion: 'TN',
-      addressCountry: 'US',
-    },
+    ...(hasAddress
+      ? {
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: a.address,
+            addressLocality: 'Nashville',
+            addressRegion: 'TN',
+            addressCountry: 'US',
+          },
+        }
+      : {}),
   };
 }
 

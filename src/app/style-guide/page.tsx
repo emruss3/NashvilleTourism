@@ -2,7 +2,7 @@ import { Breadcrumbs, Chip, EmptyState, ErrorState, FactTable, LoadingState, Pag
 import { AffiliateDisclosure, PlacementLabel, VerificationBadge } from '@/components/Trust';
 import { EventCard, GuideCard, HotelCard, NeighborhoodCard, RestaurantCard } from '@/components/Cards';
 import { guides, hotels, neighborhoods, restaurants, upcomingEvents } from '@/lib/content';
-import { buildMetadata } from '@/lib/seo';
+import { asset, buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Style guide',
@@ -12,16 +12,16 @@ export const metadata = buildMetadata({
 });
 
 const SWATCHES = [
-  ['Paper', 'bg-paper', '#FCFAF7', 'Page background'],
-  ['Paper sunk', 'bg-paper-sunk', '#F4F0EA', 'Alternating sections'],
-  ['Paper edge', 'bg-paper-edge', '#E7E1D8', 'Hairline borders'],
-  ['Ink', 'bg-ink', '#17140F', 'Headings and body'],
-  ['Ink soft', 'bg-ink-soft', '#4A443B', 'Secondary text'],
-  ['Ink faint', 'bg-ink-faint', '#6B6355', 'Meta text'],
-  ['Clay', 'bg-clay', '#A8452A', 'Primary accent, links'],
-  ['Clay deep', 'bg-clay-deep', '#83341F', 'Hover'],
-  ['Moss', 'bg-moss', '#2F5D50', 'Verified state'],
-  ['Gold', 'bg-gold', '#7A5D18', 'Sponsored labels'],
+  ['Porch Cream', 'bg-paper', '#F8F3E9', 'Page background'],
+  ['Soft White', 'bg-paper-card', '#FFFDFC', 'Cards'],
+  ['Sky Wash', 'bg-sky', '#DDECEF', 'Editorial panels'],
+  ['Dogwood Pink', 'bg-dogwood', '#F2B7AE', 'Soft accent fields'],
+  ['Nashville Navy', 'bg-ink', '#102A43', 'Logo, nav, headings'],
+  ['Cumberland Blue', 'bg-cumberland', '#214A72', 'Deep sections'],
+  ['Clay Coral', 'bg-clay', '#D95D45', 'Primary CTAs'],
+  ['Park Mint', 'bg-mint', '#8FC4AD', 'Positive / verified'],
+  ['Golden Hour', 'bg-golden', '#E8B64A', 'Warm highlight'],
+  ['Charcoal', 'bg-ink-body', '#232323', 'Body copy'],
 ];
 
 export default function StyleGuidePage() {
@@ -36,26 +36,52 @@ export default function StyleGuidePage() {
 
       {/* Typography */}
       <section className="border-t border-paper-edge py-10">
-        <SectionHeader title="Typography" description="Source Serif 4 for headings, Inter for interface and body." />
-        {/* Rendered as paragraphs so the specimen does not introduce a second
-            h1 or break the page's heading outline. */}
-        <div className="space-y-4 rounded-card border border-paper-edge bg-white p-6">
-          <p className="font-display text-4xl font-semibold leading-tight">Heading 1, editorial serif</p>
-          <p className="font-display text-3xl font-semibold leading-tight">Heading 2, section titles</p>
-          <p className="font-display text-2xl font-semibold leading-tight">Heading 3, subsections</p>
-          <p className="font-display text-xl font-semibold">Heading 4, card titles</p>
-          <p className="eyebrow">Eyebrow, uppercase meta label</p>
-          <p className="max-w-prose text-[17px] leading-relaxed text-ink-soft">
-            Body text runs at 17px with generous line height, constrained to about 68 characters so
-            long reads stay comfortable. Secondary text uses ink soft.
+        <SectionHeader
+          title="Typography"
+          description="Logo is an image asset. Playfair Display for H1/H2. Inter for H3, navigation, buttons, forms, cards, and body."
+        />
+        <div className="space-y-4 rounded-card border border-paper-edge bg-paper-card p-6">
+          <p className="font-display text-4xl font-bold leading-tight">H1 — Playfair Display Bold</p>
+          <p className="font-display text-3xl font-semibold leading-tight">H2 — Playfair Display Semibold</p>
+          <p className="font-sans text-2xl font-bold leading-tight">H3 — Inter Bold</p>
+          <p className="font-sans text-base font-semibold">Buttons / nav — Inter Semibold</p>
+          <p className="eyebrow">Labels — Inter Bold, uppercase sparingly</p>
+          <p className="max-w-prose text-[17px] font-normal leading-relaxed text-ink-body">
+            Body — Inter Regular at 17px, charcoal. Secondary text uses ink soft.
           </p>
-          <p className="text-sm text-ink-faint">Small print and meta text, 14px, ink faint.</p>
+          <p className="text-sm font-medium text-ink-faint">Metadata — Inter Medium, ink faint.</p>
+        </div>
+      </section>
+
+      {/* Logos */}
+      <section className="border-t border-paper-edge py-10">
+        <SectionHeader
+          title="Logo system"
+          description="Actual cropped assets from the brand sheet in /public/brand/. Never recreate with web fonts."
+        />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            ['Primary wordmark', '/brand/wordmark.png', 'Header, footer'],
+            ['Campaign horizontal', '/brand/lockup-horizontal.png', 'Promo / campaign'],
+            ['Campaign stacked', '/brand/lockup-stacked.png', 'Hero, vertical spaces'],
+            ['NSH mark', '/brand/nsh.png', 'Shop, compact chrome'],
+            ['Star mark', '/brand/star.png', 'Favicon, accents'],
+          ].map(([label, src, use]) => (
+            <div key={src} className="rounded-card border border-paper-edge bg-paper-card p-5">
+              <div className="flex h-28 items-center justify-center rounded bg-paper p-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={asset(src)} alt={label} className="max-h-full w-auto object-contain" />
+              </div>
+              <p className="mt-3 text-sm font-semibold text-ink">{label}</p>
+              <p className="text-2xs text-ink-faint">{use}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Color */}
       <section className="border-t border-paper-edge py-10">
-        <SectionHeader title="Color" description="Warm neutrals with one clay accent. Moss for verification, muted gold for paid labels." />
+        <SectionHeader title="Color" description="Light-first palette: Porch Cream and Soft White dominant, navy as anchor, Clay Coral for commerce." />
         <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {SWATCHES.map(([name, cls, hex, use]) => (
             <div key={name} className="rounded-card border border-paper-edge bg-white p-3">
@@ -84,11 +110,12 @@ export default function StyleGuidePage() {
       {/* Buttons */}
       <section className="border-t border-paper-edge py-10">
         <SectionHeader title="Buttons" />
-        <div className="flex flex-wrap items-center gap-3 rounded-card border border-paper-edge bg-white p-6">
-          <button type="button" className="btn-primary">Primary action</button>
-          <button type="button" className="btn-secondary">Secondary action</button>
-          <button type="button" className="btn-quiet">Quiet action</button>
-          <button type="button" className="btn-primary" disabled>Disabled</button>
+        <div className="flex flex-wrap items-center gap-3 rounded-card border border-paper-edge bg-paper-card p-6">
+          <button type="button" className="btn-primary">Primary — Clay Coral</button>
+          <button type="button" className="btn-secondary">Secondary — Navy</button>
+          <button type="button" className="btn-tertiary">Tertiary — outline</button>
+          <button type="button" className="btn-positive">Positive — Mint</button>
+          <button type="button" className="btn-quiet">Quiet</button>
         </div>
       </section>
 

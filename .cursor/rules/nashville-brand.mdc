@@ -1,0 +1,55 @@
+---
+description: NASHVILLE updated brand identity — source of truth for design and copy
+alwaysApply: true
+---
+
+# NASHVILLE Brand (Updated)
+
+Master brand: **NASHVILLE**. Promise: *The most useful way to plan, book, and experience Nashville.* Feel like a trusted city institution + modern editorial + booking marketplace — not tourism board, blog, affiliate directory, AI startup, or country cliché.
+
+## Identity
+
+- Masthead: uppercase **NASHVILLE** with **one coral star** centered above. No permanent tagline under the logo.
+- Campaign lockup only: “Your Guide. Your Nashville.” (counsel clearance pending — never inseparable from logo).
+- **NSH** + one star: merchandise / compact only. Three stars: secondary Tennessee detail only — never above the main wordmark.
+- Contextual lines OK: Trusted recommendations… · Plan better. Book smarter… · Make the most of Nashville.
+
+## Color (light first)
+
+| Token | Hex | Use |
+|---|---|---|
+| Navy | `#102A43` | Logo, nav, headings, secondary buttons |
+| Cumberland | `#214A72` | Deep section backgrounds |
+| Clay Coral | `#D95D45` | Primary CTAs (Plan Your Trip, Check Availability) |
+| Dogwood | `#F2B7AE` | Soft accent fields |
+| Sky Wash | `#DDECEF` | Light editorial panels |
+| Park Mint | `#8FC4AD` | Verified / positive / selective CTAs |
+| Golden Hour | `#E8B64A` | Warm highlight (sparingly) |
+| Porch Cream | `#F8F3E9` | Page background |
+| Soft White | `#FFFDFC` | Cards |
+| Charcoal | `#232323` | Body copy |
+
+Buttons: primary = coral/white · secondary = navy/white · tertiary = cream + navy border · positive = mint + navy text. No per-category rainbow.
+
+## Type
+
+- Masthead: **image assets** in `/public/brand/` — never recreate with web fonts or SVG stand-ins
+  - `wordmark.png` — header / footer
+  - `lockup-stacked.png` / `lockup-horizontal.png` — campaign / hero / promo
+  - `nsh.png` — shop / compact chrome
+  - `star.png` — favicon / accent
+- Display: **Playfair Display** — H1 Bold, H2 Semibold, hero, editorial
+- UI: **Inter** — H3 Bold, nav, buttons (Semibold), forms, cards, body (Regular), metadata (Medium)
+- Do not introduce Barlow, Oswald, or other logo-substitute fonts
+
+## Homepage
+
+Header light (cream/white), navy text, coral Plan a Trip. Hero bright/approachable — avoid heavy dark overlays. H1: **Make the most of Nashville.** Supporting: trusted recommendations… CTAs: Plan Your Trip · Explore Nashville. Rotate section grounds: cream, white, sky, dogwood, cumberland, mint accents.
+
+## Voice / trust
+
+Direct, honest, useful. Avoid: hidden gem, iconic, vibrant, must-visit, unforgettable, ultimate, Music City magic, AI-powered. Label Sponsored / Paid partnership / Affiliate link / Featured partner. Footer affiliation + affiliate disclosures required.
+
+## Cursor constraints
+
+Do not invent new fonts, colors, logos, star arrangements, taglines, button colors, or icon families without documenting why the system is insufficient.

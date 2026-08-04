@@ -1,7 +1,7 @@
-import { Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
+import { Breadcrumbs, JsonLd, PageHeader, SectionHeader } from '@/components/Ui';
 import { NeighborhoodCard } from '@/components/Cards';
 import { neighborhoods } from '@/lib/content';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, itemListSchema } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Nashville Neighborhoods',
@@ -13,6 +13,16 @@ export const metadata = buildMetadata({
 export default function NeighborhoodsIndex() {
   return (
     <div className="shell pb-16">
+      <JsonLd
+        data={itemListSchema(
+          neighborhoods.map((neighborhood) => ({
+            name: neighborhood.name,
+            url: `/neighborhoods/${neighborhood.slug}/`,
+            description: neighborhood.summary,
+          })),
+          'Nashville Neighborhoods',
+        )}
+      />
       <Breadcrumbs trail={[{ name: 'Neighborhoods', href: '/neighborhoods/' }]} />
       <PageHeader
         eyebrow="Get oriented"

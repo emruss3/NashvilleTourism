@@ -21,17 +21,17 @@ missing file should never produce a broken image on a live page.
 
 | Path | Notes |
 |---|---|
-| `video/lower-broadway-night.mp4` | H.264. Target under 4 MB. |
-| `video/lower-broadway-night.webm` | VP9. Usually 30-40% smaller. |
-| `hero/lower-broadway-night.jpg` | Poster still, 2400×1350. Required. |
+| `video/nashville-skyline-day.mp4` | 1920×1080 H.264, 12-second muted loop, ~2.5 MB. |
+| `video/nashville-skyline-day.webm` | 1920×1080 VP9 fallback, 12-second muted loop, ~3.7 MB. |
+| `hero/lower-broadway-day.jpg` | Daytime still, ~2400×1564. Currently live. |
 
-Add the key `hero/video` to `AVAILABLE_MEDIA` **only when all three exist**.
-Add `hero/lower-broadway` when the poster still exists, with or without video.
+The active video is licensed from Pexels video 37507731 by Alexander Wark
+Feeney under the Pexels Licence. `hero/video` and `hero/lower-broadway` are
+enabled in `AVAILABLE_MEDIA`.
 
-Brief: 8-15 seconds, muted, seamless loop, shot at dusk or after dark looking
-down Lower Broadway with the neon lit. Slow push or locked-off. Avoid
-recognisable faces, avoid readable brand signage as the focal subject, and
-avoid anything that dates the clip such as a visible tour poster.
+Brief: Prefer bright, approachable daylight over heavy night neon. 8-15 seconds
+muted loop if using video. Avoid recognisable faces as the focal subject and
+anything that dates the clip such as a visible tour poster.
 
 The hero already handles the rest: the video is `muted`/`playsInline`/`loop`,
 carries `preload="metadata"`, and is hidden entirely for anyone with

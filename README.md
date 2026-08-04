@@ -1,11 +1,13 @@
-# [BRAND NAME] — The independent guide to Nashville
+# NASHVILLE
 
-A conversion-focused Nashville city guide and trip-planning site. Built as a
-statically exported **Next.js 14 (App Router) + TypeScript + Tailwind** app with
-no runtime backend, so it deploys to any static host.
+The most useful way to plan, book, and experience Nashville.
 
-The working brand name and domain are placeholders. Change them once in
-`src/lib/site.ts` and they propagate through metadata, schema, and UI.
+A conversion-focused city guide and trip-planning site. Built as a statically
+exported **Next.js 14 (App Router) + TypeScript + Tailwind** app with no runtime
+backend, so it deploys to any static host.
+
+Domain and legal entity remain placeholders in `src/lib/site.ts`. Brand rules:
+`.cursor/rules/nashville-brand.mdc`.
 
 ---
 

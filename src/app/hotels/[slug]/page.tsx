@@ -7,7 +7,7 @@ import BookingLink from '@/components/BookingLink';
 import { hotels, getHotel } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
 import { ANALYTICS_EVENTS } from '@/lib/analytics';
-import { buildMetadata, hotelSchema } from '@/lib/seo';
+import { buildMetadata, hotelSchema, isIndexableRecord } from '@/lib/seo';
 
 export function generateStaticParams() {
   return hotels.map((h) => ({ slug: h.slug }));
@@ -22,6 +22,7 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
     path: `/hotels/${h.slug}/`,
     type: 'article',
     modifiedTime: h.dateUpdated || h.dateChecked,
+    noindex: !isIndexableRecord(h),
   });
 }
 
@@ -34,10 +35,13 @@ export default function HotelPage({ params }: { params: { slug: string } }) {
 
   return (
     <div className="shell pb-16">
-      <JsonLd data={hotelSchema(h, hood, `/hotels/${h.slug}/`)} />
+      {isIndexableRecord(h) && (
+        <JsonLd data={hotelSchema(h, hood, `/hotels/${h.slug}/`)} />
+      )}
       <Breadcrumbs
         trail={[
-          { name: 'Hotels', href: '/hotels/' },
+          { name: 'Where to Stay', href: '/where-to-stay/' },
+          { name: 'Hotels A–Z', href: '/hotels/' },
           { name: h.title, href: `/hotels/${h.slug}/` },
         ]}
       />
@@ -107,7 +111,7 @@ export default function HotelPage({ params }: { params: { slug: string } }) {
             </div>
             {h.nearbyAttractions.length > 0 && (
               <>
-                <h3 className="mt-6 font-display text-lg">Nearby</h3>
+                <h3 className="mt-6 font-sans text-lg font-bold">Nearby</h3>
                 <ul className="mt-2 flex flex-wrap gap-2">
                   {h.nearbyAttractions.map((n) => (
                     <li key={n}>

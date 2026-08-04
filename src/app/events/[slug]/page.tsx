@@ -7,7 +7,7 @@ import BookingLink from '@/components/BookingLink';
 import { events, getEvent } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
 import { ANALYTICS_EVENTS } from '@/lib/analytics';
-import { buildMetadata, eventSchema } from '@/lib/seo';
+import { buildMetadata, eventSchema, isIndexableRecord } from '@/lib/seo';
 
 export function generateStaticParams() {
   return events.map((e) => ({ slug: e.slug }));
@@ -22,6 +22,7 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
     path: `/events/${e.slug}/`,
     type: 'article',
     modifiedTime: e.dateUpdated || e.dateChecked,
+    noindex: !isIndexableRecord(e),
   });
 }
 
@@ -34,7 +35,7 @@ export default function EventPage({ params }: { params: { slug: string } }) {
 
   return (
     <div className="shell pb-16">
-      <JsonLd data={eventSchema(e, `/events/${e.slug}/`)} />
+      {isIndexableRecord(e) && <JsonLd data={eventSchema(e, `/events/${e.slug}/`)} />}
       <Breadcrumbs
         trail={[
           { name: 'Events', href: '/events/' },

@@ -1,9 +1,9 @@
-import { Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
+import { Breadcrumbs, JsonLd, PageHeader, SectionHeader } from '@/components/Ui';
 import { GuideCard } from '@/components/Cards';
 import { HowWeChooseCallout } from '@/components/Trust';
 import { guides } from '@/lib/content';
 import type { GuideCluster } from '@/lib/types';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, itemListSchema } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Nashville Guides',
@@ -17,6 +17,16 @@ const ORDER: GuideCluster[] = ['Trip Planning', 'Restaurants', 'Hotels', 'Things
 export default function GuidesIndex() {
   return (
     <div className="shell pb-16">
+      <JsonLd
+        data={itemListSchema(
+          guides.map((guide) => ({
+            name: guide.title,
+            url: `/guides/${guide.slug}/`,
+            description: guide.shortAnswer,
+          })),
+          'Nashville Travel Guides',
+        )}
+      />
       <Breadcrumbs trail={[{ name: 'Guides', href: '/guides/' }]} />
       <PageHeader
         eyebrow="Read first"

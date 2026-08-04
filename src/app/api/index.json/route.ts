@@ -1,5 +1,6 @@
 import { site } from '@/lib/site';
 import { searchIndex } from '@/lib/content';
+import { canonical } from '@/lib/seo';
 
 export const dynamic = 'force-static';
 
@@ -11,12 +12,12 @@ export const dynamic = 'force-static';
 export function GET() {
   return Response.json(
     {
-      publisher: { name: site.name, url: site.url },
+      publisher: { name: site.name, url: canonical('/') },
       attribution: `Cite as "${site.name}" with a link to the specific page.`,
       generatedAt: new Date().toISOString(),
       count: searchIndex.length,
       pages: searchIndex.map((d) => ({
-        url: `${site.url}${d.href}`,
+        url: canonical(d.href),
         title: d.title,
         summary: d.summary,
         type: d.type,

@@ -30,8 +30,7 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
   };
   const [input, setInput] = useState<TripInput>(seed);
   const [submitted, setSubmitted] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [emailed, setEmailed] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [started, setStarted] = useState(false);
 
   const days = useMemo(() => tripLength(input.startDate, input.endDate), [input.startDate, input.endDate]);
@@ -55,8 +54,7 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitted(true);
-    setSaved(false);
-    setEmailed(false);
+    setCopied(false);
     track(ANALYTICS_EVENTS.TRIP_PLANNER_COMPLETED, {
       trip_type: input.tripType,
       value: days,
@@ -267,21 +265,33 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
                 type="button"
                 className="btn-secondary"
                 onClick={() => {
-                  setSaved(true);
+                  window.print();
                   track(ANALYTICS_EVENTS.ITINERARY_SAVED, { trip_type: input.tripType, value: days });
                 }}
               >
-                Save itinerary
+                Print plan
               </button>
               <button
                 type="button"
                 className="btn-secondary"
-                onClick={() => {
-                  setEmailed(true);
+                onClick={async () => {
+                  const params = new URLSearchParams({
+                    type: input.tripType,
+                    days: String(days),
+                    travelers: String(input.travelers),
+                    pace: input.pace,
+                  });
+                  const url = `${window.location.origin}/plan/?${params.toString()}`;
+                  try {
+                    await navigator.clipboard.writeText(url);
+                    setCopied(true);
+                  } catch {
+                    setCopied(false);
+                  }
                   track(ANALYTICS_EVENTS.ITINERARY_EMAILED, { trip_type: input.tripType, value: days });
                 }}
               >
-                Email it to me
+                Copy link
               </button>
               <button type="button" className="btn-quiet" onClick={() => setSubmitted(false)}>
                 Edit answers
@@ -289,10 +299,9 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
             </div>
           </div>
 
-          {(saved || emailed) && (
+          {copied && (
             <p role="status" className="mt-4 rounded border border-moss/20 bg-moss-wash p-3 text-sm text-moss">
-              {saved && !emailed && 'Saving needs an account system. The event is tracked and ready to wire up.'}
-              {emailed && 'Emailing needs an email provider. The event is tracked and ready to wire up.'}
+              Link copied. Share it to reopen the planner with these trip settings.
             </p>
           )}
 
@@ -300,7 +309,7 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
             {itinerary.map((day) => (
               <article key={day.dayNumber}>
                 <header className="mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <h3 className="font-display text-2xl">Day {day.dayNumber}</h3>
+                  <h3 className="font-sans text-2xl font-bold">Day {day.dayNumber}</h3>
                   {day.date && <span className="text-sm text-ink-faint">{formatDate(day.date)}</span>}
                   <span className="text-sm text-ink-faint">· {day.theme}</span>
                 </header>
@@ -312,7 +321,7 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
                         <span className="eyebrow text-clay">{stop.slot}</span>
                         <span className="text-2xs text-ink-faint">{stop.neighborhood}</span>
                       </div>
-                      <h4 className="mt-1 font-display text-lg">
+                      <h4 className="mt-1 font-sans text-lg font-bold">
                         {stop.href ? (
                           <Link href={stop.href} className="hover:text-clay">
                             {stop.title}
@@ -379,7 +388,7 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
               <ul className="mt-4 grid gap-4 sm:grid-cols-3">
                 {hotelPicks.map((h) => (
                   <li key={h.slug} className="rounded-card border border-paper-edge bg-white p-4">
-                    <Link href={`/hotels/${h.slug}/`} className="font-display text-lg hover:text-clay">
+                    <Link href={`/hotels/${h.slug}/`} className="font-sans text-lg font-bold hover:text-clay">
                       {h.title}
                     </Link>
                     <p className="mt-1 text-sm text-ink-soft">{h.summary}</p>

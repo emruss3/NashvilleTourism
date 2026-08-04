@@ -146,13 +146,13 @@ export default function LiveMusicCalendar({
                 <span className="text-2xs font-bold uppercase tracking-wider text-clay">
                   {formatDateShort(e.date).split(' ')[0]}
                 </span>
-                <span className="font-display text-xl font-bold leading-none text-ink">
+                <span className="font-sans text-xl font-bold leading-none text-ink">
                   {e.date.slice(8, 10)}
                 </span>
               </div>
 
               <div className="min-w-[200px] flex-1">
-                <p className="font-display text-lg leading-snug text-ink">{e.name}</p>
+                <p className="font-sans text-lg font-bold leading-snug text-ink">{e.name}</p>
                 <p className="text-sm text-ink-faint">
                   {e.venue}
                   {e.time ? ` · ${e.time}` : ''}

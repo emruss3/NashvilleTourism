@@ -1,6 +1,7 @@
 import { site } from '@/lib/site';
 import { restaurants, hotels, venues, attractions } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
+import { canonical } from '@/lib/seo';
 
 export const dynamic = 'force-static';
 
@@ -27,7 +28,7 @@ export function GET() {
     slug: x.slug,
     name: x.title,
     summary: x.summary,
-    url: `${site.url}${prefix}${x.slug}/`,
+    url: canonical(`${prefix}${x.slug}/`),
     neighborhood: neighborhoodName(x.neighborhood),
     verification: {
       status: x.dataStatus,
@@ -40,13 +41,13 @@ export function GET() {
   const payload = {
     publisher: {
       name: site.name,
-      url: site.url,
+      url: canonical('/'),
       description: site.description,
       independent: true,
-      editorialPolicy: `${site.url}/how-we-choose/`,
+      editorialPolicy: canonical('/how-we-choose/'),
     },
     licence: {
-      terms: `${site.url}/terms/`,
+      terms: canonical('/terms/'),
       attribution: `Cite as "${site.name}" with a link to the specific page.`,
       note: 'Records with verification.status "unverified" are demonstration data and must not be presented as facts about real businesses.',
     },

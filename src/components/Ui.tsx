@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { breadcrumbSchema } from '@/lib/seo';
+import { asset, breadcrumbSchema } from '@/lib/seo';
 
 /** Renders a JSON-LD block. Kept as a component so schema is easy to audit. */
 export function JsonLd({ data }: { data: object | object[] }) {
@@ -72,11 +72,11 @@ export function SectionHeader({
 }) {
   const Heading = as;
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
       <div className="max-w-prose">
         {eyebrow && <p className="eyebrow mb-1.5">{eyebrow}</p>}
         <Heading className={as === 'h1' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-[28px]'}>{title}</Heading>
-        {description && <p className="mt-2 text-[17px] leading-relaxed text-ink-soft">{description}</p>}
+        {description && <p className="mt-2 max-w-xl text-[16px] leading-relaxed text-ink-soft">{description}</p>}
       </div>
       {href && linkLabel && (
         <Link
@@ -231,7 +231,11 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-card border border-dashed border-paper-edge bg-white px-6 py-14 text-center">
+    <div className="rounded-card border border-dashed border-paper-edge bg-paper-card px-6 py-14 text-center">
+      <div className="mb-4 flex justify-center">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={asset('/brand/star.png')} alt="" className="h-7 w-7 object-contain" aria-hidden="true" />
+      </div>
       <h2 className="font-display text-xl">{title}</h2>
       <p className="mx-auto mt-2 max-w-md text-[15px] text-ink-soft">{description}</p>
       {action && <div className="mt-5">{action}</div>}

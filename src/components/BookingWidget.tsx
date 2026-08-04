@@ -7,9 +7,9 @@ import { partners } from '@/lib/partners';
 type Tab = 'hotels' | 'tours' | 'tickets';
 
 const TABS: { key: Tab; label: string; cta: string }[] = [
-  { key: 'hotels', label: 'Find Hotels', cta: 'Check hotel rates' },
-  { key: 'tours', label: 'Book Party Buses & Tours', cta: 'See availability' },
-  { key: 'tickets', label: 'Get Concert Tickets', cta: 'Find tickets' },
+  { key: 'hotels', label: 'Hotels', cta: 'Check Availability' },
+  { key: 'tours', label: 'Tours', cta: 'Check Availability' },
+  { key: 'tickets', label: 'Tickets', cta: 'Buy Tickets' },
 ];
 
 const TOUR_TYPES = [
@@ -69,9 +69,9 @@ export default function BookingWidget({ compact = false }: { compact?: boolean }
   const active = TABS.find((t) => t.key === tab)!;
 
   return (
-    <div className="overflow-hidden rounded-card border border-paper-edge bg-white shadow-lift">
+    <div className="overflow-hidden rounded-card border border-paper-edge bg-paper-card shadow-card">
       {/* Tabs */}
-      <div role="tablist" aria-label="What do you want to book?" className="flex border-b border-paper-edge bg-paper-sunk">
+      <div role="tablist" aria-label="What do you want to book?" className="flex border-b border-paper-edge">
         {TABS.map((t) => {
           const selected = t.key === tab;
           return (
@@ -88,10 +88,10 @@ export default function BookingWidget({ compact = false }: { compact?: boolean }
                 if (e.key === 'ArrowRight') setTab(TABS[(i + 1) % TABS.length].key);
                 if (e.key === 'ArrowLeft') setTab(TABS[(i - 1 + TABS.length) % TABS.length].key);
               }}
-              className={`flex-1 px-3 py-3.5 text-center text-[13px] font-bold leading-tight transition-colors sm:text-sm ${
+              className={`flex-1 px-3 py-3 text-center text-sm font-semibold leading-tight transition-colors ${
                 selected
-                  ? 'bg-white text-clay shadow-[inset_0_-2px_0_0_theme(colors.clay.DEFAULT)]'
-                  : 'text-ink-soft hover:bg-white/60 hover:text-ink'
+                  ? 'bg-paper-card text-clay shadow-[inset_0_-2px_0_0_theme(colors.clay.DEFAULT)]'
+                  : 'bg-sky/70 text-ink-soft hover:text-ink'
               }`}
             >
               {t.label}
@@ -211,7 +211,7 @@ export default function BookingWidget({ compact = false }: { compact?: boolean }
       </form>
       </div>
 
-      <p className="border-t border-paper-edge bg-paper-sunk px-4 py-2 text-2xs text-ink-faint sm:px-5">
+      <p className="border-t border-paper-edge px-4 py-2 text-center text-2xs text-ink-faint sm:px-5">
         We earn a commission on bookings made through these partners. It never changes what we
         recommend.
       </p>

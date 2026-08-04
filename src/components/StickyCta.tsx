@@ -39,7 +39,7 @@ export default function StickyCta() {
   const offer = pickOffer(pathname);
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-paper-edge bg-white/97 px-3 py-2.5 shadow-[0_-4px_20px_rgba(23,20,15,0.10)] backdrop-blur lg:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-paper-edge bg-paper-card/97 px-3 py-2.5 backdrop-blur lg:hidden">
       <div className="flex items-center gap-2">
         <Link
           href={offer.href}
@@ -71,16 +71,19 @@ function pickOffer(pathname: string): { label: string; href: string; id: string 
     return { label: "View tonight's live music", href: '/live-music-tonight/', id: 'cta_live_music' };
   }
   if (pathname.startsWith('/hotels') || pathname.includes('where-to-stay')) {
-    return { label: 'Check hotel rates', href: '/where-to-stay/', id: 'cta_hotels' };
+    return { label: 'Check Availability', href: '/where-to-stay/', id: 'cta_hotels' };
   }
   if (pathname.startsWith('/restaurants')) {
-    return { label: 'Book a table tonight', href: '/restaurants/', id: 'cta_dining' };
+    return { label: 'Reserve a Table', href: '/restaurants/', id: 'cta_dining' };
   }
   if (pathname.startsWith('/things-to-do') || pathname.startsWith('/tours')) {
-    return { label: 'Book tours and party buses', href: '/tours/', id: 'cta_tours' };
+    return { label: 'Check Availability', href: '/tours/', id: 'cta_tours' };
   }
   if (pathname.startsWith('/guides') || pathname.startsWith('/neighborhoods')) {
-    return { label: 'Plan and book this trip', href: '/plan/', id: 'cta_plan' };
+    return { label: 'Plan Your Trip', href: '/plan/', id: 'cta_plan' };
   }
-  return { label: 'Check hotel rates', href: '/where-to-stay/', id: 'cta_default' };
+  if (pathname.startsWith('/shop')) {
+    return { label: 'Shop the Collection', href: '/shop/', id: 'cta_shop' };
+  }
+  return { label: 'Plan Your Trip', href: '/plan/', id: 'cta_default' };
 }

@@ -8,6 +8,7 @@ export const metadata = buildMetadata({
   description:
     'Who publishes this Nashville guide, how it stays independent, what it covers, and how to reach the people responsible for it.',
   path: '/about/',
+  noindex: true,
 });
 
 export default function AboutPage() {
@@ -43,11 +44,11 @@ export default function AboutPage() {
         </p>
 
         <h2 className="text-2xl mt-10 mb-3">We are independent</h2>
+        <p>{site.affiliation}</p>
         <p>
           {site.name} is not a tourism board, a convention and visitors bureau, or a destination
-          marketing organization. We are not affiliated with, endorsed by, or funded by the
-          Metropolitan Government of Nashville and Davidson County, the State of Tennessee, or any
-          government agency. We are a private publisher.
+          marketing organization. We are not affiliated with Visit Music City, Nashville.com, or
+          any venue, musician, hotel, or tourism organization. We are a private publisher.
         </p>
         <p>
           We are also not owned or controlled by a hotel group, restaurant group, venue operator, or

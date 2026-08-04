@@ -3,7 +3,7 @@ import { JsonLd, Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui'
 import { RestaurantCard } from '@/components/Cards';
 import { HowWeChooseCallout } from '@/components/Trust';
 import { restaurants, guides, neighborhoods } from '@/lib/content';
-import { buildMetadata, itemListSchema } from '@/lib/seo';
+import { buildMetadata, isIndexableRecord, itemListSchema } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Nashville Restaurants',
@@ -20,7 +20,9 @@ export default function RestaurantsIndex() {
     <div className="shell pb-16">
       <JsonLd
         data={itemListSchema(
-          restaurants.map((x) => ({ name: x.title, url: `/restaurants/${x.slug}/`, description: x.summary })),
+          restaurants
+            .filter(isIndexableRecord)
+            .map((x) => ({ name: x.title, url: `/restaurants/${x.slug}/`, description: x.summary })),
           'Nashville Restaurants',
         )}
       />
@@ -65,7 +67,7 @@ export default function RestaurantsIndex() {
                   href={`/guides/${g.slug}/`}
                   className="block rounded-card border border-paper-edge bg-white p-4 transition-shadow hover:shadow-lift"
                 >
-                  <span className="font-display text-lg">{g.title}</span>
+                  <span className="font-sans text-lg font-bold">{g.title}</span>
                   <span className="mt-1 block text-[15px] text-ink-soft">{g.summary}</span>
                 </Link>
               </li>

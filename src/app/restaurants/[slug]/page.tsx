@@ -6,7 +6,7 @@ import { AffiliateDisclosure, PlacementLabel, VerificationBadge, formatDate } fr
 import ReservationLink from '@/components/ReservationLink';
 import { restaurants, getRestaurant } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
-import { buildMetadata, restaurantSchema } from '@/lib/seo';
+import { buildMetadata, isIndexableRecord, restaurantSchema } from '@/lib/seo';
 
 export function generateStaticParams() {
   return restaurants.map((r) => ({ slug: r.slug }));
@@ -21,6 +21,7 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
     path: `/restaurants/${r.slug}/`,
     type: 'article',
     modifiedTime: r.dateUpdated || r.dateChecked,
+    noindex: !isIndexableRecord(r),
   });
 }
 
@@ -35,7 +36,9 @@ export default function RestaurantPage({ params }: { params: { slug: string } })
 
   return (
     <div className="shell pb-16">
-      <JsonLd data={restaurantSchema(r, hood, `/restaurants/${r.slug}/`)} />
+      {isIndexableRecord(r) && (
+        <JsonLd data={restaurantSchema(r, hood, `/restaurants/${r.slug}/`)} />
+      )}
       <Breadcrumbs
         trail={[
           { name: 'Restaurants', href: '/restaurants/' },

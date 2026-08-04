@@ -3,7 +3,7 @@ import { JsonLd, Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui'
 import { HotelCard } from '@/components/Cards';
 import { AffiliateDisclosure, HowWeChooseCallout } from '@/components/Trust';
 import { hotels, guides, neighborhoods } from '@/lib/content';
-import { buildMetadata, itemListSchema } from '@/lib/seo';
+import { buildMetadata, isIndexableRecord, itemListSchema } from '@/lib/seo';
 
 // Deliberately distinct from the /guides/where-to-stay-nashville/ title so the
 // index and the guide do not compete for the same query.
@@ -22,7 +22,9 @@ export default function HotelsIndex() {
     <div className="shell pb-16">
       <JsonLd
         data={itemListSchema(
-          hotels.map((x) => ({ name: x.title, url: `/hotels/${x.slug}/`, description: x.summary })),
+          hotels
+            .filter(isIndexableRecord)
+            .map((x) => ({ name: x.title, url: `/hotels/${x.slug}/`, description: x.summary })),
           'Nashville Hotels',
         )}
       />
@@ -71,7 +73,7 @@ export default function HotelsIndex() {
                   href={`/guides/${g.slug}/`}
                   className="block rounded-card border border-paper-edge bg-white p-4 transition-shadow hover:shadow-lift"
                 >
-                  <span className="font-display text-lg">{g.title}</span>
+                  <span className="font-sans text-lg font-bold">{g.title}</span>
                   <span className="mt-1 block text-[15px] text-ink-soft">{g.summary}</span>
                 </Link>
               </li>

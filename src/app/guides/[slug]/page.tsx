@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Breadcrumbs, JsonLd, PageHeader, SectionHeader } from '@/components/Ui';
-import { GuideCard, PhotoSlot } from '@/components/Cards';
+import { GuideCard, guideImageKey } from '@/components/Cards';
+import { SmartImage } from '@/components/Media';
 import { Byline, VerificationBadge } from '@/components/Trust';
 import ScrollDepth from '@/components/ScrollDepth';
 import { guides, getGuide, getAuthor } from '@/lib/content';
@@ -14,7 +15,7 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: { params: { slug: string } }) {
   const g = getGuide(params.slug);
   if (!g) return buildMetadata({ title: 'Not found', description: '', path: '/guides/', noindex: true });
-  const author = getAuthor(g.authorSlug);
+  const author = isPublicAuthor(getAuthor(g.authorSlug));
   return buildMetadata({
     title: g.title,
     description: g.summary,
@@ -30,12 +31,16 @@ function slugifyHeading(h: string) {
   return h.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
+function isPublicAuthor(author: ReturnType<typeof getAuthor>) {
+  return author && !author.name.startsWith('[') ? author : undefined;
+}
+
 export default function GuidePage({ params }: { params: { slug: string } }) {
   const g = getGuide(params.slug);
   if (!g) notFound();
 
-  const author = getAuthor(g.authorSlug);
-  const editor = g.editorSlug ? getAuthor(g.editorSlug) : undefined;
+  const author = isPublicAuthor(getAuthor(g.authorSlug));
+  const editor = g.editorSlug ? isPublicAuthor(getAuthor(g.editorSlug)) : undefined;
   const related = g.relatedSlugs.map((s) => getGuide(s)).filter((x): x is NonNullable<typeof x> => Boolean(x));
   const path = `/guides/${g.slug}/`;
 
@@ -60,8 +65,8 @@ export default function GuidePage({ params }: { params: { slug: string } }) {
 
       <div className="mt-5 max-w-prose">
         <Byline
-          authorName={author?.name ?? 'Editorial desk'}
-          authorSlug={g.authorSlug}
+          authorName={author?.name ?? 'NASHVILLE Editorial Desk'}
+          authorSlug={author?.slug}
           editorName={editor?.name}
           published={g.datePublished}
           updated={g.dateUpdated}
@@ -77,7 +82,13 @@ export default function GuidePage({ params }: { params: { slug: string } }) {
 
       <div className="grid gap-12 py-10 lg:grid-cols-[1fr_240px]">
         <article className="min-w-0">
-          <PhotoSlot label={g.title} ratio="aspect-[16/9]" className="mb-8 rounded-card" />
+          <SmartImage
+            imageKey={guideImageKey(g)}
+            ratio="aspect-[16/9]"
+            className="mb-8 rounded-card"
+            sizes="(max-width: 1024px) 100vw, 760px"
+            priority
+          />
 
           <div className="prose-editorial">
             {g.intro.map((p, i) => (
@@ -102,7 +113,7 @@ export default function GuidePage({ params }: { params: { slug: string } }) {
               <dl className="mt-4 divide-y divide-paper-edge border-y border-paper-edge">
                 {g.faqs.map((f) => (
                   <div key={f.question} className="py-4">
-                    <dt className="font-display text-lg text-ink">{f.question}</dt>
+                    <dt className="font-sans text-lg font-bold text-ink">{f.question}</dt>
                     <dd className="mt-1.5 max-w-prose text-[16px] leading-relaxed text-ink-soft">{f.answer}</dd>
                   </div>
                 ))}
@@ -160,7 +171,7 @@ export default function GuidePage({ params }: { params: { slug: string } }) {
         <section className="border-t border-paper-edge py-10">
           <h2 className="eyebrow mb-3">About the author</h2>
           <div className="max-w-prose">
-            <p className="font-display text-xl">
+            <p className="font-sans text-xl font-bold">
               <Link href={`/authors/${author.slug}/`} className="hover:text-clay">
                 {author.name}
               </Link>

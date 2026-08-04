@@ -122,7 +122,7 @@ export default function ToursHub() {
           {TOUR_TYPES.map((t) => (
             <li key={t.slug}>
               <article className="card flex h-full flex-col p-5">
-                <h3 className="font-display text-lg leading-snug">{t.name}</h3>
+                <h3 className="font-sans text-lg font-bold leading-snug">{t.name}</h3>
                 <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">{t.what}</p>
 
                 <dl className="mt-4 space-y-2 border-t border-paper-edge pt-4 text-sm">

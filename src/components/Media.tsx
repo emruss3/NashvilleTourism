@@ -1,12 +1,11 @@
-import { getImage, hasMedia, type ImageKey } from '@/lib/media';
+import HeroVideo from '@/components/HeroVideo';
+import { getImage, hasMedia, heroVideo, type ImageKey } from '@/lib/media';
+import { asset as assetUrl } from '@/lib/seo';
 
 /**
  * Renders a real photograph when the licensed file has been added, and a
- * typographic fallback until then. The fallback reserves the same space, so
+ * quiet fallback until then. The fallback reserves the same space, so
  * swapping in the real asset causes no layout shift.
- *
- * Uses a plain <img> rather than next/image because the site is statically
- * exported, where next/image optimisation is unavailable anyway.
  */
 export function SmartImage({
   imageKey,
@@ -34,23 +33,21 @@ export function SmartImage({
         role="img"
         aria-label={asset?.alt ?? 'Photography placeholder'}
       >
-        <span className="px-4 text-center font-display text-sm italic text-ink-faint">
-          Photo to come
-        </span>
+        <span className="sr-only">Photography coming soon</span>
       </div>
     );
   }
 
   return (
     <figure className={`relative overflow-hidden ${ratio} ${round} ${className}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={asset.src}
+        src={assetUrl(asset.src)}
         alt={asset.alt}
         width={asset.width}
         height={asset.height}
         sizes={sizes}
         loading={priority ? 'eager' : 'lazy'}
-        // eslint-disable-next-line @next/next/no-img-element
         decoding={priority ? 'sync' : 'async'}
         fetchPriority={priority ? 'high' : 'auto'}
         className="h-full w-full object-cover"
@@ -66,56 +63,43 @@ export function SmartImage({
 }
 
 /**
- * Full-bleed hero media. Plays a muted looping clip when the video files are
- * present. Falls back to the poster still otherwise, and always falls back for
- * anyone who has asked for reduced motion.
+ * Full-bleed hero media. Continuous cinematic loop when available, with a
+ * readable bottom scrim for type.
  */
 export function HeroMedia({ children }: { children: React.ReactNode }) {
   const videoReady = hasMedia('hero/video');
+  const stillReady = hasMedia('hero/lower-broadway');
+  const poster = heroVideo.poster ? assetUrl(heroVideo.poster) : assetUrl('/media/hero/lower-broadway-day.jpg');
 
   return (
-    <div className="relative isolate overflow-hidden bg-ink">
-      {videoReady ? (
-        <video
-          className="absolute inset-0 h-full w-full object-cover motion-reduce:hidden"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster="/media/hero/lower-broadway-night.jpg"
-          aria-hidden="true"
-        >
-          <source src="/media/video/lower-broadway-night.webm" type="video/webm" />
-          <source src="/media/video/lower-broadway-night.mp4" type="video/mp4" />
-        </video>
-      ) : null}
+    <div className="relative isolate min-h-[min(86vh,760px)] overflow-hidden bg-navy">
+      {videoReady ? <HeroVideo /> : null}
 
-      {/* Poster / fallback layer. Always present so reduced-motion users and
-          browsers without the video files still get a full-bleed image. */}
       <div
         className={`absolute inset-0 ${videoReady ? 'motion-safe:hidden' : ''}`}
         aria-hidden="true"
       >
-        {hasMedia('hero/lower-broadway') ? (
+        {stillReady || videoReady ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
-            src="/media/hero/lower-broadway-night.jpg"
+            src={videoReady ? poster : assetUrl('/media/hero/lower-broadway-day.jpg')}
             alt=""
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover object-center"
             fetchPriority="high"
           />
         ) : (
-          <div className="h-full w-full bg-[radial-gradient(1200px_500px_at_75%_-10%,#3a2418_0%,transparent_60%),radial-gradient(900px_500px_at_10%_110%,#1d2b28_0%,transparent_60%),linear-gradient(160deg,#1a1410_0%,#241a13_100%)]" />
+          <div className="h-full w-full bg-[radial-gradient(1100px_480px_at_80%_-10%,#3A6A94_0%,transparent_55%),radial-gradient(900px_420px_at_5%_110%,#8FC4AD_0%,transparent_50%),linear-gradient(165deg,#214A72_0%,#102A43_100%)]" />
         )}
       </div>
 
-      {/* Legibility scrim. Required for WCAG contrast over any photograph. */}
       <div
-        className="absolute inset-0 bg-gradient-to-b from-ink/75 via-ink/55 to-ink/80"
+        className="absolute inset-0 bg-gradient-to-t from-navy/75 via-navy/30 to-navy/10"
         aria-hidden="true"
       />
 
-      <div className="relative">{children}</div>
+      <div className="relative flex min-h-[min(86vh,760px)] flex-col justify-end pb-20 pt-24 sm:pb-24 sm:pt-28">
+        {children}
+      </div>
     </div>
   );
 }

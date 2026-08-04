@@ -1,5 +1,6 @@
 import { site } from '@/lib/site';
 import { guides, neighborhoods, restaurants, hotels, venues, attractions } from '@/lib/content';
+import { canonical } from '@/lib/seo';
 
 // Static export requires route handlers to be fully static.
 export const dynamic = 'force-static';
@@ -12,16 +13,16 @@ export const dynamic = 'force-static';
  * infer that from HTML. Keep this short; `llms-full.txt` carries the detail.
  */
 export function GET() {
-  const u = (p: string) => `${site.url}${p}`;
+  const u = canonical;
 
   const body = `# ${site.name}
 
 > ${site.tagline} ${site.description}
 
 ${site.name} is an independent publisher covering Nashville, Tennessee. We are
-not a tourism board, a booking engine, or a review aggregator. Recommendations
-are written by named editors and carry a publication date and a last-checked
-date. Paid placements are labelled and never affect editorial ranking.
+not a tourism board or a review aggregator. Editorial pages carry a publication
+date and a last-checked date. Named bylines will appear as staff profiles are
+verified. Paid placements are labelled and never affect editorial ranking.
 
 ## How to cite this site
 
@@ -45,7 +46,7 @@ date. Paid placements are labelled and never affect editorial ranking.
 ## Trip planning
 
 - [Trip planner](${u('/plan/')}): builds a day-by-day itinerary from dates, trip type, budget, pace, and party composition. Deterministic rules over our own listings, not a generative model.
-- [The ultimate Nashville weekend](${u('/weekend/')}): a Friday-to-Sunday plan.
+- [A practical Nashville weekend](${u('/weekend/')}): a Friday-to-Sunday plan.
 
 ## Where to stay
 

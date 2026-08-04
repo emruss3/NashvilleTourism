@@ -17,9 +17,9 @@ export default function FooterNewsletter() {
     <div className="mt-12 border-t border-paper-edge pt-8">
       <div className="grid gap-8 lg:grid-cols-2">
         <div>
-          <h2 className="font-display text-lg">Nashville plans, once a week.</h2>
+          <h2 className="font-display text-lg">NASHVILLE Weekender</h2>
           <p className="mt-1 text-sm text-ink-soft">
-            New openings, weekend events, restaurant recommendations, and practical local guidance.
+            The best events, openings, restaurants, and plans for the week ahead.
           </p>
         </div>
         <NewsletterForm location="footer" />

@@ -36,17 +36,17 @@ export function VerificationBadge({
   const config = {
     verified: {
       label: `Verified ${formatDateShort(date)}`,
-      classes: 'bg-moss-wash text-moss border-moss/20',
+      classes: 'bg-mint-wash text-moss border-mint/40',
       icon: '✓',
     },
     'needs-recheck': {
       label: `Last checked ${formatDateShort(date)}`,
-      classes: 'bg-paper-sunk text-ink-soft border-paper-edge',
+      classes: 'bg-sky text-ink-soft border-paper-edge',
       icon: '↻',
     },
     unverified: {
       label: 'Sample data, not yet verified',
-      classes: 'bg-clay-wash text-clay-deep border-clay/20',
+      classes: 'bg-dogwood/50 text-clay-deep border-clay/25',
       icon: '!',
     },
   }[status];
@@ -118,7 +118,7 @@ export function Byline({
   readingTime,
 }: {
   authorName: string;
-  authorSlug: string;
+  authorSlug?: string;
   editorName?: string;
   published: string;
   updated?: string;
@@ -128,9 +128,13 @@ export function Byline({
     <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-y border-paper-edge py-3 text-sm text-ink-soft">
       <span>
         By{' '}
-        <Link href={`/authors/${authorSlug}/`} className="font-semibold text-ink underline underline-offset-2 hover:text-clay">
-          {authorName}
-        </Link>
+        {authorSlug ? (
+          <Link href={`/authors/${authorSlug}/`} className="font-semibold text-ink underline underline-offset-2 hover:text-clay">
+            {authorName}
+          </Link>
+        ) : (
+          <span className="font-semibold text-ink">{authorName}</span>
+        )}
       </span>
       {editorName && <span className="text-ink-faint">Edited by {editorName}</span>}
       <span className="text-ink-faint">
@@ -152,12 +156,10 @@ export function Byline({
  */
 export function DemoDataNotice() {
   return (
-    <div className="border-b border-clay/20 bg-clay-wash">
-      <div className="shell flex flex-wrap items-center justify-center gap-x-2 gap-y-1 py-2 text-center text-sm text-clay-deep">
-        <strong className="font-semibold">Demonstration build.</strong>
-        <span>
-          Listings are sample records that have not been verified. Do not rely on them for planning.
-        </span>
+    <div className="border-b border-paper-edge bg-sky">
+      <div className="shell py-1.5 text-center text-2xs text-ink-faint sm:text-sm">
+        <strong className="font-semibold text-ink">Demonstration build.</strong>{' '}
+        Sample listings — not for planning.
       </div>
     </div>
   );

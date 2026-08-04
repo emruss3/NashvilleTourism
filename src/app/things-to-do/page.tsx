@@ -3,7 +3,7 @@ import { JsonLd, Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui'
 import { AttractionCard } from '@/components/Cards';
 import { HowWeChooseCallout } from '@/components/Trust';
 import { attractions, guides } from '@/lib/content';
-import { buildMetadata, itemListSchema } from '@/lib/seo';
+import { buildMetadata, isIndexableRecord, itemListSchema } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Things to Do in Nashville',
@@ -21,7 +21,9 @@ export default function ThingsToDoIndex() {
     <div className="shell pb-16">
       <JsonLd
         data={itemListSchema(
-          attractions.map((x) => ({ name: x.title, url: `/things-to-do/${x.slug}/`, description: x.summary })),
+          attractions
+            .filter(isIndexableRecord)
+            .map((x) => ({ name: x.title, url: `/things-to-do/${x.slug}/`, description: x.summary })),
           'Things to Do in Nashville',
         )}
       />
@@ -78,7 +80,7 @@ export default function ThingsToDoIndex() {
                   href={`/guides/${g.slug}/`}
                   className="block rounded-card border border-paper-edge bg-white p-4 transition-shadow hover:shadow-lift"
                 >
-                  <span className="font-display text-lg">{g.title}</span>
+                  <span className="font-sans text-lg font-bold">{g.title}</span>
                   <span className="mt-1 block text-[15px] text-ink-soft">{g.summary}</span>
                 </Link>
               </li>

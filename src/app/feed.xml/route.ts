@@ -1,5 +1,6 @@
 import { site } from '@/lib/site';
 import { guides, getAuthor } from '@/lib/content';
+import { canonical } from '@/lib/seo';
 
 export const dynamic = 'force-static';
 
@@ -16,8 +17,9 @@ export function GET() {
   const items = [...guides]
     .sort((a, b) => (b.dateUpdated ?? b.datePublished).localeCompare(a.dateUpdated ?? a.datePublished))
     .map((g) => {
-      const author = getAuthor(g.authorSlug);
-      const url = `${site.url}/guides/${g.slug}/`;
+      const candidate = getAuthor(g.authorSlug);
+      const author = candidate && !candidate.name.startsWith('[') ? candidate : undefined;
+      const url = canonical(`/guides/${g.slug}/`);
       const pub = new Date(`${g.dateUpdated ?? g.datePublished}T09:00:00Z`).toUTCString();
       return `    <item>
       <title>${esc(g.title)}</title>
@@ -25,7 +27,7 @@ export function GET() {
       <guid isPermaLink="true">${url}</guid>
       <pubDate>${pub}</pubDate>
       <category>${esc(g.cluster)}</category>
-      <dc:creator>${esc(author?.name ?? 'Editorial desk')}</dc:creator>
+      <dc:creator>${esc(author?.name ?? 'NASHVILLE Editorial Desk')}</dc:creator>
       <description>${esc(g.shortAnswer)}</description>
     </item>`;
     })
@@ -35,8 +37,8 @@ export function GET() {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
     <title>${esc(site.name)}</title>
-    <link>${site.url}</link>
-    <atom:link href="${site.url}/feed.xml" rel="self" type="application/rss+xml" />
+    <link>${canonical('/')}</link>
+    <atom:link href="${canonical('/feed.xml')}" rel="self" type="application/rss+xml" />
     <description>${esc(site.description)}</description>
     <language>en-us</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>

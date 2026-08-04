@@ -5,7 +5,7 @@ import { AttractionCard, PhotoSlot } from '@/components/Cards';
 import { PlacementLabel, VerificationBadge, formatDate } from '@/components/Trust';
 import { attractions, getAttraction } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
-import { attractionSchema, buildMetadata } from '@/lib/seo';
+import { attractionSchema, buildMetadata, isIndexableRecord } from '@/lib/seo';
 
 export function generateStaticParams() {
   return attractions.map((a) => ({ slug: a.slug }));
@@ -20,6 +20,7 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
     path: `/things-to-do/${a.slug}/`,
     type: 'article',
     modifiedTime: a.dateUpdated || a.dateChecked,
+    noindex: !isIndexableRecord(a),
   });
 }
 
@@ -34,7 +35,9 @@ export default function AttractionPage({ params }: { params: { slug: string } })
 
   return (
     <div className="shell pb-16">
-      <JsonLd data={attractionSchema(a, `/things-to-do/${a.slug}/`)} />
+      {isIndexableRecord(a) && (
+        <JsonLd data={attractionSchema(a, `/things-to-do/${a.slug}/`)} />
+      )}
       <Breadcrumbs
         trail={[
           { name: 'Things to Do', href: '/things-to-do/' },

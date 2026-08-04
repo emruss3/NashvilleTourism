@@ -1,15 +1,26 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { primaryNav, secondaryNav, site } from '@/lib/site';
+import { primaryNav, secondaryNav } from '@/lib/site';
+import Wordmark from './Wordmark';
 
 export default function Header() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const isActive = (href: string) => {
+    if (href === '/where-to-stay/') {
+      return pathname.startsWith('/where-to-stay') || pathname.startsWith('/hotels');
+    }
+    if (href === '/music/') {
+      return pathname.startsWith('/music') || pathname.startsWith('/live-music-tonight');
+    }
+    return pathname === href || pathname.startsWith(href);
+  };
 
-  // Close on Escape and restore focus to the trigger.
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
@@ -22,7 +33,6 @@ export default function Header() {
     return () => document.removeEventListener('keydown', onKey);
   }, [open]);
 
-  // Prevent background scroll while the drawer is open.
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
     return () => {
@@ -31,43 +41,46 @@ export default function Header() {
   }, [open]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-paper-edge bg-paper/95 backdrop-blur supports-[backdrop-filter]:bg-paper/85">
-      <div className="shell flex h-16 items-center gap-6">
-        <Link href="/" className="flex shrink-0 items-baseline gap-1.5" aria-label={`${site.name} home`}>
-          <span className="font-display text-[22px] font-bold tracking-tight text-ink">{site.name}</span>
-        </Link>
+    <header className="sticky top-0 z-50 border-b border-ink/10 bg-paper/95 backdrop-blur-md">
+      <div className="shell flex h-16 items-center gap-4 lg:h-[4.5rem] lg:gap-6">
+        <Wordmark priority />
 
-        <nav aria-label="Primary" className="hidden lg:block">
-          <ul className="flex items-center gap-5">
-            {primaryNav.map((item) => (
+        <nav aria-label="Primary" className="hidden min-w-0 flex-1 lg:block">
+          <ul className="flex items-center justify-center gap-0.5 xl:gap-1">
+            {primaryNav.map((item) => {
+              const active = isActive(item.href);
+              return (
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="text-[15px] font-medium text-ink-soft transition-colors hover:text-clay"
+                  aria-current={active ? 'page' : undefined}
+                  className={`inline-flex border-b-2 px-2.5 py-2 font-sans text-[13px] font-semibold transition-colors xl:px-3 xl:text-[14px] ${
+                    active ? 'border-clay text-clay' : 'border-transparent text-ink hover:text-clay'
+                  }`}
                 >
                   {item.label}
                 </Link>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1.5 lg:ml-0">
           <Link
             href="/search/"
-            className="btn-quiet px-3"
+            className="inline-flex items-center justify-center rounded p-2.5 text-ink transition-colors hover:bg-sky/60 hover:text-clay"
             aria-label="Search the site"
           >
             <SearchIcon />
-            <span className="hidden sm:inline">Search</span>
           </Link>
-          <Link href="/plan/" className="btn-primary hidden sm:inline-flex">
-            Plan My Trip
+          <Link href="/plan/" className="btn-primary hidden px-4 py-2 font-sans sm:inline-flex">
+            Plan Your Trip
           </Link>
           <button
             ref={toggleRef}
             type="button"
-            className="btn-secondary px-3 lg:hidden"
+            className="inline-flex items-center justify-center rounded border border-ink/15 bg-paper-card p-2.5 text-ink transition-colors hover:border-clay hover:text-clay lg:hidden"
             aria-expanded={open}
             aria-controls="mobile-nav"
             onClick={() => setOpen((v) => !v)}
@@ -78,42 +91,47 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile drawer */}
       {open && (
         <div className="lg:hidden">
           <div
-            className="fixed inset-0 top-16 z-40 bg-ink/20"
+            className="fixed inset-0 top-16 z-40 bg-ink/30"
             onClick={() => setOpen(false)}
             aria-hidden="true"
           />
           <div
             ref={drawerRef}
             id="mobile-nav"
-            className="fixed inset-x-0 top-16 z-50 max-h-[calc(100vh-4rem)] overflow-y-auto border-b border-paper-edge bg-paper shadow-lift"
+            className="fixed inset-x-0 top-16 z-50 max-h-[calc(100vh-4rem)] overflow-y-auto border-b border-paper-edge bg-paper-card shadow-card"
           >
-            <nav aria-label="Mobile" className="shell py-4">
+            <nav aria-label="Mobile" className="shell py-3">
               <ul className="divide-y divide-paper-edge">
-                {primaryNav.map((item) => (
+                {primaryNav.map((item) => {
+                  const active = isActive(item.href);
+                  return (
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="block py-3 text-base font-medium text-ink hover:text-clay"
+                      aria-current={active ? 'page' : undefined}
+                      className={`block py-3.5 font-sans text-[15px] font-semibold ${
+                        active ? 'text-clay' : 'text-ink hover:text-clay'
+                      }`}
                       onClick={() => setOpen(false)}
                     >
                       {item.label}
                     </Link>
                   </li>
-                ))}
+                  );
+                })}
               </ul>
-              <p className="mt-4 text-2xs font-bold uppercase tracking-wider text-ink-faint">
+              <p className="mt-4 text-2xs font-bold uppercase tracking-[0.14em] text-ink-faint">
                 More
               </p>
-              <ul className="divide-y divide-paper-edge">
+              <ul className="mt-1 divide-y divide-paper-edge">
                 {secondaryNav.map((item) => (
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="block py-2.5 text-[15px] text-ink-soft hover:text-clay"
+                      className="block py-3 text-[14px] font-medium text-ink-soft hover:text-clay"
                       onClick={() => setOpen(false)}
                     >
                       {item.label}
@@ -123,10 +141,10 @@ export default function Header() {
               </ul>
               <Link
                 href="/plan/"
-                className="btn-primary mt-4 w-full"
+                className="btn-primary mt-5 w-full font-sans"
                 onClick={() => setOpen(false)}
               >
-                Plan My Trip
+                Plan Your Trip
               </Link>
             </nav>
           </div>
@@ -138,7 +156,7 @@ export default function Header() {
 
 function SearchIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
       <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.8" />
       <path d="m13.5 13.5 3.5 3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>

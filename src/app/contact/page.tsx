@@ -8,6 +8,7 @@ export const metadata = buildMetadata({
   description:
     'How to reach the right person: general questions, editorial and story pitches, corrections, and advertising, plus our postal address.',
   path: '/contact/',
+  noindex: true,
 });
 
 export default function ContactPage() {

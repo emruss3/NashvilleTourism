@@ -8,6 +8,7 @@ export const metadata = buildMetadata({
   description:
     'What is for sale on this site, what is not for sale at any price, how paid content is labeled, and how affiliate commissions work.',
   path: '/advertising/',
+  noindex: true,
 });
 
 export default function AdvertisingPage() {

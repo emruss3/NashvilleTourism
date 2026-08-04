@@ -1,9 +1,8 @@
 import type { Config } from 'tailwindcss';
 
 /**
- * Design system tokens.
- * Direction: editorial travel. Warm neutral paper, near-black ink,
- * one restrained clay accent. No gradients, no neon, no black-and-gold.
+ * Design tokens — NASHVILLE updated brand guide §4–5.
+ * Light-first: Porch Cream / Soft White dominant, navy as anchor, coral for commerce.
  */
 const config: Config = {
   content: ['./src/**/*.{ts,tsx}'],
@@ -11,31 +10,52 @@ const config: Config = {
     extend: {
       colors: {
         paper: {
-          DEFAULT: '#FCFAF7', // page background
-          sunk: '#F4F0EA', // alternating sections
-          edge: '#E7E1D8', // hairline borders
+          DEFAULT: '#F8F3E9', // Porch Cream — page background
+          sunk: '#DDECEF', // Sky Wash — alternating / editorial panels
+          edge: '#D5DCE0', // cool hairline on light grounds
+          card: '#FFFDFC', // Soft White
         },
         ink: {
-          DEFAULT: '#17140F', // headings + body
-          soft: '#4A443B', // secondary text — 9.24:1 on paper
-          // 5.69:1 on paper, 5.22:1 on paper-sunk. Do not lighten past this:
-          // the previous #7D7568 measured 4.37:1 and failed WCAG AA.
-          faint: '#6B6355',
+          DEFAULT: '#102A43', // Nashville Navy — logo, nav, headings
+          soft: '#3D5166', // secondary text
+          faint: '#5C6B7A', // metadata
+          body: '#232323', // Charcoal — body copy
         },
         clay: {
-          DEFAULT: '#A8452A', // primary accent / links
-          deep: '#83341F', // hover
-          wash: '#F6EAE4', // tinted backgrounds
+          DEFAULT: '#D95D45', // Clay Coral — primary actions
+          deep: '#C24A34', // hover
+          wash: '#F2B7AE', // Dogwood Pink
+        },
+        navy: {
+          DEFAULT: '#102A43',
+          deep: '#0B1F33',
+        },
+        cumberland: {
+          DEFAULT: '#214A72',
+        },
+        sky: {
+          DEFAULT: '#DDECEF',
+        },
+        dogwood: {
+          DEFAULT: '#F2B7AE',
+        },
+        mint: {
+          DEFAULT: '#8FC4AD', // Park Mint
+          wash: '#E5F3EC',
         },
         moss: {
-          DEFAULT: '#2F5D50', // verification / positive
-          wash: '#E8F0ED',
+          // Alias for verification / positive — maps to Park Mint system
+          DEFAULT: '#2F6B55', // darker mint for text on light
+          wash: '#E5F3EC',
+        },
+        golden: {
+          DEFAULT: '#E8B64A',
+          wash: '#FBF3DE',
         },
         gold: {
-          // Sponsored labels. Muted, not luxury gold. 5.42:1 on gold-wash;
-          // the previous #8A6A1F measured 4.44:1 and failed WCAG AA.
-          DEFAULT: '#7A5D18',
-          wash: '#F7F0DD',
+          // Sponsored labels — muted, not luxury gold
+          DEFAULT: '#8A6A1A',
+          wash: '#FBF3DE',
         },
       },
       fontFamily: {
@@ -50,12 +70,11 @@ const config: Config = {
         shell: '1200px',
       },
       borderRadius: {
-        // Restrained: cards are near-square, not pill-shaped.
-        card: '4px',
+        card: '6px',
       },
       boxShadow: {
-        card: '0 1px 2px rgba(23,20,15,0.05), 0 1px 12px rgba(23,20,15,0.04)',
-        lift: '0 4px 24px rgba(23,20,15,0.10)',
+        card: '0 1px 2px rgba(16,42,67,0.05), 0 1px 12px rgba(16,42,67,0.04)',
+        lift: '0 4px 24px rgba(16,42,67,0.10)',
       },
     },
   },

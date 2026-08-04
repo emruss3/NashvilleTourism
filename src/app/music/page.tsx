@@ -3,7 +3,7 @@ import { JsonLd, Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui'
 import { EventCard, VenueCard } from '@/components/Cards';
 import { HowWeChooseCallout } from '@/components/Trust';
 import { venues, guides, upcomingEvents } from '@/lib/content';
-import { buildMetadata, itemListSchema } from '@/lib/seo';
+import { buildMetadata, isIndexableRecord, itemListSchema } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Live Music in Nashville',
@@ -20,7 +20,9 @@ export default function MusicIndex() {
     <div className="shell pb-16">
       <JsonLd
         data={itemListSchema(
-          venues.map((x) => ({ name: x.title, url: `/music/${x.slug}/`, description: x.summary })),
+          venues
+            .filter(isIndexableRecord)
+            .map((x) => ({ name: x.title, url: `/music/${x.slug}/`, description: x.summary })),
           'Nashville Live Music Venues',
         )}
       />
@@ -61,7 +63,7 @@ export default function MusicIndex() {
                   href={`/guides/${g.slug}/`}
                   className="block rounded-card border border-paper-edge bg-white p-4 transition-shadow hover:shadow-lift"
                 >
-                  <span className="font-display text-lg">{g.title}</span>
+                  <span className="font-sans text-lg font-bold">{g.title}</span>
                   <span className="mt-1 block text-[15px] text-ink-soft">{g.summary}</span>
                 </Link>
               </li>

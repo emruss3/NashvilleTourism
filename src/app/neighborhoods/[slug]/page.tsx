@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Breadcrumbs, Chip, FactTable, JsonLd, MapLink, PageHeader, SectionHeader } from '@/components/Ui';
-import { AttractionCard, HotelCard, PhotoSlot, RestaurantCard, VenueCard } from '@/components/Cards';
+import { AttractionCard, HotelCard, RestaurantCard, VenueCard } from '@/components/Cards';
+import { SmartImage } from '@/components/Media';
 import { formatDate } from '@/components/Trust';
 import {
   neighborhoods,
@@ -12,6 +13,7 @@ import {
   attractions,
 } from '@/lib/content';
 import { buildMetadata, placeSchema } from '@/lib/seo';
+import type { ImageKey } from '@/lib/media';
 
 export function generateStaticParams() {
   return neighborhoods.map((n) => ({ slug: n.slug }));
@@ -50,7 +52,13 @@ export default function NeighborhoodPage({ params }: { params: { slug: string } 
 
       <div className="grid gap-10 py-10 lg:grid-cols-[1.6fr_1fr]">
         <div>
-          <PhotoSlot label={n.name} ratio="aspect-[16/9]" className="rounded-card" />
+          <SmartImage
+            imageKey={`neighborhood/${n.slug}` as ImageKey}
+            ratio="aspect-[16/9]"
+            className="rounded-card"
+            sizes="(max-width: 1024px) 100vw, 66vw"
+            priority
+          />
           <section className="py-8">
             <h2 className="text-2xl">The overview</h2>
             <div className="prose-editorial mt-3">
@@ -66,7 +74,7 @@ export default function NeighborhoodPage({ params }: { params: { slug: string } 
                 <li key={step.time} className="flex gap-4 border-l-2 border-paper-edge pl-4">
                   <div>
                     <p className="eyebrow">{step.time}</p>
-                    <p className="font-display text-lg">{step.activity}</p>
+                    <p className="font-sans text-lg font-bold">{step.activity}</p>
                     <p className="text-[15px] text-ink-soft">{step.note}</p>
                   </div>
                 </li>

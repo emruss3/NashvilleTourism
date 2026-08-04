@@ -1,12 +1,14 @@
 import { Breadcrumbs, PageHeader } from '@/components/Ui';
 import NewsletterForm from '@/components/NewsletterForm';
+import { NshMark } from '@/components/Wordmark';
 import { buildMetadata } from '@/lib/seo';
+import { site } from '@/lib/site';
 
 export const metadata = buildMetadata({
-  title: 'The Newsletter',
-  description:
-    'One email a week on Nashville: new openings, weekend events, restaurant recommendations, and practical local guidance.',
+  title: 'NASHVILLE Weekender',
+  description: site.newsletter.promise,
   path: '/newsletter/',
+  noindex: true,
 });
 
 export default function NewsletterPage() {
@@ -15,8 +17,8 @@ export default function NewsletterPage() {
       <Breadcrumbs trail={[{ name: 'Newsletter', href: '/newsletter/' }]} />
       <PageHeader
         eyebrow="Newsletter"
-        title="Nashville plans, once a week."
-        intro="New openings, weekend events, restaurant recommendations, and practical local guidance."
+        title={site.newsletter.name}
+        intro={site.newsletter.promise}
       />
 
       <div className="grid gap-10 py-10 lg:grid-cols-[1.2fr_1fr]">
@@ -37,8 +39,11 @@ export default function NewsletterPage() {
           </ul>
         </div>
 
-        <div className="h-fit rounded-card border border-paper-edge bg-white p-6">
-          <h2 className="font-display text-xl">Sign up</h2>
+        <div className="h-fit rounded-card border border-paper-edge bg-paper-card p-6">
+          <div className="mb-4 flex justify-center">
+            <NshMark size={64} />
+          </div>
+          <h2 className="font-display text-xl text-center">Sign up</h2>
           <div className="mt-4">
             <NewsletterForm location="newsletter-page" />
           </div>

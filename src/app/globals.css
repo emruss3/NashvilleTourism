@@ -4,8 +4,20 @@
 
 @layer base {
   :root {
-    --font-display: 'Source Serif 4', Georgia, serif;
+    /* Brand guide §5: Playfair Display (editorial) + Inter (UI). Logo is an image asset. */
+    --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+    --color-nashville-navy: #102a43;
+    --color-cumberland-blue: #214a72;
+    --color-clay-coral: #d95d45;
+    --color-dogwood-pink: #f2b7ae;
+    --color-sky-wash: #ddecef;
+    --color-park-mint: #8fc4ad;
+    --color-golden-hour: #e8b64a;
+    --color-porch-cream: #f8f3e9;
+    --color-soft-white: #fffdfc;
+    --color-charcoal: #232323;
   }
 
   html {
@@ -13,10 +25,9 @@
   }
 
   body {
-    @apply bg-paper text-ink font-sans antialiased;
+    @apply bg-paper font-sans antialiased text-ink-body;
     font-size: 17px;
     line-height: 1.65;
-    /* Clears the sticky mobile conversion bar so it never covers the footer. */
     padding-bottom: env(safe-area-inset-bottom);
   }
 
@@ -26,28 +37,46 @@
     }
   }
 
-  h1, h2, h3, h4 {
+  /* H1: Playfair Bold · H2: Playfair Semibold · H3: Inter Bold */
+  h1 {
+    @apply font-display text-ink;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  h2 {
     @apply font-display text-ink;
     font-weight: 600;
-    letter-spacing: -0.011em;
+    letter-spacing: -0.012em;
     line-height: 1.18;
     text-wrap: balance;
   }
 
-  /* Visible, high-contrast focus for keyboard users on every interactive element. */
+  h3,
+  h4 {
+    @apply font-sans text-ink;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+
   :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
     outline: 2px solid theme('colors.clay.DEFAULT');
     outline-offset: 2px;
     border-radius: 2px;
   }
 
-  /* Anchor targets clear the sticky header. */
   :target {
     scroll-margin-top: 6rem;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
@@ -61,55 +90,99 @@
     @apply mx-auto w-full max-w-shell px-5 sm:px-6 lg:px-8;
   }
 
-  /* Skip link: offscreen until focused. */
   .skip-link {
-    @apply absolute left-4 z-[100] -translate-y-24 rounded bg-ink px-4 py-2 text-white transition-transform focus:translate-y-4;
+    @apply absolute left-4 z-[100] -translate-y-24 rounded bg-ink px-4 py-2 text-paper-card transition-transform focus:translate-y-4;
   }
 
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded border px-4 py-2.5 text-sm font-semibold transition-colors;
   }
+
+  /* Primary — Clay Coral commerce CTAs */
   .btn-primary {
-    @apply btn border-clay bg-clay text-white hover:border-clay-deep hover:bg-clay-deep;
+    @apply btn border-clay bg-clay text-paper-card hover:border-clay-deep hover:bg-clay-deep;
   }
+
+  /* Secondary — Nashville Navy */
   .btn-secondary {
-    @apply btn border-paper-edge bg-white text-ink hover:border-ink hover:bg-paper-sunk;
+    @apply btn border-ink bg-ink text-paper-card hover:border-navy-deep hover:bg-navy-deep;
   }
+
+  /* Tertiary — cream / navy outline */
+  .btn-tertiary {
+    @apply btn border-ink bg-paper-card text-ink hover:bg-paper;
+  }
+
+  /* Quiet / ghost */
   .btn-quiet {
-    @apply btn border-transparent bg-transparent text-ink-soft hover:bg-paper-sunk hover:text-ink;
+    @apply btn border-transparent bg-transparent text-ink-soft hover:bg-sky hover:text-ink;
+  }
+
+  /* Positive / local-experience */
+  .btn-positive {
+    @apply btn border-mint bg-mint text-ink hover:brightness-95;
   }
 
   .eyebrow {
-    @apply text-2xs font-semibold uppercase tracking-[0.14em] text-ink-faint;
+    @apply text-2xs font-bold uppercase tracking-[0.14em] text-ink-faint;
   }
 
   .card {
-    @apply rounded-card border border-paper-edge bg-white transition-shadow hover:shadow-lift;
+    @apply rounded-card border border-paper-edge bg-paper-card transition-[border-color,box-shadow] hover:border-ink/15 hover:shadow-card;
   }
 
   .field-label {
     @apply mb-1.5 block text-sm font-semibold text-ink;
   }
+
   .field-input {
-    @apply w-full rounded border border-paper-edge bg-white px-3 py-2.5 text-[15px] text-ink placeholder:text-ink-faint focus:border-clay;
+    @apply w-full rounded border border-paper-edge bg-paper-card px-3 py-2.5 text-[15px] text-ink-body placeholder:text-ink-faint focus:border-clay;
   }
 
   .prose-editorial {
     @apply max-w-prose text-[17px] leading-[1.75] text-ink-soft;
   }
+
   .prose-editorial p + p {
     @apply mt-4;
   }
+
   .prose-editorial a {
     @apply text-clay underline decoration-clay/30 underline-offset-2 hover:decoration-clay;
   }
 
-  /* Typographic stand-in used wherever a photograph has not been licensed yet.
-     Deliberately not an AI-generated image. */
   .photo-slot {
-    @apply relative flex items-center justify-center overflow-hidden bg-paper-sunk;
+    @apply relative overflow-hidden bg-sky;
     background-image:
-      linear-gradient(135deg, rgba(168, 69, 42, 0.05) 0%, transparent 55%),
-      linear-gradient(45deg, rgba(47, 93, 80, 0.05) 0%, transparent 55%);
+      linear-gradient(160deg, rgba(16, 42, 67, 0.04) 0%, transparent 50%),
+      linear-gradient(45deg, rgba(217, 93, 69, 0.08) 0%, transparent 55%),
+      linear-gradient(135deg, rgba(143, 196, 173, 0.12) 0%, transparent 60%);
+  }
+
+  .star-mark {
+    color: theme('colors.clay.DEFAULT');
+  }
+}
+
+@layer utilities {
+  @keyframes hero-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-hero-in {
+    animation: hero-in 0.55s ease-out both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-hero-in {
+      animation: none;
+    }
   }
 }

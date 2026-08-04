@@ -17,6 +17,7 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
     description: a.bio,
     path: `/authors/${a.slug}/`,
     type: 'article',
+    noindex: a.name.startsWith('['),
   });
 }
 
@@ -29,7 +30,7 @@ export default function AuthorPage({ params }: { params: { slug: string } }) {
 
   return (
     <div className="shell pb-16">
-      <JsonLd data={personSchema(a)} />
+      {!a.name.startsWith('[') && <JsonLd data={personSchema(a)} />}
       <Breadcrumbs
         trail={[
           { name: 'Authors', href: '/authors/' },

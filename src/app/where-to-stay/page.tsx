@@ -163,7 +163,7 @@ export default function WhereToStayHub() {
           {SITUATIONS.map((s) => (
             <li key={s.slug}>
               <article className="card group relative flex h-full flex-col gap-2 p-5">
-                <h3 className="font-display text-lg leading-snug">
+                <h3 className="font-sans text-lg font-bold leading-snug">
                   <Link
                     href={`/where-to-stay/${s.slug}/`}
                     className="after:absolute after:inset-0 hover:text-clay"

@@ -1,5 +1,6 @@
 import { site } from '@/lib/site';
 import { guides, neighborhoods, getAuthor } from '@/lib/content';
+import { canonical } from '@/lib/seo';
 
 export const dynamic = 'force-static';
 
@@ -12,18 +13,19 @@ export const dynamic = 'force-static';
  * block, because an answer without a date or an author is not citable.
  */
 export function GET() {
-  const u = (p: string) => `${site.url}${p}`;
+  const u = canonical;
 
   const guideBlocks = guides
     .map((g) => {
-      const author = getAuthor(g.authorSlug);
+      const candidate = getAuthor(g.authorSlug);
+      const author = candidate && !candidate.name.startsWith('[') ? candidate : undefined;
       const faqs = g.faqs
         .map((f) => `**Q: ${f.question}**\nA: ${f.answer}`)
         .join('\n\n');
       return `### ${g.title}
 
 - URL: ${u(`/guides/${g.slug}/`)}
-- Author: ${author?.name ?? 'Editorial desk'}${author?.role ? ` (${author.role})` : ''}
+- Author: ${author?.name ?? 'NASHVILLE Editorial Desk'}${author?.role ? ` (${author.role})` : ''}
 - Published: ${g.datePublished}
 - Last updated: ${g.dateUpdated ?? g.datePublished}
 - Verification: ${g.dataStatus}

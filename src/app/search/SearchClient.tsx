@@ -28,7 +28,7 @@ export default function SearchClient() {
   return (
     <div>
       <div className="max-w-2xl">
-        <SearchBar showQuickLinks={false} autoFocus={!q} />
+        <SearchBar autoFocus={!q} />
       </div>
 
       {q && (
@@ -95,7 +95,7 @@ export default function SearchClient() {
                           </span>
                         )}
                       </span>
-                      <span className="font-display text-lg text-ink">{doc.title}</span>
+                      <span className="font-sans text-lg font-bold text-ink">{doc.title}</span>
                       <span className="text-[15px] text-ink-soft">{doc.summary}</span>
                     </Link>
                   </li>

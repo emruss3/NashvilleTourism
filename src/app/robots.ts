@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { site } from '@/lib/site';
+import { canonical } from '@/lib/seo';
 
 /**
  * Crawler policy.
@@ -59,7 +60,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: '/',
       },
     ],
-    sitemap: `${site.url}/sitemap.xml`,
+    sitemap: canonical('/sitemap.xml'),
     host: site.url,
   };
 }

@@ -10,9 +10,9 @@ import type { SearchDoc } from '@/lib/types';
 const QUICK_LINKS = [
   { label: 'This Weekend', href: '/events/this-weekend/' },
   { label: 'Best Restaurants', href: '/guides/best-restaurants-nashville/' },
-  { label: 'Live Music Tonight', href: '/music/' },
-  { label: 'Where to Stay', href: '/guides/where-to-stay-nashville/' },
-  { label: 'New Openings', href: '/events/' },
+  { label: 'Live Music Tonight', href: '/live-music-tonight/' },
+  { label: 'Where to Stay', href: '/where-to-stay/' },
+  { label: 'First Visit', href: '/guides/nashville-first-time-visitors/' },
 ];
 
 /**
@@ -166,7 +166,7 @@ export default function SearchBar({
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-full border border-paper-edge bg-white px-3 py-1 text-sm text-ink-soft transition-colors hover:border-clay hover:text-clay"
+              className="rounded border border-paper-edge bg-white px-3 py-1 text-sm text-ink-soft transition-colors hover:border-clay hover:text-clay"
             >
               {l.label}
             </Link>

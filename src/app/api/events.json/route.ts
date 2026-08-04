@@ -1,5 +1,6 @@
 import { site } from '@/lib/site';
 import { getCalendar } from '@/lib/feeds/calendar';
+import { canonical } from '@/lib/seo';
 
 export const dynamic = 'force-static';
 
@@ -9,7 +10,7 @@ export async function GET() {
 
   return Response.json(
     {
-      publisher: { name: site.name, url: site.url },
+      publisher: { name: site.name, url: canonical('/') },
       source: live ? 'ticketmaster' : 'seed',
       note: live
         ? 'Event data supplied by Ticketmaster. Confirm with the venue before acting.'

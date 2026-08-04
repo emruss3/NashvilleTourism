@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Breadcrumbs, Chip, FactTable, MapLink, PageHeader, SectionHeader } from '@/components/Ui';
+import { Breadcrumbs, Chip, FactTable, JsonLd, MapLink, PageHeader, SectionHeader } from '@/components/Ui';
 import { PhotoSlot, VenueCard } from '@/components/Cards';
 import { PlacementLabel, VerificationBadge, formatDate } from '@/components/Trust';
 import { venues, getVenue } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, isIndexableRecord, musicVenueSchema } from '@/lib/seo';
 
 export function generateStaticParams() {
   return venues.map((v) => ({ slug: v.slug }));
@@ -20,6 +20,7 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
     path: `/music/${v.slug}/`,
     type: 'article',
     modifiedTime: v.dateUpdated || v.dateChecked,
+    noindex: !isIndexableRecord(v),
   });
 }
 
@@ -32,6 +33,9 @@ export default function VenuePage({ params }: { params: { slug: string } }) {
 
   return (
     <div className="shell pb-16">
+      {isIndexableRecord(v) && (
+        <JsonLd data={musicVenueSchema(v, `/music/${v.slug}/`)} />
+      )}
       <Breadcrumbs
         trail={[
           { name: 'Music', href: '/music/' },
