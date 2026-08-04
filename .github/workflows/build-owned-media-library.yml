@@ -1,0 +1,52 @@
+name: Build owned Nashville media library
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/build_owned_media_library.py'
+      - '.github/workflows/build-owned-media-library.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-media-library:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install crawler dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 lxml pillow yt-dlp
+
+      - name: Build source inventory
+        run: |
+          python scripts/build_owned_media_library.py --output owned-media-library
+
+      - name: Show inventory summary
+        if: always()
+        run: |
+          find owned-media-library -maxdepth 2 -type f -printf '%p %k KB\n' | sort | head -300 || true
+          du -sh owned-media-library || true
+          cat owned-media-library/README.md || true
+
+      - name: Upload owned media library
+        uses: actions/upload-artifact@v4
+        with:
+          name: owned-nashville-media-library
+          path: owned-media-library/
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 7
