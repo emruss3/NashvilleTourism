@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-display: 'Source Serif 4', Georgia, serif;
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+    font-size: 17px;
+    line-height: 1.65;
+    /* Clears the sticky mobile conversion bar so it never covers the footer. */
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  @media (max-width: 1023px) {
+    body {
+      padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+    }
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display text-ink;
+    font-weight: 600;
+    letter-spacing: -0.011em;
+    line-height: 1.18;
+    text-wrap: balance;
+  }
+
+  /* Visible, high-contrast focus for keyboard users on every interactive element. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid theme('colors.clay.DEFAULT');
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* Anchor targets clear the sticky header. */
+  :target {
+    scroll-margin-top: 6rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .shell {
+    @apply mx-auto w-full max-w-shell px-5 sm:px-6 lg:px-8;
+  }
+
+  /* Skip link: offscreen until focused. */
+  .skip-link {
+    @apply absolute left-4 z-[100] -translate-y-24 rounded bg-ink px-4 py-2 text-white transition-transform focus:translate-y-4;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded border px-4 py-2.5 text-sm font-semibold transition-colors;
+  }
+  .btn-primary {
+    @apply btn border-clay bg-clay text-white hover:border-clay-deep hover:bg-clay-deep;
+  }
+  .btn-secondary {
+    @apply btn border-paper-edge bg-white text-ink hover:border-ink hover:bg-paper-sunk;
+  }
+  .btn-quiet {
+    @apply btn border-transparent bg-transparent text-ink-soft hover:bg-paper-sunk hover:text-ink;
+  }
+
+  .eyebrow {
+    @apply text-2xs font-semibold uppercase tracking-[0.14em] text-ink-faint;
+  }
+
+  .card {
+    @apply rounded-card border border-paper-edge bg-white transition-shadow hover:shadow-lift;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-sm font-semibold text-ink;
+  }
+  .field-input {
+    @apply w-full rounded border border-paper-edge bg-white px-3 py-2.5 text-[15px] text-ink placeholder:text-ink-faint focus:border-clay;
+  }
+
+  .prose-editorial {
+    @apply max-w-prose text-[17px] leading-[1.75] text-ink-soft;
+  }
+  .prose-editorial p + p {
+    @apply mt-4;
+  }
+  .prose-editorial a {
+    @apply text-clay underline decoration-clay/30 underline-offset-2 hover:decoration-clay;
+  }
+
+  /* Typographic stand-in used wherever a photograph has not been licensed yet.
+     Deliberately not an AI-generated image. */
+  .photo-slot {
+    @apply relative flex items-center justify-center overflow-hidden bg-paper-sunk;
+    background-image:
+      linear-gradient(135deg, rgba(168, 69, 42, 0.05) 0%, transparent 55%),
+      linear-gradient(45deg, rgba(47, 93, 80, 0.05) 0%, transparent 55%);
+  }
+}
