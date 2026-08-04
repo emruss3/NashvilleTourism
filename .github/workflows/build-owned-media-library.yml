@@ -2,10 +2,13 @@ name: Build owned Nashville media library
 
 on:
   pull_request:
-    branches: [main]
+    branches:
+      - main
+      - media/workflow-base
     paths:
       - 'scripts/build_owned_media_library.py'
       - '.github/workflows/build-owned-media-library.yml'
+      - '.media-run-trigger'
   workflow_dispatch:
 
 permissions:
