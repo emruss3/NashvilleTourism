@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Breadcrumbs, MapLink, PageHeader, SectionHeader } from '@/components/Ui';
+import { Breadcrumbs, MapLink, PageHeader, ScrollableTable, SectionHeader } from '@/components/Ui';
 import { AffiliateDisclosure } from '@/components/Trust';
 import BookingLink from '@/components/BookingLink';
 import { partners } from '@/lib/partners';
@@ -135,7 +135,7 @@ export default function HonkyTonkHighway() {
           title="Block by block"
           description="What sits on each stretch, so you can start at the right end instead of walking the strip twice."
         />
-        <div className="overflow-x-auto rounded-card border border-paper-edge bg-white">
+        <ScrollableTable label="Lower Broadway blocks and what sits on each">
           <table className="w-full min-w-[720px] border-collapse text-left text-sm">
             <caption className="sr-only">
               Lower Broadway and the surrounding downtown blocks, with what sits on each, how busy it
@@ -170,7 +170,7 @@ export default function HonkyTonkHighway() {
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollableTable>
         <p className="mt-3 max-w-prose text-sm text-ink-faint">
           Bars on the strip open, close, and change hands often. Treat this as orientation to the
           geography rather than a list of businesses, and check any specific venue&rsquo;s own hours
@@ -180,7 +180,7 @@ export default function HonkyTonkHighway() {
 
       <section className="py-6">
         <SectionHeader eyebrow="Timing" title="When to go" />
-        <div className="overflow-x-auto rounded-card border border-paper-edge bg-white">
+        <ScrollableTable label="Crowd levels on Lower Broadway by day and time">
           <table className="w-full min-w-[640px] border-collapse text-left text-sm">
             <caption className="sr-only">
               Crowd levels on Lower Broadway by day and time, with what to expect in each window.
@@ -210,7 +210,7 @@ export default function HonkyTonkHighway() {
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollableTable>
         <p className="mt-3 max-w-prose text-sm text-ink-faint">
           Festival weekends, football Sundays, and arena events override all of this. Check the
           arena and Ryman calendars before you pick a night.

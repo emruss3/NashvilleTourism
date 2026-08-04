@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
+import { Breadcrumbs, PageHeader, ScrollableTable, SectionHeader } from '@/components/Ui';
 import { HotelCard } from '@/components/Cards';
 import { AffiliateDisclosure } from '@/components/Trust';
 import BookingWidget from '@/components/BookingWidget';
@@ -187,7 +187,7 @@ export default function WhereToStayHub() {
           title="Compare the areas"
           description="Walk times are across the district, not from one address. Rate bands are planning estimates only."
         />
-        <div className="overflow-x-auto rounded-card border border-paper-edge bg-white">
+        <ScrollableTable label="Nashville lodging areas compared side by side">
           <table className="w-full min-w-[760px] border-collapse text-left text-sm">
             <caption className="sr-only">
               Nashville lodging areas compared by who they suit, walk time to Lower Broadway, night
@@ -232,7 +232,7 @@ export default function WhereToStayHub() {
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollableTable>
         <p className="mt-3 max-w-prose text-sm text-ink-faint">
           Rate bands are broad planning ranges for a standard room, not quotes. Nashville pricing
           swings hard around festivals, football weekends, and big arena shows. Check current rates

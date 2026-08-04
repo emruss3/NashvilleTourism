@@ -151,6 +151,33 @@ export function FactTable({ rows }: { rows: { label: string; value: React.ReactN
   );
 }
 
+/**
+ * Wrapper for wide tables.
+ *
+ * A container that scrolls horizontally must be reachable by keyboard,
+ * otherwise a keyboard-only user cannot see the columns that overflow. Making
+ * it a labelled region with tabIndex={0} satisfies WCAG 2.1.1 and is what axe's
+ * `scrollable-region-focusable` rule checks for.
+ */
+export function ScrollableTable({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      role="region"
+      aria-label={label}
+      tabIndex={0}
+      className="overflow-x-auto rounded-card border border-paper-edge bg-white"
+    >
+      {children}
+    </div>
+  );
+}
+
 export function Chip({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-flex items-center rounded border border-paper-edge bg-paper-sunk px-2 py-0.5 text-2xs font-medium text-ink-soft">
