@@ -7,6 +7,7 @@ on:
       - media/workflow-base
     paths:
       - 'scripts/build_owned_media_library.py'
+      - 'scripts/build_owned_media_library_fast.py'
       - '.github/workflows/build-owned-media-library.yml'
       - '.media-run-trigger'
   workflow_dispatch:
@@ -17,7 +18,7 @@ permissions:
 jobs:
   build-media-library:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 20
 
     steps:
       - name: Check out repository
@@ -35,7 +36,7 @@ jobs:
 
       - name: Build source inventory
         run: |
-          python scripts/build_owned_media_library.py --output owned-media-library
+          python scripts/build_owned_media_library_fast.py
 
       - name: Show inventory summary
         if: always()
@@ -47,7 +48,7 @@ jobs:
       - name: Upload owned media library
         uses: actions/upload-artifact@v4
         with:
-          name: owned-nashville-media-library
+          name: owned-nashville-media-library-fast
           path: owned-media-library/
           if-no-files-found: error
           compression-level: 6
