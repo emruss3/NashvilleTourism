@@ -6,6 +6,7 @@ on:
       - media/workflow-base
     paths:
       - 'scripts/download_supplemental_nashville_media.py'
+      - 'scripts/download_supplemental_nashville_media_v2.py'
       - '.github/workflows/build-supplemental-media.yml'
       - '.supplemental-media-trigger'
   workflow_dispatch:
@@ -16,7 +17,7 @@ permissions:
 jobs:
   build-supplemental-media:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - name: Check out repository
@@ -31,7 +32,7 @@ jobs:
         run: pip install requests pillow
 
       - name: Download and optimize licensed media
-        run: python scripts/download_supplemental_nashville_media.py
+        run: python scripts/download_supplemental_nashville_media_v2.py
 
       - name: Print manifest
         if: always()
@@ -40,6 +41,7 @@ jobs:
           du -sh nashville-supplemental-media || true
 
       - name: Upload supplemental media
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: nashville-supplemental-media
