@@ -127,10 +127,44 @@ all internal links resolve, all page titles and descriptions are unique.
 
 - Statically generated, semantic HTML
 - Unique title + description + canonical per page
-- JSON-LD: Organization, WebSite, BreadcrumbList, Article, FAQPage, Person,
-  Restaurant, Hotel, Event, TouristAttraction, Place
+- JSON-LD: Organization/NewsMediaOrganization, WebSite, BreadcrumbList,
+  Article, FAQPage, ItemList, Speakable, Person, Restaurant, Hotel, Event,
+  TouristAttraction, Place
 - `sitemap.xml` and `robots.txt` generated from content
 - Search results are `noindex` and disallowed, to avoid thin/infinite URLs
+
+## Built for AI answer engines
+
+Assistants are a primary discovery channel for a guide like this, so the site
+exposes itself structurally rather than making a model infer meaning from HTML.
+
+| Endpoint | What it is |
+|---|---|
+| `/llms.txt` | Short site map for models, in the llmstxt.org convention |
+| `/llms-full.txt` | Full answer reference: every guide's short answer, FAQs, author, and dates |
+| `/api/listings.json` | All listings with neighborhood, category, and verification state |
+| `/api/events.json` | The event calendar |
+| `/api/index.json` | Every indexable URL with type, title, and summary |
+| `/feed.xml` | RSS 2.0 |
+
+Design decisions worth knowing:
+
+- **Provenance travels with the data.** Every record in the JSON and text
+  exports carries its verification state, check date, and author. A model can
+  therefore tell a confirmed fact from a placeholder, and the licence block
+  explicitly instructs it not to quote unverified records as fact.
+- **`robots.txt` states an explicit policy for 16 named AI agents** rather than
+  leaving access to inference. Retrieval agents that cite sources are allowed.
+  `CCBot` is disallowed, because a bulk training corpus offers no citation path
+  back to the publisher. Change that one line if the policy changes.
+- **`ItemList` on every directory page**, which is what answer engines read for
+  "best X in Nashville" queries.
+- **`Speakable` targets the `.short-answer` block**, and the `KeyFacts`
+  component gives that block a stable class and a real definition list, so the
+  passage worth quoting is unambiguous.
+- **`publishingPrinciples`, `correctionsPolicy`, and `ownershipFundingInfo`**
+  are declared on the publisher entity. These are the provenance properties the
+  major engines read, and they point at pages a reader would want anyway.
 
 ---
 

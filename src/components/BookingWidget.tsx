@@ -69,7 +69,7 @@ export default function BookingWidget({ compact = false }: { compact?: boolean }
   const active = TABS.find((t) => t.key === tab)!;
 
   return (
-    <div className="overflow-hidden rounded-card bg-white shadow-lift">
+    <div className="overflow-hidden rounded-card border border-paper-edge bg-white shadow-lift">
       {/* Tabs */}
       <div role="tablist" aria-label="What do you want to book?" className="flex border-b border-paper-edge bg-paper-sunk">
         {TABS.map((t) => {
@@ -100,11 +100,16 @@ export default function BookingWidget({ compact = false }: { compact?: boolean }
         })}
       </div>
 
-      <form
-        onSubmit={submit}
+      {/* The tabpanel role goes on a wrapper, not the form. A <form> has its own
+          implicit role and `tabpanel` is not permitted on it. */}
+      <div
         role="tabpanel"
         id={`${baseId}-panel-${tab}`}
         aria-labelledby={`${baseId}-tab-${tab}`}
+      >
+      <form
+        onSubmit={submit}
+        aria-label={`${active.label} search`}
         className={`grid gap-3 p-4 sm:p-5 ${compact ? '' : 'lg:grid-cols-[repeat(3,minmax(0,1fr))_auto]'}`}
       >
         {tab === 'hotels' && (
@@ -204,6 +209,7 @@ export default function BookingWidget({ compact = false }: { compact?: boolean }
           </button>
         </div>
       </form>
+      </div>
 
       <p className="border-t border-paper-edge bg-paper-sunk px-4 py-2 text-2xs text-ink-faint sm:px-5">
         We earn a commission on bookings made through these partners. It never changes what we

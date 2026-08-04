@@ -70,24 +70,25 @@ export default function HomePage() {
     <>
       {/* Hero: one line, one widget. Nothing else above the fold. */}
       <HeroMedia>
-        <div className="shell py-14 text-center sm:py-20 lg:py-24">
+        {/* Bottom padding leaves room for the widget to overlap from outside. */}
+        <div className="shell pb-28 pt-12 text-center sm:pb-32 sm:pt-20 lg:pt-24">
           <h1 className="mx-auto max-w-3xl text-4xl text-white drop-shadow-sm sm:text-5xl lg:text-6xl">
             Your Official Guide to Music City
           </h1>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-white/85">
+          <p className="mx-auto mt-3 max-w-xl text-lg text-white/85">
             Book hotels, tours, and tickets in one place.
           </p>
         </div>
-
-        {/* Widget straddles the hero edge so it is the first thing you touch. */}
-        <div className="shell -mb-16 translate-y-8 sm:-mb-20 sm:translate-y-10">
-          <div className="mx-auto max-w-4xl">
-            <BookingWidget />
-          </div>
-        </div>
       </HeroMedia>
 
-      <div className="h-16 sm:h-20" aria-hidden="true" />
+      {/* The widget lives OUTSIDE HeroMedia and is pulled up over it. Placing it
+          inside would let HeroMedia's overflow-hidden, which exists to clip the
+          background video, cut off the form body. */}
+      <div className="shell relative z-10 -mt-24 sm:-mt-28">
+        <div className="mx-auto max-w-4xl">
+          <BookingWidget />
+        </div>
+      </div>
 
       {/* Decision matrix: pick your intent. */}
       <section className="shell py-10 lg:py-14">
