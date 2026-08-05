@@ -21,7 +21,7 @@ export default function AdvertisingPage() {
         intro="How we make money, stated plainly, including the things we will not sell."
       />
       <div className="prose-editorial py-10">
-        <div className="rounded border border-clay/20 bg-clay-wash p-4 text-sm text-clay-deep not-prose">
+        <div className="rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep not-prose">
           <strong className="font-semibold">Template page.</strong> This is placeholder commercial
           policy text. Rates, inventory, contract terms, and disclosure language must be reviewed by
           counsel and completed with real business details before publication. Nothing on this page

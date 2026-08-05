@@ -19,10 +19,10 @@ Master brand: **NASHVILLE**. Promise: *The most useful way to plan, book, and ex
 | Token | Hex | Use |
 |---|---|---|
 | Navy | `#102A43` | Logo, nav, headings, secondary buttons |
-| Cumberland | `#214A72` | Deep section backgrounds |
+| Cumberland | `#214A72` | Inverse section — one per page maximum |
 | Clay Coral | `#D95D45` | Primary CTAs (Plan Your Trip, Check Availability) |
-| Dogwood | `#F2B7AE` | Soft accent fields |
-| Sky Wash | `#DDECEF` | Light editorial panels |
+| Dogwood | `#F2B7AE` | Badges and chips only |
+| Sky Wash | `#DDECEF` | Component accents only |
 | Park Mint | `#8FC4AD` | Verified / positive / selective CTAs |
 | Golden Hour | `#E8B64A` | Warm highlight (sparingly) |
 | Porch Cream | `#F8F3E9` | Page background |
@@ -41,10 +41,12 @@ Buttons: primary = coral/white · secondary = navy/white · tertiary = cream + n
 - Display: **Playfair Display** — H1 Bold, H2 Semibold, hero, editorial
 - UI: **Inter** — H3 Bold, nav, buttons (Semibold), forms, cards, body (Regular), metadata (Medium)
 - Do not introduce Barlow, Oswald, or other logo-substitute fonts
+- Type scale is defined in `tailwind.config.ts`. Never use arbitrary font sizes (`text-[15px]` and similar). If a size is missing, add it to the scale.
+- Default text alignment is left. Centering is reserved for the hero.
 
 ## Homepage
 
-Header light (cream/white), navy text, coral Plan a Trip. Hero bright/approachable — avoid heavy dark overlays. H1: **Make the most of Nashville.** Supporting: trusted recommendations… CTAs: Plan Your Trip · Explore Nashville. Rotate section grounds: cream, white, sky, dogwood, cumberland, mint accents.
+Header light (cream/white), navy text, coral Plan a Trip. Hero bright/approachable — avoid heavy dark overlays. H1: **Make the most of Nashville.** Supporting: trusted recommendations… CTAs: Plan Your Trip · Explore Nashville. Section grounds: three surfaces only — `paper` (page), `paper-card` (raised), and one inverse (`navy` or `cumberland`) per page maximum. Sky, Dogwood, Mint, and Golden are component-level accents only — badges, chips, date blocks, input states — never section backgrounds. No opacity modifiers on surface colors; if you need another surface, add a token and document why.
 
 ## Voice / trust
 

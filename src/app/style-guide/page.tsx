@@ -14,10 +14,10 @@ export const metadata = buildMetadata({
 const SWATCHES = [
   ['Porch Cream', 'bg-paper', '#F8F3E9', 'Page background'],
   ['Soft White', 'bg-paper-card', '#FFFDFC', 'Cards'],
-  ['Sky Wash', 'bg-sky', '#DDECEF', 'Editorial panels'],
-  ['Dogwood Pink', 'bg-dogwood', '#F2B7AE', 'Soft accent fields'],
+  ['Sky Wash', 'bg-sky', '#DDECEF', 'Component accents only'],
+  ['Dogwood Pink', 'bg-dogwood', '#F2B7AE', 'Badges and chips only'],
   ['Nashville Navy', 'bg-ink', '#102A43', 'Logo, nav, headings'],
-  ['Cumberland Blue', 'bg-cumberland', '#214A72', 'Deep sections'],
+  ['Cumberland Blue', 'bg-cumberland', '#214A72', 'Inverse section — one per page maximum'],
   ['Clay Coral', 'bg-clay', '#D95D45', 'Primary CTAs'],
   ['Park Mint', 'bg-mint', '#8FC4AD', 'Positive / verified'],
   ['Golden Hour', 'bg-golden', '#E8B64A', 'Warm highlight'],

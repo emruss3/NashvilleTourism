@@ -138,7 +138,7 @@ export default function SearchBar({
                     onClick={() => go(doc)}
                     onMouseEnter={() => setActive(i)}
                     className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors ${
-                      i === active ? 'bg-paper-sunk' : 'hover:bg-paper-sunk'
+                      i === active ? 'bg-paper-card' : 'hover:bg-paper-card'
                     }`}
                   >
                     <span className="mt-0.5 shrink-0 rounded border border-paper-edge bg-paper px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wider text-ink-faint">

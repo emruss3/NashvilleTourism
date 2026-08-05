@@ -114,7 +114,7 @@ export default function RestaurantPage({ params }: { params: { slug: string } })
 
           {r.placement === 'affiliate' && <AffiliateDisclosure />}
 
-          <div className="rounded-card border border-paper-edge bg-paper-sunk p-4 text-sm text-ink-soft">
+          <div className="rounded-card border border-paper-edge bg-paper-card p-4 text-sm text-ink-soft">
             <p>
               Hours and details change. If something here is wrong,{' '}
               <Link href="/corrections/" className="text-clay underline underline-offset-2">

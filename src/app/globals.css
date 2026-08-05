@@ -152,7 +152,7 @@
   }
 
   .photo-slot {
-    @apply relative overflow-hidden bg-sky;
+    @apply relative overflow-hidden bg-paper;
     background-image:
       linear-gradient(160deg, rgba(16, 42, 67, 0.04) 0%, transparent 50%),
       linear-gradient(45deg, rgba(217, 93, 69, 0.08) 0%, transparent 55%),
@@ -168,16 +168,14 @@
   @keyframes hero-in {
     from {
       opacity: 0;
-      transform: translateY(10px);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
     }
   }
 
   .animate-hero-in {
-    animation: hero-in 0.55s ease-out both;
+    animation: hero-in 0.4s ease-out both;
   }
 
   @media (prefers-reduced-motion: reduce) {

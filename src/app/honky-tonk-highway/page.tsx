@@ -141,7 +141,7 @@ export default function HonkyTonkHighway() {
               Lower Broadway and the surrounding downtown blocks, with what sits on each, how busy it
               gets, and what to use it for.
             </caption>
-            <thead className="bg-paper-sunk">
+            <thead className="bg-paper-card">
               <tr>
                 <th scope="col" className="px-4 py-3 font-semibold text-ink">
                   Block
@@ -185,7 +185,7 @@ export default function HonkyTonkHighway() {
             <caption className="sr-only">
               Crowd levels on Lower Broadway by day and time, with what to expect in each window.
             </caption>
-            <thead className="bg-paper-sunk">
+            <thead className="bg-paper-card">
               <tr>
                 <th scope="col" className="px-4 py-3 font-semibold text-ink">
                   Day and time
