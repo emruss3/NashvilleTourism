@@ -39,7 +39,7 @@ export default function StickyCta() {
   const offer = pickOffer(pathname);
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-paper-edge bg-paper-card/97 px-3 py-2.5 backdrop-blur lg:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-paper-edge bg-paper-card px-3 py-2.5 backdrop-blur lg:hidden">
       <div className="flex items-center gap-2">
         <Link
           href={offer.href}

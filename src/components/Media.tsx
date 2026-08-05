@@ -1,4 +1,3 @@
-import HeroVideo from '@/components/HeroVideo';
 import { getImage, hasMedia, heroVideo, type ImageKey } from '@/lib/media';
 import { asset as assetUrl } from '@/lib/seo';
 
@@ -55,7 +54,9 @@ export function SmartImage({
       />
       {asset.credit && (
         <figcaption className="absolute bottom-1 right-1 rounded bg-ink/60 px-1.5 py-0.5 text-2xs text-white/90">
-          {asset.credit}
+          <a href="/photo-credits/" className="hover:underline">
+            {asset.credit}
+          </a>
         </figcaption>
       )}
     </figure>
@@ -63,29 +64,79 @@ export function SmartImage({
 }
 
 /**
- * Full-bleed hero media. Continuous cinematic loop when available, with a
- * readable bottom scrim for type.
+ * Exact listing photography from ContentBase.image. Never falls back to a
+ * category stock image — missing photos use PhotoSlot instead.
+ */
+export function ContentImage({
+  image,
+  ratio = 'aspect-[3/2]',
+  className = '',
+  sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
+  priority = false,
+}: {
+  image: {
+    src: string;
+    alt: string;
+    credit?: string;
+    width?: number;
+    height?: number;
+    focal?: 'center' | 'top' | 'bottom';
+  };
+  ratio?: string;
+  className?: string;
+  sizes?: string;
+  priority?: boolean;
+}) {
+  return (
+    <figure className={`relative overflow-hidden ${ratio} ${className}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={assetUrl(image.src)}
+        alt={image.alt}
+        width={image.width ?? 1600}
+        height={image.height ?? 1067}
+        sizes={sizes}
+        loading={priority ? 'eager' : 'lazy'}
+        decoding={priority ? 'sync' : 'async'}
+        fetchPriority={priority ? 'high' : 'auto'}
+        className="h-full w-full object-cover"
+        style={image.focal === 'top' ? { objectPosition: 'top' } : undefined}
+      />
+      {image.credit && (
+        <figcaption className="absolute bottom-1 right-1 rounded bg-ink/60 px-1.5 py-0.5 text-2xs text-white/90">
+          <a href="/photo-credits/" className="hover:underline">
+            {image.credit}
+          </a>
+        </figcaption>
+      )}
+    </figure>
+  );
+}
+
+/**
+ * Full-bleed hero. Uses the stable poster as the brand surface.
+ *
+ * The current hero MP4/WebM is a stills montage that reads as choppy/shaky in
+ * autoplay; keep the files registered for a future smooth loop, but do not
+ * autoplay them over the poster.
  */
 export function HeroMedia({ children }: { children: React.ReactNode }) {
-  const videoReady = hasMedia('hero/video');
   const stillReady = hasMedia('hero/lower-broadway');
-  const poster = heroVideo.poster ? assetUrl(heroVideo.poster) : assetUrl('/media/hero/lower-broadway-day.jpg');
+  const poster = heroVideo.poster ? assetUrl(heroVideo.poster) : undefined;
 
   return (
     <div className="relative isolate min-h-[min(86vh,760px)] overflow-hidden bg-navy">
-      {videoReady ? <HeroVideo /> : null}
-
-      <div
-        className={`absolute inset-0 ${videoReady ? 'motion-safe:hidden' : ''}`}
-        aria-hidden="true"
-      >
-        {stillReady || videoReady ? (
+      <div className="absolute inset-0" aria-hidden="true">
+        {poster && stillReady ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={videoReady ? poster : assetUrl('/media/hero/lower-broadway-day.jpg')}
+            src={poster}
             alt=""
+            width={2400}
+            height={1350}
             className="h-full w-full object-cover object-center"
             fetchPriority="high"
+            decoding="sync"
           />
         ) : (
           <div className="h-full w-full bg-[radial-gradient(1100px_480px_at_80%_-10%,#3A6A94_0%,transparent_55%),radial-gradient(900px_420px_at_5%_110%,#8FC4AD_0%,transparent_50%),linear-gradient(165deg,#214A72_0%,#102A43_100%)]" />
@@ -93,7 +144,7 @@ export function HeroMedia({ children }: { children: React.ReactNode }) {
       </div>
 
       <div
-        className="absolute inset-0 bg-gradient-to-t from-navy/75 via-navy/30 to-navy/10"
+        className="absolute inset-0 bg-gradient-to-t from-navy/55 via-navy/20 to-navy/5"
         aria-hidden="true"
       />
 

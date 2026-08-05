@@ -103,7 +103,7 @@ export default function EventPage({ params }: { params: { slug: string } }) {
             />
             <MapLink query={e.mapQuery} label="Venue map" />
           </div>
-          <div className="rounded-card border border-paper-edge bg-paper-sunk p-4 text-sm text-ink-soft">
+          <div className="rounded-card border border-paper-edge bg-paper-card p-4 text-sm text-ink-soft">
             <p>
               Event details change often. Confirm with the venue before travelling.{' '}
               <Link href="/corrections/" className="text-clay underline underline-offset-2">

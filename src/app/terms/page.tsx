@@ -21,7 +21,7 @@ export default function TermsPage() {
         intro="The rules that apply when you use this site."
       />
 
-      <div className="mt-6 max-w-prose rounded border border-clay/20 bg-clay-wash p-4 text-sm text-clay-deep">
+      <div className="mt-6 max-w-prose rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep">
         <strong className="font-semibold">Template, not final terms.</strong> This is placeholder
         text for a site that has not launched. Before publication it must be reviewed by counsel and
         completed with the operating entity&rsquo;s details and governing jurisdiction.

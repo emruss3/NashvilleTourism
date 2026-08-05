@@ -21,7 +21,7 @@ export default function AboutPage() {
         intro="An independent guide to Nashville, written by people who live here and checked before it is published."
       />
       <div className="prose-editorial py-10">
-        <div className="rounded border border-clay/20 bg-clay-wash p-4 text-sm text-clay-deep not-prose">
+        <div className="rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep not-prose">
           <strong className="font-semibold">Template page.</strong> This site is running on
           placeholder brand and business details. Before publication, the operating company, address,
           staff, and ownership disclosures on this page must be replaced with real, checkable

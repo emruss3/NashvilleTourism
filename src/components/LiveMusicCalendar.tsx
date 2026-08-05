@@ -68,7 +68,7 @@ export default function LiveMusicCalendar({
   return (
     <div>
       {/* Filter bar */}
-      <div className="sticky top-16 z-30 -mx-5 border-y border-paper-edge bg-paper/95 px-5 py-3 backdrop-blur sm:-mx-6 sm:px-6">
+      <div className="sticky top-16 z-30 -mx-5 border-y border-paper-edge bg-paper px-5 py-3 backdrop-blur sm:-mx-6 sm:px-6">
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[180px] flex-1">
             <label htmlFor="lm-q" className="mb-1 block text-2xs font-bold uppercase tracking-wider text-ink-faint">
@@ -142,7 +142,7 @@ export default function LiveMusicCalendar({
         <ul className="divide-y divide-paper-edge border-b border-paper-edge">
           {filtered.map((e) => (
             <li key={e.id} className="flex flex-wrap items-center gap-4 py-4">
-              <div className="flex w-14 shrink-0 flex-col items-center rounded border border-paper-edge bg-paper-sunk py-1.5 text-center">
+              <div className="flex w-14 shrink-0 flex-col items-center rounded border border-paper-edge bg-sky py-1.5 text-center">
                 <span className="text-2xs font-bold uppercase tracking-wider text-clay">
                   {formatDateShort(e.date).split(' ')[0]}
                 </span>

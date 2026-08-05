@@ -68,7 +68,7 @@ export default function CorrectionsPage() {
           Corrections are shown on the affected page, not buried on this one. Each carries the date
           it was made, what was wrong, and what it says now. For example:
         </p>
-        <div className="not-prose my-4 rounded border border-paper-edge bg-paper-sunk p-4 text-sm text-ink-soft">
+        <div className="not-prose my-4 rounded border border-paper-edge bg-paper-card p-4 text-sm text-ink-soft">
           <p>
             <strong className="font-semibold text-ink">Correction, March 4:</strong> This guide
             originally said the venue was open on Mondays. It is closed Mondays. The hours have been

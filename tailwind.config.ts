@@ -11,7 +11,7 @@ const config: Config = {
       colors: {
         paper: {
           DEFAULT: '#F8F3E9', // Porch Cream — page background
-          sunk: '#DDECEF', // Sky Wash — alternating / editorial panels
+          sunk: '#F8F3E9', // deprecated alias of paper — do not use as a fourth surface
           edge: '#D5DCE0', // cool hairline on light grounds
           card: '#FFFDFC', // Soft White
         },
@@ -64,6 +64,13 @@ const config: Config = {
       },
       fontSize: {
         '2xs': ['0.6875rem', { lineHeight: '1rem' }],
+        meta: ['0.8125rem', { lineHeight: '1.4' }],
+        small: ['0.9375rem', { lineHeight: '1.55' }],
+        body: ['1.0625rem', { lineHeight: '1.65' }],
+        lead: ['1.1875rem', { lineHeight: '1.5' }],
+        title: ['1.625rem', { lineHeight: '1.2', letterSpacing: '-0.012em' }],
+        display: ['2.125rem', { lineHeight: '1.14', letterSpacing: '-0.015em' }],
+        hero: ['2.75rem', { lineHeight: '1.08', letterSpacing: '-0.02em' }],
       },
       maxWidth: {
         prose: '68ch',

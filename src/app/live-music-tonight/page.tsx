@@ -29,7 +29,7 @@ export default async function LiveMusicPage() {
       />
 
       {!live && (
-        <div className="mt-6 rounded border border-clay/20 bg-clay-wash p-4 text-sm text-clay-deep">
+        <div className="mt-6 rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep">
           <strong className="font-semibold">Sample listings.</strong>{' '}
           {configured
             ? 'The events feed did not return results for this build. Showing our seeded records instead.'

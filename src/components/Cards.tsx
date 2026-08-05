@@ -1,14 +1,22 @@
 import Link from 'next/link';
-import type { Attraction, Guide, Hotel, NashvilleEvent, Neighborhood, Restaurant, Venue } from '@/lib/types';
+import type {
+  Attraction,
+  Guide,
+  Hotel,
+  ImageRef,
+  NashvilleEvent,
+  Neighborhood,
+  Restaurant,
+  Venue,
+} from '@/lib/types';
 import type { ImageKey } from '@/lib/media';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
-import { SmartImage } from './Media';
+import { ContentImage, SmartImage } from './Media';
 import { PlacementLabel, VerificationBadge, formatDateShort } from './Trust';
 
 /**
- * Typographic image stand-in. Photography is not licensed for this build, and
- * generating fake imagery would misrepresent real places. Replace `PhotoSlot`
- * with next/image once a licensed library exists.
+ * Typographic image stand-in when a listing has no exact photograph.
+ * Never substitute a category or unrelated business image.
  */
 export function PhotoSlot({
   label,
@@ -26,6 +34,22 @@ export function PhotoSlot({
   );
 }
 
+/** Exact listing photo or intentional placeholder — never a generic category image. */
+function ListingMedia({
+  image,
+  label,
+  ratio = 'aspect-[3/2]',
+}: {
+  image?: ImageRef;
+  label: string;
+  ratio?: string;
+}) {
+  if (image?.src) {
+    return <ContentImage image={image} ratio={ratio} />;
+  }
+  return <PhotoSlot label={label} ratio={ratio} />;
+}
+
 function MetaRow({ items }: { items: (string | undefined | false)[] }) {
   const visible = items.filter(Boolean) as string[];
   return (
@@ -40,7 +64,7 @@ function MetaRow({ items }: { items: (string | undefined | false)[] }) {
 export function RestaurantCard({ item, compact = false }: { item: Restaurant; compact?: boolean }) {
   return (
     <article className="card group relative flex flex-col overflow-hidden">
-      {!compact && <PhotoSlot label={item.title} />}
+      {!compact && <ListingMedia image={item.image} label={item.title} />}
       <div className="flex flex-1 flex-col gap-2 p-4">
         <MetaRow items={[neighborhoodName(item.neighborhood), item.cuisine, item.priceRange]} />
         <h3 className="font-sans font-bold text-lg leading-snug">
@@ -63,7 +87,7 @@ export function RestaurantCard({ item, compact = false }: { item: Restaurant; co
 export function HotelCard({ item }: { item: Hotel }) {
   return (
     <article className="card group relative flex flex-col overflow-hidden">
-      <PhotoSlot label={item.title} />
+      <ListingMedia image={item.image} label={item.title} />
       <div className="flex flex-1 flex-col gap-2 p-4">
         <MetaRow items={[neighborhoodName(item.neighborhood), item.priceCategory]} />
         <h3 className="font-sans font-bold text-lg leading-snug">
@@ -134,7 +158,7 @@ function dayNum(iso: string) {
 export function VenueCard({ item }: { item: Venue }) {
   return (
     <article className="card group relative flex flex-col overflow-hidden">
-      <PhotoSlot label={item.title} />
+      <ListingMedia image={item.image} label={item.title} />
       <div className="flex flex-1 flex-col gap-2 p-4">
         <MetaRow items={[neighborhoodName(item.neighborhood), item.genres.slice(0, 2).join(', ')]} />
         <h3 className="font-sans font-bold text-lg leading-snug">
@@ -157,7 +181,7 @@ export function VenueCard({ item }: { item: Venue }) {
 export function AttractionCard({ item }: { item: Attraction }) {
   return (
     <article className="card group relative flex flex-col overflow-hidden">
-      <PhotoSlot label={item.title} ratio="aspect-[4/3]" />
+      <ListingMedia image={item.image} label={item.title} ratio="aspect-[4/3]" />
       <div className="flex flex-1 flex-col gap-2 p-4">
         <MetaRow items={[neighborhoodName(item.neighborhood), item.category]} />
         <h3 className="font-sans font-bold text-base leading-snug">

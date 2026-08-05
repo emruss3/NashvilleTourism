@@ -1,6 +1,7 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { SmartImage } from '@/components/Media';
-import { Breadcrumbs } from '@/components/Ui';
+import { Breadcrumbs, LoadingState } from '@/components/Ui';
 import { upcomingEvents } from '@/lib/content';
 import type { ImageKey } from '@/lib/media';
 import { buildMetadata } from '@/lib/seo';
@@ -62,11 +63,7 @@ export default function EventsIndex() {
         <Breadcrumbs trail={[{ name: 'Events', href: '/events/' }]} />
       </div>
 
-      <section className="relative isolate overflow-hidden bg-cumberland pb-14 pt-12 text-paper-card lg:pb-16">
-        <div className="absolute left-[10%] top-5 -z-10 h-52 w-[54%] bg-mint/20" aria-hidden="true" />
-        <div className="absolute left-[22%] top-10 -z-10 h-56 w-[58%] bg-sky/15" aria-hidden="true" />
-        <div className="absolute right-[7%] top-16 -z-10 h-48 w-[48%] bg-mint/15" aria-hidden="true" />
-
+      <section className="bg-cumberland pb-14 pt-12 text-paper-card lg:pb-16">
         <div className="shell">
           <div className="mx-auto max-w-2xl text-center">
             <p className="eyebrow text-dogwood">What&apos;s on</p>
@@ -111,7 +108,9 @@ export default function EventsIndex() {
       </section>
 
       <div className="shell pb-16 pt-8">
-        <EventsClient events={events} />
+        <Suspense fallback={<LoadingState label="Loading events" />}>
+          <EventsClient events={events} />
+        </Suspense>
       </div>
     </>
   );

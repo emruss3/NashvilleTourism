@@ -87,6 +87,21 @@ export default function NeighborhoodPage({ params }: { params: { slug: string } 
           <FactTable
             rows={[
               { label: 'Best for', value: n.bestFor.join(', ') },
+              { label: 'Avoid if', value: n.avoidIf.join('; ') },
+              { label: 'Walkability', value: n.walkability },
+              { label: 'Nightlife', value: n.nightlifeLevel },
+              { label: 'Noise', value: n.noiseLevel },
+              {
+                label: 'To Broadway',
+                value:
+                  typeof n.broadwayMinutes.walk === 'number'
+                    ? n.broadwayMinutes.walk === 0
+                      ? 'On Broadway'
+                      : `~${n.broadwayMinutes.walk} min walk / ${n.broadwayMinutes.drive} min drive`
+                    : `~${n.broadwayMinutes.drive} min drive`,
+              },
+              { label: 'Typical hotel', value: n.typicalHotelPrice },
+              { label: 'Landmarks', value: n.landmarks.join(', ') },
               { label: 'Known for', value: n.knownFor.join(', ') },
               { label: 'Getting there', value: n.gettingThere },
               { label: 'Parking', value: n.parkingNote },

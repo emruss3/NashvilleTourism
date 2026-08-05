@@ -56,6 +56,10 @@ export interface ImageRef {
   /** Required. Describes the photo for screen readers. */
   alt: string;
   credit?: string;
+  /** Intrinsic size for layout reservation / CLS. */
+  width?: number;
+  height?: number;
+  focal?: 'center' | 'top' | 'bottom';
 }
 
 export interface Author {
@@ -170,7 +174,18 @@ export interface Neighborhood {
   /** Longer editorial orientation, 2-3 paragraphs. */
   overview: string[];
   bestFor: string[];
+  /** Clear tradeoffs — when this area is a poor fit. */
+  avoidIf: string[];
   knownFor: string[];
+  /** Short editorial walkability note for decision panels. */
+  walkability: string;
+  nightlifeLevel: 'Low' | 'Moderate' | 'High' | 'Very high';
+  noiseLevel: string;
+  /** Typical travel time to Lower Broadway. */
+  broadwayMinutes: { walk?: number; drive: number };
+  /** Rough hotel band for visitor planning — not a live rate. */
+  typicalHotelPrice: string;
+  landmarks: string[];
   gettingThere: string;
   parkingNote: string;
   halfDayItinerary: { time: string; activity: string; note: string }[];

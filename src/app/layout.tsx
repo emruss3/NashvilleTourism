@@ -29,16 +29,16 @@ export const metadata: Metadata = {
     description: site.description,
     images: [
       {
-        url: canonical('/media/hero/lower-broadway-day.jpg'),
+        url: canonical('/media/hero/nashville-hero-poster.jpg'),
         width: 2400,
-        height: 1600,
-        alt: 'Nashville skyline across the Cumberland River',
+        height: 1350,
+        alt: 'Golden-hour aerial from Wedgewood-Houston toward the Nashville skyline.',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    images: [canonical('/media/hero/lower-broadway-day.jpg')],
+    images: [canonical('/media/hero/nashville-hero-poster.jpg')],
   },
   robots: allowIndexing
     ? { index: true, follow: true }

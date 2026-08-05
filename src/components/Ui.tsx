@@ -169,7 +169,7 @@ export function KeyFacts({
   facts: { label: string; value: string }[];
 }) {
   return (
-    <section className="short-answer rounded-card border-l-4 border-clay bg-clay-wash p-5">
+    <section className="short-answer rounded-card border-l-4 border-clay bg-paper-card p-5">
       <h2 className="eyebrow mb-2 text-clay-deep">{title}</h2>
       {answer && <p className="mb-3 max-w-prose text-[17px] leading-relaxed text-ink">{answer}</p>}
       <dl className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
@@ -213,7 +213,7 @@ export function ScrollableTable({
 
 export function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded border border-paper-edge bg-paper-sunk px-2 py-0.5 text-2xs font-medium text-ink-soft">
+    <span className="inline-flex items-center rounded border border-paper-edge bg-paper-card px-2 py-0.5 text-2xs font-medium text-ink-soft">
       {children}
     </span>
   );
@@ -249,11 +249,11 @@ export function LoadingState({ label = 'Loading' }: { label?: string }) {
       <span className="sr-only">{label}</span>
       {[0, 1, 2].map((i) => (
         <div key={i} className="rounded-card border border-paper-edge bg-white">
-          <div className="aspect-[3/2] animate-pulse bg-paper-sunk" />
+          <div className="aspect-[3/2] animate-pulse bg-paper-card" />
           <div className="space-y-2 p-4">
-            <div className="h-2.5 w-24 animate-pulse rounded bg-paper-sunk" />
-            <div className="h-4 w-3/4 animate-pulse rounded bg-paper-sunk" />
-            <div className="h-3 w-full animate-pulse rounded bg-paper-sunk" />
+            <div className="h-2.5 w-24 animate-pulse rounded bg-paper-card" />
+            <div className="h-4 w-3/4 animate-pulse rounded bg-paper-card" />
+            <div className="h-3 w-full animate-pulse rounded bg-paper-card" />
           </div>
         </div>
       ))}
@@ -263,7 +263,7 @@ export function LoadingState({ label = 'Loading' }: { label?: string }) {
 
 export function ErrorState({ message, retry }: { message: string; retry?: React.ReactNode }) {
   return (
-    <div role="alert" className="rounded-card border border-clay/25 bg-clay-wash px-6 py-10 text-center">
+    <div role="alert" className="rounded-card border border-clay/25 bg-paper-card px-6 py-10 text-center">
       <h2 className="font-display text-xl text-clay-deep">Something went wrong</h2>
       <p className="mx-auto mt-2 max-w-md text-[15px] text-ink-soft">{message}</p>
       {retry && <div className="mt-5">{retry}</div>}

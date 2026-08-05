@@ -83,10 +83,10 @@ export default function SearchClient() {
                           item_type: doc.type,
                         })
                       }
-                      className="flex flex-col gap-1 py-4 transition-colors hover:bg-paper-sunk"
+                      className="flex flex-col gap-1 py-4 transition-colors hover:bg-paper-card"
                     >
                       <span className="flex flex-wrap items-center gap-2">
-                        <span className="rounded border border-paper-edge bg-paper-sunk px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wider text-ink-faint">
+                        <span className="rounded border border-paper-edge bg-paper-card px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wider text-ink-faint">
                           {doc.type}
                         </span>
                         {doc.neighborhood && (

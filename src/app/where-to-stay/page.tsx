@@ -193,7 +193,7 @@ export default function WhereToStayHub() {
               Nashville lodging areas compared by who they suit, walk time to Lower Broadway, night
               noise, and typical nightly rate band.
             </caption>
-            <thead className="bg-paper-sunk">
+            <thead className="bg-paper-card">
               <tr>
                 <th scope="col" className="px-4 py-3 font-semibold text-ink">
                   Neighborhood

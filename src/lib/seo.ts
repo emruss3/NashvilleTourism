@@ -52,10 +52,10 @@ export function buildMetadata({
   const url = canonical(path);
   const fullTitle = title.includes(site.name) ? title : `${title} | ${site.name}`;
   const ogImage = {
-    url: canonical('/media/hero/lower-broadway-day.jpg'),
+    url: canonical('/media/hero/nashville-hero-poster.jpg'),
     width: 2400,
-    height: 1600,
-    alt: 'Nashville skyline across the Cumberland River',
+    height: 1350,
+    alt: 'Golden-hour aerial from Wedgewood-Houston toward the Nashville skyline.',
   };
   return {
     // `absolute` stops the root layout's title template from appending the
@@ -246,7 +246,7 @@ export function articleSchema(guide: Guide, author: Author | undefined, path: st
     description: guide.summary,
     datePublished: guide.datePublished,
     dateModified: guide.dateUpdated || guide.datePublished,
-    image: canonical('/media/hero/lower-broadway-day.jpg'),
+    image: canonical('/media/hero/nashville-hero-poster.jpg'),
     mainEntityOfPage: { '@type': 'WebPage', '@id': canonical(path) },
     author: author
       ? { '@type': 'Person', name: author.name, url: canonical(`/authors/${author.slug}/`) }
@@ -327,7 +327,7 @@ export function eventSchema(e: NashvilleEvent, path: string) {
     ...(e.endDate ? { endDate: e.endDate } : {}),
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-    image: canonical('/media/hero/lower-broadway-day.jpg'),
+    image: canonical('/media/hero/nashville-hero-poster.jpg'),
     organizer: { '@id': canonical('/#organization') },
     url: canonical(path),
     location: {

@@ -32,7 +32,7 @@ export default function ThisWeekendPage() {
         intro="The soonest events on our calendar. Confirm dates and tickets with the venue before you build a night around one."
       />
 
-      <div className="mt-6 rounded border border-paper-edge bg-paper-sunk p-4 text-sm text-ink-soft">
+      <div className="mt-6 rounded border border-paper-edge bg-paper-card p-4 text-sm text-ink-soft">
         This page is generated at build time. Connect an events feed to make the weekend window
         update on its own.
       </div>

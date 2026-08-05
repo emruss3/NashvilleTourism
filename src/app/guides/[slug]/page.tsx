@@ -75,7 +75,7 @@ export default function GuidePage({ params }: { params: { slug: string } }) {
       </div>
 
       {/* Short answer sits above the fold so readers can leave satisfied fast. */}
-      <div className="short-answer mt-8 max-w-prose rounded-card border-l-4 border-clay bg-clay-wash p-5">
+      <div className="short-answer mt-8 max-w-prose rounded-card border-l-4 border-clay bg-paper-card p-5">
         <p className="eyebrow mb-1.5 text-clay-deep">The short answer</p>
         <p className="text-[17px] leading-relaxed text-ink">{g.shortAnswer}</p>
       </div>
@@ -121,7 +121,7 @@ export default function GuidePage({ params }: { params: { slug: string } }) {
             </section>
           )}
 
-          <div className="mt-10 rounded-card border border-paper-edge bg-paper-sunk p-5">
+          <div className="mt-10 rounded-card border border-paper-edge bg-paper-card p-5">
             <div className="flex flex-wrap items-center gap-3">
               <VerificationBadge status={g.dataStatus} date={g.dateChecked} />
             </div>
