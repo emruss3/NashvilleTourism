@@ -2,10 +2,12 @@ import Link from 'next/link';
 import BookingWidget from '@/components/BookingWidget';
 import { HeroMedia, SmartImage } from '@/components/Media';
 import { SectionHeader } from '@/components/Ui';
-import { EventCard, GuideCard } from '@/components/Cards';
+import { GuideCard } from '@/components/Cards';
+import LiveEventCard from '@/components/LiveEventCard';
 import NeighborhoodMap from '@/components/NeighborhoodMap';
 import NewsletterForm from '@/components/NewsletterForm';
-import { guides, upcomingEvents } from '@/lib/content';
+import { guides } from '@/lib/content';
+import { getCalendar } from '@/lib/feeds/calendar';
 import { site } from '@/lib/site';
 import type { ImageKey } from '@/lib/media';
 import { assertHomepageMediaIntegrity } from '@/lib/assert-homepage-media';
@@ -83,8 +85,9 @@ const TRENDING_NOW: {
   },
 ];
 
-export default function HomePage() {
-  const soon = upcomingEvents(4);
+export default async function HomePage() {
+  const { events, live, configured } = await getCalendar();
+  const soon = events.slice(0, 4);
   const startHere = [
     'nashville-first-time-visitors',
     'where-to-stay-nashville',
@@ -237,10 +240,22 @@ export default function HomePage() {
 
       <section className="bg-paper-card py-14 lg:py-16">
         <div className="shell">
-          <SectionHeader title="This Weekend" href="/events/" linkLabel="All events" />
+          <SectionHeader
+            title={live ? 'Live events coming up' : 'Upcoming events'}
+            href="/live-music-tonight/"
+            linkLabel="Full live calendar"
+          />
+          {!live && (
+            <div className="mb-4 rounded border border-clay/20 bg-paper px-4 py-3 text-sm text-clay-deep">
+              <strong className="font-semibold">Ticketmaster feed is not active in this build.</strong>{' '}
+              {configured
+                ? 'The API returned no Nashville events, so the site is showing clearly labeled fallback records.'
+                : 'Add TICKETMASTER_API_KEY in Vercel and redeploy to replace the fallback records.'}
+            </div>
+          )}
           <div className="grid gap-3 lg:grid-cols-2">
-            {soon.map((e) => (
-              <EventCard key={e.slug} item={e} compact />
+            {soon.map((event) => (
+              <LiveEventCard key={`${event.source}-${event.id}`} item={event} />
             ))}
           </div>
         </div>
