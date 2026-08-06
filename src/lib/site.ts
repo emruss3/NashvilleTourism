@@ -3,7 +3,39 @@
  * Consumer brand is NASHVILLE. Domain and legal entity remain placeholders
  * until launch; change them here and they propagate through metadata, schema, and UI.
  */
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://brand-placeholder.example.com';
+
+/**
+ * The canonical origin. Must be a parseable URL because Next builds
+ * `metadataBase` and every canonical tag, OG tag, sitemap entry, and llms.txt
+ * link from it.
+ *
+ * Resolution order, most specific first:
+ *   1. NEXT_PUBLIC_SITE_URL          the real domain, once one is chosen
+ *   2. Vercel's production domain    stable across deploys
+ *   3. Vercel's per-deployment URL   preview builds
+ *   4. A clearly fake placeholder    local work before a domain exists
+ *
+ * Steps 2 and 3 matter: without them a Vercel deployment ships canonical tags
+ * pointing at a domain that does not exist, which tells crawlers the live page
+ * is not the authoritative copy and keeps it out of the index.
+ */
+function resolveSiteUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL;
+  if (explicit) return explicit.replace(/\/$/, '');
+
+  // Vercel supplies these as bare hostnames, without a scheme.
+  const vercelProd =
+    process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ||
+    process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  if (vercelProd) return `https://${vercelProd.replace(/^https?:\/\//, '').replace(/\/$/, '')}`;
+
+  const vercelDeploy = process.env.NEXT_PUBLIC_VERCEL_URL || process.env.VERCEL_URL;
+  if (vercelDeploy) return `https://${vercelDeploy.replace(/^https?:\/\//, '').replace(/\/$/, '')}`;
+
+  return 'https://brand-placeholder.example.com';
+}
+
+const SITE_URL = resolveSiteUrl();
 
 export const site = {
   name: 'NASHVILLE',
