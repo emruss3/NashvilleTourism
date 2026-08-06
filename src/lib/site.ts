@@ -1,7 +1,8 @@
 /**
  * Single source of truth for brand-level strings.
- * Consumer brand is NASHVILLE. Domain and legal entity remain placeholders
- * until launch; change them here and they propagate through metadata, schema, and UI.
+ * Consumer brand is NASHVILLE on nashroam.com. The legal entity and business
+ * address remain placeholders until launch; change them here and they
+ * propagate through metadata, schema, and UI.
  */
 
 /**
@@ -40,7 +41,7 @@ const SITE_URL = resolveSiteUrl();
 export const site = {
   name: 'NASHVILLE',
   shortName: 'NSH',
-  domain: '[DOMAIN.COM]',
+  domain: 'nashroam.com',
   url: SITE_URL,
   /** Public descriptor — contextual, not a permanent under-logo tagline. */
   tagline: 'Trusted recommendations for Nashville.',
@@ -66,10 +67,10 @@ export const site = {
       postalCode: '[ZIP]',
       country: 'US',
     },
-    email: 'hello@[DOMAIN.COM]',
-    editorialEmail: 'editorial@[DOMAIN.COM]',
-    correctionsEmail: 'corrections@[DOMAIN.COM]',
-    advertisingEmail: 'advertise@[DOMAIN.COM]',
+    email: 'hello@nashroam.com',
+    editorialEmail: 'editorial@nashroam.com',
+    correctionsEmail: 'corrections@nashroam.com',
+    advertisingEmail: 'advertise@nashroam.com',
     phone: '[Phone]',
   },
   social: {
