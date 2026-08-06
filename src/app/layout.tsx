@@ -5,6 +5,8 @@ import Footer from '@/components/Footer';
 import { JsonLd } from '@/components/Ui';
 import { DemoDataNotice } from '@/components/Trust';
 import StickyCta from '@/components/StickyCta';
+import CartProvider from '@/components/commerce/CartProvider';
+import CartDrawer from '@/components/commerce/CartDrawer';
 import { allowIndexing, asset, organizationSchema, websiteSchema, canonical } from '@/lib/seo';
 import { site } from '@/lib/site';
 
@@ -61,15 +63,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="theme-color" content="#F8F3E9" />
       </head>
       <body>
-        <a href="#main" className="skip-link">
-          Skip to main content
-        </a>
-        <JsonLd data={[organizationSchema(), websiteSchema()]} />
-        <DemoDataNotice />
-        <Header />
-        <main id="main">{children}</main>
-        <Footer />
-        <StickyCta />
+        <CartProvider>
+          <a href="#main" className="skip-link">
+            Skip to main content
+          </a>
+          <JsonLd data={[organizationSchema(), websiteSchema()]} />
+          <DemoDataNotice />
+          <Header />
+          <main id="main">{children}</main>
+          <Footer />
+          <StickyCta />
+          <CartDrawer />
+        </CartProvider>
       </body>
     </html>
   );
