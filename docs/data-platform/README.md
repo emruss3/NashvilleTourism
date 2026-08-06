@@ -27,6 +27,8 @@ Applied migrations:
 1. `20260806212347_create_nashroam_data_platform_v1`
 2. `20260806212413_harden_and_index_nashroam_v1`
 
+Both applied migrations are versioned under `supabase/migrations/` in this repository.
+
 ### Security posture
 
 Every application table has Row Level Security enabled.
@@ -583,7 +585,7 @@ Any agent modifying this system should follow these rules:
 - [x] Seed source registry
 - [x] Seed core neighborhoods
 - [x] Add indexes / security hardening
-- [ ] Version migrations in this GitHub repository
+- [x] Version migrations in this GitHub repository
 - [ ] Add Supabase server client to the Next.js app
 - [ ] Replace sample content layer with repository/data-access interfaces
 
