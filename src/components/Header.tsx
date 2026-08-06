@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { primaryNav, secondaryNav } from '@/lib/site';
+import CartButton from './commerce/CartButton';
 import Wordmark from './Wordmark';
 
 export default function Header() {
@@ -50,23 +51,32 @@ export default function Header() {
             {primaryNav.map((item) => {
               const active = isActive(item.href);
               return (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  aria-current={active ? 'page' : undefined}
-                  className={`inline-flex border-b-2 px-2.5 py-2 font-sans text-[13px] font-semibold transition-colors xl:px-3 xl:text-[14px] ${
-                    active ? 'border-clay text-clay' : 'border-transparent text-ink hover:text-clay'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              </li>
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    aria-current={active ? 'page' : undefined}
+                    className={`inline-flex border-b-2 px-2.5 py-2 font-sans text-[13px] font-semibold transition-colors xl:px-3 xl:text-[14px] ${
+                      active ? 'border-clay text-clay' : 'border-transparent text-ink hover:text-clay'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
               );
             })}
           </ul>
         </nav>
 
-        <div className="ml-auto flex items-center gap-1.5 lg:ml-0">
+        <div className="ml-auto flex items-center gap-1 lg:ml-0">
+          <Link
+            href="/shop/"
+            aria-current={pathname.startsWith('/shop') ? 'page' : undefined}
+            className={`hidden rounded px-2.5 py-2 text-sm font-semibold transition-colors md:inline-flex ${
+              pathname.startsWith('/shop') ? 'text-clay' : 'text-ink hover:bg-sky/60 hover:text-clay'
+            }`}
+          >
+            Shop
+          </Link>
           <Link
             href="/search/"
             className="inline-flex items-center justify-center rounded p-2.5 text-ink transition-colors hover:bg-sky/60 hover:text-clay"
@@ -74,6 +84,7 @@ export default function Header() {
           >
             <SearchIcon />
           </Link>
+          <CartButton />
           <Link href="/plan/" className="btn-primary hidden px-4 py-2 font-sans sm:inline-flex">
             Plan Your Trip
           </Link>
@@ -83,7 +94,7 @@ export default function Header() {
             className="inline-flex items-center justify-center rounded border border-ink/15 bg-paper-card p-2.5 text-ink transition-colors hover:border-clay hover:text-clay lg:hidden"
             aria-expanded={open}
             aria-controls="mobile-nav"
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => setOpen((value) => !value)}
           >
             <span className="sr-only">{open ? 'Close menu' : 'Open menu'}</span>
             <MenuIcon open={open} />
@@ -108,18 +119,18 @@ export default function Header() {
                 {primaryNav.map((item) => {
                   const active = isActive(item.href);
                   return (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      aria-current={active ? 'page' : undefined}
-                      className={`block py-3.5 font-sans text-[15px] font-semibold ${
-                        active ? 'text-clay' : 'text-ink hover:text-clay'
-                      }`}
-                      onClick={() => setOpen(false)}
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        aria-current={active ? 'page' : undefined}
+                        className={`block py-3.5 font-sans text-[15px] font-semibold ${
+                          active ? 'text-clay' : 'text-ink hover:text-clay'
+                        }`}
+                        onClick={() => setOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
                   );
                 })}
               </ul>

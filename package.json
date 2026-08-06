@@ -6,9 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "serve": "next start -p 3000",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "serve": "npx --yes serve out -l 3000"
+    "check": "npm run typecheck && npm run build"
   },
   "dependencies": {
     "next": "14.2.15",
