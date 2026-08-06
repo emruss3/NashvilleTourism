@@ -59,6 +59,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href={asset('/brand/star.png')} type="image/png" />
         <link rel="apple-touch-icon" href={asset('/brand/nsh.png')} />
         <meta name="theme-color" content="#F8F3E9" />
+        {/* Impact requires its non-standard `value` attribute for site verification. */}
+        <meta
+          name="impact-site-verification"
+          {...({ value: '55f0a64c-3f65-40dc-99dc-344896f7b8ed' } as Record<string, string>)}
+        />
       </head>
       <body>
         <a href="#main" className="skip-link">
