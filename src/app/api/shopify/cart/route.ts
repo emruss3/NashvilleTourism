@@ -37,7 +37,7 @@ function validId(value: unknown): value is string {
 }
 
 function validQuantity(value: unknown): value is number {
-  return Number.isInteger(value) && Number(value) >= 1 && Number(value) <= 20;
+  return typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 20;
 }
 
 function errorResponse(error: unknown) {
@@ -120,6 +120,7 @@ export async function PATCH(request: NextRequest) {
       lineId?: unknown;
       quantity?: unknown;
     };
+    const quantity = typeof body.quantity === 'number' ? body.quantity : Number.NaN;
 
     if (!validId(body.cartId) || !validId(body.lineId)) {
       return NextResponse.json(
@@ -128,7 +129,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    if (!Number.isInteger(body.quantity) || Number(body.quantity) < 0 || Number(body.quantity) > 20) {
+    if (!Number.isInteger(quantity) || quantity < 0 || quantity > 20) {
       return NextResponse.json(
         { error: 'Quantity must be between 0 and 20.' },
         { status: 400 },
@@ -136,9 +137,9 @@ export async function PATCH(request: NextRequest) {
     }
 
     const ip = buyerIp(request);
-    const cart = Number(body.quantity) === 0
+    const cart = quantity === 0
       ? await removeCartLine(body.cartId, body.lineId, ip)
-      : await updateCartLine(body.cartId, body.lineId, Number(body.quantity), ip);
+      : await updateCartLine(body.cartId, body.lineId, quantity, ip);
 
     return NextResponse.json({ cart });
   } catch (error) {
