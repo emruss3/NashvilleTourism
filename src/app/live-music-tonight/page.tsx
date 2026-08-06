@@ -5,19 +5,20 @@ import { getCalendar, genresOf, venuesOf } from '@/lib/feeds/calendar';
 import { buildMetadata } from '@/lib/seo';
 import { formatDate } from '@/components/Trust';
 
+export const revalidate = 1800;
+
 export const metadata = buildMetadata({
   title: 'Live Music in Nashville Tonight: Full Show Calendar',
   description:
-    'Every Nashville concert and live music show, sortable by date, venue, genre, and price. Find who is playing tonight and book tickets.',
+    'Nashville concerts and live music shows, sortable by date, venue, genre, and price. Find who is playing tonight and book tickets.',
   path: '/live-music-tonight/',
 });
 
-/**
- * The bookmark page. Fetches the Ticketmaster feed at build time and falls
- * back to seeded records when no key is configured.
- */
+/** Ticketmaster-backed Nashville-only music calendar. */
 export default async function LiveMusicPage() {
-  const { events, live, fetchedAt, configured } = await getCalendar();
+  const { events, live, fetchedAt, configured } = await getCalendar({
+    classificationName: 'music',
+  });
 
   return (
     <div className="shell pb-24">
@@ -25,15 +26,15 @@ export default async function LiveMusicPage() {
       <PageHeader
         eyebrow="Show calendar"
         title="Who's playing in Nashville"
-        intro="Every show we can see, sorted by date. Filter by tonight, this weekend, venue, or genre."
+        intro="Music events at Nashville venues only. Filter by tonight, this weekend, venue, or genre."
       />
 
       {!live && (
         <div className="mt-6 rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep">
           <strong className="font-semibold">Sample listings.</strong>{' '}
           {configured
-            ? 'The events feed did not return results for this build. Showing our seeded records instead.'
-            : 'No events feed is connected yet. Set TICKETMASTER_API_KEY and rebuild to pull the live calendar.'}
+            ? 'The Ticketmaster music feed did not return Nashville results. Showing clearly labeled fallback records instead.'
+            : 'No events feed is connected yet. Set TICKETMASTER_API_KEY to pull the live calendar.'}
         </div>
       )}
 
@@ -48,7 +49,7 @@ export default async function LiveMusicPage() {
 
       <div className="mt-8 flex flex-wrap items-center justify-between gap-4 text-sm text-ink-faint">
         <p>
-          Calendar last built <time dateTime={fetchedAt}>{formatDate(fetchedAt.slice(0, 10))}</time>.
+          Calendar refreshed <time dateTime={fetchedAt}>{formatDate(fetchedAt.slice(0, 10))}</time>.
           {live ? ' Listings supplied by Ticketmaster.' : ''}
         </p>
         <p>
