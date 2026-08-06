@@ -2,9 +2,9 @@ import { site } from '@/lib/site';
 import { getCalendar } from '@/lib/feeds/calendar';
 import { canonical } from '@/lib/seo';
 
-export const dynamic = 'force-static';
+export const revalidate = 1800;
 
-/** Machine-readable event calendar, mirroring what /live-music-tonight/ renders. */
+/** Machine-readable Nashville event calendar, using the same source as the UI. */
 export async function GET() {
   const { events, live, fetchedAt } = await getCalendar();
 
@@ -12,28 +12,35 @@ export async function GET() {
     {
       publisher: { name: site.name, url: canonical('/') },
       source: live ? 'ticketmaster' : 'seed',
+      locationPolicy: 'Only events with a venue explicitly located in Nashville, Tennessee are published from Ticketmaster.',
       note: live
         ? 'Event data supplied by Ticketmaster. Confirm with the venue before acting.'
-        : 'Demonstration data. No live events feed is connected to this build.',
+        : 'Demonstration data. No usable live Nashville event feed was returned.',
       generatedAt: fetchedAt,
       count: events.length,
-      events: events.map((e) => ({
-        id: e.id,
-        name: e.name,
-        startDate: e.date,
-        startTime: e.time ?? null,
-        venue: e.venue,
-        city: e.city,
-        genre: e.genre ?? null,
-        priceFrom: e.priceFrom ?? null,
-        currency: e.currency ?? null,
-        ticketUrl: e.ticketUrl,
-        source: e.source,
+      events: events.map((event) => ({
+        id: event.id,
+        name: event.name,
+        startDate: event.date,
+        startTime: event.time ?? null,
+        venue: event.venue,
+        city: event.city,
+        stateCode: event.stateCode ?? null,
+        segment: event.segment ?? null,
+        genre: event.genre ?? null,
+        subGenre: event.subGenre ?? null,
+        priceFrom: event.priceFrom ?? null,
+        currency: event.currency ?? null,
+        ticketUrl: event.ticketUrl,
+        imageUrl: event.imageUrl ?? null,
+        imageIsFallback: event.imageIsFallback ?? null,
+        source: event.source,
+        onSaleStatus: event.onSaleStatus ?? null,
       })),
     },
     {
       headers: {
-        'Cache-Control': 'public, max-age=1800',
+        'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=300',
         'Access-Control-Allow-Origin': '*',
       },
     },
