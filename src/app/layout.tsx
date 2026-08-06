@@ -29,16 +29,16 @@ export const metadata: Metadata = {
     description: site.description,
     images: [
       {
-        url: canonical('/media/hero/nashville-hero-poster.jpg'),
+        url: canonical('/media/hero/nashroam-skyline-hero.jpg'),
         width: 2400,
         height: 1350,
-        alt: 'Golden-hour aerial from Wedgewood-Houston toward the Nashville skyline.',
+        alt: 'Downtown Nashville at sunset above the Cumberland River and Korean Veterans Memorial Bridge.',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    images: [canonical('/media/hero/nashville-hero-poster.jpg')],
+    images: [canonical('/media/hero/nashroam-skyline-hero.jpg')],
   },
   robots: allowIndexing
     ? { index: true, follow: true }

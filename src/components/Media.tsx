@@ -1,10 +1,13 @@
-import { getImage, hasMedia, heroVideo, type ImageKey } from '@/lib/media';
+import { getImage, hasMedia, type ImageKey } from '@/lib/media';
 import { asset as assetUrl } from '@/lib/seo';
 
 /**
  * Renders a real photograph when the licensed file has been added, and a
  * quiet fallback until then. The fallback reserves the same space, so
  * swapping in the real asset causes no layout shift.
+ *
+ * Credits stay in the media registry and /photo-credits — never as on-image pills
+ * (those read as location labels).
  */
 export function SmartImage({
   imageKey,
@@ -13,6 +16,7 @@ export function SmartImage({
   sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
   priority = false,
   rounded = false,
+  showCredit: _showCredit = false,
 }: {
   imageKey?: ImageKey;
   ratio?: string;
@@ -20,6 +24,8 @@ export function SmartImage({
   sizes?: string;
   priority?: boolean;
   rounded?: boolean;
+  /** Deprecated: on-image credit pills are not rendered. */
+  showCredit?: boolean;
 }) {
   const asset = getImage(imageKey);
   const ready = imageKey ? hasMedia(imageKey) : false;
@@ -52,13 +58,6 @@ export function SmartImage({
         className="h-full w-full object-cover"
         style={asset.focal === 'top' ? { objectPosition: 'top' } : undefined}
       />
-      {asset.credit && (
-        <figcaption className="absolute bottom-1 right-1 rounded bg-ink/60 px-1.5 py-0.5 text-2xs text-white/90">
-          <a href="/photo-credits/" className="hover:underline">
-            {asset.credit}
-          </a>
-        </figcaption>
-      )}
     </figure>
   );
 }
@@ -73,6 +72,7 @@ export function ContentImage({
   className = '',
   sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
   priority = false,
+  showCredit: _showCredit = false,
 }: {
   image: {
     src: string;
@@ -86,6 +86,8 @@ export function ContentImage({
   className?: string;
   sizes?: string;
   priority?: boolean;
+  /** Deprecated: on-image credit pills are not rendered. */
+  showCredit?: boolean;
 }) {
   return (
     <figure className={`relative overflow-hidden ${ratio} ${className}`}>
@@ -102,49 +104,51 @@ export function ContentImage({
         className="h-full w-full object-cover"
         style={image.focal === 'top' ? { objectPosition: 'top' } : undefined}
       />
-      {image.credit && (
-        <figcaption className="absolute bottom-1 right-1 rounded bg-ink/60 px-1.5 py-0.5 text-2xs text-white/90">
-          <a href="/photo-credits/" className="hover:underline">
-            {image.credit}
-          </a>
-        </figcaption>
-      )}
     </figure>
   );
 }
 
 /**
- * Full-bleed hero. Uses the stable poster as the brand surface.
- *
- * The current hero MP4/WebM is a stills montage that reads as choppy/shaky in
- * autoplay; keep the files registered for a future smooth loop, but do not
- * autoplay them over the poster.
+ * Full-bleed hero. Static responsive skyline — no autoplay video download on the homepage.
+ * Registered hero MP4/WebM remain available for a future smooth loop elsewhere.
  */
 export function HeroMedia({ children }: { children: React.ReactNode }) {
-  const stillReady = hasMedia('hero/lower-broadway');
-  const poster = heroVideo.poster ? assetUrl(heroVideo.poster) : undefined;
+  const key = 'hero/nashroam-skyline' as const;
+  const stillReady = hasMedia(key);
+  const asset = getImage(key) as
+    | (NonNullable<ReturnType<typeof getImage>> & {
+        srcMobile?: string;
+      })
+    | undefined;
+  const desktop = asset ? assetUrl(asset.src) : undefined;
+  const mobile = asset?.srcMobile ? assetUrl(asset.srcMobile) : desktop;
 
   return (
     <div className="relative isolate min-h-[min(86vh,760px)] overflow-hidden bg-navy">
       <div className="absolute inset-0" aria-hidden="true">
-        {poster && stillReady ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={poster}
-            alt=""
-            width={2400}
-            height={1350}
-            className="h-full w-full object-cover object-center"
-            fetchPriority="high"
-            decoding="sync"
-          />
+        {desktop && stillReady && asset ? (
+          <picture>
+            {mobile && mobile !== desktop ? (
+              <source media="(max-width: 767px)" srcSet={mobile} />
+            ) : null}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={desktop}
+              alt=""
+              width={asset.width}
+              height={asset.height}
+              className="h-full w-full object-cover object-center"
+              fetchPriority="high"
+              decoding="sync"
+            />
+          </picture>
         ) : (
           <div className="h-full w-full bg-[radial-gradient(1100px_480px_at_80%_-10%,#3A6A94_0%,transparent_55%),radial-gradient(900px_420px_at_5%_110%,#8FC4AD_0%,transparent_50%),linear-gradient(165deg,#214A72_0%,#102A43_100%)]" />
         )}
       </div>
 
       <div
-        className="absolute inset-0 bg-gradient-to-t from-navy/55 via-navy/20 to-navy/5"
+        className="absolute inset-0 bg-gradient-to-t from-navy/40 via-navy/10 to-transparent"
         aria-hidden="true"
       />
 

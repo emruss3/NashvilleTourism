@@ -204,6 +204,14 @@ export function AttractionCard({ item }: { item: Attraction }) {
 /* ----------------------------------- Guide ----------------------------------- */
 
 export function guideImageKey(item: Guide): ImageKey {
+  const bySlug: Partial<Record<string, ImageKey>> = {
+    'nashville-first-time-visitors': 'guide/first-time-visitors',
+    'where-to-stay-nashville': 'guide/where-to-stay',
+    'nashville-weekend-itinerary': 'guide/weekend-itinerary',
+  };
+  const slugKey = bySlug[item.slug];
+  if (slugKey) return slugKey;
+
   const byCluster: Record<Guide['cluster'], ImageKey> = {
     'Trip Planning': 'hub/weekend',
     Restaurants: 'hub/restaurants',

@@ -30,7 +30,11 @@ Copy `public-media-ready/media/` into the repository’s `public/media/` directo
 | `hub/wellness` | `/media/hubs/wellness.jpg` | Add key |
 | `hub/outdoor-living` | `/media/hubs/outdoor-living.jpg` | Add key |
 | `hub/pool` | `/media/hubs/pool.jpg` | Add key |
-| `neighborhood/sylvan-park` | — | **Do not enable.** Keep fallback until an accurate photo is commissioned. |
+| `neighborhood/sylvan-park` | `/media/neighborhoods/sylvan-park.jpg` | Enabled — CVC Sylvan Supply |
+| `hero/nashroam-skyline` | `/media/hero/nashroam-skyline-hero.jpg` (+ mobile crop) | Homepage hero |
+| `hub/*-premium` | `/media/hubs/*-premium.jpg` | Homepage intent hubs |
+| `guide/*` | `/media/guides/*.jpg` | Homepage Start-here guides |
+| `trending/*` | `/media/trending/*.jpg` | Homepage trending cards |
 
 ## Complete approved file inventory
 

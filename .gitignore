@@ -25,3 +25,7 @@ npm-debug.log*
 # Local unpack of production media package (installed copies live in public/media + docs/media)
 NashvilleTourism-media-repository/
 
+# High-res masters kept outside the public production bundle
+media-originals/
+tmp/
+
