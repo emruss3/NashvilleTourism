@@ -5,13 +5,10 @@ import { asset as assetUrl } from '@/lib/seo';
  * Renders a real photograph when the licensed file has been added, and a
  * quiet fallback until then. The fallback reserves the same space, so
  * swapping in the real asset causes no layout shift.
+ *
+ * Credits stay in the media registry and /photo-credits — never as on-image pills
+ * (those read as location labels).
  */
-/** Org / library owners — keep in registry + /photo-credits, not as on-image pills. */
-function isOwnerCredit(credit?: string): boolean {
-  if (!credit) return false;
-  return /Convention & Visitors|Four Seasons|Wikimedia Commons|Pexels/i.test(credit);
-}
-
 export function SmartImage({
   imageKey,
   ratio = 'aspect-[3/2]',
@@ -19,7 +16,7 @@ export function SmartImage({
   sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
   priority = false,
   rounded = false,
-  showCredit = true,
+  showCredit: _showCredit = false,
 }: {
   imageKey?: ImageKey;
   ratio?: string;
@@ -27,7 +24,7 @@ export function SmartImage({
   sizes?: string;
   priority?: boolean;
   rounded?: boolean;
-  /** Set false when the image sits inside a parent link (avoids nested anchors). */
+  /** Deprecated: on-image credit pills are not rendered. */
   showCredit?: boolean;
 }) {
   const asset = getImage(imageKey);
@@ -46,9 +43,6 @@ export function SmartImage({
     );
   }
 
-  const overlayCredit =
-    showCredit && asset.credit && !isOwnerCredit(asset.credit) ? asset.credit : undefined;
-
   return (
     <figure className={`relative overflow-hidden ${ratio} ${round} ${className}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -64,13 +58,6 @@ export function SmartImage({
         className="h-full w-full object-cover"
         style={asset.focal === 'top' ? { objectPosition: 'top' } : undefined}
       />
-      {overlayCredit ? (
-        <figcaption className="absolute bottom-1 right-1 rounded bg-ink/60 px-1.5 py-0.5 text-2xs text-white/90">
-          <a href="/photo-credits/" className="hover:underline">
-            {overlayCredit}
-          </a>
-        </figcaption>
-      ) : null}
     </figure>
   );
 }
@@ -85,7 +72,7 @@ export function ContentImage({
   className = '',
   sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
   priority = false,
-  showCredit = true,
+  showCredit: _showCredit = false,
 }: {
   image: {
     src: string;
@@ -99,6 +86,7 @@ export function ContentImage({
   className?: string;
   sizes?: string;
   priority?: boolean;
+  /** Deprecated: on-image credit pills are not rendered. */
   showCredit?: boolean;
 }) {
   return (
@@ -116,13 +104,6 @@ export function ContentImage({
         className="h-full w-full object-cover"
         style={image.focal === 'top' ? { objectPosition: 'top' } : undefined}
       />
-      {showCredit && image.credit && !isOwnerCredit(image.credit) ? (
-        <figcaption className="absolute bottom-1 right-1 rounded bg-ink/60 px-1.5 py-0.5 text-2xs text-white/90">
-          <a href="/photo-credits/" className="hover:underline">
-            {image.credit}
-          </a>
-        </figcaption>
-      ) : null}
     </figure>
   );
 }
