@@ -9,8 +9,9 @@ export * from './neighborhoods';
 export * from './authors';
 
 /**
- * Flat search index built at module load. Small enough (well under 100 records)
- * to ship to the client for instant filtering without a search service.
+ * Flat search index for durable site content. Live events are intentionally not
+ * built from the seeded event fixtures; the search page injects Ticketmaster
+ * records from the shared live calendar instead.
  */
 export const searchIndex: SearchDoc[] = [
   ...restaurants.map<SearchDoc>((r) => ({
@@ -30,15 +31,6 @@ export const searchIndex: SearchDoc[] = [
     type: 'Hotel',
     neighborhood: neighborhoodName(h.neighborhood),
     keywords: [h.priceCategory, ...h.bestFor, ...h.amenities, 'hotel', 'stay', 'where to stay'],
-  })),
-  ...events.map<SearchDoc>((e) => ({
-    slug: e.slug,
-    href: `/events/${e.slug}/`,
-    title: e.title,
-    summary: e.summary,
-    type: 'Event',
-    neighborhood: neighborhoodName(e.neighborhood),
-    keywords: [e.category, e.venue, 'event', 'tickets', 'this weekend'],
   })),
   ...venues.map<SearchDoc>((v) => ({
     slug: v.slug,
@@ -78,12 +70,12 @@ export const searchIndex: SearchDoc[] = [
 ];
 
 /** Simple scored substring match. Ranked: title > neighborhood > summary > keywords. */
-export function searchDocs(query: string): SearchDoc[] {
+export function searchDocs(query: string, extraDocs: SearchDoc[] = []): SearchDoc[] {
   const q = query.trim().toLowerCase();
   if (q.length < 2) return [];
   const terms = q.split(/\s+/);
 
-  return searchIndex
+  return [...searchIndex, ...extraDocs]
     .map((doc) => {
       let score = 0;
       const title = doc.title.toLowerCase();
@@ -91,22 +83,22 @@ export function searchDocs(query: string): SearchDoc[] {
       const hood = (doc.neighborhood || '').toLowerCase();
       const kw = doc.keywords.join(' ').toLowerCase();
 
-      for (const t of terms) {
-        if (title.includes(t)) score += title.startsWith(t) ? 12 : 8;
-        if (hood.includes(t)) score += 5;
-        if (summary.includes(t)) score += 3;
-        if (kw.includes(t)) score += 2;
-        if (doc.type.toLowerCase().includes(t)) score += 4;
+      for (const term of terms) {
+        if (title.includes(term)) score += title.startsWith(term) ? 12 : 8;
+        if (hood.includes(term)) score += 5;
+        if (summary.includes(term)) score += 3;
+        if (kw.includes(term)) score += 2;
+        if (doc.type.toLowerCase().includes(term)) score += 4;
       }
       return { doc, score };
     })
-    .filter((r) => r.score > 0)
+    .filter((result) => result.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, 24)
-    .map((r) => r.doc);
+    .map((result) => result.doc);
 }
 
-/** Events sorted soonest-first, optionally limited. */
+/** Legacy helper retained only for explicitly seeded development surfaces. */
 export function upcomingEvents(limit?: number) {
   const sorted = [...events].sort((a, b) => a.startDate.localeCompare(b.startDate));
   return typeof limit === 'number' ? sorted.slice(0, limit) : sorted;
