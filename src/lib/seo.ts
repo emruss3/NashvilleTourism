@@ -52,7 +52,7 @@ export function buildMetadata({
   const url = canonical(path);
   const fullTitle = title.includes(site.name) ? title : `${title} | ${site.name}`;
   const ogImage = {
-    url: canonical('/media/hero/nashville-hero-poster.jpg'),
+    url: canonical('/media/hero/nashroam-skyline-hero.jpg'),
     width: 2400,
     height: 1350,
     alt: 'Skyline view of a downtown Nashville street scene.',
@@ -246,7 +246,7 @@ export function articleSchema(guide: Guide, author: Author | undefined, path: st
     description: guide.summary,
     datePublished: guide.datePublished,
     dateModified: guide.dateUpdated || guide.datePublished,
-    image: canonical('/media/hero/nashville-hero-poster.jpg'),
+    image: canonical('/media/hero/nashroam-skyline-hero.jpg'),
     mainEntityOfPage: { '@type': 'WebPage', '@id': canonical(path) },
     author: author
       ? { '@type': 'Person', name: author.name, url: canonical(`/authors/${author.slug}/`) }
@@ -327,7 +327,7 @@ export function eventSchema(e: NashvilleEvent, path: string) {
     ...(e.endDate ? { endDate: e.endDate } : {}),
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-    image: canonical('/media/hero/nashville-hero-poster.jpg'),
+    image: canonical('/media/hero/nashroam-skyline-hero.jpg'),
     organizer: { '@id': canonical('/#organization') },
     url: canonical(path),
     location: {

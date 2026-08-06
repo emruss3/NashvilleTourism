@@ -1,0 +1,177 @@
+[
+  {
+    "source": "NSH_146_original.jpg",
+    "out": "public/media/hero/nashroam-skyline-hero.jpg",
+    "bytes": 544292,
+    "size": "2400x1350",
+    "webp_bytes": 389260
+  },
+  {
+    "source": "NSH_146_original.jpg",
+    "out": "public/media/hero/nashroam-skyline-hero-mobile.jpg",
+    "bytes": 382590,
+    "size": "1400x1750",
+    "webp_bytes": 268266
+  },
+  {
+    "source": "NSH_490_original.jpg",
+    "out": "public/media/hubs/hotels-premium.jpg",
+    "bytes": 430184,
+    "size": "1800x1200",
+    "webp_bytes": 329200
+  },
+  {
+    "source": "Twelve-Thirty-Club-bar.jpg",
+    "out": "public/media/hubs/restaurants-premium.jpg",
+    "bytes": 372328,
+    "size": "1800x1200",
+    "webp_bytes": 262678
+  },
+  {
+    "source": "cassadee-pope-ryman.jpg",
+    "out": "public/media/hubs/live-music-premium.jpg",
+    "bytes": 250982,
+    "size": "1800x1200",
+    "webp_bytes": 141396
+  },
+  {
+    "source": "gray-line-parthenon-transportation-bus.jpg",
+    "out": "public/media/hubs/things-to-do-premium.jpg",
+    "bytes": 309168,
+    "size": "1800x1200",
+    "webp_bytes": 232732
+  },
+  {
+    "source": "musicians-corner-concert-dancing-outdoors.jpg",
+    "out": "public/media/hubs/events-premium.jpg",
+    "bytes": 273338,
+    "size": "1800x1200",
+    "webp_bytes": 168228
+  },
+  {
+    "source": "Skyline-bridge-view.jpg",
+    "out": "public/media/hubs/trip-planner-premium.jpg",
+    "bytes": 246174,
+    "size": "1800x1200",
+    "webp_bytes": 164400
+  },
+  {
+    "source": "Downtown-Aerial-skyline.jpg",
+    "out": "public/media/guides/first-time-visitors.jpg",
+    "bytes": 514586,
+    "size": "2000x1250",
+    "webp_bytes": 404388
+  },
+  {
+    "source": "hermitage-hotel-lobby_1.jpg",
+    "out": "public/media/guides/where-to-stay.jpg",
+    "bytes": 377287,
+    "size": "2000x1250",
+    "webp_bytes": 248094
+  },
+  {
+    "source": "NSH_457_original.jpg",
+    "out": "public/media/guides/weekend-itinerary.jpg",
+    "bytes": 289143,
+    "size": "2000x1250",
+    "webp_bytes": 171528
+  },
+  {
+    "source": "nashville-concert-upcoming-events.jpg",
+    "out": "public/media/trending/live-tonight.jpg",
+    "bytes": 357205,
+    "size": "1800x1200",
+    "webp_bytes": 243638
+  },
+  {
+    "source": "state-capitol-skyline-green-aerial.jpg",
+    "out": "public/media/trending/weekender.jpg",
+    "bytes": 449668,
+    "size": "1800x1200",
+    "webp_bytes": 365344
+  },
+  {
+    "source": "Broadway-RobertsWesternWorld.jpg",
+    "out": "public/media/neighborhoods/downtown-broadway.jpg",
+    "bytes": 407976,
+    "size": "1800x1200",
+    "webp_bytes": 316344
+  },
+  {
+    "source": "draper-james-shopping-12south.jpg",
+    "out": "public/media/neighborhoods/12-south.jpg",
+    "bytes": 243475,
+    "size": "1800x1200",
+    "webp_bytes": 123354
+  },
+  {
+    "source": "TheCupcakeCollection-Germantown.jpg",
+    "out": "public/media/neighborhoods/germantown.jpg",
+    "bytes": 329403,
+    "size": "1800x1200",
+    "webp_bytes": 207018
+  },
+  {
+    "source": "RosemaryAndBeauty-EastNashville.jpg",
+    "out": "public/media/neighborhoods/east-nashville.jpg",
+    "bytes": 324079,
+    "size": "1800x1200",
+    "webp_bytes": 205468
+  },
+  {
+    "source": "2023-Bastion-WeHo-2-3299x2200-d358ddc.jpg",
+    "out": "public/media/neighborhoods/wedgewood-houston.jpg",
+    "bytes": 475467,
+    "size": "1800x1200",
+    "webp_bytes": 400670
+  },
+  {
+    "source": "biscuit-love-gulch.jpg",
+    "out": "public/media/neighborhoods/the-gulch.jpg",
+    "bytes": 236638,
+    "size": "1800x1200",
+    "webp_bytes": 130576
+  },
+  {
+    "source": "2023-BelcourtTheatre-HillsboroVillage-1-3299x2200-d358ddc.jpg",
+    "out": "public/media/neighborhoods/hillsboro-village.jpg",
+    "bytes": 338484,
+    "size": "1800x1200",
+    "webp_bytes": 228948
+  },
+  {
+    "source": "BluebirdCafe-Greenhills.jpg",
+    "out": "public/media/neighborhoods/green-hills.jpg",
+    "bytes": 357818,
+    "size": "1800x1200",
+    "webp_bytes": 244484
+  },
+  {
+    "source": "Odies_Venue_Main.jpg",
+    "out": "public/media/neighborhoods/midtown.jpg",
+    "bytes": 293662,
+    "size": "1800x1200",
+    "webp_bytes": 186434
+  },
+  {
+    "source": "MusicRow-2023-11.jpg",
+    "out": "public/media/neighborhoods/music-row.jpg",
+    "bytes": 366191,
+    "size": "1800x1200",
+    "webp_bytes": 259702
+  },
+  {
+    "source": "2023-SylvanSupply-SylvanPark-(8)-3299x2200-d358ddc.jpg",
+    "out": "public/media/neighborhoods/sylvan-park.jpg",
+    "bytes": 403586,
+    "size": "1800x1200",
+    "webp_bytes": 310586
+  },
+  {
+    "source": "Parthenon-centennial-park.jpg",
+    "out": "public/media/neighborhoods/west-end.jpg",
+    "bytes": 478555,
+    "size": "1800x1200",
+    "webp_bytes": 435468
+  }
+]

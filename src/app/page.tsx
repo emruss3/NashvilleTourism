@@ -8,6 +8,9 @@ import NewsletterForm from '@/components/NewsletterForm';
 import { guides, upcomingEvents } from '@/lib/content';
 import { site } from '@/lib/site';
 import type { ImageKey } from '@/lib/media';
+import { assertHomepageMediaIntegrity } from '@/lib/assert-homepage-media';
+
+assertHomepageMediaIntegrity();
 
 /** Intent hubs that cover most arriving traffic. */
 const INTENT_HUBS: {
@@ -20,37 +23,37 @@ const INTENT_HUBS: {
     title: 'Hotels',
     blurb: 'Compare neighborhoods on walkability, noise, and rate, then book.',
     href: '/where-to-stay/',
-    image: 'hub/hotels',
+    image: 'hub/hotels-premium',
   },
   {
     title: 'Restaurants',
     blurb: 'Where to eat tonight — by neighborhood, price, and reservation difficulty.',
     href: '/restaurants/',
-    image: 'hub/restaurants',
+    image: 'hub/restaurants-premium',
   },
   {
     title: 'Live Music',
     blurb: 'Shows tonight and this weekend, by venue, genre, and price.',
     href: '/live-music-tonight/',
-    image: 'hub/live-music',
+    image: 'hub/live-music-premium',
   },
   {
     title: 'Things to Do',
     blurb: 'Tours, attractions, and party buses worth the time.',
     href: '/things-to-do/',
-    image: 'hub/tours',
+    image: 'hub/things-to-do-premium',
   },
   {
     title: 'Events',
     blurb: 'What is happening this week, and what to book early.',
     href: '/events/',
-    image: 'hub/honky-tonk-highway',
+    image: 'hub/events-premium',
   },
   {
     title: 'Trip Planner',
     blurb: 'Answer a few questions, get a day-by-day plan you can book.',
     href: '/plan/',
-    image: 'hub/weekend',
+    image: 'hub/trip-planner-premium',
   },
 ];
 
@@ -71,12 +74,12 @@ const TRENDING_NOW: {
   {
     title: "Who's Playing in Nashville Tonight",
     href: '/live-music-tonight/',
-    image: 'hub/live-music',
+    image: 'trending/live-tonight',
   },
   {
     title: 'The Nashville Weekender: Friday to Sunday',
     href: '/weekend/',
-    image: 'neighborhood/downtown-broadway',
+    image: 'trending/weekender',
   },
 ];
 
