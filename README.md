@@ -1,13 +1,13 @@
-# NASHVILLE
+# NASHVILLE / NashRoam
 
-The most useful way to plan, book, and experience Nashville.
+The most useful way to plan, book, shop, and experience Nashville.
 
-A conversion-focused city guide and trip-planning site. Built as a statically
-exported **Next.js 14 (App Router) + TypeScript + Tailwind** app with no runtime
-backend, so it deploys to any static host.
+A conversion-focused Nashville city guide built with **Next.js 14 App Router,
+TypeScript, and Tailwind**, deployed as a Vercel application at
+`www.nashroam.com`.
 
-Domain and legal entity remain placeholders in `src/lib/site.ts`. Brand rules:
-`.cursor/rules/nashville-brand.mdc`.
+The public editorial brand is currently **NASHVILLE** on the NashRoam domain.
+Brand rules live in `.cursor/rules/nashville-brand.mdc`.
 
 ---
 
@@ -16,180 +16,184 @@ Domain and legal entity remain placeholders in `src/lib/site.ts`. Brand rules:
 ```bash
 npm install
 npm run dev          # http://localhost:3000
-
-npm run build        # static export to ./out
-npm run serve        # serve the built output on :3000
-npm run typecheck    # tsc --noEmit
+npm run typecheck
+npm run build
+npm run start        # run the production build
 ```
 
-No credentials are required to run or build. Every integration degrades
-gracefully when its key is absent. Copy `.env.example` to `.env.local` to wire
-up the live feeds.
+Copy `.env.example` to `.env.local`. Most integrations degrade gracefully when
+their credentials are absent. The Shopify shop renders a setup state until the
+Headless storefront variables are configured.
+
+---
+
+## Deployment model
+
+The application previously used `output: 'export'`. The white-label Shopify
+storefront requires a Vercel server runtime for:
+
+- Server-only Storefront API credentials
+- Dynamic Shopify product routes
+- Anonymous cart creation and mutation
+- Fresh checkout URLs
+
+`NEXT_PUBLIC_BASE_PATH` should be blank for `www.nashroam.com`.
 
 ---
 
 ## Architecture
 
-```
+```text
 src/
-├── app/                    # Routes (App Router, all statically exported)
-├── components/             # Reusable UI
+├── app/
+│   ├── shop/                         # Shopify collection + product pages
+│   ├── cart/                         # NashRoam cart page
+│   ├── api/shopify/cart/             # Server-only cart API
+│   └── ...                           # Editorial and planning routes
+├── components/
+│   ├── commerce/                     # Product, variant, cart, and drawer UI
+│   └── ...
 └── lib/
-    ├── types.ts            # Content models
-    ├── site.ts             # Brand strings + navigation
-    ├── seo.ts              # Metadata builders + JSON-LD
-    ├── analytics.ts        # Event contract
-    ├── media.ts            # Keyed image/video library
-    ├── partners.ts         # Affiliate deep-link builders
-    ├── itinerary.ts        # Trip planner rules engine
-    ├── feeds/              # Ticketmaster + reviews adapters
-    └── content/            # Seed content (the CMS stand-in)
+    ├── shopify/
+    │   ├── client.ts                 # Private Storefront API client
+    │   ├── queries.ts                # Storefront GraphQL documents
+    │   ├── products.ts               # Product data access
+    │   ├── cart.ts                   # Cart operations
+    │   └── types.ts                  # Commerce types
+    ├── content/                      # Editorial seed content
+    ├── feeds/                        # Ticketmaster and review adapters
+    ├── media.ts                      # Rights-tracked media registry
+    ├── itinerary.ts                  # Deterministic trip planner
+    ├── partners.ts                   # Affiliate deep-link builders
+    ├── seo.ts                        # Metadata and structured data
+    └── site.ts                       # Brand, domain, and navigation
 ```
 
-### Content system
+---
 
-Content lives in typed modules under `src/lib/content/`. Every listing carries
-provenance fields, which is what the trust UI reads:
+## White-label commerce
+
+Customer-facing commerce stays inside the NashRoam application:
+
+```text
+www.nashroam.com/shop/
+www.nashroam.com/shop/[product-handle]/
+www.nashroam.com/cart/
+checkout.nashroam.com                 # configured in Shopify
+```
+
+Shopify provides catalog, pricing, inventory, discounts, payments, tax,
+shipping, and hosted checkout. Printful connects directly to Shopify for
+white-label production and fulfillment.
+
+Required server environment variables:
+
+```text
+SHOPIFY_STORE_DOMAIN=nashroam.myshopify.com
+SHOPIFY_STOREFRONT_PRIVATE_TOKEN=...
+SHOPIFY_STOREFRONT_API_VERSION=2026-07
+SHOPIFY_COLLECTION_HANDLE=nashroam
+```
+
+The private token is used only by Server Components and the cart Route Handler.
+It must never be exposed through a `NEXT_PUBLIC_*` variable.
+
+Full admin and fulfillment setup:
+
+- `docs/commerce/SHOPIFY-PRINTFUL-SETUP.md`
+- `docs/commerce/MERCH-LAUNCH-CHECKLIST.md`
+
+---
+
+## Content system
+
+Editorial content lives in typed modules under `src/lib/content/`. Every
+listing carries provenance fields used by the trust UI:
 
 | Field | Purpose |
 |---|---|
-| `dataStatus` | `verified` / `needs-recheck` / `unverified` |
-| `dateChecked` | When a human last confirmed the practical details |
-| `dateUpdated` | When the written content last changed |
-| `placement` | `editorial` / `sponsored` / `affiliate` |
-| `sponsorName` | Required when `placement` is `sponsored` |
-| `sourceNote` | Where the details came from (internal, not rendered) |
+| `dataStatus` | `verified`, `needs-recheck`, or `unverified` |
+| `dateChecked` | When practical details were confirmed |
+| `dateUpdated` | When editorial copy changed |
+| `placement` | `editorial`, `sponsored`, or `affiliate` |
+| `sponsorName` | Required for sponsored content |
+| `sourceNote` | Internal source record |
 
-Swapping in a real CMS means replacing the modules in `src/lib/content/` with
-fetch calls that return the same shapes. Nothing else changes.
-
-### Trip planner
-
-`src/lib/itinerary.ts` is a **deterministic rules engine**, not a generative
-model, and the UI says so rather than implying AI it does not have. It filters
-the content pool by budget, pace, party composition, and neighborhood, then
-composes day plans with travel notes, booking lead times, and alternatives.
+The current restaurant and hotel inventory is still demonstration content and
+must be replaced before indexing is enabled.
 
 ---
 
 ## Integrations
 
-All three are written against the real API schemas and are inert until keyed.
-
-| Integration | Env var | Behavior without a key |
+| Integration | Environment variable | Behavior without credentials |
 |---|---|---|
-| Ticketmaster Discovery | `TICKETMASTER_API_KEY` | `/live-music-tonight/` renders seeded shows and labels them as samples |
-| Google Places reviews | `GOOGLE_PLACES_API_KEY` | Review block renders nothing |
-| TripAdvisor rating | `TRIPADVISOR_API_KEY` | Review block renders nothing |
-| Affiliate IDs | `NEXT_PUBLIC_*` | Links work, carry no attribution |
+| Shopify Headless | `SHOPIFY_*` | Shop displays setup state; cart API returns 503 |
+| Ticketmaster Discovery | `TICKETMASTER_API_KEY` | Seeded events remain clearly labeled |
+| Google Places | `GOOGLE_PLACES_API_KEY` | Review block is omitted |
+| TripAdvisor | `TRIPADVISOR_API_KEY` | Rating block is omitted |
+| Booking affiliates | `NEXT_PUBLIC_*` partner IDs | Links work without attribution |
 
-Feeds are fetched at **build time**, not per request. Rebuild on a schedule to
-refresh the calendar.
-
-**Review licensing** is handled in `src/lib/feeds/reviews.ts`. Google requires
-attribution, a link back, and forbids caching beyond 30 days. TripAdvisor
-requires an approved partner account and does **not** permit reproducing full
-review text, which is why that adapter returns a rating and count only.
+Printful uses the official Shopify app. No Printful API token is required by
+this repository for normal order fulfillment.
 
 ---
 
-## Media
+## Media and rights
 
-No photography or video ships with this repo. Every image slot renders a
-placeholder that reserves the correct space, so adding real files causes **no
-layout shift**.
+The repository includes owned Nashville photography, openly licensed
+neighborhood imagery, a rights ledger, and public attribution pages.
 
-See `public/media/README.md` for the sourcing brief, exact filenames, and the
-two-step activation process. The hero supports a looping background video with
-a poster fallback and full `prefers-reduced-motion` handling.
+- `src/lib/media.ts` — keyed registry
+- `docs/media/ASSET-RIGHTS.json` — internal rights records
+- `docs/media/ATTRIBUTION.md` — attribution requirements
+- `/photo-credits/` — public Creative Commons credits
 
----
-
-## Measured results
-
-Lighthouse, desktop preset, against the production build:
-
-| | Performance | Accessibility | Best Practices | SEO |
-|---|---|---|---|---|
-| Homepage | 90 | 100 | 96 | 100 |
-| Guide page | 90 | 100 | 96 | 100 |
-| Trip planner | 90 | 100 | 96 | 100 |
-
-LCP 0.6–0.7s · CLS 0–0.028 · TBT 0ms · First Load JS 87 kB shared
-
-**axe-core:** 0 WCAG 2.1/2.2 AA violations across desktop and mobile.
-
-Verified manually: skip link is the first tab stop, mobile drawer sets
-`aria-expanded` and returns focus on Escape, search is a full keyboard combobox,
-all internal links resolve, all page titles and descriptions are unique.
+Named businesses should use exact photography or the intentional branded
+placeholder, never unrelated category stock.
 
 ---
 
-## SEO
+## SEO and indexing safety
 
-- Statically generated, semantic HTML
-- Unique title + description + canonical per page
-- JSON-LD: Organization/NewsMediaOrganization, WebSite, BreadcrumbList,
-  Article, FAQPage, ItemList, Speakable, Person, Restaurant, Hotel, Event,
-  TouristAttraction, Place
-- `sitemap.xml` and `robots.txt` generated from content
-- Search results are `noindex` and disallowed, to avoid thin/infinite URLs
+- Unique metadata and canonicals
+- Sitemap and robots generation
+- Structured data for publisher, guides, events, places, listings, and authors
+- `llms.txt`, `llms-full.txt`, JSON endpoints, and RSS
+- Search results and cart pages are noindex
+- Product pages remain subject to the global indexing gate
 
-## Built for AI answer engines
+Indexing requires both:
 
-Assistants are a primary discovery channel for a guide like this, so the site
-exposes itself structurally rather than making a model infer meaning from HTML.
+```text
+NEXT_PUBLIC_ALLOW_INDEXING=true
+```
 
-| Endpoint | What it is |
-|---|---|
-| `/llms.txt` | Short site map for models, in the llmstxt.org convention |
-| `/llms-full.txt` | Full answer reference: every guide's short answer, FAQs, author, and dates |
-| `/api/listings.json` | All listings with neighborhood, category, and verification state |
-| `/api/events.json` | The event calendar |
-| `/api/index.json` | Every indexable URL with type, title, and summary |
-| `/feed.xml` | RSS 2.0 |
-
-Design decisions worth knowing:
-
-- **Provenance travels with the data.** Every record in the JSON and text
-  exports carries its verification state, check date, and author. A model can
-  therefore tell a confirmed fact from a placeholder, and the licence block
-  explicitly instructs it not to quote unverified records as fact.
-- **`robots.txt` states an explicit policy for 16 named AI agents** rather than
-  leaving access to inference. Retrieval agents that cite sources are allowed.
-  `CCBot` is disallowed, because a bulk training corpus offers no citation path
-  back to the publisher. Change that one line if the policy changes.
-- **`ItemList` on every directory page**, which is what answer engines read for
-  "best X in Nashville" queries.
-- **`Speakable` targets the `.short-answer` block**, and the `KeyFacts`
-  component gives that block a stable class and a real definition list, so the
-  passage worth quoting is unambiguous.
-- **`publishingPrinciples`, `correctionsPolicy`, and `ownershipFundingInfo`**
-  are declared on the publisher entity. These are the provenance properties the
-  major engines read, and they point at pages a reader would want anyway.
+and completion of the business-identity fields in `src/lib/site.ts`.
 
 ---
 
-## Documentation
+## Validation
 
-- `docs/ANALYTICS.md` — the full event contract
-- `public/media/README.md` — media sourcing brief
-- `.env.example` — every environment variable, annotated
-- `/style-guide` — live design system page
+The pull-request workflow runs:
+
+```bash
+npm ci
+npm run typecheck
+npm run build
+```
+
+Commerce should also be tested manually with a real Shopify test product and a
+Printful sample order before launch.
 
 ---
 
-## Known limitations
+## Known launch blockers
 
-See the handover notes for the full list. The main ones:
-
-1. **No photography or video.** Placeholders throughout.
-2. **Listings are sample data.** Restaurants and hotels use bracketed
-   `[Sample]` names. Nothing is marked `verified`, and a site-wide banner says
-   so. Do not launch without replacing them.
-3. **Author profiles are placeholders.** Real bylines are a trust requirement.
-4. **Privacy and Terms are unreviewed templates.** They need counsel.
-5. **Newsletter and itinerary save/email are not wired** to a provider.
-6. **The Grand Ole Opry has no neighborhood slug** — the Opry House sits in
-   Music Valley, which is not in the neighborhood union. Add it before
-   publishing Opry content.
+1. Restaurant, hotel, and event content still includes sample records.
+2. Author profiles are placeholders.
+3. Legal entity, street address, ZIP, and phone are incomplete.
+4. Privacy and terms require final review.
+5. Newsletter and itinerary save/email are not connected.
+6. Shopify, checkout-domain, and Printful admin setup require store credentials.
+7. Physical merchandise samples must be approved before products are published.
