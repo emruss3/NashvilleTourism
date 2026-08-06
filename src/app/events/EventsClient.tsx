@@ -3,25 +3,29 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { EventCard } from '@/components/Cards';
+import LiveEventCard from '@/components/LiveEventCard';
 import { SectionHeader } from '@/components/Ui';
-import type { EventCategory, NashvilleEvent } from '@/lib/types';
+import type { LiveEvent } from '@/lib/feeds/ticketmaster';
 
-export default function EventsClient({ events }: { events: NashvilleEvent[] }) {
+function categoryOf(event: LiveEvent): string {
+  return event.segment || event.genre || 'Other';
+}
+
+export default function EventsClient({ events }: { events: LiveEvent[] }) {
   const searchParams = useSearchParams();
   const categories = useMemo(
-    () => Array.from(new Set(events.map((e) => e.category))).sort(),
+    () => Array.from(new Set(events.map(categoryOf))).sort(),
     [events],
   );
-  const requested = searchParams.get('category') as EventCategory | null;
+  const requested = searchParams.get('category');
   const requestedCategory = requested && categories.includes(requested) ? requested : 'all';
-  const [active, setActive] = useState<EventCategory | 'all'>(requestedCategory);
+  const [active, setActive] = useState<string>(requestedCategory);
 
   useEffect(() => {
     setActive(requestedCategory);
   }, [requestedCategory]);
 
-  const filtered = active === 'all' ? events : events.filter((e) => e.category === active);
+  const filtered = active === 'all' ? events : events.filter((event) => categoryOf(event) === active);
 
   return (
     <>
@@ -40,37 +44,37 @@ export default function EventsClient({ events }: { events: NashvilleEvent[] }) {
         >
           All
         </button>
-        {categories.map((c) => (
+        {categories.map((category) => (
           <button
             type="button"
-            key={c}
-            onClick={() => setActive(c)}
+            key={category}
+            onClick={() => setActive(category)}
             className={`rounded border px-4 py-1.5 text-sm font-medium transition-colors ${
-              active === c
+              active === category
                 ? 'border-ink bg-ink text-paper-card'
                 : 'border-paper-edge bg-paper-card text-ink-soft hover:border-ink/30 hover:text-ink'
             }`}
           >
-            {c}
+            {category}
           </button>
         ))}
       </div>
 
       <section id="upcoming" className="scroll-mt-24 py-4">
         <SectionHeader
-          title="Upcoming"
+          title="Upcoming in Nashville"
           description={`${filtered.length} event${filtered.length === 1 ? '' : 's'}${
             active === 'all' ? '' : ` · ${active}`
           }`}
         />
         {filtered.length === 0 ? (
           <p className="rounded-card border border-dashed border-paper-edge bg-paper-card px-6 py-10 text-center text-[15px] text-ink-soft">
-            No events in this category yet.
+            No Nashville events in this category are currently available from the feed.
           </p>
         ) : (
           <div className="grid gap-5 lg:grid-cols-2">
-            {filtered.map((e) => (
-              <EventCard key={e.slug} item={e} />
+            {filtered.map((event) => (
+              <LiveEventCard key={`${event.source}-${event.id}`} item={event} />
             ))}
           </div>
         )}
