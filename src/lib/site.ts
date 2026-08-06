@@ -99,6 +99,7 @@ export const primaryNav = [
   { label: 'Music', href: '/music/' },
   { label: 'Neighborhoods', href: '/neighborhoods/' },
   { label: 'Guides', href: '/guides/' },
+  { label: 'Shop', href: '/shop/' },
 ] as const;
 
 export const secondaryNav = [
