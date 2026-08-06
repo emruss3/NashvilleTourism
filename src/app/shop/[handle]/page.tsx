@@ -53,7 +53,7 @@ export async function generateMetadata({
 export default async function ProductPage({ params }: { params: { handle: string } }) {
   if (!isShopifyConfigured()) notFound();
 
-  let product;
+  let product: Awaited<ReturnType<typeof getProductByHandle>>;
   try {
     product = await getProductByHandle(params.handle);
   } catch (error) {
