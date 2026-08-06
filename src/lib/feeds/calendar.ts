@@ -1,43 +1,59 @@
-import { fetchLiveEvents, TICKETMASTER_CONFIGURED, type LiveEvent } from './ticketmaster';
+import {
+  fetchLiveEvents,
+  TICKETMASTER_CONFIGURED,
+  type FetchOptions,
+  type LiveEvent,
+} from './ticketmaster';
 import { events as seedEvents } from '../content/listings';
-import { neighborhoodName } from '../content/neighborhoods';
 
 /**
- * The calendar the live-music directory renders.
+ * Shared normalized calendar used by every public event surface.
  *
- * Prefers the Ticketmaster feed. When no key is configured, or the feed is
- * unreachable, it maps our seeded events into the same shape so the page still
- * works and is visibly labelled as sample data.
+ * Ticketmaster is the source of truth when configured. Seed records exist only
+ * as a visibly labelled development fallback and are never mixed into a live
+ * result set.
  */
 
-function seedToLive(): LiveEvent[] {
-  return seedEvents.map((e) => ({
-    id: e.slug,
-    name: e.title,
-    date: e.startDate,
-    time: e.timeNote,
-    venue: e.venue,
-    city: neighborhoodName(e.neighborhood),
-    genre: e.category,
-    ticketUrl: e.ticketUrl ?? `/events/${e.slug}/`,
-    source: 'seed' as const,
-  }));
+function seedToLive(opts: FetchOptions = {}): LiveEvent[] {
+  const classification = opts.classificationName?.trim().toLowerCase();
+  const source = classification === 'music'
+    ? seedEvents.filter((event) => event.category.toLowerCase() === 'concert')
+    : seedEvents;
+
+  return source
+    .filter((event) => (!opts.startDate || event.startDate >= opts.startDate))
+    .filter((event) => (!opts.endDate || event.startDate <= opts.endDate))
+    .map((event) => ({
+      id: event.slug,
+      name: event.title,
+      date: event.startDate,
+      time: event.timeNote,
+      venue: event.venue,
+      city: 'Nashville',
+      stateCode: 'TN',
+      segment: event.category === 'Sports' ? 'Sports' : event.category === 'Concert' ? 'Music' : event.category,
+      genre: event.category,
+      ticketUrl: event.ticketUrl ?? `/events/${event.slug}/`,
+      source: 'seed' as const,
+    }));
 }
 
 export interface CalendarResult {
   events: LiveEvent[];
-  /** True when the records came from the live feed. */
+  /** True when the records came from Ticketmaster. */
   live: boolean;
-  /** Build timestamp, shown so readers know how fresh the page is. */
   fetchedAt: string;
   configured: boolean;
 }
 
-export async function getCalendar(): Promise<CalendarResult> {
-  const live = await fetchLiveEvents();
-  const useLive = live.length > 0;
+export async function getCalendar(opts: FetchOptions = {}): Promise<CalendarResult> {
+  const liveEvents = await fetchLiveEvents(opts);
+  const useLive = liveEvents.length > 0;
+
   return {
-    events: (useLive ? live : seedToLive()).sort((a, b) => a.date.localeCompare(b.date)),
+    events: (useLive ? liveEvents : seedToLive(opts)).sort(
+      (a, b) => a.date.localeCompare(b.date) || (a.time ?? '').localeCompare(b.time ?? ''),
+    ),
     live: useLive,
     fetchedAt: new Date().toISOString(),
     configured: TICKETMASTER_CONFIGURED,
@@ -46,10 +62,10 @@ export async function getCalendar(): Promise<CalendarResult> {
 
 /** Distinct genres present in a set, for the filter controls. */
 export function genresOf(events: LiveEvent[]): string[] {
-  return Array.from(new Set(events.map((e) => e.genre).filter(Boolean) as string[])).sort();
+  return Array.from(new Set(events.map((event) => event.genre).filter(Boolean) as string[])).sort();
 }
 
 /** Distinct venues present in a set, for the filter controls. */
 export function venuesOf(events: LiveEvent[]): string[] {
-  return Array.from(new Set(events.map((e) => e.venue))).sort();
+  return Array.from(new Set(events.map((event) => event.venue))).sort();
 }
