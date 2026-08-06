@@ -3,70 +3,70 @@
     {
       "asset_id": "nashville-hero-poster",
       "output_path": "public/media/hero/nashville-hero-poster.jpg",
-      "recommended_use": "Primary hero poster and opening hero scene",
-      "alt_text": "Golden-hour aerial from Wedgewood-Houston toward the Nashville skyline.",
+      "recommended_use": "Primary hero poster / Hero: Lower Broadway (day)",
+      "alt_text": "Skyline view of a downtown Nashville street scene.",
       "focal": "center",
-      "source_type": "BPH-owned website media",
-      "source_site": "DELUX WeHo",
-      "source_page": "https://deluxweho.com/",
-      "source_url": "https://deluxweho.com/assets/images/cache/DJI_20260611191622_0021_D2-3367430b04e0a172d30c632aa0914446.jpg",
-      "source_sha256": "d3599d99a8b8226ff906c0a413a1bc8c8b66204020f2815f8bf3deafa9f37fc7",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
-      "credit": "Big Plan Holdings / DELUX WeHo",
-      "rights_status": "approved-owned",
-      "restrictions": "Owned source. Accurate for Nashville skyline and Wedgewood-Houston; do not label as Downtown street-level.",
-      "derivative_notes": "Center-cropped and resized to 2400\u00d71350; no generative editing."
+      "source_type": "Openly licensed Nashville photograph",
+      "source_site": "Pexels",
+      "source_page": "https://www.pexels.com/photo/skyline-view-of-downtown-nashville-street-scene-29319083/",
+      "source_url": "https://www.pexels.com/photo/skyline-view-of-downtown-nashville-street-scene-29319083/",
+      "source_sha256": "67607d879455a08bc418dad3cf03e706274c6be9a9324c5bce419c150e3bdd5d",
+      "license": "Pexels License",
+      "credit": "Tatiana Bidon",
+      "rights_status": "approved-open-license",
+      "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
+      "derivative_notes": "Cropped and resized to 2400×1350; no generative editing."
     },
     {
       "asset_id": "downtown-rooftop",
       "output_path": "public/media/hero/downtown-rooftop.jpg",
-      "recommended_use": "Hero support: Downtown/Broadway rooftop",
-      "alt_text": "Daytime rooftop overlooking Lower Broadway and downtown Nashville.",
+      "recommended_use": "Hero: Lower Broadway (day)",
+      "alt_text": "Skyline view of a downtown Nashville street scene.",
       "focal": "center",
-      "source_type": "BPH-owned website media",
-      "source_site": "JBJ's Nashville",
-      "source_page": "https://www.jbjsnash.com/news",
-      "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394222d8/69efe35b1c23f8fcbc63f1c2_JBJ_March_23_26-3.jpg",
-      "source_sha256": "05aab739f078cfb3c4b0e60afdcdc2d03bbc06fa95c001c5a19c9ba5d7de67a5",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
-      "credit": "Big Plan Holdings / JBJ's Nashville",
-      "rights_status": "approved-owned",
-      "restrictions": "Owned source. May represent Downtown/Broadway, rooftop, and planning content.",
-      "derivative_notes": "Center-cropped and resized to 2400\u00d71350; no generative editing."
+      "source_type": "Openly licensed Nashville photograph",
+      "source_site": "Pexels",
+      "source_page": "https://www.pexels.com/photo/skyline-view-of-downtown-nashville-street-scene-29319083/",
+      "source_url": "https://www.pexels.com/photo/skyline-view-of-downtown-nashville-street-scene-29319083/",
+      "source_sha256": "67607d879455a08bc418dad3cf03e706274c6be9a9324c5bce419c150e3bdd5d",
+      "license": "Pexels License",
+      "credit": "Tatiana Bidon",
+      "rights_status": "approved-open-license",
+      "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
+      "derivative_notes": "Cropped and resized to 2400×1350; no generative editing."
     },
     {
       "asset_id": "live-music-night",
       "output_path": "public/media/hero/live-music-night.jpg",
-      "recommended_use": "Hero support: live music and nightlife",
-      "alt_text": "Crowd watching a rooftop performance under red and blue stage lighting in downtown Nashville.",
+      "recommended_use": "Hero: Live Music",
+      "alt_text": "Downtown Nashville at dusk.",
       "focal": "center",
-      "source_type": "BPH-owned website media",
-      "source_site": "JBJ's Nashville",
-      "source_page": "https://www.jbjsnash.com/vip-table-service",
-      "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394221a5/6a03787502db41ed15b9663d_JBJ_4_23_26_Lr-52.jpg",
-      "source_sha256": "a86e59ba7f557020774b52f31d041bf455737bd8f164d2bd7ec76522d42a4534",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
-      "credit": "Big Plan Holdings / JBJ's Nashville",
-      "rights_status": "approved-owned",
-      "restrictions": "Owned source. Use as an experience/category image, not as a photograph of an unrelated named venue.",
-      "derivative_notes": "Center-cropped and resized to 2400\u00d71350; no generative editing."
+      "source_type": "Openly licensed Nashville photograph",
+      "source_site": "Pexels",
+      "source_page": "https://www.pexels.com/photo/downtown-nasheville-at-dusk-17278177/",
+      "source_url": "https://www.pexels.com/photo/downtown-nasheville-at-dusk-17278177/",
+      "source_sha256": "3e31d5b56b070a5e25293656141d17cd33b83d59579f64a2e13dec865896edbc",
+      "license": "Pexels License",
+      "credit": "Ceesz",
+      "rights_status": "approved-open-license",
+      "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
+      "derivative_notes": "Cropped and resized to 2400×1350; no generative editing."
     },
     {
       "asset_id": "downtown-broadway",
       "output_path": "public/media/neighborhoods/downtown-broadway.jpg",
       "recommended_use": "Neighborhood: Downtown / Broadway",
-      "alt_text": "A rooftop view down Lower Broadway in downtown Nashville on a bright day.",
+      "alt_text": "Vibrant street with neon signs on Lower Broadway in Nashville.",
       "focal": "center",
-      "source_type": "BPH-owned website media",
-      "source_site": "JBJ's Nashville",
-      "source_page": "https://www.jbjsnash.com/news",
-      "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394222d8/69efe35b1c23f8fcbc63f1c2_JBJ_March_23_26-3.jpg",
-      "source_sha256": "05aab739f078cfb3c4b0e60afdcdc2d03bbc06fa95c001c5a19c9ba5d7de67a5",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
-      "credit": "Big Plan Holdings / JBJ's Nashville",
-      "rights_status": "approved-owned",
-      "restrictions": "Accurate Downtown/Broadway geography.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "source_type": "Openly licensed Nashville photograph",
+      "source_site": "Pexels",
+      "source_page": "https://www.pexels.com/photo/vibrant-street-with-neon-signs-in-nashville-29319088/",
+      "source_url": "https://www.pexels.com/photo/vibrant-street-with-neon-signs-in-nashville-29319088/",
+      "source_sha256": "d2379367ee5e71024e3a02c6a3fa7c21f29cd2997c16a80009d118f9d8cafd93",
+      "license": "Pexels License",
+      "credit": "Tatiana Bidon",
+      "rights_status": "approved-open-license",
+      "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "wedgewood-houston",
@@ -79,11 +79,11 @@
       "source_page": "https://deluxweho.com/p/neighborhood/",
       "source_url": "https://deluxweho.com/assets/images/cache/DJI_20260531110124_0328_D-2-589fb96d42da6e8bae9b0bbd0c0948ef.jpg",
       "source_sha256": "d70f2c0c1045b84f5c33806236b6bfc8ee9dd40ebcf0c3a58e0e73c5af0755f9",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Accurate Wedgewood-Houston context; source is from DELUX WeHo.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "restaurants",
@@ -96,79 +96,79 @@
       "source_page": "https://www.jbjsnash.com/about",
       "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394222d8/687a88a0b84b6b768e78ffbd_JBJ%27S%20FOOD.jpg",
       "source_sha256": "cfa57d3b051ed3ec62504af984c169bda1dfc2cb70daa0330010c01df52600b9",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
-      "restrictions": "Category image only. The food is from JBJ\u2019s; do not attach to a different named restaurant.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "restrictions": "Category image only. The food is from JBJ’s; do not attach to a different named restaurant.",
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "tickets",
       "output_path": "public/media/hubs/tickets.jpg",
-      "recommended_use": "Hub: Tickets and events",
-      "alt_text": "A packed Nashville venue during a live performance.",
+      "recommended_use": "Hub: Events & Tickets",
+      "alt_text": "Vibrant evening scene in downtown Nashville.",
       "focal": "center",
-      "source_type": "BPH-owned website media",
-      "source_site": "JBJ's Nashville",
-      "source_page": "https://www.jbjsnash.com/about",
-      "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394222d8/687aa6cf1014d1ab15d4ad55_Live%20Music%20JBJ%27s%20Nashville%20DJ%20Diesel.JPG",
-      "source_sha256": "9cc4a9976ce24727ea9eae32bb32ca22de20f8549d7dc0bc806d3670a16bcf60",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
-      "credit": "Big Plan Holdings / JBJ's Nashville",
-      "rights_status": "approved-owned",
-      "restrictions": "Category image only. Do not identify as an unrelated event or venue.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "source_type": "Openly licensed Nashville photograph",
+      "source_site": "Pexels",
+      "source_page": "https://www.pexels.com/photo/vibrant-evening-scene-in-downtown-nashville-36077403/",
+      "source_url": "https://www.pexels.com/photo/vibrant-evening-scene-in-downtown-nashville-36077403/",
+      "source_sha256": "3289a9c739f5323a7812f6c57eb31afa83b143677fd940418029762059c20c25",
+      "license": "Pexels License",
+      "credit": "Mark Direen",
+      "rights_status": "approved-open-license",
+      "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "live-music",
       "output_path": "public/media/hubs/live-music.jpg",
       "recommended_use": "Hub: Live Music",
-      "alt_text": "A crowd gathered around a stage under dramatic lighting in downtown Nashville.",
+      "alt_text": "People gathered in front of a Nashville building for live music.",
       "focal": "center",
-      "source_type": "BPH-owned website media",
-      "source_site": "JBJ's Nashville",
-      "source_page": "https://www.jbjsnash.com/vip-table-service",
-      "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394221a5/6a03787502db41ed15b9663d_JBJ_4_23_26_Lr-52.jpg",
-      "source_sha256": "a86e59ba7f557020774b52f31d041bf455737bd8f164d2bd7ec76522d42a4534",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
-      "credit": "Big Plan Holdings / JBJ's Nashville",
-      "rights_status": "approved-owned",
-      "restrictions": "Category image only.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "source_type": "Openly licensed Nashville photograph",
+      "source_site": "Pexels",
+      "source_page": "https://www.pexels.com/photo/people-gathered-in-front-of-a-building-6752433/",
+      "source_url": "https://www.pexels.com/photo/people-gathered-in-front-of-a-building-6752433/",
+      "source_sha256": "5bf169dabb33cfb7aa9fb82960bbcce49493b548c0d2bb951614b7250f12c34b",
+      "license": "Pexels License",
+      "credit": "Rachel Claire",
+      "rights_status": "approved-open-license",
+      "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "honky-tonk-highway",
       "output_path": "public/media/hubs/honky-tonk-highway.jpg",
-      "recommended_use": "Hub: Honky Tonk Highway / Broadway nightlife",
-      "alt_text": "A nighttime rooftop crowd overlooking downtown Nashville.",
+      "recommended_use": "Hub: Honky Tonk Highway",
+      "alt_text": "Vibrant nightlife on Nashville Broadway at night.",
       "focal": "center",
-      "source_type": "BPH-owned website media",
-      "source_site": "JBJ's Nashville",
-      "source_page": "https://www.jbjsnash.com/vip-table-service",
-      "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394221a5/6a03787691038d4b26f864a7_JBJ%20Drone_4_3_26_LR-4.jpg",
-      "source_sha256": "d183607163495ea82032ddc7ab14622dcc5276317a1139e3e36ab90d4159e0ea",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
-      "credit": "Big Plan Holdings / JBJ's Nashville",
-      "rights_status": "approved-owned",
-      "restrictions": "Accurate for Broadway nightlife and rooftop experience.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "source_type": "Openly licensed Nashville photograph",
+      "source_site": "Pexels",
+      "source_page": "https://www.pexels.com/photo/vibrant-nightlife-on-nashville-s-broadway-street-35882376/",
+      "source_url": "https://www.pexels.com/photo/vibrant-nightlife-on-nashville-s-broadway-street-35882376/",
+      "source_sha256": "3bd18fb79248686b2a0ffc28462bfa8cad91c136ded310c519956167b80f1b46",
+      "license": "Pexels License",
+      "credit": "Shea Gordon",
+      "rights_status": "approved-open-license",
+      "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "weekend",
       "output_path": "public/media/hubs/weekend.jpg",
-      "recommended_use": "Hub: Weekend planning",
-      "alt_text": "Golden-hour aerial of Nashville from Wedgewood-Houston.",
+      "recommended_use": "Hub: Weekend Guide",
+      "alt_text": "Nashville skyline with pedestrian bridge at sunrise.",
       "focal": "center",
-      "source_type": "BPH-owned website media",
-      "source_site": "DELUX WeHo",
-      "source_page": "https://deluxweho.com/",
-      "source_url": "https://deluxweho.com/assets/images/cache/DJI_20260611191622_0021_D2-3367430b04e0a172d30c632aa0914446.jpg",
-      "source_sha256": "d3599d99a8b8226ff906c0a413a1bc8c8b66204020f2815f8bf3deafa9f37fc7",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
-      "credit": "Big Plan Holdings / DELUX WeHo",
-      "rights_status": "approved-owned",
-      "restrictions": "Nashville-wide planning image.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "source_type": "Openly licensed Nashville photograph",
+      "source_site": "Pexels",
+      "source_page": "https://www.pexels.com/photo/nashville-skyline-with-pedestrian-bridge-at-sunrise-28981891/",
+      "source_url": "https://www.pexels.com/photo/nashville-skyline-with-pedestrian-bridge-at-sunrise-28981891/",
+      "source_sha256": "9aa45a34e868d1ce5c4a2b7c54f5acc20c980c9b69131eb8f3048013ee9fd1b4",
+      "license": "Pexels License",
+      "credit": "gapeppy1",
+      "rights_status": "approved-open-license",
+      "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "bachelorette",
@@ -181,11 +181,11 @@
       "source_page": "https://www.jbjsnash.com/news",
       "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394222d8/69e6561374e16f72bfcc54e0_JBJ%20rooftop%20party%20nashville%20TN.jpg",
       "source_sha256": "98b7c06d0176e6dd2d7b1acc7daf4f1d985d6a73fce3bdca2935a1f075f4738c",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Use for group nightlife broadly; do not claim every person is part of a bachelorette trip.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "wellness",
@@ -198,11 +198,11 @@
       "source_page": "https://deluxweho.com/amenities/",
       "source_url": "https://deluxweho.com/assets/images/cache/clean-empty-sauna-room1-b8e495e1240f953655e0f3935407353c.jpg",
       "source_sha256": "0ac30827729b27a7b60cf20c8352a55ee897898abbc14bce9ad6e2e7f7eea535",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Source is DELUX WeHo; category image, not a hotel amenity.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "outdoor-living",
@@ -215,11 +215,11 @@
       "source_page": "https://thelanesnashville.com/wellness/",
       "source_url": "https://thelanesnashville.com/wp-content/uploads/2025/09/20250428_Round-10_Cam-03_GREENSPACE-no-characters.jpg",
       "source_sha256": "e61b1aff06349792d3784cd7e9ad848f6ebe73a155302e3e2f44643f7a70d9e8",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / Solaya at The Lanes",
       "rights_status": "approved-owned",
       "restrictions": "Source is Solaya at The Lanes; do not call it a public park or hotel.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "pool",
@@ -232,11 +232,11 @@
       "source_page": "https://deluxweho.com/",
       "source_url": "https://deluxweho.com/assets/images/cache/DJI_20260611192332_0052_D-21-a15518519817590a09f2681682bf2381.jpg",
       "source_sha256": "a0f870b1339779ba45f0ac9020f531ce0bf3c0c49efbbe815ba93cfd7fc87dc6",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Source is DELUX WeHo; do not label as a hotel pool.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "broadway-rooftop-day",
@@ -249,11 +249,11 @@
       "source_page": "https://www.jbjsnash.com/news",
       "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394222d8/69efe35b1c23f8fcbc63f1c2_JBJ_March_23_26-3.jpg",
       "source_sha256": "05aab739f078cfb3c4b0e60afdcdc2d03bbc06fa95c001c5a19c9ba5d7de67a5",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Accurate Downtown/Broadway.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "broadway-nightlife",
@@ -266,11 +266,11 @@
       "source_page": "https://www.jbjsnash.com/vip-table-service",
       "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394221a5/6a03787691038d4b26f864a7_JBJ%20Drone_4_3_26_LR-4.jpg",
       "source_sha256": "d183607163495ea82032ddc7ab14622dcc5276317a1139e3e36ab90d4159e0ea",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Broadway/nightlife context.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "rooftop-party",
@@ -283,11 +283,11 @@
       "source_page": "https://www.jbjsnash.com/news",
       "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394222d8/69e6561374e16f72bfcc54e0_JBJ%20rooftop%20party%20nashville%20TN.jpg",
       "source_sha256": "98b7c06d0176e6dd2d7b1acc7daf4f1d985d6a73fce3bdca2935a1f075f4738c",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Owned marketing photo; use broadly for group nightlife.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "live-music-crowd",
@@ -300,11 +300,11 @@
       "source_page": "https://www.jbjsnash.com/vip-table-service",
       "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394221a5/6a03787502db41ed15b9663d_JBJ_4_23_26_Lr-52.jpg",
       "source_sha256": "a86e59ba7f557020774b52f31d041bf455737bd8f164d2bd7ec76522d42a4534",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Experience image only.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "live-performance-overhead",
@@ -317,11 +317,11 @@
       "source_page": "https://www.jbjsnash.com/about",
       "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394222d8/687aa6cf1014d1ab15d4ad55_Live%20Music%20JBJ%27s%20Nashville%20DJ%20Diesel.JPG",
       "source_sha256": "9cc4a9976ce24727ea9eae32bb32ca22de20f8549d7dc0bc806d3670a16bcf60",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Experience image only.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "private-events",
@@ -334,11 +334,11 @@
       "source_page": "https://www.jbjsnash.com/about",
       "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394222d8/687ab8a0b3d866f3f694f202_JBJ%27S%20PRIVATE%20EVENTS.JPG",
       "source_sha256": "466338d6b46b9e4213504040afb0df3a29646fc3cbbf4fdb5c5982ed37882258",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
-      "restrictions": "Source is JBJ\u2019s. Do not attribute to an unrelated venue.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "restrictions": "Source is JBJ’s. Do not attribute to an unrelated venue.",
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "nashville-food",
@@ -351,11 +351,11 @@
       "source_page": "https://www.jbjsnash.com/about",
       "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394222d8/687a88a0b84b6b768e78ffbd_JBJ%27S%20FOOD.jpg",
       "source_sha256": "cfa57d3b051ed3ec62504af984c169bda1dfc2cb70daa0330010c01df52600b9",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
-      "restrictions": "Source is JBJ\u2019s. Do not assign to another named restaurant.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "restrictions": "Source is JBJ’s. Do not assign to another named restaurant.",
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "cocktail-service",
@@ -368,11 +368,11 @@
       "source_page": "https://www.jbjsnash.com/about",
       "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394221a5/66e793e5eba9d12d165cf200_JBJ%20Making%20Drinks.jpg",
       "source_sha256": "c66e936d2cd1fa57aab8cbc1bb0b4d8d82284d35eadb09518960709c6040296c",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
-      "restrictions": "Source is JBJ\u2019s. Category image only.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "restrictions": "Source is JBJ’s. Category image only.",
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "weho-skyline",
@@ -385,11 +385,11 @@
       "source_page": "https://deluxweho.com/",
       "source_url": "https://deluxweho.com/assets/images/cache/DJI_20260611191622_0021_D2-3367430b04e0a172d30c632aa0914446.jpg",
       "source_sha256": "d3599d99a8b8226ff906c0a413a1bc8c8b66204020f2815f8bf3deafa9f37fc7",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Accurate Wedgewood-Houston context.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "weho-pool",
@@ -402,11 +402,11 @@
       "source_page": "https://deluxweho.com/",
       "source_url": "https://deluxweho.com/assets/images/cache/DJI_20260611192332_0052_D-21-a15518519817590a09f2681682bf2381.jpg",
       "source_sha256": "a0f870b1339779ba45f0ac9020f531ce0bf3c0c49efbbe815ba93cfd7fc87dc6",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Named property source; not a hotel.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "weho-fitness",
@@ -419,11 +419,11 @@
       "source_page": "https://deluxweho.com/",
       "source_url": "https://deluxweho.com/assets/images/cache/DSC02301-10ce609373e64ad386978732c8b8c149.jpg",
       "source_sha256": "2677c36e0e2bb2e79e0943cd247b3e967d5d970cf047543a950c373219ef6106",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Named property source; not a hotel.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "weho-sauna",
@@ -436,11 +436,11 @@
       "source_page": "https://deluxweho.com/amenities/",
       "source_url": "https://deluxweho.com/assets/images/cache/clean-empty-sauna-room1-b8e495e1240f953655e0f3935407353c.jpg",
       "source_sha256": "0ac30827729b27a7b60cf20c8352a55ee897898abbc14bce9ad6e2e7f7eea535",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Named property source; not a hotel.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "weho-lounge",
@@ -453,11 +453,11 @@
       "source_page": "https://deluxweho.com/",
       "source_url": "https://deluxweho.com/assets/images/98D28UBmsUBZofUNAKUQtIMJBwCrLe2mCdgUyfkq.jpg",
       "source_sha256": "895491608f12f5c1b959ec461c66be79fb5493349f1f9b95995b374fa1244b18",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Named property source; do not present as a restaurant or hotel.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "weho-interior-design",
@@ -470,11 +470,11 @@
       "source_page": "https://deluxweho.com/floorplans/ebrochure/",
       "source_url": "https://deluxweho.com/assets/images/cache/Delux_Weho_Modern_Design_Decor_Nashville_Alina_Model_Unit_042-f993a339ae3197db13babfea550cbc09.jpg",
       "source_sha256": "77870927f3578aa0b7eb871c6d465cd03820c5985124323348a6149ca9e138d3",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Residential model unit; do not call it a hotel room.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "the-lanes-outdoor-living",
@@ -487,11 +487,11 @@
       "source_page": "https://thelanesnashville.com/wellness/",
       "source_url": "https://thelanesnashville.com/wp-content/uploads/2025/09/20250428_Round-10_Cam-03_GREENSPACE-no-characters.jpg",
       "source_sha256": "e61b1aff06349792d3784cd7e9ad848f6ebe73a155302e3e2f44643f7a70d9e8",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / Solaya at The Lanes",
       "rights_status": "approved-owned",
       "restrictions": "Solaya at The Lanes; not a public park.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "the-lanes-community-center",
@@ -504,11 +504,11 @@
       "source_page": "https://thelanesnashville.com/wellness/",
       "source_url": "https://thelanesnashville.com/wp-content/uploads/2025/09/Community-Center_2-1.jpg",
       "source_sha256": "8354534ecc54ef47fe93fa2a0636c1e59f3df8174ce2022bca73d3ec85ba9060",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / Solaya at The Lanes",
       "rights_status": "approved-owned",
       "restrictions": "Solaya at The Lanes.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "the-lanes-pool",
@@ -521,11 +521,11 @@
       "source_page": "https://thelanesnashville.com/wellness/",
       "source_url": "https://thelanesnashville.com/wp-content/uploads/2025/09/20250428_Round-10_Cam-06_REST-no-characters1.jpg",
       "source_sha256": "2f9ccca6d370df6ea3038d690540a56dd7740e5d80999336e54f6fdc3b83067e",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / Solaya at The Lanes",
       "rights_status": "approved-owned",
       "restrictions": "Solaya at The Lanes; residential amenity.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "the-lanes-greenway",
@@ -538,11 +538,11 @@
       "source_page": "https://thelanesnashville.com/location/",
       "source_url": "https://thelanesnashville.com/wp-content/uploads/2025/09/DSCF1119.jpg",
       "source_sha256": "f21986f84ebd30362ab93cc9058a407fc88c00d3ef1689989e6ef6f3d1bd006a",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / Solaya at The Lanes",
       "rights_status": "approved-owned",
       "restrictions": "Use for greenway/outdoor editorial; verify exact trail before naming it.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "the-lanes-runner-dog",
@@ -555,11 +555,11 @@
       "source_page": "https://thelanesnashville.com/wellness/",
       "source_url": "https://thelanesnashville.com/wp-content/uploads/2025/09/Lanes-Wellness-Dog-Runner.jpg",
       "source_sha256": "de76fccbe71da6cec883196bb5a64560b0259c13cafd734d95e0846e7500f9d1",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / Solaya at The Lanes",
       "rights_status": "approved-owned",
       "restrictions": "Owned lifestyle photo; not a public race or park.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "the-lanes-homes",
@@ -572,62 +572,62 @@
       "source_page": "https://thelanesnashville.com/the-homes/",
       "source_url": "https://thelanesnashville.com/wp-content/uploads/2025/09/Lanes-Homes.jpg",
       "source_sha256": "a326c2a2e9bf85fe052deeafc7e2f9f9864775e77dc427b1f1e8b5270632c9e8",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / Solaya at The Lanes",
       "rights_status": "approved-owned",
       "restrictions": "Solaya at The Lanes; do not present as a different neighborhood.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "jbjs-rooftop",
       "output_path": "public/media/venues/jbjs-rooftop.jpg",
-      "recommended_use": "Exact venue media: JBJ\u2019s rooftop",
-      "alt_text": "JBJ\u2019s rooftop overlooking Lower Broadway in Nashville.",
+      "recommended_use": "Exact venue media: JBJ’s rooftop",
+      "alt_text": "JBJ’s rooftop overlooking Lower Broadway in Nashville.",
       "focal": "center",
       "source_type": "BPH-owned website media",
       "source_site": "JBJ's Nashville",
       "source_page": "https://www.jbjsnash.com/news",
       "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394222d8/69efe35b1c23f8fcbc63f1c2_JBJ_March_23_26-3.jpg",
       "source_sha256": "05aab739f078cfb3c4b0e60afdcdc2d03bbc06fa95c001c5a19c9ba5d7de67a5",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
-      "restrictions": "Only for JBJ\u2019s or truthful Downtown/Broadway context.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "restrictions": "Only for JBJ’s or truthful Downtown/Broadway context.",
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "jbjs-interior",
       "output_path": "public/media/venues/jbjs-interior.jpg",
-      "recommended_use": "Exact venue media: JBJ\u2019s interior",
-      "alt_text": "Interior level at JBJ\u2019s Nashville with seating and the venue\u2019s Bon Jovi wall.",
+      "recommended_use": "Exact venue media: JBJ’s interior",
+      "alt_text": "Interior level at JBJ’s Nashville with seating and the venue’s Bon Jovi wall.",
       "focal": "center",
       "source_type": "BPH-owned website media",
       "source_site": "JBJ's Nashville",
       "source_page": "https://www.jbjsnash.com/news",
       "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394221a5/687ee106677d280806a29976_JBJ%27s%20Nashville%20Bon%20Jovi%20Wall.jpeg",
       "source_sha256": "f627175b9b60efdc80334e9fe786d9a0332d37ea78260ba6f8fb6a5c8c4f1b40",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
-      "restrictions": "Use only for JBJ\u2019s; contains brand/talent imagery.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "restrictions": "Use only for JBJ’s; contains brand/talent imagery.",
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "jbjs-food",
       "output_path": "public/media/venues/jbjs-food.jpg",
-      "recommended_use": "Exact venue media: JBJ\u2019s food",
-      "alt_text": "Food served at JBJ\u2019s Nashville.",
+      "recommended_use": "Exact venue media: JBJ’s food",
+      "alt_text": "Food served at JBJ’s Nashville.",
       "focal": "center",
       "source_type": "BPH-owned website media",
       "source_site": "JBJ's Nashville",
       "source_page": "https://www.jbjsnash.com/about",
       "source_url": "https://cdn.prod.website-files.com/65ad4a7bad020b9b394222d8/687a88a0b84b6b768e78ffbd_JBJ%27S%20FOOD.jpg",
       "source_sha256": "cfa57d3b051ed3ec62504af984c169bda1dfc2cb70daa0330010c01df52600b9",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
-      "restrictions": "Use only for JBJ\u2019s or broad category use without attributing to another business.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "restrictions": "Use only for JBJ’s or broad category use without attributing to another business.",
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "delux-weho-exterior",
@@ -640,11 +640,11 @@
       "source_page": "https://deluxweho.com/gallery/",
       "source_url": "https://deluxweho.com/assets/images/cache/shotby_sav_HWP-64-62f2a0789346a9486c1c41dcb60c68bf.jpg",
       "source_sha256": "c24da03a50206157be14c4973c740af0e0e4c6492743ce029e368f5cdfb37c96",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Use only for DELUX WeHo.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "the-lanes-homes",
@@ -657,11 +657,11 @@
       "source_page": "https://thelanesnashville.com/the-homes/",
       "source_url": "https://thelanesnashville.com/wp-content/uploads/2025/09/20250317_Round-10_Cam-09_FRONT-no-characters-1.jpg",
       "source_sha256": "a6a34d04a180f585165e7a639f111efac5f35aafa841c4ad7937685bc5c2a085",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings / Solaya at The Lanes",
       "rights_status": "approved-owned",
       "restrictions": "Use only for Solaya at The Lanes.",
-      "derivative_notes": "Center-cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "nashville-hero-mp4",
@@ -674,11 +674,11 @@
       "source_page": "https://deluxweho.com/; https://www.jbjsnash.com/; https://hanksnash.com/",
       "source_url": "https://cdn.prod.website-files.com/64d5385edb056418de20484e%2F66b049cf1127a4c4b56a3ba7_Hank%20Williams%20Jr%20Boogie%20Bar%20Website%20Video-transcode.mp4",
       "source_sha256": "74aef0167a6d2c803985ed64355b9e788e54b37b264424bf8293028dd93a0114",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings",
       "rights_status": "approved-owned-derivative",
-      "restrictions": "Muted editorial montage. Do not imply that all depicted scenes occur at one venue. Contains brief Hank\u2019s venue footage but no audio.",
-      "derivative_notes": "Created from approved owned stills plus short performance clips; 1280\u00d7720, muted, crossfades, no generative imagery."
+      "restrictions": "Muted editorial montage. Do not imply that all depicted scenes occur at one venue. Contains brief Hank’s venue footage but no audio.",
+      "derivative_notes": "Created from approved owned stills plus short performance clips; 1280×720, muted, crossfades, no generative imagery."
     },
     {
       "asset_id": "nashville-hero-webm",
@@ -691,11 +691,11 @@
       "source_page": "https://deluxweho.com/; https://www.jbjsnash.com/; https://hanksnash.com/",
       "source_url": "https://cdn.prod.website-files.com/64d5385edb056418de20484e%2F66b049cf1127a4c4b56a3ba7_Hank%20Williams%20Jr%20Boogie%20Bar%20Website%20Video-transcode.mp4",
       "source_sha256": "1e711e06acf376267964ee83bd4e090d645f65ed6417380556c55c4c7dae895b",
-      "license": "BPH-owned media \u2014 user-authorized reuse on 2026-08-04",
+      "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings",
       "rights_status": "approved-owned-derivative",
-      "restrictions": "Muted editorial montage. Do not imply that all depicted scenes occur at one venue. Contains brief Hank\u2019s venue footage but no audio.",
-      "derivative_notes": "Created from approved owned stills plus short performance clips; 1280\u00d7720, muted, crossfades, no generative imagery."
+      "restrictions": "Muted editorial montage. Do not imply that all depicted scenes occur at one venue. Contains brief Hank’s venue footage but no audio.",
+      "derivative_notes": "Created from approved owned stills plus short performance clips; 1280×720, muted, crossfades, no generative imagery."
     },
     {
       "asset_id": "east-nashville",
@@ -712,7 +712,7 @@
       "credit": "Andrew Jameson",
       "rights_status": "approved-open-license",
       "restrictions": "Accurate neighborhood image. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "germantown",
@@ -729,7 +729,7 @@
       "credit": "Andrew Jameson",
       "rights_status": "approved-open-license",
       "restrictions": "Accurate neighborhood image. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "the-gulch",
@@ -746,7 +746,7 @@
       "credit": "Lahti213",
       "rights_status": "approved-open-license",
       "restrictions": "Accurate neighborhood image; documentary rather than hero-quality. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "hillsboro-village",
@@ -763,7 +763,7 @@
       "credit": "CEWall",
       "rights_status": "approved-open-license",
       "restrictions": "Accurate neighborhood image. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "12-south",
@@ -780,7 +780,7 @@
       "credit": "Jameson Fink",
       "rights_status": "approved-open-license",
       "restrictions": "Accurate 12 South landmark. Landscape derivative uses a blurred extension of the same photo behind the full vertical mural. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Created a 1600\u00d71067 landscape derivative using a blurred extension of the same source behind the full vertical photograph; no generative editing."
+      "derivative_notes": "Created a 1600×1067 landscape derivative using a blurred extension of the same source behind the full vertical photograph; no generative editing."
     },
     {
       "asset_id": "midtown",
@@ -797,7 +797,7 @@
       "credit": "Warren LeMay",
       "rights_status": "approved-open-license",
       "restrictions": "Accurate for West End / Midtown and Centennial Park. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "west-end",
@@ -814,7 +814,7 @@
       "credit": "Warren LeMay",
       "rights_status": "approved-open-license",
       "restrictions": "Accurate for West End and Centennial Park. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "music-row",
@@ -831,7 +831,7 @@
       "credit": "Cliff",
       "rights_status": "approved-open-license",
       "restrictions": "Accurate Music Row landmark. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "green-hills",
@@ -848,7 +848,7 @@
       "credit": "Dougmac7",
       "rights_status": "approved-open-license",
       "restrictions": "Accurate neighborhood street view. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "hotels",
@@ -865,7 +865,7 @@
       "credit": "Antony-22",
       "rights_status": "approved-open-license",
       "restrictions": "Exact hotel image; can represent hotels broadly or Gaylord Opryland specifically. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "opryland",
@@ -882,24 +882,24 @@
       "credit": "Antony-22",
       "rights_status": "approved-open-license",
       "restrictions": "Accurate Opryland image. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "tours",
       "output_path": "public/media/hubs/tours.jpg",
-      "recommended_use": "Hub: Tours and attractions",
-      "alt_text": "The entrance of the Grand Ole Opry House in Nashville.",
+      "recommended_use": "Hub: Tours",
+      "alt_text": "Bird's-eye view of Nashville during daytime.",
       "focal": "center",
       "source_type": "Openly licensed Nashville photograph",
-      "source_site": "Wikimedia Commons",
-      "source_page": "https://commons.wikimedia.org/wiki/File:Grand_Ole_Opry_House_2022a.jpg",
-      "source_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Grand_Ole_Opry_House_2022a.jpg",
-      "source_sha256": "e8b3ab2099f8f38e0c048043ee0fe5724a83178fee24ecbe78098afa1a7eba76",
-      "license": "CC BY-SA 4.0",
-      "credit": "Antony-22",
+      "source_site": "Pexels",
+      "source_page": "https://www.pexels.com/photo/bird-s-eye-view-of-city-during-daytime-2833715/",
+      "source_url": "https://www.pexels.com/photo/bird-s-eye-view-of-city-during-daytime-2833715/",
+      "source_sha256": "55c9de9f8481e70cdd9db6a5bcb4820f3e946dd9d4c09ddf9b04b0cbdb2928c7",
+      "license": "Pexels License",
+      "credit": "Kelly",
       "rights_status": "approved-open-license",
-      "restrictions": "Use for Opry, Music Valley, attractions, or tours that actually include the Opry. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600\u00d71067; no generative editing."
+      "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "grand-ole-opry-house",
@@ -916,7 +916,7 @@
       "credit": "Antony-22",
       "rights_status": "approved-open-license",
       "restrictions": "Exact attraction image. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "opryland-atrium",
@@ -933,7 +933,7 @@
       "credit": "Antony-22",
       "rights_status": "approved-open-license",
       "restrictions": "Exact hotel image. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "parthenon-west-end",
@@ -950,7 +950,7 @@
       "credit": "Warren LeMay",
       "rights_status": "approved-open-license",
       "restrictions": "Exact attraction image. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     },
     {
       "asset_id": "music-row-studio-b",
@@ -967,7 +967,41 @@
       "credit": "Cliff",
       "rights_status": "approved-open-license",
       "restrictions": "Exact landmark image. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600\u00d71067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
+    },
+    {
+      "asset_id": "printers-alley",
+      "output_path": "public/media/editorial/printers-alley.jpg",
+      "recommended_use": "Editorial: Printers Alley",
+      "alt_text": "Urban alleyway with iconic blues bar signs in Nashville.",
+      "focal": "center",
+      "source_type": "Openly licensed Nashville photograph",
+      "source_site": "Pexels",
+      "source_page": "https://www.pexels.com/photo/urban-alleyway-with-iconic-blues-bar-signs-29319087/",
+      "source_url": "https://www.pexels.com/photo/urban-alleyway-with-iconic-blues-bar-signs-29319087/",
+      "source_sha256": "c8a624fdead871ea4ee307dabe9d59b59abd1ceab66849b2de5aa1cc9efdb5a7",
+      "license": "Pexels License",
+      "credit": "Tatiana Bidon",
+      "rights_status": "approved-open-license",
+      "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
+    },
+    {
+      "asset_id": "skyline",
+      "output_path": "public/media/editorial/skyline.jpg",
+      "recommended_use": "Editorial: skyline",
+      "alt_text": "View of Nashville at sunset.",
+      "focal": "center",
+      "source_type": "Openly licensed Nashville photograph",
+      "source_site": "Pexels",
+      "source_page": "https://www.pexels.com/photo/view-of-a-city-at-sunset-4689068/",
+      "source_url": "https://www.pexels.com/photo/view-of-a-city-at-sunset-4689068/",
+      "source_sha256": "8da78d10c84b75b18c24250d434dcfde2533141ec14d2db36c527f580206575f",
+      "license": "Pexels License",
+      "credit": "Shane",
+      "rights_status": "approved-open-license",
+      "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
     }
   ]
 }

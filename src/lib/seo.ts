@@ -55,7 +55,7 @@ export function buildMetadata({
     url: canonical('/media/hero/nashville-hero-poster.jpg'),
     width: 2400,
     height: 1350,
-    alt: 'Golden-hour aerial from Wedgewood-Houston toward the Nashville skyline.',
+    alt: 'Skyline view of a downtown Nashville street scene.',
   };
   return {
     // `absolute` stops the root layout's title template from appending the

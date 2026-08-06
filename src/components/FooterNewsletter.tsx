@@ -10,7 +10,12 @@ import NewsletterForm from './NewsletterForm';
  */
 export default function FooterNewsletter() {
   const pathname = usePathname();
-  const suppressed = pathname === '/' || pathname === '/newsletter' || pathname === '/newsletter/';
+  const suppressed =
+    pathname === '/' ||
+    pathname === '/newsletter' ||
+    pathname === '/newsletter/' ||
+    pathname === '/homepage-v2' ||
+    pathname === '/homepage-v2/';
   if (suppressed) return null;
 
   return (

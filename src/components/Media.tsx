@@ -13,6 +13,7 @@ export function SmartImage({
   sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
   priority = false,
   rounded = false,
+  showCredit = true,
 }: {
   imageKey?: ImageKey;
   ratio?: string;
@@ -20,6 +21,8 @@ export function SmartImage({
   sizes?: string;
   priority?: boolean;
   rounded?: boolean;
+  /** Set false when the image sits inside a parent link (avoids nested anchors). */
+  showCredit?: boolean;
 }) {
   const asset = getImage(imageKey);
   const ready = imageKey ? hasMedia(imageKey) : false;
@@ -52,7 +55,7 @@ export function SmartImage({
         className="h-full w-full object-cover"
         style={asset.focal === 'top' ? { objectPosition: 'top' } : undefined}
       />
-      {asset.credit && (
+      {showCredit && asset.credit && (
         <figcaption className="absolute bottom-1 right-1 rounded bg-ink/60 px-1.5 py-0.5 text-2xs text-white/90">
           <a href="/photo-credits/" className="hover:underline">
             {asset.credit}
@@ -73,6 +76,7 @@ export function ContentImage({
   className = '',
   sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
   priority = false,
+  showCredit = true,
 }: {
   image: {
     src: string;
@@ -86,6 +90,7 @@ export function ContentImage({
   className?: string;
   sizes?: string;
   priority?: boolean;
+  showCredit?: boolean;
 }) {
   return (
     <figure className={`relative overflow-hidden ${ratio} ${className}`}>
@@ -102,7 +107,7 @@ export function ContentImage({
         className="h-full w-full object-cover"
         style={image.focal === 'top' ? { objectPosition: 'top' } : undefined}
       />
-      {image.credit && (
+      {showCredit && image.credit && (
         <figcaption className="absolute bottom-1 right-1 rounded bg-ink/60 px-1.5 py-0.5 text-2xs text-white/90">
           <a href="/photo-credits/" className="hover:underline">
             {image.credit}

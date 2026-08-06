@@ -5,7 +5,7 @@ import rightsDoc from '../../../docs/media/ASSET-RIGHTS.json';
 export const metadata = buildMetadata({
   title: 'Photo credits',
   description:
-    'Attribution for Creative Commons photographs used on NASHVILLE. Cropping and resizing are noted; photographers do not endorse this site.',
+    'Attribution for openly licensed photographs used on NASHVILLE, including Creative Commons and Pexels sources. Cropping and resizing are noted; photographers do not endorse this site.',
   path: '/photo-credits/',
 });
 
@@ -14,6 +14,7 @@ const LICENSE_URLS: Record<string, string> = {
   'CC BY-SA 2.0': 'https://creativecommons.org/licenses/by-sa/2.0/',
   'CC BY-SA 3.0': 'https://creativecommons.org/licenses/by-sa/3.0/',
   'CC BY-SA 4.0': 'https://creativecommons.org/licenses/by-sa/4.0/',
+  'Pexels License': 'https://www.pexels.com/license/',
 };
 
 type RightsRow = {
@@ -27,7 +28,7 @@ type RightsRow = {
 
 type Credit = {
   photographer: string;
-  sourcePage: string;
+  sourcePages: string[];
   licenseName: string;
   licenseUrl: string;
   usedFor: string[];
@@ -35,7 +36,8 @@ type Credit = {
 };
 
 function uniqueOpenLicenseCredits(rows: RightsRow[]): Credit[] {
-  const bySource = new Map<string, Credit>();
+  /** One article per photographer + license so multi-source credits (e.g. Pexels) stay grouped. */
+  const byPhotographer = new Map<string, Credit>();
 
   for (const row of rows) {
     if (row.rights_status !== 'approved-open-license') continue;
@@ -44,8 +46,8 @@ function uniqueOpenLicenseCredits(rows: RightsRow[]): Credit[] {
     const licenseUrl = LICENSE_URLS[row.license];
     if (!licenseUrl) continue;
 
-    const key = `${row.source_page}::${row.credit}`;
-    const existing = bySource.get(key);
+    const key = `${row.credit}::${row.license}`;
+    const existing = byPhotographer.get(key);
     const use = row.recommended_use?.trim() || 'Editorial photography';
     const changes =
       row.derivative_notes?.trim() ||
@@ -53,12 +55,13 @@ function uniqueOpenLicenseCredits(rows: RightsRow[]): Credit[] {
 
     if (existing) {
       if (!existing.usedFor.includes(use)) existing.usedFor.push(use);
+      if (!existing.sourcePages.includes(row.source_page)) existing.sourcePages.push(row.source_page);
       continue;
     }
 
-    bySource.set(key, {
+    byPhotographer.set(key, {
       photographer: row.credit,
-      sourcePage: row.source_page,
+      sourcePages: [row.source_page],
       licenseName: row.license,
       licenseUrl,
       usedFor: [use],
@@ -66,10 +69,7 @@ function uniqueOpenLicenseCredits(rows: RightsRow[]): Credit[] {
     });
   }
 
-  return [...bySource.values()].sort(
-    (a, b) =>
-      a.photographer.localeCompare(b.photographer) || a.sourcePage.localeCompare(b.sourcePage),
-  );
+  return [...byPhotographer.values()].sort((a, b) => a.photographer.localeCompare(b.photographer));
 }
 
 export default function PhotoCreditsPage() {
@@ -81,27 +81,49 @@ export default function PhotoCreditsPage() {
       <PageHeader
         eyebrow="Attribution"
         title="Photo credits"
-        intro="Openly licensed photographs used on this site require attribution. Cropping or resizing is noted below. Photographers and rights holders do not endorse NASHVILLE."
+        intro="Openly licensed photographs used on this site are listed below. Creative Commons images require attribution; Pexels License images do not, but are listed for completeness. Cropping or resizing is noted. Photographers and rights holders do not endorse NASHVILLE."
       />
 
       <section className="max-w-3xl space-y-8 py-8">
         {credits.map((credit) => (
-          <article key={credit.sourcePage} className="border-b border-paper-edge pb-6">
+          <article
+            key={`${credit.photographer}::${credit.licenseName}`}
+            className="border-b border-paper-edge pb-6"
+          >
             <h2 className="font-sans text-lg font-bold text-ink">{credit.photographer}</h2>
-            <ul className="mt-3 space-y-1.5 text-[15px] leading-relaxed text-ink-soft">
+            <ul className="mt-3 space-y-1.5 text-small leading-relaxed text-ink-soft">
               <li>
                 <span className="font-medium text-ink">Used for:</span> {credit.usedFor.join('; ')}
               </li>
               <li>
-                <span className="font-medium text-ink">Source:</span>{' '}
-                <a
-                  href={credit.sourcePage}
-                  className="text-clay underline hover:text-clay-deep"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  {credit.sourcePage}
-                </a>
+                <span className="font-medium text-ink">
+                  {credit.sourcePages.length > 1 ? 'Sources:' : 'Source:'}
+                </span>{' '}
+                {credit.sourcePages.length === 1 ? (
+                  <a
+                    href={credit.sourcePages[0]}
+                    className="text-clay underline hover:text-clay-deep"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    {credit.sourcePages[0]}
+                  </a>
+                ) : (
+                  <ul className="mt-1 list-disc space-y-1 pl-5">
+                    {credit.sourcePages.map((url) => (
+                      <li key={url}>
+                        <a
+                          href={url}
+                          className="text-clay underline hover:text-clay-deep"
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          {url}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
               <li>
                 <span className="font-medium text-ink">License:</span>{' '}
