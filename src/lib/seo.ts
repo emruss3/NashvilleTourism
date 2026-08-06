@@ -1,12 +1,39 @@
 import type { Metadata } from 'next';
-import { hasLaunchIdentity, site } from './site';
+import { site } from './site';
 import type { Guide, Hotel, NashvilleEvent, Neighborhood, Restaurant, Attraction, Author, Venue } from './types';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
-/** Indexing requires an explicit production opt-in and a real public identity. */
-export const allowIndexing =
-  process.env.NEXT_PUBLIC_ALLOW_INDEXING === 'true' && hasLaunchIdentity;
+function vercelDeployEnv(): string {
+  return (process.env.VERCEL_ENV || process.env.NEXT_PUBLIC_VERCEL_ENV || '').toLowerCase();
+}
+
+function isLiveNashRoamHost(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, '').toLowerCase();
+    return host === 'nashroam.com';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Production indexing gate.
+ *
+ * - Preview / development Vercel deploys stay noindex.
+ * - Live nashroam.com production (or non-Vercel builds pointed at that host)
+ *   always allow indexing — leftover ALLOW_INDEXING=false must not block GSC.
+ * - `NEXT_PUBLIC_ALLOW_INDEXING=true` enables indexing on other production hosts.
+ * - Incomplete legal placeholders no longer block crawlability of the live site.
+ */
+export const allowIndexing = (() => {
+  const env = vercelDeployEnv();
+  if (env === 'preview' || env === 'development') return false;
+
+  if (isLiveNashRoamHost(site.url) && (!env || env === 'production')) return true;
+
+  return process.env.NEXT_PUBLIC_ALLOW_INDEXING === 'true';
+})();
 
 /** Absolute canonical URL for a site-relative path. */
 export function canonical(path: string): string {
@@ -55,18 +82,18 @@ export function buildMetadata({
     url: canonical('/media/hero/nashroam-skyline-hero.jpg'),
     width: 2400,
     height: 1350,
-    alt: 'Skyline view of a downtown Nashville street scene.',
+    alt: 'Downtown Nashville at sunset above the Cumberland River and Korean Veterans Memorial Bridge.',
   };
+  const blockIndexing = Boolean(noindex) || !allowIndexing;
   return {
     // `absolute` stops the root layout's title template from appending the
     // brand a second time.
     title: { absolute: fullTitle },
     description,
     alternates: { canonical: url },
-    robots:
-      noindex || !allowIndexing
-        ? { index: false, follow: true }
-        : { index: true, follow: true },
+    // Omit robots when indexable — indexing/following are the HTML default.
+    // Only emit an explicit directive when we must block indexing.
+    ...(blockIndexing ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       title: fullTitle,
       description,

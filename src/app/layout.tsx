@@ -40,9 +40,9 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     images: [canonical('/media/hero/nashroam-skyline-hero.jpg')],
   },
-  robots: allowIndexing
-    ? { index: true, follow: true }
-    : { index: false, follow: true },
+  // Omit robots when indexable (browser/crawler default is index,follow).
+  // Preview/staging builds still emit an explicit noindex.
+  ...(allowIndexing ? {} : { robots: { index: false, follow: true } }),
   category: 'travel',
 };
 
