@@ -9,7 +9,7 @@ import {
   getVenue,
   getAttraction,
 } from './listings';
-import { hotels, getHotel } from './hotels';
+import { hotels } from './hotels';
 import { guides } from './guides';
 import { neighborhoods, neighborhoodName } from './neighborhoods';
 
