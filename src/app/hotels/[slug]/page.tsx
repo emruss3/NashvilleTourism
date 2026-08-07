@@ -6,6 +6,7 @@ import { AffiliateDisclosure, PlacementLabel, VerificationBadge, formatDate } fr
 import BookingLink from '@/components/BookingLink';
 import { hotels, getHotel } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
+import { partners } from '@/lib/partners';
 import { ANALYTICS_EVENTS } from '@/lib/analytics';
 import { buildMetadata, hotelSchema, isIndexableRecord } from '@/lib/seo';
 
@@ -32,6 +33,7 @@ export default function HotelPage({ params }: { params: { slug: string } }) {
 
   const hood = neighborhoodName(h.neighborhood);
   const related = h.relatedSlugs.map((s) => getHotel(s)).filter((x): x is NonNullable<typeof x> => Boolean(x));
+  const bookingUrl = partners.hotels.build({ area: h.title });
 
   return (
     <div className="shell pb-16">
@@ -139,7 +141,7 @@ export default function HotelPage({ params }: { params: { slug: string } }) {
 
           <div className="space-y-3 rounded-card border border-paper-edge bg-white p-4">
             <BookingLink
-              url={h.bookingUrl}
+              url={bookingUrl}
               label="Check availability"
               name={h.title}
               slug={h.slug}
