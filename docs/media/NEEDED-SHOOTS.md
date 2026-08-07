@@ -1,24 +1,50 @@
-# Remaining photography gaps
+# NashRoam original photography — needed shoots
 
-This repository is complete for the current homepage, core category hubs, and most named neighborhoods. It is not permission to use a generic image for every individual listing.
+**Policy:** Prefer OWNED / COMMISSIONED photography as a long-term competitive advantage. Do not use Visit Music City / Nashville CVC assets. Do not substitute generic stock for named businesses.
 
-## Must remain a placeholder
+Related: `COMMERCIAL-MEDIA-SOURCING.md`, `STOCK-PURCHASE-QUEUE.md`, `DIRECT-PHOTO-REQUESTS.md`, `docs/media/reference/`.
 
-- **Sylvan Park:** no accurate, publication-quality, reusable photo was located. Keep `neighborhood/sylvan-park` out of `AVAILABLE_MEDIA` until a local shoot is completed.
+## Neighborhood streetscapes (priority COMMISSION)
 
-## Priority local shoot list
+Shoot owned NashRoam frames for:
 
-1. **Sylvan Park:** 51st Avenue storefronts, Richland Creek Greenway access, and a residential street establishing shot.
-2. **12 South:** a current wide street-level scene showing shopping and pedestrian energy. The included mural is accurate but should not be the only neighborhood image.
-3. **The Gulch:** a current wide street scene and the angel wings mural with rights clearance. The included Greenway image is accurate but documentary.
-4. **East Nashville / Five Points:** current storefronts, restaurants, and evening activity.
-5. **Germantown:** restaurants, brick streets, Farmers’ Market, and Sounds stadium context.
-6. **Music Row:** a broader street scene in addition to RCA Studio B.
-7. **Family Nashville:** children/families at a museum, park, or attraction with model releases.
-8. **Shopping:** 12 South, Hillsboro Village, and Green Hills retail scenes.
-9. **Exact listings:** every real restaurant, hotel, venue, and attraction needs its own image or a licensed operator-supplied image before its detail card can display photography.
-10. **Playdate:** the public website did not expose usable venue photography during the crawl. Export the original interior, backyard, slide, food truck, and event photos directly from the marketing drive or CMS.
+| Area | Shot intent | Notes |
+|---|---|---|
+| Lower Broadway | Street-level neon, pedestrians, enough architecture to read as Downtown | Avoid tight single-business product shots unless DIRECT LICENSE exists |
+| 12 South | Neighborhood retail streetscape | Do not fake Draper James / Butter Milk Ranch without rights |
+| Five Points / East Nashville | Broad orientation | No identifiable shop requiring separate clearance unless licensed |
+| The Gulch | Mixed new-development streetscape | Station Inn / Peg Leg need DIRECT or separate frames |
+| Germantown | Historic brick streets | |
+| Wedgewood-Houston | Industrial-creative corridors | Complements owned DELUX / WeHo interiors |
+| Division Street / Midtown | Nightlife corridor orientation | |
+| Music Row | Boulevard / studio-office character | Distinct from Studio B CC asset |
+| West End / Vanderbilt | Avenue + park edge | |
+| Hillsboro Village | Village-scale street + Belcourt context | Belcourt marquee via DIRECT if featured |
+| Sylvan Park | Quiet residential-commercial blocks | Do not substitute The Lanes as Sylvan Park |
+| Green Hills | District orientation (not Bluebird interior without permission) | |
 
-## Usage rule
+## Experience photography (owned lifestyle)
 
-Never attach a category image from JBJ’s, Hank’s, DELUX WeHo, or The Lanes to an unrelated named business. Category pages may use those images when the scene is described generically and truthfully. Individual listing pages require an image of the actual listing.
+| Theme | Intent |
+|---|---|
+| Couples walking neighborhoods | Editorial trip planning |
+| Groups eating | Dining guides (no branded plate that implies a named restaurant unless licensed) |
+| Shopping | 12 South / Gulch retail energy |
+| Coffee | Cafe culture without wrong-business labeling |
+| Live music | Only where venue permission allows |
+| Cocktails | Bar craft without misattribution |
+| Rooftops | Skyline relationship |
+| Pedestrians | Downtown vitality |
+| Skyline | Owned alternative to stock heroes |
+| Running / parks | Greenways, Centennial, outdoor living |
+
+## Exact-business shoots (if DIRECT LICENSE fails)
+
+Prioritize when outreach is declined: Peg Leg Porker, Butter Milk Ranch, Playdate, Station Inn, Bluebird Cafe, Bastion, Aba, Belcourt, Roberts Western World, Hermitage Hotel.
+
+## Status
+
+- CVC neighborhood heroes: **removed from production** (reference-only)
+- Cleared OWNED BPH frames (JBJ’s, DELUX WeHo, The Lanes, select editorial): **in production**
+- Premium STOCK heroes: **queued, not purchased**
+- This shoot list: **planning only — no activation in this pass**

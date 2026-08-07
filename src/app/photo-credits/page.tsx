@@ -21,13 +21,17 @@ type RightsRow = {
   credit?: string | null;
   source_page?: string | null;
   license?: string | null;
+  licence?: string | null;
   recommended_use?: string | null;
   rights_status?: string | null;
+  rightsStatus?: string | null;
+  approvalStatus?: string | null;
   derivative_notes?: string | null;
   source_site?: string | null;
   source_filename?: string | null;
   original_title?: string | null;
   restrictions?: string | null;
+  owner?: string | null;
 };
 
 type Credit = {
@@ -48,18 +52,36 @@ type PendingLibraryCredit = {
   note: string;
 };
 
+function isClearedApproved(row: RightsRow): boolean {
+  return row.rightsStatus === 'cleared' && row.approvalStatus === 'approved';
+}
+
+function isCvcRow(row: RightsRow): boolean {
+  if (row.rightsStatus === 'reference-only') return true;
+  const blob = `${row.source_site || ''} ${row.owner || ''} ${row.credit || ''} ${row.restrictions || ''}`.toLowerCase();
+  return (
+    blob.includes('cvc') ||
+    blob.includes('visit music city') ||
+    blob.includes('convention & visitors') ||
+    blob.includes('convention and visitors')
+  );
+}
+
 function uniqueOpenLicenseCredits(rows: RightsRow[]): Credit[] {
   /** One article per photographer + license so multi-source credits (e.g. Pexels) stay grouped. */
   const byPhotographer = new Map<string, Credit>();
 
   for (const row of rows) {
-    if (row.rights_status !== 'approved-open-license') continue;
-    if (!row.credit || !row.source_page || !row.license) continue;
+    if (row.rightsStatus === 'reference-only') continue;
+    if (!isClearedApproved(row) && row.rights_status !== 'approved-open-license') continue;
+    const license = row.license || null;
+    if (!row.credit || !row.source_page || !license) continue;
+    if (row.rights_status && row.rights_status !== 'approved-open-license') continue;
 
-    const licenseUrl = LICENSE_URLS[row.license];
+    const licenseUrl = LICENSE_URLS[license];
     if (!licenseUrl) continue;
 
-    const key = `${row.credit}::${row.license}`;
+    const key = `${row.credit}::${license}`;
     const existing = byPhotographer.get(key);
     const use = row.recommended_use?.trim() || 'Editorial photography';
     const changes =
@@ -75,7 +97,7 @@ function uniqueOpenLicenseCredits(rows: RightsRow[]): Credit[] {
     byPhotographer.set(key, {
       photographer: row.credit,
       sourcePages: [row.source_page],
-      licenseName: row.license,
+      licenseName: license,
       licenseUrl,
       usedFor: [use],
       changes,
@@ -85,14 +107,19 @@ function uniqueOpenLicenseCredits(rows: RightsRow[]): Credit[] {
   return [...byPhotographer.values()].sort((a, b) => a.photographer.localeCompare(b.photographer));
 }
 
-function pendingLibraryCredits(rows: RightsRow[]): PendingLibraryCredit[] {
+function pendingNonCvcCredits(rows: RightsRow[]): PendingLibraryCredit[] {
   const byOwner = new Map<string, PendingLibraryCredit>();
   for (const row of rows) {
-    if (row.rights_status !== 'pending-authorization') continue;
-    if (!row.credit || !row.source_site) continue;
-    const existing = byOwner.get(row.credit);
+    if (isCvcRow(row)) continue;
+    if (row.rightsStatus !== 'pending-clearance' && row.rights_status !== 'pending-authorization') {
+      continue;
+    }
+    const owner = row.credit || row.owner;
+    const site = row.source_site || row.owner;
+    if (!owner || !site) continue;
+    const existing = byOwner.get(owner);
     const use = row.recommended_use?.trim() || 'Editorial photography';
-    const page = row.source_page || row.source_site;
+    const page = row.source_page || site;
     const filename = row.source_filename || row.original_title || 'source file';
     if (existing) {
       if (!existing.usedFor.includes(use)) existing.usedFor.push(use);
@@ -100,15 +127,15 @@ function pendingLibraryCredits(rows: RightsRow[]): PendingLibraryCredit[] {
       if (!existing.filenames.includes(filename)) existing.filenames.push(filename);
       continue;
     }
-    byOwner.set(row.credit, {
-      owner: row.credit,
-      sourceSite: row.source_site,
+    byOwner.set(owner, {
+      owner,
+      sourceSite: site,
       sourcePages: [page],
       usedFor: [use],
       filenames: [filename],
       note:
         row.restrictions?.trim() ||
-        'Formal usage authorization still required. No public license is claimed.',
+        'Commercial digital website rights still required. No public license is claimed. Not shown in production until cleared and approved.',
     });
   }
   return [...byOwner.values()].sort((a, b) => a.owner.localeCompare(b.owner));
@@ -116,7 +143,7 @@ function pendingLibraryCredits(rows: RightsRow[]): PendingLibraryCredit[] {
 
 export default function PhotoCreditsPage() {
   const credits = uniqueOpenLicenseCredits(rightsDoc.assets as RightsRow[]);
-  const pending = pendingLibraryCredits(rightsDoc.assets as RightsRow[]);
+  const pending = pendingNonCvcCredits(rightsDoc.assets as RightsRow[]);
 
   return (
     <div className="shell pb-16">
@@ -124,7 +151,7 @@ export default function PhotoCreditsPage() {
       <PageHeader
         eyebrow="Attribution"
         title="Photo credits"
-        intro="Openly licensed photographs used on this site are listed below. Creative Commons images require attribution; Pexels License images do not, but are listed for completeness. Destination-library assets awaiting formal authorization are listed separately — no public license is claimed for those. Cropping or resizing is noted. Photographers and rights holders do not endorse NASHVILLE."
+        intro="Openly licensed photographs used on this site are listed below. Creative Commons images require attribution; Pexels License images do not, but are listed for completeness. Visit Music City / Nashville CVC photography is not used and is not listed — NashRoam does not pursue those rights. Other property media awaiting commercial clearance is recorded separately and is not shown in production. Photographers and rights holders do not endorse NASHVILLE."
       />
 
       <section className="max-w-3xl space-y-8 py-8">
@@ -190,23 +217,23 @@ export default function PhotoCreditsPage() {
       {pending.length > 0 ? (
         <section className="max-w-3xl space-y-8 border-t border-paper-edge py-8">
           <h2 className="font-display text-2xl font-semibold text-ink">
-            Destination library assets (authorization pending)
+            Property media awaiting commercial clearance
           </h2>
           <p className="text-small leading-relaxed text-ink-soft">
-            These files were obtained from the Nashville CVC Media Library or Four Seasons Nashville
-            press library for the selected homepage and neighborhood replacements. They are recorded
-            here for chain-of-custody; a public license is not claimed until formal usage
-            authorization is confirmed.
+            These sources are recorded for chain-of-custody only. They are not shown on the live site
+            until each asset is marked cleared and approved for commercial digital editorial use on
+            NashRoam.com. Visit Music City / Nashville CVC assets are excluded from this list and
+            from production permanently.
           </p>
           {pending.map((item) => (
             <article key={item.owner} className="border-b border-paper-edge pb-6">
               <h3 className="font-sans text-lg font-bold text-ink">{item.owner}</h3>
               <ul className="mt-3 space-y-1.5 text-small leading-relaxed text-ink-soft">
                 <li>
-                  <span className="font-medium text-ink">Library:</span> {item.sourceSite}
+                  <span className="font-medium text-ink">Source:</span> {item.sourceSite}
                 </li>
                 <li>
-                  <span className="font-medium text-ink">Used for:</span> {item.usedFor.join('; ')}
+                  <span className="font-medium text-ink">Intended for:</span> {item.usedFor.join('; ')}
                 </li>
                 <li>
                   <span className="font-medium text-ink">Source filenames:</span>{' '}

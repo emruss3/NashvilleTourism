@@ -15,7 +15,10 @@
       "credit": "Tatiana Bidon",
       "rights_status": "approved-open-license",
       "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
-      "derivative_notes": "Cropped and resized to 2400×1350; no generative editing."
+      "derivative_notes": "Cropped and resized to 2400×1350; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "downtown-rooftop",
@@ -32,7 +35,10 @@
       "credit": "Tatiana Bidon",
       "rights_status": "approved-open-license",
       "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
-      "derivative_notes": "Cropped and resized to 2400×1350; no generative editing."
+      "derivative_notes": "Cropped and resized to 2400×1350; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "live-music-night",
@@ -49,7 +55,10 @@
       "credit": "Ceesz",
       "rights_status": "approved-open-license",
       "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
-      "derivative_notes": "Cropped and resized to 2400×1350; no generative editing."
+      "derivative_notes": "Cropped and resized to 2400×1350; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "downtown-broadway",
@@ -60,16 +69,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/Broadway-RobertsWesternWorld.jpg",
+      "source_url": null,
       "source_sha256": "c758618724ab9eaf001e4773668a2078bdef7d1f38223b903c0c090b38e4ada3",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library / listing photography. Formal usage authorization still required. Do not invent a Creative Commons license.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "source_filename": "Broadway-RobertsWesternWorld.jpg",
       "original_title": "Roberts Western World Broadway",
-      "download_date": "2026-08-06"
+      "download_date": "2026-08-06",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Lower Broadway at blue hour / Robert's Western World street frontage",
+        "composition": "Street-level view with historic neon honky-tonk facades, pedestrians, and enough surrounding architecture to read as a neighborhood",
+        "avoid": "tight business signage crop, generic skyline, empty street, oversaturated tourism stock",
+        "placement": "neighborhood/downtown-broadway",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/Broadway-RobertsWesternWorld.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/Broadway-RobertsWesternWorld.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "wedgewood-houston",
@@ -80,16 +104,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/2023-Bastion-WeHo-2-3299x2200-d358ddc.jpg",
+      "source_url": null,
       "source_sha256": "682afd5a508484c1051859e7ca460955a8b526d89ba5b906e856bbd8b5ade8eb",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library / listing photography. Formal usage authorization still required. Do not invent a Creative Commons license.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "source_filename": "2023-Bastion-WeHo-2-3299x2200-d358ddc.jpg",
       "original_title": "Bastion WeHo",
-      "download_date": "2026-08-06"
+      "download_date": "2026-08-06",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Wedgewood-Houston / Bastion exterior context",
+        "composition": "WeHo industrial-creative streetscape; exact Bastion only via direct license",
+        "avoid": "generic warehouse loft stock",
+        "placement": "neighborhood/wedgewood-houston",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/2023-Bastion-WeHo-2-3299x2200-d358ddc.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/2023-Bastion-WeHo-2-3299x2200-d358ddc.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "restaurants",
@@ -106,7 +145,10 @@
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Category image only. The food is from JBJ’s; do not attach to a different named restaurant.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "tickets",
@@ -123,7 +165,10 @@
       "credit": "Mark Direen",
       "rights_status": "approved-open-license",
       "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
-      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "live-music",
@@ -140,7 +185,10 @@
       "credit": "Rachel Claire",
       "rights_status": "approved-open-license",
       "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
-      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "honky-tonk-highway",
@@ -157,7 +205,10 @@
       "credit": "Shea Gordon",
       "rights_status": "approved-open-license",
       "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
-      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "weekend",
@@ -174,7 +225,10 @@
       "credit": "gapeppy1",
       "rights_status": "approved-open-license",
       "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
-      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "bachelorette",
@@ -191,7 +245,10 @@
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Use for group nightlife broadly; do not claim every person is part of a bachelorette trip.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "wellness",
@@ -208,7 +265,10 @@
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Source is DELUX WeHo; category image, not a hotel amenity.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "outdoor-living",
@@ -225,7 +285,10 @@
       "credit": "Big Plan Holdings / Solaya at The Lanes",
       "rights_status": "approved-owned",
       "restrictions": "Source is Solaya at The Lanes; do not call it a public park or hotel.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "pool",
@@ -242,7 +305,10 @@
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Source is DELUX WeHo; do not label as a hotel pool.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "broadway-rooftop-day",
@@ -259,7 +325,10 @@
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Accurate Downtown/Broadway.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "broadway-nightlife",
@@ -276,7 +345,10 @@
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Broadway/nightlife context.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "rooftop-party",
@@ -293,7 +365,10 @@
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Owned marketing photo; use broadly for group nightlife.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "live-music-crowd",
@@ -310,7 +385,10 @@
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Experience image only.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "live-performance-overhead",
@@ -327,7 +405,10 @@
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Experience image only.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "private-events",
@@ -344,7 +425,10 @@
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Source is JBJ’s. Do not attribute to an unrelated venue.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "nashville-food",
@@ -361,7 +445,10 @@
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Source is JBJ’s. Do not assign to another named restaurant.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "cocktail-service",
@@ -378,7 +465,10 @@
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Source is JBJ’s. Category image only.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "weho-skyline",
@@ -395,7 +485,10 @@
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Accurate Wedgewood-Houston context.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "weho-pool",
@@ -412,7 +505,10 @@
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Named property source; not a hotel.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "weho-fitness",
@@ -429,7 +525,10 @@
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Named property source; not a hotel.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "weho-sauna",
@@ -446,7 +545,10 @@
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Named property source; not a hotel.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "weho-lounge",
@@ -463,7 +565,10 @@
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Named property source; do not present as a restaurant or hotel.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "weho-interior-design",
@@ -480,7 +585,10 @@
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Residential model unit; do not call it a hotel room.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "the-lanes-outdoor-living",
@@ -497,7 +605,10 @@
       "credit": "Big Plan Holdings / Solaya at The Lanes",
       "rights_status": "approved-owned",
       "restrictions": "Solaya at The Lanes; not a public park.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "the-lanes-community-center",
@@ -514,7 +625,10 @@
       "credit": "Big Plan Holdings / Solaya at The Lanes",
       "rights_status": "approved-owned",
       "restrictions": "Solaya at The Lanes.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "the-lanes-pool",
@@ -531,7 +645,10 @@
       "credit": "Big Plan Holdings / Solaya at The Lanes",
       "rights_status": "approved-owned",
       "restrictions": "Solaya at The Lanes; residential amenity.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "the-lanes-greenway",
@@ -548,7 +665,10 @@
       "credit": "Big Plan Holdings / Solaya at The Lanes",
       "rights_status": "approved-owned",
       "restrictions": "Use for greenway/outdoor editorial; verify exact trail before naming it.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "the-lanes-runner-dog",
@@ -565,7 +685,10 @@
       "credit": "Big Plan Holdings / Solaya at The Lanes",
       "rights_status": "approved-owned",
       "restrictions": "Owned lifestyle photo; not a public race or park.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "the-lanes-homes",
@@ -582,7 +705,10 @@
       "credit": "Big Plan Holdings / Solaya at The Lanes",
       "rights_status": "approved-owned",
       "restrictions": "Use only for Solaya at The Lanes.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "jbjs-rooftop",
@@ -599,7 +725,10 @@
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Only for JBJ’s or truthful Downtown/Broadway context.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "jbjs-interior",
@@ -616,7 +745,10 @@
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Use only for JBJ’s; contains brand/talent imagery.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "jbjs-food",
@@ -633,7 +765,10 @@
       "credit": "Big Plan Holdings / JBJ's Nashville",
       "rights_status": "approved-owned",
       "restrictions": "Use only for JBJ’s or broad category use without attributing to another business.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "delux-weho-exterior",
@@ -650,7 +785,10 @@
       "credit": "Big Plan Holdings / DELUX WeHo",
       "rights_status": "approved-owned",
       "restrictions": "Use only for DELUX WeHo.",
-      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Center-cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "nashville-hero-mp4",
@@ -665,9 +803,12 @@
       "source_sha256": "74aef0167a6d2c803985ed64355b9e788e54b37b264424bf8293028dd93a0114",
       "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings",
-      "rights_status": "approved-owned-derivative",
+      "rights_status": "approved-owned",
       "restrictions": "Muted editorial montage. Do not imply that all depicted scenes occur at one venue. Contains brief Hank’s venue footage but no audio.",
-      "derivative_notes": "Created from approved owned stills plus short performance clips; 1280×720, muted, crossfades, no generative imagery."
+      "derivative_notes": "Created from approved owned stills plus short performance clips; 1280×720, muted, crossfades, no generative imagery.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "nashville-hero-webm",
@@ -682,9 +823,12 @@
       "source_sha256": "1e711e06acf376267964ee83bd4e090d645f65ed6417380556c55c4c7dae895b",
       "license": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "credit": "Big Plan Holdings",
-      "rights_status": "approved-owned-derivative",
+      "rights_status": "approved-owned",
       "restrictions": "Muted editorial montage. Do not imply that all depicted scenes occur at one venue. Contains brief Hank’s venue footage but no audio.",
-      "derivative_notes": "Created from approved owned stills plus short performance clips; 1280×720, muted, crossfades, no generative imagery."
+      "derivative_notes": "Created from approved owned stills plus short performance clips; 1280×720, muted, crossfades, no generative imagery.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "east-nashville",
@@ -695,16 +839,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/RosemaryAndBeauty-EastNashville.jpg",
+      "source_url": null,
       "source_sha256": "f80ed7bef46ad42a55328f818746d31b1c65d794d9fbde8cf2567b965a0d3d57",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library / listing photography. Formal usage authorization still required. Do not invent a Creative Commons license.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "source_filename": "RosemaryAndBeauty-EastNashville.jpg",
       "original_title": "Rosemary & Beauty Queen East Nashville",
-      "download_date": "2026-08-06"
+      "download_date": "2026-08-06",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "East Nashville / Rosemary & Beauty Queen area orientation",
+        "composition": "East Nashville street or patio scene that reads as the neighborhood, not a generic brunch stock photo",
+        "avoid": "anonymous interior with no place identity",
+        "placement": "neighborhood/east-nashville",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/RosemaryAndBeauty-EastNashville.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/RosemaryAndBeauty-EastNashville.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "germantown",
@@ -715,16 +874,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/TheCupcakeCollection-Germantown.jpg",
+      "source_url": null,
       "source_sha256": "28ec5b429aa4e9c694d5250e7b5229c4fb30c90a7e3d8ac5df59fe8d529fee3a",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library / listing photography. Formal usage authorization still required. Do not invent a Creative Commons license.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "source_filename": "TheCupcakeCollection-Germantown.jpg",
       "original_title": "The Cupcake Collection Germantown",
-      "download_date": "2026-08-06"
+      "download_date": "2026-08-06",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Germantown / Cupcake Collection or brick-street neighborhood feel",
+        "composition": "Historic brick streetscape or distinctive Germantown storefront block",
+        "avoid": "generic bakery product hero substituting for the neighborhood",
+        "placement": "neighborhood/germantown",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/TheCupcakeCollection-Germantown.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/TheCupcakeCollection-Germantown.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "the-gulch",
@@ -735,16 +909,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/biscuit-love-gulch.jpg",
+      "source_url": null,
       "source_sha256": "27b013aecc91448b3a15c9e92b16dd6bfc8ae4647a6aca1af93962eea9500c8b",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library / listing photography. Formal usage authorization still required. Do not invent a Creative Commons license.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "source_filename": "biscuit-love-gulch.jpg",
       "original_title": "Biscuit Love in the Gulch",
-      "download_date": "2026-08-06"
+      "download_date": "2026-08-06",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "The Gulch / Biscuit Love corridor",
+        "composition": "Gulch streetscape with mixed new development and pedestrian energy",
+        "avoid": "generic waffle/biscuit food close-up as neighborhood stand-in",
+        "placement": "neighborhood/the-gulch",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/biscuit-love-gulch.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/biscuit-love-gulch.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "hillsboro-village",
@@ -755,16 +944,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/2023-BelcourtTheatre-HillsboroVillage-1-3299x2200-d358ddc.jpg",
+      "source_url": null,
       "source_sha256": "ec1ff2e658aa8243188efc26ff745af8dd6d6c4629f1912fab8b343cc49765a1",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library / listing photography. Formal usage authorization still required. Do not invent a Creative Commons license.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "source_filename": "2023-BelcourtTheatre-HillsboroVillage-1-3299x2200-d358ddc.jpg",
       "original_title": "Belcourt Theatre",
-      "download_date": "2026-08-06"
+      "download_date": "2026-08-06",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Hillsboro Village / Belcourt streetscape",
+        "composition": "Village-scale street with Belcourt or neighboring storefronts readable as Hillsboro Village",
+        "avoid": "generic cinema marquee from another city",
+        "placement": "neighborhood/hillsboro-village",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/2023-BelcourtTheatre-HillsboroVillage-1-3299x2200-d358ddc.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/2023-BelcourtTheatre-HillsboroVillage-1-3299x2200-d358ddc.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "12-south",
@@ -775,16 +979,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/draper-james-shopping-12south.jpg",
+      "source_url": null,
       "source_sha256": "d5ef9654acac112be9e764e60abdbc21722539f44f59d88538b907dca1d0b5c0",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library / listing photography. Formal usage authorization still required. Do not invent a Creative Commons license.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "source_filename": "draper-james-shopping-12south.jpg",
       "original_title": "Draper James shop in 12South",
-      "download_date": "2026-08-06"
+      "download_date": "2026-08-06",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "12 South / Draper James streetscape",
+        "composition": "Neighborhood street with distinctive 12 South retail architecture and sidewalk life",
+        "avoid": "generic suburban retail strip, wrong corridor",
+        "placement": "neighborhood/12-south",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/draper-james-shopping-12south.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/draper-james-shopping-12south.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "midtown",
@@ -795,16 +1014,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-Odies_Venue_Main_6212302A-86C5-4D22-9382DCAA08E0BBB3_50473b45-9d31-413b-9ea9c64449cfd34a_0.jpg",
+      "source_url": null,
       "source_sha256": "c0b78f1d26f196d514586d76310206595c41d69ffb894a0d060e5ce36b541cad",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC listing photography. Formal usage authorization still required. Exterior image only for Midtown.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200 from CVC listing original Odies_Venue_Main (exterior). Not Venue_1 interior or Convention_Stage. Downloaded 2026-08-06.",
       "source_filename": "Odies_Venue_Main.jpg",
       "original_title": "Odie’s Bar exterior overlooking Division Street",
-      "download_date": "2026-08-06"
+      "download_date": "2026-08-06",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Midtown / Odie's corridor orientation",
+        "composition": "Division Street / Midtown nightlife street energy",
+        "avoid": "generic bar interior labeled as Odie's without rights",
+        "placement": "neighborhood/midtown",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-Odies_Venue_Main_6212302A-86C5-4D22-9382DCAA08E0BBB3_50473b45-9d31-413b-9ea9c64449cfd34a_0.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-Odies_Venue_Main_6212302A-86C5-4D22-9382DCAA08E0BBB3_50473b45-9d31-413b-9ea9c64449cfd34a_0.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "west-end",
@@ -815,16 +1049,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/Parthenon-centennial-park.jpg",
+      "source_url": null,
       "source_sha256": "45dbfc3f5c8294d7e11ac5687ffa7525e3678018c286ffcf77bb0f272c2084c9",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library / listing photography. Formal usage authorization still required. Do not invent a Creative Commons license.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "source_filename": "Parthenon-centennial-park.jpg",
       "original_title": "Parthenon at Centennial Park",
-      "download_date": "2026-08-06"
+      "download_date": "2026-08-06",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "West End / Vanderbilt corridor",
+        "composition": "West End Avenue orientation near campus / parks edge",
+        "avoid": "generic campus stock from another city",
+        "placement": "neighborhood/west-end",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/Parthenon-centennial-park.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/Parthenon-centennial-park.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "music-row",
@@ -835,16 +1084,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/MusicRow-2023-11.jpg",
+      "source_url": null,
       "source_sha256": "60a6adb7bb8e7e987b5f8a99546d7f3430d22eefe42c9b632240f7e24e16715c",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library / listing photography. Formal usage authorization still required. Do not invent a Creative Commons license.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "source_filename": "MusicRow-2023-11.jpg",
       "original_title": "Music Row streetscape",
-      "download_date": "2026-08-06"
+      "download_date": "2026-08-06",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Music Row streetscape",
+        "composition": "Music Row boulevard with studio / office character",
+        "avoid": "Studio B Wikimedia confusion with CVC Music Row asset",
+        "placement": "neighborhood/music-row",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/MusicRow-2023-11.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/MusicRow-2023-11.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "green-hills",
@@ -855,16 +1119,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/BluebirdCafe-Greenhills.jpg",
+      "source_url": null,
       "source_sha256": "ee3004e65de2563f06e35dd259b87addb03bdda15201e1756de6dccd81b6c690",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library / listing photography. Formal usage authorization still required. Do not invent a Creative Commons license.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "source_filename": "BluebirdCafe-Greenhills.jpg",
       "original_title": "Bluebird Cafe exterior",
-      "download_date": "2026-08-06"
+      "download_date": "2026-08-06",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Green Hills / Bluebird Cafe context",
+        "composition": "Green Hills orientation; Bluebird exterior only via direct license",
+        "avoid": "generic songwriter-circle stock",
+        "placement": "neighborhood/green-hills",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/BluebirdCafe-Greenhills.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/BluebirdCafe-Greenhills.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "hotels",
@@ -881,7 +1160,10 @@
       "credit": "Antony-22",
       "rights_status": "approved-open-license",
       "restrictions": "Exact hotel image; can represent hotels broadly or Gaylord Opryland specifically. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "opryland",
@@ -898,7 +1180,10 @@
       "credit": "Antony-22",
       "rights_status": "approved-open-license",
       "restrictions": "Accurate Opryland image. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "tours",
@@ -915,7 +1200,10 @@
       "credit": "Kelly",
       "rights_status": "approved-open-license",
       "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
-      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "grand-ole-opry-house",
@@ -932,7 +1220,10 @@
       "credit": "Antony-22",
       "rights_status": "approved-open-license",
       "restrictions": "Exact attraction image. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "opryland-atrium",
@@ -949,7 +1240,10 @@
       "credit": "Antony-22",
       "rights_status": "approved-open-license",
       "restrictions": "Exact hotel image. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "parthenon-west-end",
@@ -966,7 +1260,10 @@
       "credit": "Warren LeMay",
       "rights_status": "approved-open-license",
       "restrictions": "Exact attraction image. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "music-row-studio-b",
@@ -983,7 +1280,10 @@
       "credit": "Cliff",
       "rights_status": "approved-open-license",
       "restrictions": "Exact landmark image. Attribution and license link required. Indicate crop/derivative. Share-alike applies where stated.",
-      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "printers-alley",
@@ -1000,7 +1300,10 @@
       "credit": "Tatiana Bidon",
       "rights_status": "approved-open-license",
       "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
-      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "skyline",
@@ -1017,7 +1320,10 @@
       "credit": "Shane",
       "rights_status": "approved-open-license",
       "restrictions": "Pexels License — free for commercial use; attribution not required; no endorsement implied. Listed for credits completeness.",
-      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing."
+      "derivative_notes": "Cropped and resized to 1600×1067; no generative editing.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "productionEligible": true
     },
     {
       "asset_id": "nashroam-skyline-hero",
@@ -1037,7 +1343,10 @@
       "restrictions": "Obtained from Four Seasons Nashville press DAM. Do not invent a public license. Formal usage authorization still required for production claims.",
       "derivative_notes": "Desktop crop 2400×1350; mobile crop 1400×1750 at 56% horizontal focal. No generative editing. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "f4909418447fc5baafc3fe184b0ae3d32b671a91a7c09e70f2bc94e8a8cde3b5"
+      "source_sha256": "f4909418447fc5baafc3fe184b0ae3d32b671a91a7c09e70f2bc94e8a8cde3b5",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "productionEligible": false
     },
     {
       "asset_id": "nashroam-skyline-hero-mobile",
@@ -1057,7 +1366,10 @@
       "restrictions": "Same master as nashroam-skyline-hero. Formal usage authorization still required.",
       "derivative_notes": "Portrait crop 1400×1750. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "a82d17e68e11c06d30a21c70439ef34a78ef7d7245e77da570882297a088076a"
+      "source_sha256": "a82d17e68e11c06d30a21c70439ef34a78ef7d7245e77da570882297a088076a",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "productionEligible": false
     },
     {
       "asset_id": "hotels-premium",
@@ -1077,7 +1389,10 @@
       "restrictions": "Four Seasons press asset. Not Gaylord Opryland. Formal usage authorization still required.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "725ff51d05e1e97c518e2db0b6fa21e2da78d60218104b9b765035bd6e11cf66"
+      "source_sha256": "725ff51d05e1e97c518e2db0b6fa21e2da78d60218104b9b765035bd6e11cf66",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "productionEligible": false
     },
     {
       "asset_id": "restaurants-premium",
@@ -1088,16 +1403,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/Twelve-Thirty-Club-bar.jpg",
+      "source_url": null,
       "source_filename": "Twelve-Thirty-Club-bar.jpg",
       "original_title": "Twelve Thirty Club cocktail bar",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library asset. Formal usage authorization still required. Do not invent a Creative Commons license.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "128c8b70dd86f2a6077496e6134e6312ef97036028b1af4194c9a77679690a64"
+      "source_sha256": "128c8b70dd86f2a6077496e6134e6312ef97036028b1af4194c9a77679690a64",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "The cocktail bar at Twelve Thirty Club in Nashville.",
+        "composition": "Homepage hub: Restaurants",
+        "avoid": "Any CVC/Visit Music City production use; generic wrong-business stock",
+        "placement": "Homepage hub: Restaurants",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/Twelve-Thirty-Club-bar.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/Twelve-Thirty-Club-bar.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "live-music-premium",
@@ -1108,16 +1438,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/cassadee-pope-ryman.jpg",
+      "source_url": null,
       "source_filename": "cassadee-pope-ryman.jpg",
       "original_title": "Cassadee Pope at Ryman",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library asset. Formal usage authorization still required.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "6c6e57ac2bf1e0bd8164902fe2b3ff8863af92bcdda004ba5f46420956318bc2"
+      "source_sha256": "6c6e57ac2bf1e0bd8164902fe2b3ff8863af92bcdda004ba5f46420956318bc2",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Cassadee Pope performing at the Ryman Auditorium.",
+        "composition": "Homepage hub: Live Music",
+        "avoid": "Any CVC/Visit Music City production use; generic wrong-business stock",
+        "placement": "Homepage hub: Live Music",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/cassadee-pope-ryman.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/cassadee-pope-ryman.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "things-to-do-premium",
@@ -1128,16 +1473,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/gray-line-parthenon-transportation-bus.jpg",
+      "source_url": null,
       "source_filename": "gray-line-parthenon-transportation-bus.jpg",
       "original_title": "Gray Line Bus in front of Parthenon",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library asset. Formal usage authorization still required.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "24935d8cf2c33b5e35ce3d81ea1a6ec78d962e1ca08ed401621a6af2266c7b54"
+      "source_sha256": "24935d8cf2c33b5e35ce3d81ea1a6ec78d962e1ca08ed401621a6af2266c7b54",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "A Gray Line tour bus parked in front of the Parthenon in Centennial Park.",
+        "composition": "Homepage hub: Things to Do",
+        "avoid": "Any CVC/Visit Music City production use; generic wrong-business stock",
+        "placement": "Homepage hub: Things to Do",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/gray-line-parthenon-transportation-bus.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/gray-line-parthenon-transportation-bus.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "events-premium",
@@ -1148,16 +1508,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/musicians-corner-concert-dancing-outdoors.jpg",
+      "source_url": null,
       "source_filename": "musicians-corner-concert-dancing-outdoors.jpg",
       "original_title": "Dancing at Musicians Corner Concert",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library asset. Formal usage authorization still required.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "3fd2881db40ef36eac2fc3cf2e32b40afb32b859cf788998c67930a1e269e28b"
+      "source_sha256": "3fd2881db40ef36eac2fc3cf2e32b40afb32b859cf788998c67930a1e269e28b",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "People dancing outdoors at a Musicians Corner concert in Nashville.",
+        "composition": "Homepage hub: Events",
+        "avoid": "Any CVC/Visit Music City production use; generic wrong-business stock",
+        "placement": "Homepage hub: Events",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/musicians-corner-concert-dancing-outdoors.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/musicians-corner-concert-dancing-outdoors.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "trip-planner-premium",
@@ -1168,16 +1543,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/Skyline-bridge-view.jpg",
+      "source_url": null,
       "source_filename": "Skyline-bridge-view.jpg",
       "original_title": "Skyline bridge",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library asset. Formal usage authorization still required.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "243d988829213d793fa57f54c86c3dea2f8605f4ae697491b756a249e684bc17"
+      "source_sha256": "243d988829213d793fa57f54c86c3dea2f8605f4ae697491b756a249e684bc17",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Nashville skyline seen from a pedestrian bridge.",
+        "composition": "Homepage hub: Trip Planner",
+        "avoid": "Any CVC/Visit Music City production use; generic wrong-business stock",
+        "placement": "Homepage hub: Trip Planner",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/Skyline-bridge-view.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/Skyline-bridge-view.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "guide-first-time-visitors",
@@ -1188,16 +1578,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/Downtown-Aerial-skyline.jpg",
+      "source_url": null,
       "source_filename": "Downtown-Aerial-skyline.jpg",
       "original_title": "Downtown Nashville skyline",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library asset. Formal usage authorization still required.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 2000×1250. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "59beca3f779d4f7da0199eb7b8c5a91fea4ddc4c9b209e6e127c29932cef1f7b"
+      "source_sha256": "59beca3f779d4f7da0199eb7b8c5a91fea4ddc4c9b209e6e127c29932cef1f7b",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Aerial view of the downtown Nashville skyline.",
+        "composition": "Guide: Nashville for First-Time Visitors",
+        "avoid": "Any CVC/Visit Music City production use; generic wrong-business stock",
+        "placement": "Guide: Nashville for First-Time Visitors",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/Downtown-Aerial-skyline.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/Downtown-Aerial-skyline.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "guide-where-to-stay",
@@ -1208,16 +1613,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/hermitage-hotel-lobby_1.jpg",
+      "source_url": null,
       "source_filename": "hermitage-hotel-lobby_1.jpg",
       "original_title": "Hermitage Hotel lobby",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library asset. Not Gaylord Opryland atrium. Formal usage authorization still required.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 2000×1250. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "e26733769810ec347bbad5a796c3621cb0f013271ed6278189d40780073a22f5"
+      "source_sha256": "e26733769810ec347bbad5a796c3621cb0f013271ed6278189d40780073a22f5",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "The lobby of the Hermitage Hotel in downtown Nashville.",
+        "composition": "Guide: Where to Stay in Nashville",
+        "avoid": "Any CVC/Visit Music City production use; generic wrong-business stock",
+        "placement": "Guide: Where to Stay in Nashville",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/hermitage-hotel-lobby_1.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/hermitage-hotel-lobby_1.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "guide-weekend-itinerary",
@@ -1237,7 +1657,10 @@
       "restrictions": "Four Seasons press asset. Formal usage authorization still required.",
       "derivative_notes": "Portrait master center-cropped to 2000×1250. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "54a152c0ca544ed8416cf2533b9649e62dbe0e15cdc5157e5f710301227943f7"
+      "source_sha256": "54a152c0ca544ed8416cf2533b9649e62dbe0e15cdc5157e5f710301227943f7",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "productionEligible": false
     },
     {
       "asset_id": "trending-live-tonight",
@@ -1248,16 +1671,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/nashville-concert-upcoming-events.jpg",
+      "source_url": null,
       "source_filename": "nashville-concert-upcoming-events.jpg",
       "original_title": "Concert in Nashville",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library asset. Formal usage authorization still required.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "de6ca181ed385be54e7b7928e1885f66afbc32448366dd6297b728ad766eb37a"
+      "source_sha256": "de6ca181ed385be54e7b7928e1885f66afbc32448366dd6297b728ad766eb37a",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "A live concert crowd in Nashville.",
+        "composition": "Homepage trending: Who’s Playing Tonight",
+        "avoid": "Any CVC/Visit Music City production use; generic wrong-business stock",
+        "placement": "Homepage trending: Who’s Playing Tonight",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/nashville-concert-upcoming-events.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/nashville-concert-upcoming-events.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "trending-weekender",
@@ -1268,16 +1706,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/state-capitol-skyline-green-aerial.jpg",
+      "source_url": null,
       "source_filename": "state-capitol-skyline-green-aerial.jpg",
       "original_title": "State Capitol skyline green aerial",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library asset. Formal usage authorization still required.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "24409331f9fe4b212d696b6f166350763fac5f8108df79bf74b7f6655d3539c5"
+      "source_sha256": "24409331f9fe4b212d696b6f166350763fac5f8108df79bf74b7f6655d3539c5",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Aerial view of the Tennessee State Capitol and downtown Nashville skyline with green parkland.",
+        "composition": "Homepage trending: Nashville Weekender",
+        "avoid": "Any CVC/Visit Music City production use; generic wrong-business stock",
+        "placement": "Homepage trending: Nashville Weekender",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/state-capitol-skyline-green-aerial.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/state-capitol-skyline-green-aerial.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "sylvan-park",
@@ -1288,16 +1741,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/2023-SylvanSupply-SylvanPark-(8)-3299x2200-d358ddc.jpg",
+      "source_url": null,
       "source_filename": "2023-SylvanSupply-SylvanPark-(8)-3299x2200-d358ddc.jpg",
       "original_title": "Sylvan Supply",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library / listing photography. Formal usage authorization still required. Do not invent a Creative Commons license.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "Cropped/resized to 1800×1200. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "c9be8b36528dac45c50a4757240ed7e022ea751c7b6d3ad1459331a8543a1658"
+      "source_sha256": "c9be8b36528dac45c50a4757240ed7e022ea751c7b6d3ad1459331a8543a1658",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Sylvan Park / Sylvan Supply streetscape",
+        "composition": "Quiet residential-commercial Sylvan Park block",
+        "avoid": "The Lanes or other neighborhood substituted as Sylvan Park",
+        "placement": "neighborhood/sylvan-park",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/2023-SylvanSupply-SylvanPark-(8)-3299x2200-d358ddc.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/2023-SylvanSupply-SylvanPark-(8)-3299x2200-d358ddc.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "attraction-country-music-hall-of-fame",
@@ -1317,7 +1785,10 @@
       "restrictions": "Official group marketing kit DOWNLOAD asset. Credit required as stated by CMHOF. Formal usage confirmation still required for commercial destination publishing.",
       "derivative_notes": "4:3 cover crop; WebP 640/960/1333 (native max; official download is 1500×1000). No upscaling. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "65c38bdaba9a1a2c5b7426816b976da322d9e2c97ae80ce4f7af4b95a1aaaf92"
+      "source_sha256": "65c38bdaba9a1a2c5b7426816b976da322d9e2c97ae80ce4f7af4b95a1aaaf92",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "productionEligible": false
     },
     {
       "asset_id": "attraction-parthenon",
@@ -1337,7 +1808,10 @@
       "restrictions": "Authorized Parthenon / Conservancy file requested. Do not substitute Wikimedia or stock. Formal usage authorization still required.",
       "derivative_notes": "4:3 cover crop from 1920×1280 reference master; WebP 640/960/1600. No upscaling. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "2f630d3f72091d0342205801ef2ecf56508e12660feb027938dd6844160945b1"
+      "source_sha256": "2f630d3f72091d0342205801ef2ecf56508e12660feb027938dd6844160945b1",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "productionEligible": false
     },
     {
       "asset_id": "attraction-nashville-farmers-market",
@@ -1348,16 +1822,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/nashville-businesses/nashville-farmers-market/7531",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-3885_Farmers-Market-interior_36cada9a-5056-b3a8-4973de94ab1c1b2b_0.jpg",
+      "source_url": null,
       "source_filename": "nashvilletn-3885_Farmers-Market-interior_36cada9a-5056-b3a8-4973de94ab1c1b2b_0.jpg",
       "original_title": "People eat at tables in a large indoor dining area at the Nashville Farmers’ Market",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC listing original (not listing_slide_small). Formal usage authorization still required.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "4:3 cover crop from 1618×1080 original; WebP 640/960/1440. No upscaling. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "5352d0f88d1006fb05daae997eaef8905032593259863addf592647914165677"
+      "source_sha256": "5352d0f88d1006fb05daae997eaef8905032593259863addf592647914165677",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Nashville Farmers' Market",
+        "composition": "Exact Market House / sheds identity",
+        "avoid": "generic farmers market produce table",
+        "placement": "things-to-do Farmers' Market",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-3885_Farmers-Market-interior_36cada9a-5056-b3a8-4973de94ab1c1b2b_0.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-3885_Farmers-Market-interior_36cada9a-5056-b3a8-4973de94ab1c1b2b_0.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "attraction-shelby-bottoms-greenway",
@@ -1377,7 +1866,10 @@
       "restrictions": "Published Nashville.gov file is only 739×492. Larger approved original still needed from Metro Parks. Do not upscale. Written authorization required before treating as fully cleared.",
       "derivative_notes": "4:3 cover crop from 739×492 published file; WebP largest native 656×492 written to -1600 slot. No upscaling. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "dc055eb12d006a727fba9d666059a18ca70a577f701b7ebde4a7a38700bc6b36"
+      "source_sha256": "dc055eb12d006a727fba9d666059a18ca70a577f701b7ebde4a7a38700bc6b36",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "productionEligible": false
     },
     {
       "asset_id": "attraction-ryman-auditorium-tour",
@@ -1397,7 +1889,10 @@
       "restrictions": "Official Ryman tour marketing image. Contact Ryman communications for a larger original if needed. Formal usage authorization still required.",
       "derivative_notes": "4:3 cover crop from 1600×1000 official asset; WebP 640/960/1333. No upscaling. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "3e052633b6b91a2a0e88dd531836b2e8434ca75dc121d36b10f4407b4f08afec"
+      "source_sha256": "3e052633b6b91a2a0e88dd531836b2e8434ca75dc121d36b10f4407b4f08afec",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "productionEligible": false
     },
     {
       "asset_id": "attraction-frist-art-museum",
@@ -1408,16 +1903,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/nashville-businesses/frist-art-museum/4973",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-couple-at-Eversley-in-LSS_CC0C9408-E9CA-457E-BB626443959CB64B_a69649ae-cf14-4a68-80b5aa8c7610fc28_0.jpg",
+      "source_url": null,
       "source_filename": "nashvilletn-couple-at-Eversley-in-LSS_CC0C9408-E9CA-457E-BB626443959CB64B_a69649ae-cf14-4a68-80b5aa8c7610fc28_0.jpg",
       "original_title": "Couple looking at a round glass sculpture",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC listing original (not listing_slide_small). Formal usage authorization still required.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "4:3 cover crop from 1620×1080 original; WebP 640/960/1440. No upscaling. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "dcd61d48ee74e4afa2d0ea2d0ccd2b9eb6b428b864a17b1bb89e7eec21d43660"
+      "source_sha256": "dcd61d48ee74e4afa2d0ea2d0ccd2b9eb6b428b864a17b1bb89e7eec21d43660",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Frist Art Museum",
+        "composition": "Exact Frist interior or Art Deco exterior",
+        "avoid": "generic museum gallery",
+        "placement": "things-to-do Frist",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-couple-at-Eversley-in-LSS_CC0C9408-E9CA-457E-BB626443959CB64B_a69649ae-cf14-4a68-80b5aa8c7610fc28_0.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-couple-at-Eversley-in-LSS_CC0C9408-E9CA-457E-BB626443959CB64B_a69649ae-cf14-4a68-80b5aa8c7610fc28_0.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "attraction-cheekwood-estate-gardens",
@@ -1428,16 +1938,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/nashville-businesses/cheekwood-estate-gardens/7600",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-4562_cheekwood5_6c748220-5056-b3a8-494c3ba7bf4e7479_0.jpg",
+      "source_url": null,
       "source_filename": "nashvilletn-4562_cheekwood5_6c748220-5056-b3a8-494c3ba7bf4e7479_0.jpg",
       "original_title": "Cheekwood historic mansion and summer gardens",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC listing original (not listing_slide_small). Formal usage authorization still required.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "4:3 cover crop from 1619×1080 original; WebP 640/960/1440 (1600-slot recompressed ~q70 to stay under ~400KB). No upscaling. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "14ea5972cb47cbde9e6372ebf48e68e54a037c29ae859802e71f3e90ccdc7c18"
+      "source_sha256": "14ea5972cb47cbde9e6372ebf48e68e54a037c29ae859802e71f3e90ccdc7c18",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Cheekwood Estate & Gardens",
+        "composition": "Exact Cheekwood mansion/gardens",
+        "avoid": "generic southern mansion gardens",
+        "placement": "things-to-do Cheekwood",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-4562_cheekwood5_6c748220-5056-b3a8-494c3ba7bf4e7479_0.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-4562_cheekwood5_6c748220-5056-b3a8-494c3ba7bf4e7479_0.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "attraction-nmaam",
@@ -1457,7 +1982,10 @@
       "restrictions": "Exact homepage hero composition. Published file is 1300×731; request higher-resolution original via NMAAM Media Requests if needed. Formal usage authorization still required.",
       "derivative_notes": "4:3 cover crop from 1300×731 source; WebP largest native 975×731 written to -1600 slot. No upscaling. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "b4b366a587907d9a06c5604ba5ee4acbf0af97f3a3b767acc23ab0cf308b806c"
+      "source_sha256": "b4b366a587907d9a06c5604ba5ee4acbf0af97f3a3b767acc23ab0cf308b806c",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "productionEligible": false
     },
     {
       "asset_id": "venue-ryman-auditorium",
@@ -1477,7 +2005,10 @@
       "restrictions": "Official Ryman media from Catch a Show section of Nashville's Best Music Museum article. Replaces prior CVC empty-stage spotlight selection. Fastly IO reports origin master idim=648x431; no larger public original found for this exact filename. Do not upscale.",
       "derivative_notes": "3:2 center crop from official 648x431 master to 646x431; WebP slots 640/646/646 (named 640/960/1600). No upscaling. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "000b6005e7242b03045bfbd863091262e0ec82f63e309e34bdc4070bada5fbd6"
+      "source_sha256": "000b6005e7242b03045bfbd863091262e0ec82f63e309e34bdc4070bada5fbd6",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "productionEligible": false
     },
     {
       "asset_id": "venue-station-inn",
@@ -1488,16 +2019,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/Station-Inn.jpg",
+      "source_url": null,
       "source_filename": "Station-Inn.jpg",
       "original_title": "Station Inn",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library original (not featured_promo derivative). Formal usage authorization still required.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "3:2 cover crop from 3300×2200 original; WebP 640/960/1600. No upscaling. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "97e3523eb55fe0f97c4e05fd498f7d34b9cb9c0ca71acb94dcf26ac7b9cb2c00"
+      "source_sha256": "97e3523eb55fe0f97c4e05fd498f7d34b9cb9c0ca71acb94dcf26ac7b9cb2c00",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Station Inn",
+        "composition": "Exact Station Inn building in the Gulch",
+        "avoid": "generic bluegrass band stage stock",
+        "placement": "music listing Station Inn",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/Station-Inn.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/Station-Inn.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "venue-bluebird-cafe",
@@ -1508,16 +2054,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/bluebird-cafe-nightlife.jpg",
+      "source_url": null,
       "source_filename": "bluebird-cafe-nightlife.jpg",
       "original_title": "Songwriters performing at The Bluebird Cafe",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC Media Library original (not list_item_desktop derivative). Formal usage authorization still required.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "3:2 cover crop from 2000×1333 original; WebP 640/960/1600. No upscaling. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "074940faf038006e32f53e67943f327b9d7b77c541ed29f2bef13f7ea4fdc17d"
+      "source_sha256": "074940faf038006e32f53e67943f327b9d7b77c541ed29f2bef13f7ea4fdc17d",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Bluebird Cafe",
+        "composition": "Exact Bluebird exterior or in-the-round room with venue permission",
+        "avoid": "generic songwriter circle",
+        "placement": "music listing Bluebird Cafe",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/bluebird-cafe-nightlife.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/bluebird-cafe-nightlife.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "venue-the-pinnacle",
@@ -1528,16 +2089,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-ThePinnacle_20250227_0694-Enhanced-NR-ALIVECOVERAGE_E3FF3820-0459-4208-9CB5A9B1D35FA3C0_f4f4d347-fb25-47dd-a838a3318b368369.jpg",
+      "source_url": null,
       "source_filename": "nashvilletn-ThePinnacle_20250227_0694-Enhanced-NR-ALIVECOVERAGE_E3FF3820-0459-4208-9CB5A9B1D35FA3C0_f4f4d347-fb25-47dd-a838a3318b368369.jpg",
       "original_title": "The Pinnacle live concert",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC listing original (not listing_slide_small). Real concert photography, not a rendering. Formal usage authorization still required.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "3:2 cover crop from 1920×1079 original; WebP 640/960/1600. No upscaling. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "de9c98e9149469ed85ed5c168530d3475eecec91e1d163df3ca5641de95f21d3"
+      "source_sha256": "de9c98e9149469ed85ed5c168530d3475eecec91e1d163df3ca5641de95f21d3",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "The Pinnacle at Nashville Yards",
+        "composition": "Exact Pinnacle concert bowl or exterior",
+        "avoid": "generic arena bowl",
+        "placement": "venue listing The Pinnacle",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-ThePinnacle_20250227_0694-Enhanced-NR-ALIVECOVERAGE_E3FF3820-0459-4208-9CB5A9B1D35FA3C0_f4f4d347-fb25-47dd-a838a3318b368369.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-ThePinnacle_20250227_0694-Enhanced-NR-ALIVECOVERAGE_E3FF3820-0459-4208-9CB5A9B1D35FA3C0_f4f4d347-fb25-47dd-a838a3318b368369.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "venue-ascend-amphitheater",
@@ -1548,16 +2124,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-6047_Ascend-AMP-1_368f0b6b-5056-b3a8-49c7657f38d578b4_0.jpg",
+      "source_url": null,
       "source_filename": "nashvilletn-6047_Ascend-AMP-1_368f0b6b-5056-b3a8-49c7657f38d578b4_0.jpg",
       "original_title": "Ascend Amphitheater",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC listing original (not listing_slide_small). Formal usage authorization still required.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "3:2 cover crop from 1620×1080 original preserving stage/audience/skyline context; WebP 640/960/1600. No upscaling. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "d148e3708e5ab6c2393a087c6496a4ad78015992a5dc932942ad8c9a99314268"
+      "source_sha256": "d148e3708e5ab6c2393a087c6496a4ad78015992a5dc932942ad8c9a99314268",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Ascend Amphitheater",
+        "composition": "Exact Ascend riverfront amphitheater",
+        "avoid": "generic outdoor amphitheater",
+        "placement": "venue listing Ascend",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-6047_Ascend-AMP-1_368f0b6b-5056-b3a8-49c7657f38d578b4_0.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-6047_Ascend-AMP-1_368f0b6b-5056-b3a8-49c7657f38d578b4_0.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "venue-bridgestone-arena",
@@ -1568,16 +2159,31 @@
       "source_type": "Destination marketing organization media library",
       "source_site": "Nashville Convention & Visitors Corp",
       "source_page": "https://www.visitmusiccity.com/",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-3---Bridgestone-Arena-Concert-Crowd_4872294D-4E0E-47F1-99A459C082131E28_06c54a0f-dac2-46a7-9842f115ebde89ab_0.jpg",
+      "source_url": null,
       "source_filename": "nashvilletn-3---Bridgestone-Arena-Concert-Crowd_4872294D-4E0E-47F1-99A459C082131E28_06c54a0f-dac2-46a7-9842f115ebde89ab_0.jpg",
       "original_title": "Bridgestone Arena Concert Crowd",
       "license": null,
       "credit": "Nashville Convention & Visitors Corp",
-      "rights_status": "pending-authorization",
-      "restrictions": "CVC concert-crowd gallery original. Not exterior, Predators, SEC, or Rodeo imagery. Published master is 1080×1080; largest 3:2 export is 1080×720. No upscaling. Formal usage authorization still required.",
+      "rights_status": "reference-only",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
       "derivative_notes": "3:2 cover crop from 1080×1080 original; WebP 640/960/1080. No upscaling. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "f5e9da132d792dcb9496ed94287035cb97aa5f29d39ae4d941134230729eb1d4"
+      "source_sha256": "f5e9da132d792dcb9496ed94287035cb97aa5f29d39ae4d941134230729eb1d4",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "approval_status": "hold",
+      "referenceBrief": {
+        "subject": "Bridgestone Arena",
+        "composition": "Exact Bridgestone exterior or bowl with arena media rights",
+        "avoid": "generic NHL arena stock",
+        "placement": "venue listing Bridgestone",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-3---Bridgestone-Arena-Concert-Crowd_4872294D-4E0E-47F1-99A459C082131E28_06c54a0f-dac2-46a7-9842f115ebde89ab_0.jpg",
+        "priorSourceSite": "Nashville Convention & Visitors Corp",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/listing_images/nashvilletn-3---Bridgestone-Arena-Concert-Crowd_4872294D-4E0E-47F1-99A459C082131E28_06c54a0f-dac2-46a7-9842f115ebde89ab_0.jpg",
+      "productionEligible": false
     },
     {
       "asset_id": "venue-the-truth",
@@ -1597,7 +2203,10 @@
       "restrictions": "Must be labeled as an architectural rendering until real photography replaces it. Related announcement: https://www.ajcpt.com/firm/news/livenation-the-truth-billboard. Formal usage authorization still required.",
       "derivative_notes": "3:2 cover crop from official 2048×1165 rendering; WebP 640/960/1600. No upscaling. Downloaded 2026-08-06.",
       "download_date": "2026-08-06",
-      "source_sha256": "8db786285a347f5db45354233ad0d0df45e66786e6a93eb6e88a733456f8689c"
+      "source_sha256": "8db786285a347f5db45354233ad0d0df45e66786e6a93eb6e88a733456f8689c",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "productionEligible": false
     },
     {
       "asset_id": "downtown-sobro",
@@ -1612,7 +2221,11 @@
       "notes": "NSH_146 original; SoBro environmental (not Ascend concert duplicate)",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "rights_status": "pending-authorization",
+      "productionEligible": false
     },
     {
       "asset_id": "downtown-nashville-yards",
@@ -1626,7 +2239,11 @@
       "licence": "Official hotel distribution (IcePortal)",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "rights_status": "pending-authorization",
+      "productionEligible": false
     },
     {
       "asset_id": "venues-roberts-western-world",
@@ -1641,7 +2258,11 @@
       "notes": "Authorized public interior; live performers not in frame",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "rights_status": "pending-authorization",
+      "productionEligible": false
     },
     {
       "asset_id": "venues-twelve-thirty-club",
@@ -1651,11 +2272,29 @@
       "photographer": "CVC / property",
       "owner": "BPH-held CVC/property media",
       "source_type": "cvc_or_property",
-      "source_url": "local:media-originals/nashroam/Twelve-Thirty-Club-bar.jpg",
-      "licence": "CVC / property-authorized media held by BPH",
+      "source_url": null,
+      "licence": "Not licensed — CVC reference-only (never pursue CVC rights)",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "rights_status": "reference-only",
+      "approval_status": "hold",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
+      "referenceBrief": {
+        "subject": "Twelve Thirty Club",
+        "composition": "Exact venue exterior or signature interior with commercial digital rights",
+        "avoid": "CVC listing crop used as production",
+        "placement": "venues/twelve-thirty-club",
+        "priorCvcUrl": "local:media-originals/nashroam/Twelve-Thirty-Club-bar.jpg",
+        "priorSourceSite": "BPH-held CVC/property media",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "local:media-originals/nashroam/Twelve-Thirty-Club-bar.jpg",
+      "productionEligible": false,
+      "license": null
     },
     {
       "asset_id": "venues-chiefs-on-broadway",
@@ -1669,7 +2308,11 @@
       "licence": "Official venue website media",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "rights_status": "pending-authorization",
+      "productionEligible": false
     },
     {
       "asset_id": "venues-category-10",
@@ -1684,7 +2327,11 @@
       "notes": "Main floor + balcony composition from official site",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "rights_status": "pending-authorization",
+      "productionEligible": false
     },
     {
       "asset_id": "restaurants-assembly-food-hall",
@@ -1698,7 +2345,11 @@
       "licence": "Official property media",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "rights_status": "pending-authorization",
+      "productionEligible": false
     },
     {
       "asset_id": "restaurants-bacco",
@@ -1712,7 +2363,11 @@
       "licence": "Four Seasons press library — authorized editorial use",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "rights_status": "pending-authorization",
+      "productionEligible": false
     },
     {
       "asset_id": "restaurants-etch",
@@ -1726,7 +2381,11 @@
       "licence": "Official restaurant website media",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "rights_status": "pending-authorization",
+      "productionEligible": false
     },
     {
       "asset_id": "hotels-four-seasons-nashville",
@@ -1740,7 +2399,11 @@
       "licence": "Four Seasons press library — authorized editorial use",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "rights_status": "pending-authorization",
+      "productionEligible": false
     },
     {
       "asset_id": "hotels-1-hotel-nashville",
@@ -1754,7 +2417,11 @@
       "licence": "Official brand media (Brandfolder)",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "rights_status": "pending-authorization",
+      "productionEligible": false
     },
     {
       "asset_id": "hotels-the-joseph",
@@ -1769,7 +2436,11 @@
       "notes": "Rooftop Pool gallery selection",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "rights_status": "pending-authorization",
+      "productionEligible": false
     },
     {
       "asset_id": "hotels-hermitage-hotel",
@@ -1779,11 +2450,29 @@
       "photographer": "The Hermitage Hotel / CVC",
       "owner": "BPH-held CVC/property media",
       "source_type": "cvc_or_property",
-      "source_url": "local:media-originals/nashroam/hermitage-hotel-lobby_1.jpg",
-      "licence": "CVC / property-authorized media held by BPH",
+      "source_url": null,
+      "licence": "Not licensed — CVC reference-only (never pursue CVC rights)",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "rights_status": "reference-only",
+      "approval_status": "hold",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
+      "referenceBrief": {
+        "subject": "The Hermitage Hotel",
+        "composition": "Exact Hermitage facade or lobby with property/photographer license",
+        "avoid": "CVC hotel library stand-in",
+        "placement": "hotels/hermitage-hotel",
+        "priorCvcUrl": "local:media-originals/nashroam/hermitage-hotel-lobby_1.jpg",
+        "priorSourceSite": "BPH-held CVC/property media",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "local:media-originals/nashroam/hermitage-hotel-lobby_1.jpg",
+      "productionEligible": false,
+      "license": null
     },
     {
       "asset_id": "hotels-grand-hyatt-nashville",
@@ -1797,7 +2486,11 @@
       "licence": "Official hotel distribution (IcePortal)",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "rights_status": "pending-authorization",
+      "productionEligible": false
     },
     {
       "asset_id": "editorial-pedestrian-bridge",
@@ -1807,11 +2500,29 @@
       "photographer": "Nashville Convention and Visitors Corp",
       "owner": "Nashville CVC",
       "source_type": "cvc",
-      "source_url": "https://www.visitmusiccity.com/sites/default/files/2025-02/Skyline-bridge-view.jpg",
-      "licence": "CVC media library — authorized editorial use",
+      "source_url": null,
+      "licence": "Not licensed — CVC reference-only (never pursue CVC rights)",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "rights_status": "reference-only",
+      "approval_status": "hold",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
+      "referenceBrief": {
+        "subject": "John Seigenthaler Pedestrian Bridge",
+        "composition": "Bridge deck or river-crossing view with downtown skyline relationship",
+        "avoid": "wrong bridge, generic footbridge",
+        "placement": "editorial/pedestrian-bridge",
+        "priorCvcUrl": "https://www.visitmusiccity.com/sites/default/files/2025-02/Skyline-bridge-view.jpg",
+        "priorSourceSite": "Nashville CVC",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.visitmusiccity.com/sites/default/files/2025-02/Skyline-bridge-view.jpg",
+      "productionEligible": false,
+      "license": null
     },
     {
       "asset_id": "attractions-cmhof-night",
@@ -1825,7 +2536,11 @@
       "licence": "Institution-authorized media",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "rights_status": "pending-authorization",
+      "productionEligible": false
     },
     {
       "asset_id": "downtown-lower-broadway-hero",
@@ -1835,12 +2550,30 @@
       "photographer": "Nashville Convention and Visitors Corp",
       "owner": "Nashville CVC",
       "source_type": "cvc",
-      "source_url": "local:media-originals/nashroam/Broadway-RobertsWesternWorld.jpg",
-      "licence": "Nashville CVC Media Library — usage authorization pending",
+      "source_url": null,
+      "licence": "Not licensed — CVC reference-only (never pursue CVC rights)",
       "notes": "Environmental Lower Broadway night; not Roberts listing photo",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "rights_status": "reference-only",
+      "approval_status": "hold",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
+      "referenceBrief": {
+        "subject": "Lower Broadway neon corridor hero",
+        "composition": "Wide street-level Broadway with layered neon and foot traffic; readable as Downtown orientation",
+        "avoid": "single-venue product shot, empty sidewalk, generic US downtown",
+        "placement": "downtown hero / neighborhood hero",
+        "priorCvcUrl": "local:media-originals/nashroam/Broadway-RobertsWesternWorld.jpg",
+        "priorSourceSite": "Nashville CVC",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "local:media-originals/nashroam/Broadway-RobertsWesternWorld.jpg",
+      "productionEligible": false,
+      "license": null
     },
     {
       "asset_id": "venues-jbjs-rooftop-downtown",
@@ -1854,82 +2587,163 @@
       "licence": "BPH-owned media — user-authorized reuse on 2026-08-04",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled.",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "rights_status": "approved-owned",
+      "productionEligible": true
     },
     {
       "asset_id": "restaurants-peg-leg-porker",
       "output_path": "public/media/restaurants/peg-leg-porker-1600.webp",
-      "recommended_use": "Gulch neighborhood dining — primary BBQ",
-      "alt_text": "Peg Leg Porker white-brick exterior and covered patio on Gleaves Street in the Gulch.",
-      "photographer": "Peg Leg Porker",
-      "owner": "Peg Leg Porker",
-      "source_type": "official_property",
-      "source_url": "https://peglegporker.com/media/",
-      "licence": "Official Peg Leg Porker press kit media",
-      "source_sha256": "f7b04313c3ec0f918d5624c8d05663d5c68544c7e746a6d026dbf585b37d0c24",
+      "recommended_use": "Gulch neighborhood dining — primary BBQ (LOCKED)",
+      "alt_text": "Peg Leg Porker white-brick building, covered patio, and PEG LEG PORKER signage in the Gulch.",
+      "photographer": "Nashville Convention and Visitors Corp",
+      "owner": "Nashville CVC",
+      "source_type": "cvc",
+      "source_url": null,
+      "licence": "Not licensed — CVC reference-only (never pursue CVC rights)",
+      "source_sha256": "4b728c9f048051d8969b7dcfa69e9887b4e1c72011292084963fcc1e027d45ae",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled. Graphic overlays stripped from press-kit master where present."
+      "changes": "3:2 editorial crop; responsive WebP 640/960/1600; never upscaled.",
+      "source_filename": "nashvilletn-img_6955-3_73E61DAB-1067-48FE-94AE45072B48B01F_29a63479-2132-4552-9e23bb7242da35ec_0.jpg",
+      "notes": "CVC Outside View / img_6955. Production master is high-res property mirror of the same frame; CVC media-library original returns 403.",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "rights_status": "reference-only",
+      "approval_status": "hold",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
+      "referenceBrief": {
+        "subject": "Peg Leg Porker exterior / patio",
+        "composition": "Exact Peg Leg Porker building identity in the Gulch",
+        "avoid": "generic barbecue smoke pit stock",
+        "placement": "restaurants/peg-leg-porker; Gulch dining guide",
+        "priorCvcUrl": "https://peglegporker.com/media/",
+        "priorSourceSite": "Nashville CVC",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://peglegporker.com/media/",
+      "productionEligible": false,
+      "license": null
     },
     {
       "asset_id": "restaurants-butter-milk-ranch",
       "output_path": "public/media/restaurants/butter-milk-ranch-1600.webp",
-      "recommended_use": "12 South neighborhood dining — breakfast/brunch",
-      "alt_text": "The Butter Milk Ranch dining room with open kitchen, long counter, mustard-yellow stools, and wood ceiling.",
-      "photographer": "The Butter Milk Ranch",
-      "owner": "The Butter Milk Ranch",
-      "source_type": "official_property",
-      "source_url": "https://buttermilkranch.com/",
-      "licence": "Official restaurant website media",
-      "source_sha256": "28bba358e445b0ac5d27cd687f4b5c42ed11b2b09091ed36dfc17fe602882410",
+      "recommended_use": "12 South neighborhood dining — breakfast/brunch (LOCKED)",
+      "alt_text": "The Butter Milk Ranch restaurant and patio on 12th Avenue South in Nashville.",
+      "photographer": "Nashville Convention and Visitors Corp",
+      "owner": "Nashville CVC",
+      "source_type": "cvc",
+      "source_url": null,
+      "licence": "Not licensed — CVC reference-only (never pursue CVC rights)",
+      "source_sha256": "0a6f0f385c0f70200bef1f15829c825ed1e9aeeb113e28aac562735652bf2b6f",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "3:2 editorial crop; responsive WebP 640/960/1600; never upscaled. Not listing_slide_small.",
+      "source_filename": "nashvilletn-The-Butter-Milk-Ranch-Nashville_63D848FE-0A50-C913-C93E54AE9F2F552B-63d847a7b9d01fd_63d870c7-07b8-878d-528ffcf95f075128_0.jpg",
+      "notes": "CVC share_image derivative of exact listing asset (original media-library download 403). Not listing_slide_small.",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "rights_status": "reference-only",
+      "approval_status": "hold",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
+      "referenceBrief": {
+        "subject": "The Butter Milk Ranch exterior",
+        "composition": "Exact 12 South wood/glass exterior with readable restaurant identity",
+        "avoid": "generic brunch patio",
+        "placement": "restaurants/butter-milk-ranch; 12 South dining guide",
+        "priorCvcUrl": "https://buttermilkranch.com/",
+        "priorSourceSite": "Nashville CVC",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://buttermilkranch.com/",
+      "productionEligible": false,
+      "license": null
     },
     {
       "asset_id": "restaurants-playdate",
       "output_path": "public/media/restaurants/playdate-1600.webp",
-      "recommended_use": "12 South neighborhood dining — drinks/groups",
-      "alt_text": "Playdate's restored white house, PLAYDATE signage, and patio on 12th Avenue South in 12 South.",
-      "photographer": "Playdate Nashville",
-      "owner": "Playdate Nashville",
-      "source_type": "venue_hosted",
-      "source_url": "https://www.eventective.com/nashville-tn/playdate-772181.html",
-      "licence": "Venue-hosted Eventective listing media (property-authorized exterior)",
-      "source_sha256": "2e26ef70ec520f24067baead44be28162bc50a069475ae9bcf95cea29d3ed723",
+      "recommended_use": "12 South neighborhood dining — drinks/groups (LOCKED)",
+      "alt_text": "Playdate's white historic house and outdoor patio on 12th Avenue South.",
+      "photographer": "Nashville Convention and Visitors Corp",
+      "owner": "Nashville CVC",
+      "source_type": "cvc",
+      "source_url": null,
+      "licence": "Not licensed — CVC reference-only (never pursue CVC rights)",
+      "source_sha256": "ea3e894ee85073b85f070348e51c86cc5ea2cc7b3bccf26b4cf0134dd24b1a1d",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled. Not Nashville Guru watermarked media."
+      "changes": "3:2 editorial crop; responsive WebP 640/960/1600; never upscaled. CVC Play-Date-Nash-01 FINAL.",
+      "source_filename": "nashvilletn-Play-Date-Nash-01_1C5D7240-EF9F-4982-9BBFCA8DE04B40C6_dae31fa8-346b-4833-b8a835723ecbc883_0.jpg",
+      "notes": "FINAL CVC Play-Date-Nash-01 via share_image (1200x675). Media-library original 403.",
+      "rightsStatus": "reference-only",
+      "approvalStatus": "hold",
+      "rights_status": "reference-only",
+      "approval_status": "hold",
+      "restrictions": "Nashville CVC / Visit Music City photography — NOT available to NashRoam. NashRoam is a commercial competitor; do not request CVC permission; do not ship in production. Art-direction reference only.",
+      "referenceBrief": {
+        "subject": "Playdate patio / EAT·DRINK·SLIDE identity",
+        "composition": "Exact Playdate outdoor dining / slide context in 12 South",
+        "avoid": "unrelated white-house facade or generic playground",
+        "placement": "restaurants/playdate; 12 South dining guide",
+        "priorCvcUrl": "https://www.eventective.com/nashville-tn/playdate-772181.html",
+        "priorSourceSite": "Nashville CVC",
+        "retiredFromProduction": "2026-08-07",
+        "note": "URL retained solely to describe a composition we liked; not a future license path."
+      },
+      "source_url_archived": "https://www.eventective.com/nashville-tn/playdate-772181.html",
+      "productionEligible": false,
+      "license": null
     },
     {
       "asset_id": "restaurants-butchertown-hall",
       "output_path": "public/media/restaurants/butchertown-hall-1600.webp",
-      "recommended_use": "Germantown neighborhood dining — live-fire/groups",
-      "alt_text": "Butchertown Hall dining room with vaulted ceiling, white tile, and long communal wooden tables.",
+      "recommended_use": "Germantown neighborhood dining — live-fire/groups (LOCKED)",
+      "alt_text": "Guests dining at communal tables inside Butchertown Hall in Germantown.",
       "photographer": "Butchertown Hall",
       "owner": "Butchertown Hall",
       "source_type": "official_property",
-      "source_url": "https://butchertownhall.com/",
+      "source_url": "https://images.squarespace-cdn.com/content/v1/53ac74f4e4b07ac785324b57/1548454075814-NK3G2HJT4T8L4Y4KSVYU/edited.jpg?format=2500w",
       "licence": "Official restaurant website media",
-      "source_sha256": "cea5c35821053e3938f75e6510d7c7610063ed7cec44e0cbdf0d4b52d841c889",
+      "source_sha256": "b80b877328fd52ab3675649a6de26772608903aa7ebd0559326b11154508a90b",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled."
+      "changes": "3:2 editorial crop; responsive WebP 640/960/1600; never upscaled.",
+      "source_filename": "edited.jpg",
+      "notes": "Official Butchertown Hall full-room dining image from current Squarespace library. Inspected Butchertown72-8466/9291/8541/8458/8398 — none are the occupied full-room horizontal; this is the official room master on the site.",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "rights_status": "pending-authorization",
+      "productionEligible": false
     },
     {
       "asset_id": "restaurants-aba-nashville",
       "output_path": "public/media/restaurants/aba-nashville-1600.webp",
-      "recommended_use": "Wedgewood-Houston neighborhood dining — dinner+design",
-      "alt_text": "Aba Nashville two-story dining room with olive trees, amber Murano chandeliers, and leather seating.",
+      "recommended_use": "Wedgewood-Houston neighborhood dining — dinner+design (LOCKED)",
+      "alt_text": "The two-story dining room at Aba Nashville with olive trees and amber glass chandeliers.",
       "photographer": "Aba / Lettuce Entertain You",
       "owner": "Lettuce Entertain You",
       "source_type": "official_property",
-      "source_url": "https://storage.googleapis.com/leye_bucket/wp-content/uploads/073f0e0a-aba-nashville-interior.jpg",
-      "licence": "Official Lettuce Entertain You Nashville location media",
-      "source_sha256": "2ea922f42ed8c4b3810106365b38b23c4267d62c2d2835e4c7e2433a48f6ad81",
+      "source_url": "https://storage.googleapis.com/aba2025_bucket/wp-content/uploads/1d09c0e3-aba_nashvilleinterior.jpg",
+      "licence": "Official Aba Nashville website media",
+      "source_sha256": "dd0a8e1f71a9531a11b3ddd9897ede563c814d6d7532aaeed865304f2a039a30",
       "focal": "center",
       "date_recorded": "2026-08-07",
-      "changes": "Cropped/resized to responsive WebP tiers; no generative editing; never upscaled. Nashville location only — not Chicago/Austin."
+      "changes": "3:2 editorial crop; responsive WebP 640/960/1600; never upscaled. Exact aba2025_bucket file.",
+      "source_filename": "1d09c0e3-aba_nashvilleinterior.jpg",
+      "notes": "Exact Aba Nashville website hero interior. Do not replace.",
+      "rightsStatus": "pending-clearance",
+      "approvalStatus": "hold",
+      "rights_status": "pending-authorization",
+      "productionEligible": false
     }
-  ]
+  ],
+  "meta": {
+    "cvcPolicy": "reference-only; never pursue Visit Music City / Nashville CVC rights",
+    "renderRule": "rightsStatus === 'cleared' && approvalStatus === 'approved'",
+    "lastCvcPurge": "2026-08-07"
+  }
 }

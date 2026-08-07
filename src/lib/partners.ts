@@ -1,10 +1,10 @@
 /**
  * Commercial partner configuration.
  *
- * Every booking surface builds its deep link here so affiliate IDs live in one
- * place and can be swapped without touching components. IDs come from
- * environment variables; when one is absent the link still works, it just
- * carries no attribution, which is preferable to a broken or fake link.
+ * Hotels / tickets / rentals still use affiliate deep links here.
+ * Tours no longer construct Viator.com URLs with NEXT_PUBLIC_VIATOR_PID —
+ * live inventory and productUrl attribution come from the server-side
+ * Viator Partner API v2 (`VIATOR_API_KEY` → src/lib/feeds/viator.ts).
  */
 
 const env = (k: string) => process.env[k] || '';
@@ -13,7 +13,10 @@ export const partners = {
   hotels: {
     name: 'Booking.com',
     affiliateId: env('NEXT_PUBLIC_BOOKING_AID'),
-    /** Nashville city search with dates and occupancy. */
+    /**
+     * City search fallback until Booking.com Demand API credentials power
+     * live inventory (see src/lib/feeds/booking-demand.ts).
+     */
     build(params: { checkin?: string; checkout?: string; adults?: number; area?: string }) {
       const u = new URL('https://www.booking.com/searchresults.html');
       u.searchParams.set('ss', params.area ? `${params.area}, Nashville, Tennessee` : 'Nashville, Tennessee');
@@ -28,15 +31,16 @@ export const partners = {
 
   tours: {
     name: 'Viator',
-    affiliateId: env('NEXT_PUBLIC_VIATOR_PID'),
-    /** Party buses, pedal taverns, and guided tours. */
-    build(params: { query?: string; date?: string }) {
-      const u = new URL('https://www.viator.com/Nashville/d22104-ttd');
-      if (params.query) u.searchParams.set('text', params.query);
+    /**
+     * NashRoam marketplace path. Prefer productUrl from the Partner API for
+     * actual booking CTAs (includes affiliate + white-label domain).
+     * Never read VIATOR_API_KEY here — it is server-only.
+     */
+    marketplacePath(params: { query?: string; date?: string } = {}) {
+      const u = new URL('/tours/', 'https://www.nashroam.com');
+      if (params.query) u.searchParams.set('q', params.query);
       if (params.date) u.searchParams.set('date', params.date);
-      const pid = env('NEXT_PUBLIC_VIATOR_PID');
-      if (pid) u.searchParams.set('pid', pid);
-      return u.toString();
+      return `${u.pathname}${u.search}`;
     },
   },
 
@@ -71,5 +75,7 @@ export const partners = {
 
 export type PartnerKey = keyof typeof partners;
 
-/** True when at least one affiliate ID is configured. */
-export const HAS_AFFILIATE_IDS = Object.values(partners).some((p) => Boolean(p.affiliateId));
+/** True when at least one public affiliate ID is configured. */
+export const HAS_AFFILIATE_IDS = Boolean(
+  partners.hotels.affiliateId || partners.tickets.affiliateId || partners.rentals.affiliateId,
+);

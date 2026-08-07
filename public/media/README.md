@@ -1,54 +1,38 @@
 # Media assets
 
-Production photography and hero video installed from the reviewed
-`NashvilleTourism-media-repository` package (August 4, 2026).
+Production photography may ship only when:
 
-Authoritative maps and rights:
+```ts
+rightsStatus === 'cleared' && approvalStatus === 'approved'
+```
 
-- `docs/media/MEDIA-MAP.md`
-- `docs/media/ASSET-RIGHTS.csv`
-- `docs/media/ATTRIBUTION.md`
-- `docs/media/NEEDED-SHOOTS.md`
-- `src/lib/media.ts`
+That allowlist is `AVAILABLE_MEDIA` in `src/lib/media.ts`. Uncleared keys render a typographic fallback — never a wrong-business substitute.
+
+## Do not use Visit Music City / Nashville CVC
+
+NashRoam is a commercial competitor. CVC / Visit Music City photography is **never** production-eligible. Art-direction memory only: `docs/media/reference/`.
+
+## Authoritative docs
+
+- `docs/media/COMMERCIAL-MEDIA-SOURCING.md` — hierarchy + placement manifest
+- `docs/media/STOCK-PURCHASE-QUEUE.md` — premium stock shortlist (Eric approves buys)
+- `docs/media/DIRECT-PHOTO-REQUESTS.md` — exact-business outreach (do not send yet)
+- `docs/media/NEEDED-SHOOTS.md` — original NashRoam shot list
+- `docs/media/ASSET-RIGHTS.json` — rights ledger (`rightsStatus`, `approvalStatus`)
+- `docs/media/ATTRIBUTION.md` — public CC/Pexels credit text
 
 ## How the registry works
 
-1. Files live under `public/media/` at the exact paths declared in `src/lib/media.ts`.
-2. A key must also appear in `AVAILABLE_MEDIA` before `SmartImage` renders the photograph.
-3. Missing keys intentionally fall back to a typographic placeholder — never a wrong place or business.
+1. Files live under `public/media/` at paths declared in `src/lib/media.ts`.
+2. A key must appear in `AVAILABLE_MEDIA` (cleared + approved) before `SmartImage` renders it.
+3. Named businesses require exact-place rights — never generic stock stand-ins.
 
-## Hero
+## Currently cleared in production
 
-| Path | Role |
-|---|---|
-| `hero/nashville-hero.mp4` | Active muted 12.2s loop |
-| `hero/nashville-hero.webm` | VP9 fallback |
-| `hero/nashville-hero-poster.jpg` | Poster / reduced-motion still (`hero/lower-broadway` key) |
-| `hero/downtown-rooftop.jpg` | Supporting hero still |
-| `hero/live-music-night.jpg` | Supporting hero still |
+Primarily BPH-owned editorial/venue frames (JBJ’s, DELUX WeHo, The Lanes, select hubs) plus openly licensed / cleared hero and landmark frames listed in `ASSET-RIGHTS.json` with `rightsStatus: cleared`.
 
-`hero/lower-broadway` (poster) is the live hero surface. The MP4/WebM loop is
-kept on disk for a future smoother clip but is **not autoplayed** — the current
-montage reads as choppy stills.
-
-## Neighborhoods
-
-Accurate placements for Downtown/Broadway, 12 South, The Gulch, East Nashville, Germantown, Wedgewood-Houston, Midtown, Hillsboro Village, Green Hills, Music Row, and West End.
-
-**`neighborhood/sylvan-park` is intentionally unavailable** until an accurate photo is commissioned. Do not substitute The Lanes, another neighborhood, or generic stock.
-
-## Hubs and editorial
-
-Category hubs (`hubs/`), editorial frames (`editorial/`), and exact venue/property assets (`venues/`) are registered in `src/lib/media.ts`.
-
-Hard rules:
-
-- A named listing card may only show that listing’s exact photograph.
-- Category images must not be labeled as an unrelated business.
-- Owned JBJ’s / DELUX WeHo / Solaya photos stay in their approved contexts — see `docs/media/ASSET-RIGHTS.csv`.
-- Creative Commons assets require attribution (visible credit and `/photo-credits/`).
-- No AI-generated imagery.
+Neighborhood heroes, CVC dining locks, CVC venue/attraction listing photos, and uncleared property press media are **not** in `AVAILABLE_MEDIA`.
 
 ## Licensing
 
-Every asset’s licence and provenance are recorded in `docs/media/ASSET-RIGHTS.*`. Public attribution for open-license photographs is listed at `/photo-credits/`.
+Every asset’s provenance is in `docs/media/ASSET-RIGHTS.*`. Public attribution for open-license photographs: `/photo-credits/`.

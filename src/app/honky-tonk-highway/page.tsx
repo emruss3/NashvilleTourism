@@ -244,15 +244,9 @@ export default function HonkyTonkHighway() {
             never need a ride home.
           </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2 [&_a]:min-h-[44px]">
-            <BookingLink
-              url={partners.tours.build({ query: 'Honky tonk bar crawl' })}
-              label="Check bar crawl availability"
-              name="Honky-tonk crawl"
-              slug="honky-tonk-crawl"
-              event={ANALYTICS_EVENTS.ACTIVITY_AFFILIATE_CLICKED}
-              partner={partners.tours.name}
-              placement="affiliate"
-            />
+            <Link href={partners.tours.marketplacePath({ query: 'Honky tonk bar crawl' })} className="btn-primary min-h-[44px] w-full text-center">
+              Search bar crawl experiences
+            </Link>
             <BookingLink
               url={partners.hotels.build({ area: 'Broadway' })}
               label="Check hotels near Broadway"

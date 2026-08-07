@@ -104,7 +104,7 @@ const DAYS: Day[] = [
     ],
     cta: {
       label: 'Check tour availability',
-      url: partners.tours.build({ query: 'Party bus' }),
+      url: partners.tours.marketplacePath({ query: 'Party bus' }),
       partner: partners.tours.name,
       event: ANALYTICS_EVENTS.ACTIVITY_AFFILIATE_CLICKED,
       slug: 'weekend-saturday-tour',

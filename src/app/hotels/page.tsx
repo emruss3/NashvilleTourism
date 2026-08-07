@@ -35,6 +35,10 @@ export default function HotelsIndex() {
         intro="The neighborhood matters more than the property here. Downtown puts you inside the noise, and the districts just outside it trade a short drive for a night's sleep."
       />
 
+      <p className="mt-2 max-w-3xl rounded-card border border-paper-edge bg-sky/40 px-4 py-3 text-sm leading-relaxed text-ink-soft">
+        Hotel cards below are editorial samples, not live Booking.com inventory. Live rates and
+        availability will arrive through the Booking.com Demand API when credentials are enabled.
+      </p>
       <div className="py-6">
         <AffiliateDisclosure />
       </div>

@@ -58,15 +58,18 @@ export default function BookingWidget({
     let url = '';
     let event: (typeof ANALYTICS_EVENTS)[keyof typeof ANALYTICS_EVENTS] = ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED;
     let partner = '';
+    let openExternal = true;
 
     if (tab === 'hotels') {
       url = partners.hotels.build({ checkin, checkout, adults });
       event = ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED;
       partner = partners.hotels.name;
     } else if (tab === 'tours') {
-      url = partners.tours.build({ query: tourType, date: tourDate });
+      // Stay on NashRoam marketplace — live Viator productUrl is used on product pages.
+      url = partners.tours.marketplacePath({ query: tourType, date: tourDate });
       event = ANALYTICS_EVENTS.ACTIVITY_AFFILIATE_CLICKED;
       partner = partners.tours.name;
+      openExternal = false;
     } else {
       url = partners.tickets.build({ query: artist, date: ticketDate });
       event = ANALYTICS_EVENTS.TICKET_AFFILIATE_CLICKED;
@@ -74,7 +77,11 @@ export default function BookingWidget({
     }
 
     track(event, { partner, placement: 'affiliate', item_type: tab, item_id: `widget_${tab}` });
-    window.open(url, '_blank', 'noopener,noreferrer');
+    if (openExternal) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+      window.location.assign(url);
+    }
   }
 
   const active = TABS.find((t) => t.key === tab)!;

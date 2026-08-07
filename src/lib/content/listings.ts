@@ -1,4 +1,4 @@
-import type { Restaurant, Hotel, NashvilleEvent, Venue, Attraction, Listing, ImageRef } from '../types';
+import type { Restaurant, Hotel, NashvilleEvent, Venue, Attraction, Listing } from '../types';
 
 /**
  * Listing data for the template.
@@ -17,74 +17,12 @@ const DEMO_SOURCE_NOTE = 'Demo record. Replace with a verified listing before la
 const INSTITUTION_SOURCE_NOTE =
   'Real venue, placeholder practicals. Confirm address, hours, and pricing with the operator before publishing.';
 
-/** Responsive listing photography under /public/media/{folder}/. */
-function listingImage(
-  folder: 'attractions' | 'venues',
-  id: string,
-  alt: string,
-  credit: string,
-  /** Intrinsic pixel size of the largest candidate (the -1600 file). */
-  width: number,
-  height: number,
-  /** Actual encoded widths for srcSet descriptors (no upscaled claims). */
-  tiers: { w640: number; w960: number; w1600: number } = {
-    w640: 640,
-    w960: 960,
-    w1600: width,
-  },
-): ImageRef {
-  const base = `/media/${folder}/${id}`;
-  const candidates = [
-    [`${base}-640.webp`, tiers.w640],
-    [`${base}-960.webp`, tiers.w960],
-    [`${base}-1600.webp`, tiers.w1600],
-  ] as const;
-  // Deduplicate when a small master fills multiple named slots at the same width.
-  const seen = new Set<number>();
-  const srcSet = candidates
-    .filter(([, w]) => {
-      if (seen.has(w)) return false;
-      seen.add(w);
-      return true;
-    })
-    .map(([path, w]) => `${path} ${w}w`)
-    .join(', ');
-
-  return {
-    src: `${base}-1600.webp`,
-    src640: `${base}-640.webp`,
-    src960: `${base}-960.webp`,
-    src1600: `${base}-1600.webp`,
-    srcSet,
-    alt,
-    credit,
-    width,
-    height,
-    focal: 'center',
-  };
-}
-
-function attractionImage(
-  id: string,
-  alt: string,
-  credit: string,
-  width: number,
-  height: number,
-  tiers?: { w640: number; w960: number; w1600: number },
-): ImageRef {
-  return listingImage('attractions', id, alt, credit, width, height, tiers);
-}
-
-function venueImage(
-  id: string,
-  alt: string,
-  credit: string,
-  width: number,
-  height: number,
-  tiers?: { w640: number; w960: number; w1600: number },
-): ImageRef {
-  return listingImage('venues', id, alt, credit, width, height, tiers);
-}
+/**
+ * Listing photography may be attached only when
+ * `rightsStatus === 'cleared' && approvalStatus === 'approved'`.
+ * CVC / Visit Music City assets and other uncleared property media are omitted
+ * so cards render the typographic photo fallback — never a wrong-business substitute.
+ */
 
 /* ---------------------------------- Restaurants ---------------------------------- */
 
@@ -894,15 +832,7 @@ export const venues: Venue[] = [
     dateChecked: '2026-08-06',
     dateUpdated: '2026-08-06',
     sourceNote: 'Address and ticketed-show format confirmed against Ryman Auditorium official sources.',
-    placement: 'editorial',
-    image: venueImage(
-      'ryman-auditorium',
-      "A packed audience watches a live performance inside Nashville's historic Ryman Auditorium.",
-      'Ryman Auditorium / official Ryman media',
-      646,
-      431,
-      { w640: 640, w960: 646, w1600: 646 },
-    ),
+    placement: 'editorial'
   },
   {
     kind: 'venue',
@@ -922,15 +852,7 @@ export const venues: Venue[] = [
     dateChecked: '2026-08-06',
     dateUpdated: '2026-08-06',
     sourceNote: 'Address confirmed via Station Inn / Nashville CVC listings.',
-    placement: 'editorial',
-    image: venueImage(
-      'station-inn',
-      'The Station Inn bluegrass venue in the Gulch surrounded by newer Nashville development.',
-      'Nashville Convention & Visitors Corp',
-      1600,
-      1067,
-      { w640: 640, w960: 960, w1600: 1600 },
-    ),
+    placement: 'editorial'
   },
   {
     kind: 'venue',
@@ -950,15 +872,7 @@ export const venues: Venue[] = [
     dateChecked: '2026-08-06',
     dateUpdated: '2026-08-06',
     sourceNote: 'Address confirmed via Bluebird Cafe / Nashville CVC listings.',
-    placement: 'editorial',
-    image: venueImage(
-      'bluebird-cafe',
-      'Songwriters performing in the round for an intimate audience at The Bluebird Cafe in Nashville.',
-      'Nashville Convention & Visitors Corp',
-      1600,
-      1067,
-      { w640: 640, w960: 960, w1600: 1600 },
-    ),
+    placement: 'editorial'
   },
   {
     kind: 'venue',
@@ -980,15 +894,7 @@ export const venues: Venue[] = [
     dateChecked: '2026-08-06',
     dateUpdated: '2026-08-06',
     sourceNote: 'Verified against The Pinnacle official venue information and Nashville CVC.',
-    placement: 'editorial',
-    image: venueImage(
-      'the-pinnacle',
-      'A live concert inside The Pinnacle at Nashville Yards.',
-      'Nashville Convention & Visitors Corp',
-      1600,
-      1067,
-      { w640: 640, w960: 960, w1600: 1600 },
-    ),
+    placement: 'editorial'
   },
   {
     kind: 'venue',
@@ -1008,15 +914,7 @@ export const venues: Venue[] = [
     dateChecked: '2026-08-06',
     dateUpdated: '2026-08-06',
     sourceNote: 'Capacity and address confirmed against Ascend Amphitheater / Nashville CVC listings.',
-    placement: 'editorial',
-    image: venueImage(
-      'ascend-amphitheater',
-      "A live show at Ascend Amphitheater on Nashville's downtown riverfront.",
-      'Nashville Convention & Visitors Corp',
-      1600,
-      1067,
-      { w640: 640, w960: 960, w1600: 1600 },
-    ),
+    placement: 'editorial'
   },
   {
     kind: 'venue',
@@ -1036,15 +934,7 @@ export const venues: Venue[] = [
     dateChecked: '2026-08-06',
     dateUpdated: '2026-08-06',
     sourceNote: 'Address confirmed via Bridgestone Arena / Nashville CVC listings.',
-    placement: 'editorial',
-    image: venueImage(
-      'bridgestone-arena',
-      'A packed concert crowd inside Bridgestone Arena in downtown Nashville.',
-      'Nashville Convention & Visitors Corp',
-      1080,
-      720,
-      { w640: 640, w960: 960, w1600: 1080 },
-    ),
+    placement: 'editorial'
   },
   {
     kind: 'venue',
@@ -1068,15 +958,7 @@ export const venues: Venue[] = [
     dateUpdated: '2026-08-06',
     sourceNote:
       'Opening status, capacity and address verified against official The Truth / Live Nation sources.',
-    placement: 'editorial',
-    image: venueImage(
-      'the-truth',
-      'Architectural rendering of The Truth music venue in Wedgewood-Houston, with its brick facade, arched windows and illuminated entrance.',
-      'The Truth / Live Nation (architectural rendering)',
-      1600,
-      1067,
-      { w640: 640, w960: 960, w1600: 1600 },
-    ),
+    placement: 'editorial'
   },
 ];
 
@@ -1104,15 +986,7 @@ export const attractions: Attraction[] = [
     dateChecked: '2026-08-06',
     dateUpdated: '2026-08-06',
     sourceNote: 'Address confirmed via Country Music Hall of Fame group materials. Ticket prices change; check the museum site for the day you visit.',
-    placement: 'editorial',
-    image: attractionImage(
-      'country-music-hall-of-fame',
-      'The illuminated Country Music Hall of Fame and Museum in downtown Nashville with the Omni Nashville Hotel behind it.',
-      'The Country Music Hall Of Fame and Museum',
-      1333,
-      1000,
-      { w640: 640, w960: 960, w1600: 1333 },
-    ),
+    placement: 'editorial'
   },
   {
     kind: 'attraction',
@@ -1135,15 +1009,7 @@ export const attractions: Attraction[] = [
     dateChecked: '2026-08-06',
     dateUpdated: '2026-08-06',
     sourceNote: 'Address confirmed against the Parthenon / Centennial Park listing. Interior museum hours and tickets should be checked before entry.',
-    placement: 'editorial',
-    image: attractionImage(
-      'parthenon',
-      'The illuminated Parthenon reflected across Lake Watauga in Nashville’s Centennial Park at blue hour.',
-      'Sterling E. Stevens',
-      1600,
-      1200,
-      { w640: 640, w960: 960, w1600: 1600 },
-    ),
+    placement: 'editorial'
   },
   {
     kind: 'attraction',
@@ -1166,15 +1032,7 @@ export const attractions: Attraction[] = [
     dateChecked: '2026-08-06',
     dateUpdated: '2026-08-06',
     sourceNote: 'Address confirmed via Visit Music City listing for Nashville Farmers’ Market.',
-    placement: 'editorial',
-    image: attractionImage(
-      'nashville-farmers-market',
-      'Visitors dining inside the Nashville Farmers’ Market Market House.',
-      'Nashville Convention & Visitors Corp',
-      1440,
-      1080,
-      { w640: 640, w960: 960, w1600: 1440 },
-    ),
+    placement: 'editorial'
   },
   {
     kind: 'attraction',
@@ -1197,15 +1055,7 @@ export const attractions: Attraction[] = [
     dateChecked: '2026-08-06',
     dateUpdated: '2026-08-06',
     sourceNote: 'Address points to Shelby Bottoms Nature Center / greenway access via Metro Nashville Parks.',
-    placement: 'editorial',
-    image: attractionImage(
-      'shelby-bottoms-greenway',
-      'A visitor walking a wooded trail at Shelby Bottoms Greenway in East Nashville.',
-      'James Fullerton / Metro Nashville Parks',
-      656,
-      492,
-      { w640: 640, w960: 656, w1600: 656 },
-    ),
+    placement: 'editorial'
   },
   {
     kind: 'attraction',
@@ -1228,15 +1078,7 @@ export const attractions: Attraction[] = [
     dateChecked: '2026-08-06',
     dateUpdated: '2026-08-06',
     sourceNote: 'Tour durations and published self-guided price confirmed on ryman.com/tours (August 2026). Onstage photo availability varies.',
-    placement: 'editorial',
-    image: attractionImage(
-      'ryman-auditorium-tour',
-      'Visitors posing together on the historic stage during a Ryman Auditorium tour.',
-      'Ryman Auditorium',
-      1333,
-      1000,
-      { w640: 640, w960: 960, w1600: 1333 },
-    ),
+    placement: 'editorial'
   },
   {
     kind: 'attraction',
@@ -1259,15 +1101,7 @@ export const attractions: Attraction[] = [
     dateChecked: '2026-08-06',
     dateUpdated: '2026-08-06',
     sourceNote: 'Address confirmed via Visit Music City / Frist listing. Exhibition schedule and ticket prices should be checked on the museum site.',
-    placement: 'editorial',
-    image: attractionImage(
-      'frist-art-museum',
-      'Two visitors viewing a circular glass sculpture inside the Frist Art Museum.',
-      'Nashville Convention & Visitors Corp',
-      1440,
-      1080,
-      { w640: 640, w960: 960, w1600: 1440 },
-    ),
+    placement: 'editorial'
   },
   {
     kind: 'attraction',
@@ -1290,15 +1124,7 @@ export const attractions: Attraction[] = [
     dateChecked: '2026-08-06',
     dateUpdated: '2026-08-06',
     sourceNote: 'Hours (Tue–Sun 9am–5pm) and published admission ranges confirmed on cheekwood.org/visit (August 2026). Parking fees apply for non-members. Mapped to Green Hills as the nearest published neighborhood hub west of downtown.',
-    placement: 'editorial',
-    image: attractionImage(
-      'cheekwood-estate-gardens',
-      'The historic Cheekwood mansion surrounded by its landscaped gardens in Nashville.',
-      'Nashville Convention & Visitors Corp',
-      1440,
-      1080,
-      { w640: 640, w960: 960, w1600: 1440 },
-    ),
+    placement: 'editorial'
   },
   {
     kind: 'attraction',
@@ -1321,15 +1147,7 @@ export const attractions: Attraction[] = [
     dateChecked: '2026-08-06',
     dateUpdated: '2026-08-06',
     sourceNote: 'Hours and adult admission confirmed on nmaam.org/visit (August 2026). Entrances on Broadway and Rep. John Lewis Way.',
-    placement: 'editorial',
-    image: attractionImage(
-      'nmaam',
-      'The National Museum of African American Music entrance at Fifth + Broadway in downtown Nashville.',
-      'National Museum of African American Music',
-      975,
-      731,
-      { w640: 640, w960: 960, w1600: 975 },
-    ),
+    placement: 'editorial'
   },
 ];
 

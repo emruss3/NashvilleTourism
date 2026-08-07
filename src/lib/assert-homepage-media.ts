@@ -53,6 +53,8 @@ export function assertHomepageMediaIntegrity(): void {
     }
   }
 
+  // Homepage keys may intentionally fall back until commercially cleared.
+  // Only cleared+approved keys (AVAILABLE_MEDIA) are required to resolve uniquely.
   const srcToKeys = new Map<string, string[]>();
   for (const key of HOMEPAGE_IMAGE_KEYS) {
     const asset = asAsset(key);
@@ -60,16 +62,18 @@ export function assertHomepageMediaIntegrity(): void {
       errors.push(`Homepage key "${key}" missing from images.`);
       continue;
     }
-    const list = srcToKeys.get(asset.src) ?? [];
-    list.push(key);
-    srcToKeys.set(asset.src, list);
-
-    if (!asset.credit) {
-      errors.push(`Homepage key "${key}" is missing credit.`);
-    }
     if (!asset.licence) {
       errors.push(`Homepage key "${key}" is missing rights / licence note.`);
     }
+    if (!AVAILABLE_MEDIA.has(key)) {
+      continue;
+    }
+    if (!asset.credit) {
+      errors.push(`Homepage key "${key}" is missing credit.`);
+    }
+    const list = srcToKeys.get(asset.src) ?? [];
+    list.push(key);
+    srcToKeys.set(asset.src, list);
   }
   for (const [src, keys] of srcToKeys) {
     if (keys.length > 1) {
@@ -79,6 +83,7 @@ export function assertHomepageMediaIntegrity(): void {
 
   const neighborhoodSrc = new Map<string, string[]>();
   for (const key of NEIGHBORHOOD_KEYS) {
+    if (!AVAILABLE_MEDIA.has(key)) continue;
     const asset = asAsset(key);
     if (!asset) continue;
     const list = neighborhoodSrc.get(asset.src) ?? [];

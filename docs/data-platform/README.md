@@ -10,7 +10,17 @@ The core principle is simple:
 
 ---
 
-## 1. Current infrastructure
+### Provider integrations (website)
+
+| Provider | Status | Notes |
+|---|---|---|
+| **Viator Partner API v2** | Wired in Next.js (`src/lib/feeds/viator.ts`) | Server-only `VIATOR_API_KEY`. Nashville destination **799**. Marketplace at `/tours`. Use `productUrl` exactly for booking CTAs. Status: `/api/viator-status`. |
+| **Booking.com Demand API** | Scaffold (`src/lib/feeds/booking-demand.ts`) | Hotels are **not** Viator. Sample `/hotels` catalog ≠ production inventory. Status: `/api/booking-demand-status`. |
+| **Google Places** | Supplemental only | Maps/hours/ratings when permitted — never hotel booking inventory. |
+
+**Provenance:** `src/lib/feeds/provider-provenance.ts` maps provider IDs without copying volatile fields into editorial columns. Seed providers via migration `20260807140000_seed_viator_booking_demand_sources.sql`.
+
+---
 
 ### Supabase
 
