@@ -5,7 +5,8 @@ import type {
   TripInput,
   TripType,
 } from './types';
-import { restaurants, hotels, venues, attractions } from './content/listings';
+import { restaurants, venues, attractions } from './content/listings';
+import { hotels } from './content/hotels';
 import { neighborhoods, neighborhoodName } from './content/neighborhoods';
 
 /**
