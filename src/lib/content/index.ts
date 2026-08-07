@@ -6,6 +6,7 @@ import { neighborhoods, neighborhoodName } from './neighborhoods';
 export * from './listings';
 export * from './guides';
 export * from './neighborhoods';
+export * from './neighborhood-guides';
 export * from './authors';
 
 /**

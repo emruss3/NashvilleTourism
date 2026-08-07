@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Breadcrumbs, Chip, FactTable, JsonLd, MapLink, PageHeader, SectionHeader } from '@/components/Ui';
 import { AttractionCard, PhotoSlot } from '@/components/Cards';
+import { ContentImage } from '@/components/Media';
 import { PlacementLabel, VerificationBadge, formatDate } from '@/components/Trust';
 import { attractions, getAttraction } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
@@ -58,7 +59,17 @@ export default function AttractionPage({ params }: { params: { slug: string } })
 
       <div className="grid gap-10 py-10 lg:grid-cols-[1.6fr_1fr]">
         <div>
-          <PhotoSlot label={a.title} ratio="aspect-[16/9]" className="rounded-card" />
+          {a.image?.src ? (
+            <ContentImage
+              image={a.image}
+              ratio="aspect-[16/9]"
+              className="rounded-card"
+              sizes="(max-width: 1023px) 100vw, 60vw"
+              priority
+            />
+          ) : (
+            <PhotoSlot label={a.title} ratio="aspect-[16/9]" className="rounded-card" />
+          )}
           <section className="py-8">
             <h2 className="text-2xl">Why we recommend it</h2>
             <div className="prose-editorial mt-3">

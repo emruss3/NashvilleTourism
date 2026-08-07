@@ -3,15 +3,18 @@ import Link from 'next/link';
 import { Breadcrumbs, Chip, FactTable, JsonLd, MapLink, PageHeader, SectionHeader } from '@/components/Ui';
 import { AttractionCard, HotelCard, RestaurantCard, VenueCard } from '@/components/Cards';
 import { SmartImage } from '@/components/Media';
+import { NeighborhoodGuide } from '@/components/neighborhood-guide/NeighborhoodGuide';
 import { formatDate } from '@/components/Trust';
 import {
   neighborhoods,
   getNeighborhood,
+  getNeighborhoodGuide,
   restaurants,
   hotels,
   venues,
   attractions,
 } from '@/lib/content';
+import { getCalendar } from '@/lib/feeds/calendar';
 import { buildMetadata, placeSchema } from '@/lib/seo';
 import type { ImageKey } from '@/lib/media';
 
@@ -22,6 +25,17 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: { params: { slug: string } }) {
   const n = getNeighborhood(params.slug);
   if (!n) return buildMetadata({ title: 'Not found', description: '', path: '/neighborhoods/', noindex: true });
+
+  const guide = getNeighborhoodGuide(n.slug);
+  if (guide) {
+    return buildMetadata({
+      title: guide.pageTitle,
+      description: guide.intro,
+      path: `/neighborhoods/${n.slug}/`,
+      type: 'article',
+    });
+  }
+
   return buildMetadata({
     title: `${n.name}, Nashville: A Neighborhood Guide`,
     description: n.summary,
@@ -30,14 +44,37 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
   });
 }
 
-export default function NeighborhoodPage({ params }: { params: { slug: string } }) {
+function isSampleListing(title: string, slug: string) {
+  return title.startsWith('[Sample]') || slug.startsWith('sample-');
+}
+
+export default async function NeighborhoodPage({ params }: { params: { slug: string } }) {
   const n = getNeighborhood(params.slug);
   if (!n) notFound();
 
-  const localRestaurants = restaurants.filter((r) => r.neighborhood === n.slug);
-  const localHotels = hotels.filter((h) => h.neighborhood === n.slug);
-  const localVenues = venues.filter((v) => v.neighborhood === n.slug);
-  const localAttractions = attractions.filter((a) => a.neighborhood === n.slug);
+  const guide = getNeighborhoodGuide(n.slug);
+  if (guide) {
+    const calendar = await getCalendar();
+    const venueMatchers = (guide.downtownVenueNames ?? []).map((name) => name.toLowerCase());
+    const downtownEvents =
+      venueMatchers.length && calendar.live
+        ? calendar.events.filter((event) => {
+            const venue = event.venue.toLowerCase();
+            return venueMatchers.some((name) => venue.includes(name));
+          })
+        : [];
+
+    return <NeighborhoodGuide neighborhood={n} guide={guide} downtownEvents={downtownEvents} />;
+  }
+
+  const localRestaurants = restaurants.filter(
+    (r) => r.neighborhood === n.slug && !isSampleListing(r.title, r.slug),
+  );
+  const localHotels = hotels.filter((h) => h.neighborhood === n.slug && !isSampleListing(h.title, h.slug));
+  const localVenues = venues.filter((v) => v.neighborhood === n.slug && !isSampleListing(v.title, v.slug));
+  const localAttractions = attractions.filter(
+    (a) => a.neighborhood === n.slug && !isSampleListing(a.title, a.slug),
+  );
 
   return (
     <div className="shell pb-16">

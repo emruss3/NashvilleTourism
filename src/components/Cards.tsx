@@ -39,13 +39,15 @@ function ListingMedia({
   image,
   label,
   ratio = 'aspect-[3/2]',
+  sizes,
 }: {
   image?: ImageRef;
   label: string;
   ratio?: string;
+  sizes?: string;
 }) {
   if (image?.src) {
-    return <ContentImage image={image} ratio={ratio} />;
+    return <ContentImage image={image} ratio={ratio} sizes={sizes} />;
   }
   return <PhotoSlot label={label} ratio={ratio} />;
 }
@@ -158,8 +160,15 @@ function dayNum(iso: string) {
 export function VenueCard({ item }: { item: Venue }) {
   return (
     <article className="card group relative flex flex-col overflow-hidden">
-      <ListingMedia image={item.image} label={item.title} />
+      <ListingMedia
+        image={item.image}
+        label={item.title}
+        sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+      />
       <div className="flex flex-1 flex-col gap-2 p-4">
+        {item.statusNote ? (
+          <p className="text-2xs font-bold uppercase tracking-[0.14em] text-clay">{item.statusNote}</p>
+        ) : null}
         <MetaRow items={[neighborhoodName(item.neighborhood), item.genres.slice(0, 2).join(', ')]} />
         <h3 className="font-sans font-bold text-lg leading-snug">
           <Link href={`/music/${item.slug}/`} className="after:absolute after:inset-0 hover:text-clay">
@@ -181,7 +190,12 @@ export function VenueCard({ item }: { item: Venue }) {
 export function AttractionCard({ item }: { item: Attraction }) {
   return (
     <article className="card group relative flex flex-col overflow-hidden">
-      <ListingMedia image={item.image} label={item.title} ratio="aspect-[4/3]" />
+      <ListingMedia
+        image={item.image}
+        label={item.title}
+        ratio="aspect-[4/3]"
+        sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
+      />
       <div className="flex flex-1 flex-col gap-2 p-4">
         <MetaRow items={[neighborhoodName(item.neighborhood), item.category]} />
         <h3 className="font-sans font-bold text-base leading-snug">

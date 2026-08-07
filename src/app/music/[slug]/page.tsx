@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Breadcrumbs, Chip, FactTable, JsonLd, MapLink, PageHeader, SectionHeader } from '@/components/Ui';
 import { PhotoSlot, VenueCard } from '@/components/Cards';
+import { ContentImage } from '@/components/Media';
 import { PlacementLabel, VerificationBadge, formatDate } from '@/components/Trust';
 import { venues, getVenue } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
@@ -48,6 +49,11 @@ export default function VenuePage({ params }: { params: { slug: string } }) {
         intro={v.summary}
         meta={
           <div className="flex flex-wrap items-center gap-2">
+            {v.statusNote ? (
+              <span className="inline-flex items-center rounded border border-clay/30 bg-dogwood/40 px-2.5 py-1 text-2xs font-bold uppercase tracking-[0.14em] text-clay">
+                {v.statusNote}
+              </span>
+            ) : null}
             <VerificationBadge status={v.dataStatus} date={v.dateChecked} />
             <PlacementLabel placement={v.placement} sponsorName={v.sponsorName} />
           </div>
@@ -56,7 +62,17 @@ export default function VenuePage({ params }: { params: { slug: string } }) {
 
       <div className="grid gap-10 py-10 lg:grid-cols-[1.6fr_1fr]">
         <div>
-          <PhotoSlot label={v.title} ratio="aspect-[16/9]" className="rounded-card" />
+          {v.image?.src ? (
+            <ContentImage
+              image={v.image}
+              ratio="aspect-[16/9]"
+              className="rounded-card"
+              sizes="(max-width: 1023px) 100vw, 60vw"
+              priority
+            />
+          ) : (
+            <PhotoSlot label={v.title} ratio="aspect-[16/9]" className="rounded-card" />
+          )}
           <section className="py-8">
             <h2 className="text-2xl">Why we recommend it</h2>
             <div className="prose-editorial mt-3">

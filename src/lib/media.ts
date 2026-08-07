@@ -28,6 +28,10 @@ export interface MediaAsset {
   focal?: 'center' | 'top' | 'bottom';
   /** Optional mobile/portrait crop for <picture> heroes. */
   srcMobile?: string;
+  /** Responsive srcSet for desktop/default source. */
+  srcSet?: string;
+  /** Responsive srcSet for mobile art-directed crop. */
+  srcMobileSet?: string;
   /** CSS object-position for desktop. */
   objectPosition?: string;
   /** CSS object-position for mobile crop. */
@@ -369,12 +373,19 @@ export const images = {
     height: 1200,
   },
   'neighborhood/downtown-broadway': {
-    src: '/media/neighborhoods/downtown-broadway.jpg',
-    alt: 'Robert’s Western World on Lower Broadway in downtown Nashville.',
+    src: '/media/neighborhoods/downtown-broadway-2400.webp',
+    srcSet:
+      '/media/neighborhoods/downtown-broadway-960.webp 960w, /media/neighborhoods/downtown-broadway-1600.webp 1600w, /media/neighborhoods/downtown-broadway-2400.webp 2199w',
+    srcMobile: '/media/neighborhoods/downtown-broadway-mobile-1400.webp',
+    srcMobileSet:
+      '/media/neighborhoods/downtown-broadway-mobile-960.webp 960w, /media/neighborhoods/downtown-broadway-mobile-1400.webp 1174w',
+    alt: "Robert's Western World and Lower Broadway neon on a busy downtown Nashville block.",
     credit: 'Nashville Convention & Visitors Corp',
     licence: 'Nashville CVC Media Library — usage authorization pending',
-    width: 1800,
-    height: 1200,
+    width: 2199,
+    height: 1237,
+    objectPosition: 'center',
+    objectPositionMobile: 'center',
   },
   'neighborhood/east-nashville': {
     src: '/media/neighborhoods/east-nashville.jpg',
@@ -501,7 +512,9 @@ export const images = {
     height: 1200,
   },
   'hub/hotels-premium': {
-    src: '/media/hubs/hotels-premium.jpg',
+    src: '/media/hubs/hotels-premium-2400.webp',
+    srcSet:
+      '/media/hubs/hotels-premium-960.webp 960w, /media/hubs/hotels-premium-1600.webp 1600w, /media/hubs/hotels-premium-2400.webp 1800w',
     alt: 'Rooftop terrace bar overlooking the Nashville skyline.',
     credit: 'Four Seasons Hotels and Resorts',
     licence: 'Four Seasons press library — usage authorization pending',
@@ -517,7 +530,9 @@ export const images = {
     height: 1200,
   },
   'hub/restaurants-premium': {
-    src: '/media/hubs/restaurants-premium.jpg',
+    src: '/media/hubs/restaurants-premium-2400.webp',
+    srcSet:
+      '/media/hubs/restaurants-premium-960.webp 960w, /media/hubs/restaurants-premium-1600.webp 1600w, /media/hubs/restaurants-premium-2400.webp 1800w',
     alt: 'The cocktail bar at Twelve Thirty Club in Nashville.',
     credit: 'Nashville Convention & Visitors Corp',
     licence: 'Nashville CVC Media Library — usage authorization pending',
@@ -533,7 +548,9 @@ export const images = {
     height: 1200,
   },
   'hub/trip-planner-premium': {
-    src: '/media/hubs/trip-planner-premium.jpg',
+    src: '/media/hubs/trip-planner-premium-2400.webp',
+    srcSet:
+      '/media/hubs/trip-planner-premium-960.webp 960w, /media/hubs/trip-planner-premium-1600.webp 1600w, /media/hubs/trip-planner-premium-2400.webp 1800w',
     alt: 'Nashville skyline seen from a pedestrian bridge.',
     credit: 'Nashville Convention & Visitors Corp',
     licence: 'Nashville CVC Media Library — usage authorization pending',
@@ -578,8 +595,9 @@ export const images = {
     height: 1067,
   },
   'venues/jbjs-rooftop': {
-    src: '/media/venues/jbjs-rooftop.jpg',
-    alt: 'JBJ’s rooftop overlooking Lower Broadway in Nashville.',
+    src: '/media/venues/jbjs-rooftop-1600.webp',
+    srcSet: '/media/venues/jbjs-rooftop-960.webp 960w, /media/venues/jbjs-rooftop-1600.webp 1600w',
+    alt: "JBJ's rooftop overlooking Lower Broadway in Nashville.",
     licence: 'BPH-owned media — user-authorized reuse on 2026-08-04',
     width: 1600,
     height: 1067,
@@ -590,6 +608,237 @@ export const images = {
     licence: 'BPH-owned media — user-authorized reuse on 2026-08-04',
     width: 1600,
     height: 1067,
+  },
+  'downtown/sobro': {
+    src: '/media/downtown/sobro-1600.webp',
+    srcSet:
+      '/media/downtown/sobro-640.webp 640w, /media/downtown/sobro-960.webp 960w, /media/downtown/sobro-1600.webp 1600w',
+    alt: 'Elevated blue-hour view of SoBro with Ascend Amphitheater, the Cumberland River, and downtown hotel towers.',
+    credit: 'Four Seasons Hotels and Resorts',
+    licence: 'Four Seasons press library — authorized editorial use',
+    width: 1600,
+    height: 1067,
+  },
+  'downtown/nashville-yards': {
+    src: '/media/downtown/nashville-yards-1600.webp',
+    srcSet:
+      '/media/downtown/nashville-yards-640.webp 640w, /media/downtown/nashville-yards-960.webp 960w, /media/downtown/nashville-yards-1600.webp 1600w',
+    srcMobile: '/media/downtown/nashville-yards-mobile-960.webp',
+    srcMobileSet:
+      '/media/downtown/nashville-yards-mobile-640.webp 640w, /media/downtown/nashville-yards-mobile-960.webp 960w',
+    alt: 'Grand Hyatt Nashville and surrounding Nashville Yards mixed-use buildings at dusk.',
+    credit: 'Grand Hyatt Nashville / Hyatt Hotels',
+    licence: 'Official hotel distribution (IcePortal)',
+    width: 1600,
+    height: 1067,
+  },
+  'venues/roberts-western-world': {
+    src: '/media/venues/roberts-western-world-1600.webp',
+    srcSet:
+      '/media/venues/roberts-western-world-640.webp 640w, /media/venues/roberts-western-world-960.webp 960w, /media/venues/roberts-western-world-1600.webp 1234w',
+    alt: "Stage interior at Robert's Western World with drum kit branding, neon lighting, and memorabilia-lined walls.",
+    credit: "Robert's Western World",
+    licence: 'Official venue website media',
+    width: 1234,
+    height: 823,
+  },
+  'venues/twelve-thirty-club': {
+    src: '/media/venues/twelve-thirty-club-1600.webp',
+    srcSet:
+      '/media/venues/twelve-thirty-club-640.webp 640w, /media/venues/twelve-thirty-club-960.webp 960w, /media/venues/twelve-thirty-club-1600.webp 1600w',
+    alt: 'Twelve Thirty Club supper club bar with red and green leather seating, brass, marble, and dark wood.',
+    credit: 'Nashville Convention & Visitors Corp / property media',
+    licence: 'CVC / property-authorized media held by BPH',
+    width: 1600,
+    height: 1067,
+  },
+  'venues/chiefs-on-broadway': {
+    src: '/media/venues/chiefs-on-broadway-1600.webp',
+    srcSet:
+      '/media/venues/chiefs-on-broadway-640.webp 640w, /media/venues/chiefs-on-broadway-960.webp 960w, /media/venues/chiefs-on-broadway-1600.webp 1600w',
+    alt: "Chief's on Broadway dusk exterior with restored brick facade, stained-glass windows, and illuminated marquee.",
+    credit: "Chief's on Broadway",
+    licence: 'Official venue website media',
+    width: 1600,
+    height: 1067,
+  },
+  'venues/category-10': {
+    src: '/media/venues/category-10-1600.webp',
+    srcSet:
+      '/media/venues/category-10-640.webp 640w, /media/venues/category-10-960.webp 960w, /media/venues/category-10-1600.webp 1600w',
+    srcMobile: '/media/venues/category-10-mobile-960.webp',
+    srcMobileSet:
+      '/media/venues/category-10-mobile-640.webp 640w, /media/venues/category-10-mobile-960.webp 960w',
+    alt: 'Category 10 main floor crowd with balcony mezzanine and Category 10 neon identity.',
+    credit: 'Category 10 / Nathan Zucker',
+    licence: 'Official category10.com media',
+    width: 1600,
+    height: 1067,
+  },
+  'restaurants/assembly-food-hall': {
+    src: '/media/restaurants/assembly-food-hall-1600.webp',
+    srcSet:
+      '/media/restaurants/assembly-food-hall-640.webp 640w, /media/restaurants/assembly-food-hall-960.webp 960w, /media/restaurants/assembly-food-hall-1600.webp 1600w',
+    alt: 'Interior of Assembly Food Hall with multiple vendor counters and open circulation.',
+    credit: 'Food Hall Co / Assembly Food Hall',
+    licence: 'Official property media',
+    width: 1600,
+    height: 1067,
+  },
+  'restaurants/bacco': {
+    src: '/media/restaurants/bacco-1600.webp',
+    srcSet:
+      '/media/restaurants/bacco-640.webp 640w, /media/restaurants/bacco-960.webp 960w, /media/restaurants/bacco-1600.webp 1600w',
+    alt: 'Bacco dining room with green banquettes, open kitchen, dry-aging cabinet, and patterned floor.',
+    credit: 'Four Seasons Hotels and Resorts',
+    licence: 'Four Seasons press library — authorized editorial use',
+    width: 1600,
+    height: 1067,
+  },
+  'restaurants/etch': {
+    src: '/media/restaurants/etch-1600.webp',
+    srcSet:
+      '/media/restaurants/etch-640.webp 640w, /media/restaurants/etch-960.webp 960w, /media/restaurants/etch-1600.webp 1600w',
+    alt: "Populated dining room and chef's bar interior at etch restaurant downtown.",
+    credit: 'etch restaurant',
+    licence: 'Official restaurant website media',
+    width: 1600,
+    height: 1067,
+  },
+  'hotels/four-seasons-nashville': {
+    src: '/media/hotels/four-seasons-nashville-1600.webp',
+    srcSet:
+      '/media/hotels/four-seasons-nashville-640.webp 640w, /media/hotels/four-seasons-nashville-960.webp 960w, /media/hotels/four-seasons-nashville-1600.webp 1600w',
+    srcMobile: '/media/hotels/four-seasons-nashville-mobile-960.webp',
+    srcMobileSet:
+      '/media/hotels/four-seasons-nashville-mobile-640.webp 640w, /media/hotels/four-seasons-nashville-mobile-960.webp 960w',
+    alt: 'Four Seasons Hotel Nashville rooftop pool and terrace overlooking the Cumberland River.',
+    credit: 'Four Seasons Hotels and Resorts',
+    licence: 'Four Seasons press library — authorized editorial use',
+    width: 1600,
+    height: 1067,
+  },
+  'hotels/1-hotel-nashville': {
+    src: '/media/hotels/1-hotel-nashville-1600.webp',
+    srcSet:
+      '/media/hotels/1-hotel-nashville-640.webp 640w, /media/hotels/1-hotel-nashville-960.webp 960w, /media/hotels/1-hotel-nashville-1600.webp 1600w',
+    alt: '1 Hotel Nashville lobby with timber structure, leather seating, and abundant greenery.',
+    credit: '1 Hotels',
+    licence: 'Official brand media (Brandfolder)',
+    width: 1600,
+    height: 1067,
+  },
+  'hotels/the-joseph': {
+    src: '/media/hotels/the-joseph-1600.webp',
+    srcSet:
+      '/media/hotels/the-joseph-640.webp 640w, /media/hotels/the-joseph-960.webp 960w, /media/hotels/the-joseph-1600.webp 1600w',
+    srcMobile: '/media/hotels/the-joseph-mobile-960.webp',
+    srcMobileSet:
+      '/media/hotels/the-joseph-mobile-640.webp 640w, /media/hotels/the-joseph-mobile-960.webp 960w',
+    alt: 'Rooftop pool at The Joseph, a Luxury Collection Hotel, Nashville.',
+    credit: 'Marriott International / The Joseph Nashville',
+    licence: 'Official Marriott gallery media',
+    width: 1600,
+    height: 1067,
+  },
+  'hotels/hermitage-hotel': {
+    src: '/media/hotels/hermitage-hotel-1600.webp',
+    srcSet:
+      '/media/hotels/hermitage-hotel-640.webp 640w, /media/hotels/hermitage-hotel-960.webp 960w, /media/hotels/hermitage-hotel-1600.webp 1500w',
+    alt: 'Grand Hermitage Hotel lobby with vaulted historic ceiling, fireplace, chandeliers, and central floral table.',
+    credit: 'The Hermitage Hotel / Nashville CVC media',
+    licence: 'CVC / property-authorized media held by BPH',
+    width: 1500,
+    height: 1000,
+  },
+  'hotels/grand-hyatt-nashville': {
+    src: '/media/hotels/grand-hyatt-nashville-1600.webp',
+    srcSet:
+      '/media/hotels/grand-hyatt-nashville-640.webp 640w, /media/hotels/grand-hyatt-nashville-960.webp 960w, /media/hotels/grand-hyatt-nashville-1600.webp 1600w',
+    srcMobile: '/media/hotels/grand-hyatt-nashville-mobile-960.webp',
+    srcMobileSet:
+      '/media/hotels/grand-hyatt-nashville-mobile-640.webp 640w, /media/hotels/grand-hyatt-nashville-mobile-960.webp 960w',
+    alt: 'Grand Hyatt Nashville rooftop pool at twilight with Nashville Yards skyline context.',
+    credit: 'Grand Hyatt Nashville / Hyatt Hotels',
+    licence: 'Official hotel distribution (IcePortal)',
+    width: 1600,
+    height: 1067,
+  },
+  'editorial/pedestrian-bridge': {
+    src: '/media/editorial/pedestrian-bridge-2400.webp',
+    srcSet:
+      '/media/editorial/pedestrian-bridge-800.webp 800w, /media/editorial/pedestrian-bridge-1200.webp 1200w, /media/editorial/pedestrian-bridge-1600.webp 1600w, /media/editorial/pedestrian-bridge-2400.webp 2400w',
+    srcMobile: '/media/editorial/pedestrian-bridge-mobile-1200.webp',
+    srcMobileSet:
+      '/media/editorial/pedestrian-bridge-mobile-800.webp 800w, /media/editorial/pedestrian-bridge-mobile-1200.webp 1200w',
+    alt: 'John Seigenthaler Pedestrian Bridge at blue hour with downtown skyline and Cumberland River reflections.',
+    credit: 'Nashville Convention & Visitors Corp',
+    licence: 'CVC media library — authorized editorial use',
+    width: 2400,
+    height: 1350,
+  },
+  'attractions/country-music-hall-of-fame-night': {
+    src: '/media/attractions/country-music-hall-of-fame-night-1600.webp',
+    srcSet:
+      '/media/attractions/country-music-hall-of-fame-night-640.webp 640w, /media/attractions/country-music-hall-of-fame-night-960.webp 960w, /media/attractions/country-music-hall-of-fame-night-1600.webp 1600w',
+    srcMobile: '/media/attractions/country-music-hall-of-fame-night-mobile-960.webp',
+    srcMobileSet:
+      '/media/attractions/country-music-hall-of-fame-night-mobile-640.webp 640w, /media/attractions/country-music-hall-of-fame-night-mobile-960.webp 960w',
+    alt: 'Blue-hour exterior of the Country Music Hall of Fame and Museum with the Omni Nashville Hotel visible.',
+    credit: 'The Country Music Hall Of Fame and Museum',
+    licence: 'Institution-authorized media',
+    width: 1600,
+    height: 1067,
+  },
+  'restaurants/peg-leg-porker': {
+    src: '/media/restaurants/peg-leg-porker-1600.webp',
+    srcSet:
+      '/media/restaurants/peg-leg-porker-640.webp 413w, /media/restaurants/peg-leg-porker-960.webp 413w, /media/restaurants/peg-leg-porker-1600.webp 413w',
+    alt: 'Peg Leg Porker white-brick exterior and covered patio on Gleaves Street in the Gulch.',
+    credit: 'Peg Leg Porker',
+    licence: 'Official Peg Leg Porker press kit media',
+    width: 413,
+    height: 275,
+  },
+  'restaurants/butter-milk-ranch': {
+    src: '/media/restaurants/butter-milk-ranch-1600.webp',
+    srcSet:
+      '/media/restaurants/butter-milk-ranch-640.webp 640w, /media/restaurants/butter-milk-ranch-960.webp 960w, /media/restaurants/butter-milk-ranch-1600.webp 1224w',
+    alt: 'The Butter Milk Ranch dining room with open kitchen, long counter, mustard-yellow stools, and wood ceiling.',
+    credit: 'The Butter Milk Ranch',
+    licence: 'Official restaurant website media',
+    width: 1224,
+    height: 816,
+  },
+  'restaurants/butchertown-hall': {
+    src: '/media/restaurants/butchertown-hall-1600.webp',
+    srcSet:
+      '/media/restaurants/butchertown-hall-640.webp 640w, /media/restaurants/butchertown-hall-960.webp 960w, /media/restaurants/butchertown-hall-1600.webp 1498w',
+    alt: 'Butchertown Hall dining room with vaulted ceiling, white tile, and long communal wooden tables.',
+    credit: 'Butchertown Hall',
+    licence: 'Official restaurant website media',
+    width: 1498,
+    height: 999,
+  },
+  'restaurants/aba-nashville': {
+    src: '/media/restaurants/aba-nashville-1600.webp',
+    srcSet:
+      '/media/restaurants/aba-nashville-640.webp 640w, /media/restaurants/aba-nashville-960.webp 960w, /media/restaurants/aba-nashville-1600.webp 1500w',
+    alt: 'Aba Nashville two-story dining room with olive trees, amber Murano chandeliers, and leather seating.',
+    credit: 'Aba / Lettuce Entertain You',
+    licence: 'Official Lettuce Entertain You Nashville location media',
+    width: 1500,
+    height: 1000,
+  },
+  'restaurants/playdate': {
+    src: '/media/restaurants/playdate-1600.webp',
+    srcSet:
+      '/media/restaurants/playdate-640.webp 640w, /media/restaurants/playdate-960.webp 960w, /media/restaurants/playdate-1600.webp 1080w',
+    alt: "Playdate's restored white house, PLAYDATE signage, and patio on 12th Avenue South in 12 South.",
+    credit: 'Playdate Nashville',
+    licence: 'Venue-hosted Eventective listing media (property-authorized exterior)',
+    width: 1080,
+    height: 720,
   },
 } as const satisfies Record<string, MediaAsset>;
 
@@ -667,6 +916,27 @@ export const AVAILABLE_MEDIA: ReadonlySet<string> = new Set<string>([
   'venues/jbjs-interior',
   'venues/jbjs-rooftop',
   'venues/the-lanes-homes',
+  'downtown/sobro',
+  'downtown/nashville-yards',
+  'venues/roberts-western-world',
+  'venues/twelve-thirty-club',
+  'venues/chiefs-on-broadway',
+  'venues/category-10',
+  'restaurants/assembly-food-hall',
+  'restaurants/bacco',
+  'restaurants/etch',
+  'hotels/four-seasons-nashville',
+  'hotels/1-hotel-nashville',
+  'hotels/the-joseph',
+  'hotels/hermitage-hotel',
+  'hotels/grand-hyatt-nashville',
+  'editorial/pedestrian-bridge',
+  'attractions/country-music-hall-of-fame-night',
+  'restaurants/peg-leg-porker',
+  'restaurants/butter-milk-ranch',
+  'restaurants/butchertown-hall',
+  'restaurants/aba-nashville',
+  'restaurants/playdate',
 ]);
 
 export function getImage(key: ImageKey | undefined): MediaAsset | undefined {

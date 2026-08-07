@@ -51,12 +51,21 @@ export interface ContentBase {
 }
 
 export interface ImageRef {
-  /** Local path or remote URL. */
+  /** Default / largest candidate (local path or remote URL). */
   src: string;
+  /**
+   * Responsive candidates for `<img srcSet>`. Prefer this when available.
+   * Example: `/media/x-640.webp 640w, /media/x-960.webp 960w, /media/x-1600.webp 1600w`
+   */
+  srcSet?: string;
+  /** Explicit width variants when a full srcSet string is not provided. */
+  src640?: string;
+  src960?: string;
+  src1600?: string;
   /** Required. Describes the photo for screen readers. */
   alt: string;
   credit?: string;
-  /** Intrinsic size for layout reservation / CLS. */
+  /** Intrinsic size for layout reservation / CLS (usually the largest candidate). */
   width?: number;
   height?: number;
   focal?: 'center' | 'top' | 'bottom';
@@ -150,6 +159,8 @@ export interface Venue extends ContentBase {
   address: string;
   mapQuery: string;
   relatedSlugs: string[];
+  /** Visible status for venues not yet open, e.g. "Opening Fall 2026". */
+  statusNote?: string;
 }
 
 export interface Attraction extends ContentBase {
