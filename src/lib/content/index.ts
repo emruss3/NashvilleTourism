@@ -1,13 +1,46 @@
-import type { SearchDoc } from '../types';
-import { restaurants, hotels, events, venues, attractions } from './listings';
+import type { Listing, SearchDoc } from '../types';
+import {
+  restaurants,
+  events,
+  venues,
+  attractions,
+  getRestaurant,
+  getEvent,
+  getVenue,
+  getAttraction,
+} from './listings';
+import { hotels, getHotel } from './hotels';
 import { guides } from './guides';
 import { neighborhoods, neighborhoodName } from './neighborhoods';
 
-export * from './listings';
+export {
+  restaurants,
+  events,
+  venues,
+  attractions,
+  getRestaurant,
+  getEvent,
+  getVenue,
+  getAttraction,
+};
+export { hotels, getHotel } from './hotels';
 export * from './guides';
 export * from './neighborhoods';
 export * from './neighborhood-guides';
 export * from './authors';
+
+/**
+ * Canonical listing collection used by any site surface that needs all content.
+ * Hotels intentionally come from ./hotels rather than the legacy demo fixtures
+ * that still live in ./listings while the rest of that file is being migrated.
+ */
+export const allListings: Listing[] = [
+  ...restaurants,
+  ...hotels,
+  ...events,
+  ...venues,
+  ...attractions,
+];
 
 /**
  * Flat search index for durable site content. Live events are intentionally not
