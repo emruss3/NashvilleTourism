@@ -3,18 +3,18 @@ import { Breadcrumbs } from '@/components/Ui';
 import { AffiliateDisclosure } from '@/components/Trust';
 import BookingLink from '@/components/BookingLink';
 import { ANALYTICS_EVENTS } from '@/lib/analytics';
+import { listPublishedExperiences } from '@/lib/feeds/experiences';
 import { getTourProduct } from '@/lib/feeds/tours';
-import { searchNashvilleProducts } from '@/lib/feeds/viator';
 import { buildMetadata, canonical } from '@/lib/seo';
 
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  // Prefetch a small set when the key is available at build time; otherwise
-  // allow on-demand rendering for unknown codes.
+  // Only prebuild Nashroam-approved products. Provider discovery is not a
+  // publication mechanism.
   try {
-    const result = await searchNashvilleProducts({ count: 12, sort: 'TRAVELER_RATING' });
-    return result.products.map((p) => ({ productCode: p.productCode }));
+    const experiences = await listPublishedExperiences(50);
+    return experiences.map((experience) => ({ productCode: experience.productCode }));
   } catch {
     return [];
   }
@@ -26,13 +26,11 @@ export async function generateMetadata({ params }: { params: { productCode: stri
   if (!product) {
     return buildMetadata({
       title: 'Tour not found',
-      description: 'This Nashville experience could not be loaded from Viator.',
+      description: 'This Nashville experience is not currently available on Nashroam.',
       path: `/tours/${encodeURIComponent(code)}/`,
       noindex: true,
     });
   }
-  // Viator affiliate terms: do not index product pages that mirror commercial
-  // catalog content. Hub (/tours) stays indexable as the marketplace entry.
   return buildMetadata({
     title: product.title,
     description: product.description?.slice(0, 155) || `Book ${product.title} in Nashville via Viator.`,
@@ -56,7 +54,7 @@ export default async function TourProductPage({ params }: { params: { productCod
         />
         <h1 className="mt-6 font-display text-3xl font-bold text-navy">Experience unavailable</h1>
         <p className="mt-3 max-w-prose text-ink-soft">
-          {error || 'This Viator product could not be loaded right now.'}
+          {error || 'This experience could not be loaded right now.'}
         </p>
         <Link href="/tours/" className="btn-primary mt-6 inline-flex min-h-[44px]">
           Back to tours
@@ -76,7 +74,7 @@ export default async function TourProductPage({ params }: { params: { productCod
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
         <div>
-          <p className="eyebrow">Viator experience</p>
+          <p className="eyebrow">Nashroam-approved · Viator booking</p>
           <h1 className="mt-2 font-display text-3xl font-bold leading-tight text-navy md:text-4xl">
             {product.title}
           </h1>
@@ -145,8 +143,7 @@ export default async function TourProductPage({ params }: { params: { productCod
             <p className="text-lg font-semibold text-navy">See live price on Viator</p>
           )}
           <p className="mt-2 text-sm text-ink-soft">
-            Booking completes on Viator. We use their product link exactly so affiliate attribution and
-            any white-label domain stay intact.
+            Booking completes on Viator. Provider ratings/prices are attributed to Viator; the experience itself must be approved by Nashroam before it appears here.
           </p>
           <div className="mt-5">
             <BookingLink
