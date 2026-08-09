@@ -2,9 +2,9 @@
 
 The most useful way to plan, book, and experience Nashville.
 
-Nashroam is a conversion-focused Nashville city guide and trip-planning product built with **Next.js 14 (App Router) + TypeScript + Tailwind** on Vercel. The app uses a server runtime; the canonical tourism data platform lives in the dedicated **Nashroam Supabase** project.
+Nashroam is a conversion-focused Nashville city guide and trip-planning product built with **Next.js 14 (App Router) + TypeScript + Tailwind** on Vercel. The canonical tourism data platform lives in the dedicated **Nashroam Supabase** project.
 
-The browser should never talk directly to privileged provider APIs. Private provider credentials and the Supabase service-role key remain server-side.
+Private provider credentials and the Supabase service-role key stay server-side. The browser is not a provider-integration boundary.
 
 Brand rules: `.cursor/rules/nashville-brand.mdc`.
 
@@ -19,9 +19,9 @@ npm run build        # production build
 npm run typecheck    # tsc --noEmit
 ```
 
-The app should degrade gracefully when optional provider credentials are absent. Copy `.env.example` to `.env.local` for website-side integrations.
+Copy `.env.example` to `.env.local` for website-side integrations.
 
-For Supabase-backed experiences, the website uses `SUPABASE_SERVICE_ROLE_KEY` server-side. **Do not put `VIATOR_API_KEY` on Vercel**; Viator stays behind Supabase Edge Functions.
+For Supabase-backed data, the site uses `SUPABASE_SERVICE_ROLE_KEY` server-side. **Do not put `VIATOR_API_KEY` on Vercel**; Viator stays behind Supabase Edge Functions.
 
 ---
 
@@ -43,7 +43,7 @@ Nashroam website / Plan Your Trip
    |
  Provider IDs + expiring provider state
    |
- Edge Functions / ingestion jobs
+ Edge Functions + Cron
    |
  External providers
 ```
@@ -58,7 +58,7 @@ src/
     ├── itinerary.ts        # Planner composition/rules
     ├── partners.ts         # Affiliate/deep-link helpers
     ├── supabase/           # Server-only Supabase access
-    ├── feeds/              # Provider adapters / migration layer
+    ├── feeds/              # Provider adapters / data access
     └── content/            # Legacy/seed editorial content
 
 supabase/
@@ -81,24 +81,26 @@ Region: `us-east-2`
 
 | Item | Current state |
 |---|---:|
-| Application tables | **27** |
 | Neighborhoods | **18** |
 | Canonical place stubs | **22** |
+| Published places | **0** |
 | Real Viator experiences | **188** |
+| Approved/published experiences | **0** |
+| Priority experience-review queue | **49** |
 | Viator taxonomy tags | **1,263** |
 | Canonical events | **0** |
 | Data-source definitions | **13** |
-| Ingestion schedules | **3** |
+| Active Viator Cron jobs | **3** |
 
-The place stubs are real Nashville institutions, but remain unpublished/unverified until durable facts are checked. The original `[Sample]` restaurants are **not** being imported into Supabase.
+The 22 place stubs are real Nashville institutions but remain unpublished/unverified until durable facts are checked. The original `[Sample]` restaurants are **not** being imported into Supabase.
 
-All Viator experiences are real API inventory, but remain pending curation before planner/public eligibility.
+All Viator experiences are real API inventory but remain pending editorial approval.
 
 ---
 
 ## Source stack
 
-The full provider rules live in `docs/data-platform/README.md`. The short version:
+The full rules live in `docs/data-platform/README.md`.
 
 | Source | Role | Status |
 |---|---|---|
@@ -128,15 +130,13 @@ No provider is “the Nashroam database.”
 - **Google / Foursquare / official source** → live operational validation
 - **Yelp / Google** → consumer sentiment signals
 - **OpenTable** → restaurant availability
-- **Viator** → bookable experiences
+- **Viator** → bookable experience inventory
 - **Ticketmaster + secondary ticket providers** → event/ticket inventory
 - **Nashroam** → quality judgment, traveler fit, local context, geography, itinerary logic
 
 ---
 
-## Viator
-
-Viator is the first fully live Supabase provider.
+## Viator — live now
 
 - Secret: `VIATOR_API_KEY` in Supabase only
 - Current access: **sandbox Basic Access**
@@ -144,10 +144,39 @@ Viator is the first fully live Supabase provider.
 - Parent destination ID: **295**
 - Lookup ID: `8.77.295.799`
 - Current catalog: **188 real experiences**
-- Local tag taxonomy: **1,263 tags**
-- All products are pending curation
+- Local taxonomy: **1,263 tags**
+- Priority human-review queue: **49**
 
-Viator booking URLs must use the exact API-returned `productUrl`; do not reconstruct or strip the attribution parameters.
+Active refresh:
+
+| Job | Cadence |
+|---|---|
+| Product/provider-state refresh | **Hourly** at minute 17 |
+| Viator tag refresh | Weekly |
+| Destination refresh | Weekly |
+
+The product/provider state has a one-hour TTL, so the catalog refresh is hourly. Viator rate-limit headers describe a rolling short endpoint window, not a daily request budget.
+
+Viator booking URLs must preserve the exact API-returned `productUrl`.
+
+### Curation boundary
+
+Provider ingestion may classify and prioritize records for review, but it **cannot** approve, publish, or write a Nashroam score.
+
+Public `/tours`, direct product pages, and Plan Your Trip require:
+
+```text
+curation_status = approved
+is_published = true
+status = active
+```
+
+There is no public live-search fallback that bypasses curation.
+
+Service-role-only curation actions:
+
+- `approve_experience(...)`
+- `reject_experience(...)`
 
 See `docs/data-platform/VIATOR.md`.
 
@@ -157,15 +186,15 @@ See `docs/data-platform/VIATOR.md`.
 
 `src/lib/itinerary.ts` remains a deterministic composition/rules layer. The strategic split is:
 
-1. **Candidate retrieval** from Supabase
-2. **Eligibility / freshness** checks
-3. **Nashroam scoring and context**
-4. **Itinerary composition**
-5. **On-demand availability** for finalists
+1. candidate retrieval from Supabase
+2. eligibility / freshness checks
+3. Nashroam scoring and context
+4. itinerary composition
+5. on-demand availability for finalists
 
-The planner must never invent a place, event, experience, price, opening time, or availability claim. Every recommendation should resolve to a real Supabase record/provider identity.
+The planner must never invent a place, event, experience, price, opening time, or availability claim. Every final recommendation should resolve to a real eligible Supabase record.
 
-Experiences are already moving to Supabase-backed candidates. Places/events are next.
+Experiences now honor the approval gate. Places/events are next.
 
 ---
 
@@ -173,19 +202,19 @@ Experiences are already moving to Supabase-backed candidates. Places/events are 
 
 Nashroam permanently owns:
 
-- canonical IDs;
-- neighborhoods/geography;
-- editorial descriptions;
-- Nashroam scores;
-- traveler-fit tags;
-- planner priority;
-- relationships;
-- local/event context;
-- curation and verification state.
+- canonical IDs
+- neighborhoods/geography
+- editorial descriptions
+- Nashroam scores
+- traveler-fit tags
+- planner priority
+- relationships
+- local/event context
+- curation and verification state
 
-Provider facts such as hours, external ratings, reservation availability, ticket inventory, tour prices, and cancellations are **volatile state** and should carry source + `fetched_at` + `expires_at`.
+Provider facts such as hours, external ratings, reservation availability, ticket inventory, tour prices, and cancellations are **volatile state** and carry source + `fetched_at` + `expires_at`.
 
-Provider disagreements should go to `verification_queue`, not silently overwrite one another.
+Provider disagreements go to `verification_queue`; they do not silently overwrite one another.
 
 ---
 
@@ -194,22 +223,24 @@ Provider disagreements should go to `verification_queue`, not silently overwrite
 - RLS is enabled on application tables.
 - Operational/provider tables remain private by default.
 - No service-role or provider secrets in browser code.
-- No private credential in `NEXT_PUBLIC_*` variables.
-- Public website access should use server components, route handlers, or narrow public APIs rather than exposing the entire Supabase schema.
+- Scheduled Edge Function calls authenticate using a private Supabase Vault credential.
+- `viator-sync` uses custom service/Cron authorization and rejects unauthenticated traffic.
+- The manual `/api/viator/sync` endpoint **fails closed** unless `NASHROAM_SYNC_TOKEN` is explicitly configured.
+- Public website access uses server-side/narrow routes rather than broad database exposure.
 - Raw provider payloads are stored only when provider terms allow it.
 
 ---
 
 ## Current build order
 
-1. Curate the 188 Viator experiences into a strong Nashville catalog.
+1. Curate the **49 priority Viator experiences** first, then the standard-review set.
 2. Configure Foursquare OS Places and build the real restaurant/bar/attraction backbone.
 3. Add live place validation (Google/Foursquare/Yelp as appropriate).
 4. Configure Ticketmaster and begin canonical event ingestion.
 5. Add NCVC/direct Nashville calendars and event context.
 6. Complete OpenTable partnership/integration.
-7. Move the remaining planner candidate pools off static/sample content and onto Supabase.
-8. Add an internal curation/verification dashboard.
+7. Move remaining planner candidate pools off static/sample content and onto Supabase.
+8. Build an authenticated curation/verification dashboard over the service-role RPCs.
 
 Target place corpus is roughly **500–750 places we would actually recommend**, not every business in Davidson County.
 
@@ -218,7 +249,7 @@ Target place corpus is roughly **500–750 places we would actually recommend**,
 ## Documentation
 
 - `docs/data-platform/README.md` — **primary source/data strategy**
-- `docs/data-platform/VIATOR.md` — Viator integration
+- `docs/data-platform/VIATOR.md` — Viator integration and curation rules
 - `docs/ANALYTICS.md` — analytics contract
 - `supabase/migrations/` — versioned schema history
 - `supabase/functions/viator-sync/` — Viator server boundary
@@ -241,14 +272,6 @@ Target place corpus is roughly **500–750 places we would actually recommend**,
 
 ## Product thesis
 
-The long-term product is a **curated, continuously refreshed Nashville knowledge graph** combining:
-
-- durable place identity;
-- live operational facts;
-- real events and bookable inventory;
-- proprietary Nashroam editorial judgment;
-- Nashville-specific geography/context;
-- transaction/availability layers;
-- a planner that composes only from trusted records.
+The long-term product is a **curated, continuously refreshed Nashville knowledge graph** combining durable place identity, live operational facts, real events/bookable inventory, proprietary Nashroam judgment, Nashville geography/context, and a planner that composes only from trusted records.
 
 That data layer—not generic AI output—is the moat.
