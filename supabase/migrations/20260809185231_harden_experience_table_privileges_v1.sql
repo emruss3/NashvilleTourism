@@ -1,0 +1,2 @@
+revoke all on table public.system_documents, public.experiences, public.experience_editorial, public.experience_source_ids, public.experience_source_state, public.viator_destinations, public.ingestion_cursors from anon, authenticated;
+grant all on table public.system_documents, public.experiences, public.experience_editorial, public.experience_source_ids, public.experience_source_state, public.viator_destinations, public.ingestion_cursors to service_role;
