@@ -1,12 +1,17 @@
 /**
- * NashRoam experience catalog — Supabase is the source of truth.
- * Volatile commercial fields come from experience_source_state (Viator).
- * Editorial fields come from experience_editorial (first-party).
+ * Nashroam experience catalog — Supabase is the source of truth.
+ *
+ * Public/planner surfaces use ONLY experiences that are:
+ * - curation_status = approved
+ * - is_published = true
+ * - status = active
+ *
+ * Live Viator discovery belongs to ingestion/curation tooling. It is never a
+ * public fallback that bypasses editorial approval.
  */
 
 import { getSupabaseServiceClient, isSupabaseConfigured } from '@/lib/supabase/server';
 import type { ViatorProductSummary } from '@/lib/feeds/viator';
-import { searchNashvilleProducts, syncNashvilleCatalog } from '@/lib/feeds/viator';
 
 export interface ExperienceCard {
   id: string;
@@ -21,7 +26,7 @@ export interface ExperienceCard {
   fromPrice?: { amount: number; currency: string; formatted: string };
   freeCancellation: boolean;
   imageUrl?: string;
-  /** Exact Viator affiliate productUrl */
+  /** Exact Viator affiliate productUrl stored in provider state/source ID. */
   productUrl: string;
   productCode: string;
   nashroamScore?: number;
@@ -34,7 +39,7 @@ export interface ExperienceCard {
 export interface ExperienceCatalogResult {
   configured: boolean;
   live: boolean;
-  source: 'supabase' | 'edge-search' | 'none';
+  source: 'supabase' | 'none';
   experiences: ExperienceCard[];
   attribution: string;
   error?: string;
@@ -71,6 +76,7 @@ type JoinedRow = {
   duration_max_minutes: number | null;
   is_published: boolean;
   status: string;
+  curation_status?: string;
   experience_editorial: {
     nashroam_score: number | null;
     planner_priority: number | null;
@@ -95,6 +101,17 @@ type JoinedRow = {
     metadata: Record<string, unknown> | null;
   }> | null;
 };
+
+const EXPERIENCE_SELECT = `
+  id, slug, title, experience_type, categories,
+  duration_min_minutes, duration_max_minutes, is_published, status, curation_status,
+  experience_editorial ( nashroam_score, planner_priority, traveler_types, best_for ),
+  experience_source_ids ( external_id, external_url, is_primary ),
+  experience_source_state (
+    rating_value, review_count, from_price, currency, booking_url,
+    duration_min_minutes, duration_max_minutes, expires_at, display_allowed, metadata
+  )
+`;
 
 function mapRow(row: JoinedRow): ExperienceCard | null {
   const link = (row.experience_source_ids ?? []).find((l) => l.is_primary) ??
@@ -124,8 +141,13 @@ function mapRow(row: JoinedRow): ExperienceCard | null {
       state?.from_price != null
         ? formatMoney(Number(state.from_price), state.currency || 'USD')
         : undefined,
-    freeCancellation: Boolean(meta.freeCancellation),
-    imageUrl: typeof meta.imageUrl === 'string' ? meta.imageUrl : undefined,
+    freeCancellation: Boolean(meta.freeCancellation ?? meta.free_cancellation),
+    imageUrl:
+      typeof meta.imageUrl === 'string'
+        ? meta.imageUrl
+        : typeof meta.image_url === 'string'
+          ? meta.image_url
+          : undefined,
     productUrl,
     productCode,
     nashroamScore: editorial?.nashroam_score ?? undefined,
@@ -153,25 +175,15 @@ export function experienceToProductSummary(exp: ExperienceCard): ViatorProductSu
   };
 }
 
-/** Read published experiences from Supabase (service role). */
+/** Public catalog: approved + published + active only. */
 export async function listPublishedExperiences(limit = 48): Promise<ExperienceCard[]> {
   const client = getSupabaseServiceClient();
   if (!client) return [];
 
   const { data, error } = await client
     .from('experiences')
-    .select(
-      `
-      id, slug, title, experience_type, categories,
-      duration_min_minutes, duration_max_minutes, is_published, status,
-      experience_editorial ( nashroam_score, planner_priority, traveler_types, best_for ),
-      experience_source_ids ( external_id, external_url, is_primary ),
-      experience_source_state (
-        rating_value, review_count, from_price, currency, booking_url,
-        duration_min_minutes, duration_max_minutes, expires_at, display_allowed, metadata
-      )
-    `,
-    )
+    .select(EXPERIENCE_SELECT)
+    .eq('curation_status', 'approved')
     .eq('is_published', true)
     .eq('status', 'active')
     .order('updated_at', { ascending: false })
@@ -190,8 +202,44 @@ export async function listPublishedExperiences(limit = 48): Promise<ExperienceCa
 }
 
 /**
- * Tours catalog: prefer Supabase published rows; if empty, live Edge search
- * (and optionally kick a catalog sync once). Never fabricates inventory.
+ * Resolve one Viator product code only if its canonical Nashroam experience is
+ * approved, published and active. Used to gate product-detail live refreshes.
+ */
+export async function getApprovedExperienceByProductCode(
+  productCode: string,
+): Promise<ExperienceCard | null> {
+  const client = getSupabaseServiceClient();
+  const code = productCode.trim();
+  if (!client || !code) return null;
+
+  const { data: links, error: linkError } = await client
+    .from('experience_source_ids')
+    .select('experience_id, external_id, data_sources!inner(provider_key)')
+    .eq('external_id', code)
+    .eq('data_sources.provider_key', 'viator')
+    .limit(1);
+
+  if (linkError || !links?.[0]?.experience_id) return null;
+
+  const { data, error } = await client
+    .from('experiences')
+    .select(EXPERIENCE_SELECT)
+    .eq('id', links[0].experience_id)
+    .eq('curation_status', 'approved')
+    .eq('is_published', true)
+    .eq('status', 'active')
+    .limit(1);
+
+  if (error || !data?.[0]) return null;
+  return mapRow(data[0] as unknown as JoinedRow);
+}
+
+/**
+ * Public tours catalog. No live-provider fallback is allowed: if editorial has
+ * approved nothing yet, the correct state is an empty catalog.
+ *
+ * Legacy fallback flags remain in the signature temporarily for caller
+ * compatibility, but are intentionally ignored.
  */
 export async function getExperienceCatalog(opts: {
   query?: string;
@@ -203,7 +251,7 @@ export async function getExperienceCatalog(opts: {
 } = {}): Promise<ExperienceCatalogResult> {
   const fetchedAt = new Date().toISOString();
   const attribution =
-    'Experiences powered by Viator via NashRoam. Ratings and prices from Viator; NashRoam ranks editorially. Booking links use Viator affiliate URLs exactly as returned.';
+    'Experiences powered by Viator via Nashroam. Provider ratings/prices remain attributed to Viator; Nashroam publishes only editorially approved experiences.';
 
   if (!isSupabaseConfigured()) {
     return {
@@ -224,7 +272,8 @@ export async function getExperienceCatalog(opts: {
     experiences = experiences.filter(
       (e) =>
         e.title.toLowerCase().includes(q) ||
-        e.categories.some((c) => c.includes(q)),
+        e.categories.some((c) => c.includes(q)) ||
+        e.bestFor.some((b) => b.toLowerCase().includes(q)),
     );
   }
 
@@ -239,88 +288,18 @@ export async function getExperienceCatalog(opts: {
     };
   }
 
-  if (opts.syncIfEmpty) {
-    // Best-effort background-ish sync (awaited once when catalog empty)
-    await syncNashvilleCatalog({
-      maxPages: 2,
-      limit: 120,
-      startDate: opts.startDate,
-      endDate: opts.endDate,
-    });
-    experiences = await listPublishedExperiences(opts.count ?? 48);
-    if (experiences.length > 0) {
-      return {
-        configured: true,
-        live: true,
-        source: 'supabase',
-        experiences,
-        attribution,
-        fetchedAt: new Date().toISOString(),
-      };
-    }
-  }
-
-  if (opts.allowLiveFallback !== false) {
-    const live = await searchNashvilleProducts({
-      query: opts.query,
-      startDate: opts.startDate,
-      endDate: opts.endDate,
-      count: opts.count ?? 24,
-      sort: 'TRAVELER_RATING',
-      campaign: 'tours-marketplace',
-    });
-    if (live.live) {
-      return {
-        configured: true,
-        live: true,
-        source: 'edge-search',
-        experiences: live.products.map((p) => ({
-          id: p.productCode,
-          slug: p.productCode.toLowerCase(),
-          title: p.title,
-          experienceType: p.categories?.[0] ?? 'tour',
-          categories: p.categories ?? [],
-          durationLabel: p.durationLabel,
-          rating: p.rating,
-          reviewCount: p.reviewCount,
-          fromPrice: p.fromPrice,
-          freeCancellation: p.freeCancellation,
-          imageUrl: p.imageUrl,
-          productUrl: p.productUrl,
-          productCode: p.productCode,
-          plannerPriority: 50,
-          travelerTypes: [],
-          bestFor: [],
-          provider: 'viator' as const,
-        })),
-        attribution,
-        error: live.error,
-        fetchedAt: live.fetchedAt,
-      };
-    }
-    return {
-      configured: true,
-      live: false,
-      source: 'none',
-      experiences: [],
-      attribution,
-      error: live.error || 'No live Nashville experiences available',
-      fetchedAt,
-    };
-  }
-
   return {
     configured: true,
     live: false,
     source: 'none',
     experiences: [],
     attribution,
-    error: 'Experience catalog is empty',
+    error: 'No Nashroam-approved experiences are published yet',
     fetchedAt,
   };
 }
 
-/** Planner candidate pool — published + fresh enough + traveler fit. */
+/** Planner candidate pool — approved/published catalog only. */
 export async function getPlannerExperienceCandidates(input: {
   tripType: string;
   interests: string[];
@@ -332,8 +311,6 @@ export async function getPlannerExperienceCandidates(input: {
     startDate: input.startDate,
     endDate: input.endDate,
     count: 80,
-    allowLiveFallback: false,
-    syncIfEmpty: false,
   });
   if (!catalog.live) return [];
 
@@ -343,13 +320,19 @@ export async function getPlannerExperienceCandidates(input: {
     if (e.travelerTypes.some((t) => interestBlob.includes(t.replace('-', ' ')) || interestBlob.includes(t))) {
       fit += 15;
     }
-    if (input.interests.some((i) => e.categories.some((c) => i.toLowerCase().includes(c) || c.includes(i.toLowerCase().split(' ')[0])))) {
+    if (
+      input.interests.some((i) =>
+        e.categories.some(
+          (c) => i.toLowerCase().includes(c) || c.includes(i.toLowerCase().split(' ')[0]),
+        ),
+      )
+    ) {
       fit += 10;
     }
     if (interestBlob.includes('music') && e.categories.includes('music')) fit += 12;
-    if (interestBlob.includes('food') && e.categories.includes('food')) fit += 12;
-    if (interestBlob.includes('outdoor') && e.categories.includes('outdoor')) fit += 10;
-    fit += (e.nashroamScore ?? 50) * 0.2;
+    if (interestBlob.includes('food') && e.categories.some((c) => c.includes('food'))) fit += 12;
+    if (interestBlob.includes('outdoor') && e.categories.some((c) => c.includes('outdoor'))) fit += 10;
+    fit += (e.nashroamScore ?? 0) * 0.2;
     fit += Math.min(10, Math.log10((e.reviewCount ?? 1) + 1) * 4);
     return { e, fit };
   });
