@@ -4,18 +4,18 @@ import { images, AVAILABLE_MEDIA, type ImageKey, type MediaAsset } from '@/lib/m
 
 /** Homepage placements that must resolve to unique file sources. */
 export const HOMEPAGE_IMAGE_KEYS: readonly ImageKey[] = [
-  'hero/nashroam-skyline',
-  'hub/hotels-premium',
-  'hub/restaurants-premium',
-  'hub/live-music-premium',
-  'hub/things-to-do-premium',
-  'hub/events-premium',
-  'hub/trip-planner-premium',
-  'guide/first-time-visitors',
-  'guide/where-to-stay',
-  'guide/weekend-itinerary',
-  'trending/live-tonight',
-  'trending/weekender',
+  'hero/downtown-rooftop',
+  'hub/hotels',
+  'hub/restaurants',
+  'hub/live-music',
+  'hub/tours',
+  'hub/tickets',
+  'hub/weekend',
+  'editorial/live-music-crowd',
+  'editorial/skyline',
+  'editorial/broadway-nightlife',
+  'editorial/opryland-atrium',
+  'editorial/parthenon-west-end',
 ] as const;
 
 const NEIGHBORHOOD_KEYS = Object.keys(images).filter((k) =>

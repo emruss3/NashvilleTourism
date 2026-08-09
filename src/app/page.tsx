@@ -25,37 +25,37 @@ const INTENT_HUBS: {
     title: 'Hotels',
     blurb: 'Compare neighborhoods on walkability, noise, and rate, then book.',
     href: '/where-to-stay/',
-    image: 'hub/hotels-premium',
+    image: 'hub/hotels',
   },
   {
     title: 'Restaurants',
     blurb: 'Where to eat tonight — by neighborhood, price, and reservation difficulty.',
     href: '/restaurants/',
-    image: 'hub/restaurants-premium',
+    image: 'hub/restaurants',
   },
   {
     title: 'Live Music',
     blurb: 'Shows tonight and this weekend, by venue, genre, and price.',
     href: '/live-music-tonight/',
-    image: 'hub/live-music-premium',
+    image: 'hub/live-music',
   },
   {
     title: 'Things to Do',
     blurb: 'Tours, attractions, and party buses worth the time.',
     href: '/things-to-do/',
-    image: 'hub/things-to-do-premium',
+    image: 'hub/tours',
   },
   {
     title: 'Events',
     blurb: 'What is happening this week, and what to book early.',
     href: '/events/',
-    image: 'hub/events-premium',
+    image: 'hub/tickets',
   },
   {
     title: 'Trip Planner',
     blurb: 'Answer a few questions, get a day-by-day plan you can book.',
     href: '/plan/',
-    image: 'hub/trip-planner-premium',
+    image: 'hub/weekend',
   },
 ];
 
@@ -76,12 +76,12 @@ const TRENDING_NOW: {
   {
     title: "Who's Playing in Nashville Tonight",
     href: '/live-music-tonight/',
-    image: 'trending/live-tonight',
+    image: 'editorial/live-music-crowd',
   },
   {
     title: 'The Nashville Weekender: Friday to Sunday',
     href: '/weekend/',
-    image: 'trending/weekender',
+    image: 'editorial/skyline',
   },
 ];
 

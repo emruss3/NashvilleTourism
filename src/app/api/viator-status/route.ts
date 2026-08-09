@@ -53,7 +53,11 @@ export async function GET() {
           }
         : null,
       fetchedAt: probe.fetchedAt,
+      blocker: !isSupabaseConfigured()
+        ? 'Set SUPABASE_SERVICE_ROLE_KEY on Vercel (server-only). Do not set VIATOR_API_KEY on Vercel — it stays in Supabase Edge Function secrets.'
+        : null,
       notes: [
+        'Viator powers /tours experiences — not /events (Ticketmaster).',
         'VIATOR_API_KEY lives in Supabase Edge Function secrets — not Vercel, never browser.',
         'Next.js calls only Supabase; Edge Function calls Viator sandbox by default.',
         'Do not call api.viator.com (production) with the sandbox key.',

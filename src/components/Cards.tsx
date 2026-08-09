@@ -10,9 +10,12 @@ import type {
   Venue,
 } from '@/lib/types';
 import type { ImageKey } from '@/lib/media';
+import { guideImageKey, neighborhoodImageKey } from '@/lib/media-placements';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
 import { ContentImage, SmartImage } from './Media';
 import { PlacementLabel, VerificationBadge, formatDateShort } from './Trust';
+
+export { guideImageKey, neighborhoodImageKey } from '@/lib/media-placements';
 
 /**
  * Typographic image stand-in when a listing has no exact photograph.
@@ -217,26 +220,6 @@ export function AttractionCard({ item }: { item: Attraction }) {
 
 /* ----------------------------------- Guide ----------------------------------- */
 
-export function guideImageKey(item: Guide): ImageKey {
-  const bySlug: Partial<Record<string, ImageKey>> = {
-    'nashville-first-time-visitors': 'guide/first-time-visitors',
-    'where-to-stay-nashville': 'guide/where-to-stay',
-    'nashville-weekend-itinerary': 'guide/weekend-itinerary',
-  };
-  const slugKey = bySlug[item.slug];
-  if (slugKey) return slugKey;
-
-  const byCluster: Record<Guide['cluster'], ImageKey> = {
-    'Trip Planning': 'hub/weekend',
-    Restaurants: 'hub/restaurants',
-    Hotels: 'hub/hotels',
-    'Things to Do': 'hub/tours',
-    Music: 'hub/live-music',
-    Events: 'hub/tickets',
-  };
-  return byCluster[item.cluster];
-}
-
 export function GuideCard({ item, featured = false }: { item: Guide; featured?: boolean }) {
   return (
     <article
@@ -269,7 +252,7 @@ export function NeighborhoodCard({ item }: { item: Neighborhood }) {
   return (
     <article className="card group relative flex flex-col overflow-hidden">
       <SmartImage
-        imageKey={`neighborhood/${item.slug}` as ImageKey}
+        imageKey={neighborhoodImageKey(item.slug)}
         ratio="aspect-[16/9]"
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
       />

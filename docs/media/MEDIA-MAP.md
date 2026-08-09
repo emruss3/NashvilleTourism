@@ -13,9 +13,10 @@ Copy licensed files into `public/media/` only after `rightsStatus: cleared` and 
 | `hero/lower-broadway` | Cleared (Pexels) — in production |
 | `neighborhood/*` (CVC wave) | Removed from production — STOCK/COMMISSION |
 | `hub/*` owned/open hubs | Cleared where in `AVAILABLE_MEDIA` |
-| `hub/*-premium` | CVC retired — fallback |
-| `guide/*` / `trending/*` | CVC / pending — fallback |
-| `hero/nashroam-skyline` | Four Seasons pending — fallback until STOCK #1 or DIRECT |
+| `hub/*-premium` | CVC retired — homepage remapped to cleared `hub/*` |
+| `guide/*` / `trending/*` | CVC / pending — homepage remapped to cleared editorial/hub keys |
+| `hero/nashroam-skyline` | Four Seasons pending — live hero uses `hero/downtown-rooftop` until STOCK #1 or DIRECT |
+| `neighborhood/*` | CVC files removed — cards use cleared atmosphere stand-ins via `neighborhoodImageKey()` |
 | JBJ’s / DELUX / The Lanes editorial | Cleared OWNED — in production |
 
 ## Complete approved file inventory

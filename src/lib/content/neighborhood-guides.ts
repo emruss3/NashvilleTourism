@@ -75,7 +75,7 @@ export const neighborhoodGuides: NeighborhoodEditorialGuide[] = [
     h1: 'Downtown Nashville & Lower Broadway',
     intro:
       "The easiest part of Nashville to experience without a car: honky-tonks on Lower Broadway, the Ryman and major music museums within a few blocks, plus the city's biggest arenas and hotels. It's also the loudest, busiest part of town after dark.",
-    heroImageKey: 'neighborhood/downtown-broadway',
+    heroImageKey: 'editorial/broadway-nightlife',
     verdict: {
       summary:
         "Stay Downtown on a first trip if you have one to three nights, want to walk to live music and major attractions, and don't want to think about transportation. Stay somewhere else if quiet nights, neighborhood restaurants, and a local residential feel matter more.",
@@ -145,7 +145,7 @@ export const neighborhoodGuides: NeighborhoodEditorialGuide[] = [
         title: 'John Seigenthaler Pedestrian Bridge',
         bestFor: 'Free skyline view',
         body: 'Do this near sunset or before dinner. It is the easiest skyline-and-river view Downtown and costs nothing.',
-        imageKey: 'editorial/pedestrian-bridge',
+        imageKey: 'editorial/skyline',
       },
     ],
     nightlifePicks: [
@@ -408,7 +408,7 @@ export const neighborhoodGuides: NeighborhoodEditorialGuide[] = [
     h1: 'The Gulch',
     intro:
       'A compact, recently built district between downtown and Midtown — hotels, restaurants, and the Station Inn within a walkable grid. Dinner is the practical reason most visitors plan a Gulch stop.',
-    heroImageKey: 'neighborhood/the-gulch',
+    heroImageKey: 'editorial/cocktail-service',
     navStyle: 'dining-forward',
     verdict: {
       summary:
@@ -480,7 +480,7 @@ export const neighborhoodGuides: NeighborhoodEditorialGuide[] = [
     h1: '12 South',
     intro:
       'A walkable half-mile of restaurants, coffee, and boutiques through a pocket of bungalows south of downtown. Dining works best when you pick by use case — breakfast, destination dinner, patio lunch, BBQ, or casual drinks — instead of treating every restaurant as interchangeable brunch.',
-    heroImageKey: 'neighborhood/12-south',
+    heroImageKey: 'hub/outdoor-living',
     navStyle: 'dining-forward',
     verdict: {
       summary:
@@ -562,7 +562,7 @@ export const neighborhoodGuides: NeighborhoodEditorialGuide[] = [
     h1: 'Germantown',
     intro:
       'A compact historic district north of downtown: brick streets, a dense restaurant row, and an easy walk to the Farmers’ Market. Dinner is the neighborhood’s strength — four restaurants are enough if you pick by use case.',
-    heroImageKey: 'neighborhood/germantown',
+    heroImageKey: 'editorial/private-events',
     navStyle: 'dining-forward',
     verdict: {
       summary:
@@ -629,7 +629,7 @@ export const neighborhoodGuides: NeighborhoodEditorialGuide[] = [
     h1: 'Wedgewood-Houston',
     intro:
       'A former industrial pocket south of downtown — galleries, studios, and restaurants in warehouse buildings. The current food story contrasts Aba’s polished new development with Bastion’s smaller adaptive-reuse character.',
-    heroImageKey: 'neighborhood/wedgewood-houston',
+    heroImageKey: 'venues/delux-weho-exterior',
     navStyle: 'dining-forward',
     verdict: {
       summary:

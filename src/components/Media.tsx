@@ -172,7 +172,8 @@ export function ContentImage({
  * Registered hero MP4/WebM remain available for a future smooth loop elsewhere.
  */
 export function HeroMedia({ children }: { children: React.ReactNode }) {
-  const key = 'hero/nashroam-skyline' as const;
+  // Cleared Pexels hero — Four Seasons `hero/nashroam-skyline` stays gated until authorized.
+  const key = 'hero/downtown-rooftop' as const;
   const stillReady = hasMedia(key);
   const asset = getImage(key) as
     | (NonNullable<ReturnType<typeof getImage>> & {

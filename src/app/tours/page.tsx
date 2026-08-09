@@ -57,7 +57,7 @@ export default async function ToursHub({
               ? `${catalog.attribution} Source: ${catalog.source}.`
               : catalog.configured
                 ? `NashRoam could not load live Nashville experiences${catalog.error ? `: ${catalog.error}` : '.'}`
-                : 'Supabase is not configured on this server yet. Editorial format guidance still applies below.'
+                : 'This server cannot reach the NashRoam Supabase catalog yet, so Viator inventory is offline. Concert and ticket listings on Events use Ticketmaster — a separate feed.'
           }
         />
 
@@ -70,15 +70,29 @@ export default async function ToursHub({
             ))}
           </ul>
         ) : (
-          <div className="rounded-card border border-paper-edge bg-paper-card p-6 text-[15px] leading-relaxed text-ink-soft">
+          <div className="rounded-card border border-paper-edge bg-paper-card p-6 text-sm leading-relaxed text-ink-soft">
             <p>
               Live Nashville tour inventory is unavailable right now. We are not showing sample tours in
-              its place. Try again shortly, or check{' '}
-              <a className="underline hover:text-clay" href="/api/viator-status">
-                /api/viator-status
-              </a>
-              .
+              its place.
             </p>
+            {!catalog.configured ? (
+              <p className="mt-3">
+                Operator note: add <code className="text-ink">SUPABASE_SERVICE_ROLE_KEY</code> to the
+                Vercel project (server-only), redeploy, then open{' '}
+                <a className="underline hover:text-clay" href="/api/viator-status">
+                  /api/viator-status
+                </a>
+                . Keep <code className="text-ink">VIATOR_API_KEY</code> in Supabase Edge secrets only.
+              </p>
+            ) : (
+              <p className="mt-3">
+                Try again shortly, or check{' '}
+                <a className="underline hover:text-clay" href="/api/viator-status">
+                  /api/viator-status
+                </a>
+                .
+              </p>
+            )}
           </div>
         )}
       </section>

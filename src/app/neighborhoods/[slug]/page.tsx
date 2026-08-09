@@ -16,7 +16,7 @@ import {
 } from '@/lib/content';
 import { getCalendar } from '@/lib/feeds/calendar';
 import { buildMetadata, placeSchema } from '@/lib/seo';
-import type { ImageKey } from '@/lib/media';
+import { neighborhoodImageKey } from '@/lib/media-placements';
 
 export function generateStaticParams() {
   return neighborhoods.map((n) => ({ slug: n.slug }));
@@ -90,7 +90,7 @@ export default async function NeighborhoodPage({ params }: { params: { slug: str
       <div className="grid gap-10 py-10 lg:grid-cols-[1.6fr_1fr]">
         <div>
           <SmartImage
-            imageKey={`neighborhood/${n.slug}` as ImageKey}
+            imageKey={neighborhoodImageKey(n.slug)}
             ratio="aspect-[16/9]"
             className="rounded-card"
             sizes="(max-width: 1024px) 100vw, 66vw"

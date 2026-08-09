@@ -896,6 +896,22 @@ export const AVAILABLE_MEDIA: ReadonlySet<string> = new Set<string>([
   'venues/jbjs-interior',
   'venues/jbjs-rooftop',
   'venues/the-lanes-homes',
+  // Partner / property media on disk with cleared licence notes (not CVC).
+  'downtown/sobro',
+  'downtown/nashville-yards',
+  'venues/roberts-western-world',
+  'venues/chiefs-on-broadway',
+  'venues/category-10',
+  'restaurants/assembly-food-hall',
+  'restaurants/bacco',
+  'restaurants/etch',
+  'restaurants/butchertown-hall',
+  'restaurants/aba-nashville',
+  'hotels/four-seasons-nashville',
+  'hotels/1-hotel-nashville',
+  'hotels/the-joseph',
+  'hotels/grand-hyatt-nashville',
+  'attractions/country-music-hall-of-fame-night',
 ]);
 
 export function getImage(key: ImageKey | undefined): MediaAsset | undefined {

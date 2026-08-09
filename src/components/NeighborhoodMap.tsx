@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import { useCallback, useId, useState } from 'react';
 import { neighborhoods } from '@/lib/content';
-import type { ImageKey } from '@/lib/media';
 import { asset as assetUrl } from '@/lib/seo';
 import type { Neighborhood } from '@/lib/types';
 import { SmartImage } from './Media';
 import StarMark from './StarMark';
+import { neighborhoodImageKey } from '@/lib/media-placements';
 
 /**
  * Illustrated Nashville neighborhood map with clickable hotspots.
@@ -134,7 +134,7 @@ export default function NeighborhoodMap() {
           <div>
             <div className="relative mb-5 aspect-[16/10] overflow-hidden rounded-card bg-navy/40">
               <SmartImage
-                imageKey={`neighborhood/${hood.slug}` as ImageKey}
+                imageKey={neighborhoodImageKey(hood.slug)}
                 ratio="absolute inset-0"
                 className="opacity-80"
                 sizes="(max-width: 1024px) 100vw, 40vw"
