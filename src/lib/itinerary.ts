@@ -12,10 +12,25 @@ import { neighborhoods, neighborhoodName } from './content/neighborhoods';
 /**
  * Deterministic itinerary builder.
  *
- * This composes a plan from stored content using explicit rules. It is not a
- * generative model, and the UI does not claim it is. Swapping in an LLM later
- * only requires replacing `buildItinerary`.
+ * Candidate retrieval (experiences from Supabase) is separate from scoring /
+ * composition. Pass real ExperienceCandidate rows — never invent products.
  */
+
+/** Minimal planner-facing experience shape (from Supabase /api/experiences). */
+export interface ExperienceCandidate {
+  id: string;
+  slug: string;
+  title: string;
+  categories: string[];
+  productCode: string;
+  productUrl: string;
+  durationLabel?: string;
+  rating?: number;
+  fromPrice?: { formatted: string };
+  travelerTypes?: string[];
+  bestFor?: string[];
+  plannerPriority?: number;
+}
 
 export const TRIP_TYPE_LABELS: Record<TripType, string> = {
   'first-visit': 'First visit',
@@ -95,7 +110,10 @@ function rotate<T>(list: T[], index: number): T | undefined {
   return list[index % list.length];
 }
 
-export function buildItinerary(input: TripInput): ItineraryDay[] {
+export function buildItinerary(
+  input: TripInput,
+  experienceCandidates: ExperienceCandidate[] = [],
+): ItineraryDay[] {
   const days = tripLength(input.startDate, input.endDate);
   const hoods = pickHoods(input);
   const stopsPerDay = PACE_STOPS[input.pace];
@@ -109,8 +127,10 @@ export function buildItinerary(input: TripInput): ItineraryDay[] {
   });
   const seePool = attractions.filter((a) => (input.hasChildren ? a.familyFriendly : true));
   const nightPool = input.wantsNightlife ? venues : venues.filter((v) => v.coverNote.toLowerCase().includes('free'));
+  const experiencePool = rankExperiencesForTrip(input, experienceCandidates);
 
   const result: ItineraryDay[] = [];
+  const usedExperienceIds = new Set<string>();
 
   for (let i = 0; i < days; i += 1) {
     const hood = hoods[i % hoods.length];
@@ -121,7 +141,10 @@ export function buildItinerary(input: TripInput): ItineraryDay[] {
 
     const morning = rotate(inHood(seePool), i);
     const lunch = rotate(inHood(foodPool), i);
-    const afternoon = rotate(inHood(seePool), i + 1);
+    const experience = experiencePool.find((e) => !usedExperienceIds.has(e.id));
+    const afternoon = experience
+      ? undefined
+      : rotate(inHood(seePool), i + 1);
     const dinner = rotate(inHood(foodPool), i + 2);
     const evening = rotate(inHood(nightPool.length ? nightPool : venues), i);
 
@@ -178,7 +201,34 @@ export function buildItinerary(input: TripInput): ItineraryDay[] {
       foodPool,
     );
     if (stopsPerDay >= 4) {
-      push('Afternoon', afternoon, '/things-to-do/', afternoon?.summary ?? '', undefined, inHood(seePool), seePool);
+      if (experience) {
+        usedExperienceIds.add(experience.id);
+        const priceBit = experience.fromPrice?.formatted
+          ? ` From ${experience.fromPrice.formatted} on Viator.`
+          : '';
+        const durationBit = experience.durationLabel ? ` ${experience.durationLabel}.` : '';
+        stops.push({
+          slot: 'Afternoon',
+          title: experience.title,
+          href: `/tours/${encodeURIComponent(experience.productCode)}/`,
+          neighborhood: neighborhoodName(hood),
+          note: `Bookable Nashville experience.${durationBit}${priceBit}`,
+          reservationNote: 'Book on Viator with the affiliate link on the experience page.',
+          travelNote: travelNote(prevHood, hood),
+          mapQuery: `${experience.title}, Nashville, TN`,
+          alternatives: experiencePool
+            .filter((e) => e.id !== experience.id)
+            .slice(0, 2)
+            .map((e) => ({
+              title: e.title,
+              href: `/tours/${encodeURIComponent(e.productCode)}/`,
+              note: e.durationLabel || 'Viator experience',
+            })),
+        });
+        prevHood = hood;
+      } else {
+        push('Afternoon', afternoon, '/things-to-do/', afternoon?.summary ?? '', undefined, inHood(seePool), seePool);
+      }
     }
     push(
       'Dinner',
@@ -212,6 +262,34 @@ export function buildItinerary(input: TripInput): ItineraryDay[] {
   }
 
   return result;
+}
+
+function rankExperiencesForTrip(
+  input: TripInput,
+  candidates: ExperienceCandidate[],
+): ExperienceCandidate[] {
+  if (!candidates.length) return [];
+  const blob = `${input.tripType} ${input.interests.join(' ')}`.toLowerCase();
+  return [...candidates]
+    .map((e) => {
+      let score = e.plannerPriority ?? 50;
+      if (e.travelerTypes?.some((t) => blob.includes(t) || blob.includes(t.replace(/-/g, ' ')))) {
+        score += 15;
+      }
+      if (blob.includes('music') && e.categories.includes('music')) score += 12;
+      if (blob.includes('food') && e.categories.includes('food')) score += 12;
+      if (
+        (blob.includes('whiskey') || blob.includes('brew')) &&
+        e.categories.includes('brewery-distillery')
+      ) {
+        score += 12;
+      }
+      if (input.hasChildren && e.categories.includes('family')) score += 10;
+      if (e.rating != null) score += e.rating * 2;
+      return { e, score };
+    })
+    .sort((a, b) => b.score - a.score)
+    .map((x) => x.e);
 }
 
 /** Hotel suggestions matched to the trip's neighborhoods and budget. */

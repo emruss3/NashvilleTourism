@@ -1,6 +1,6 @@
 # Nashroam Data Platform Strategy
 
-> **Status:** V1 backend created August 6, 2026. The current website is not yet wired to this database.
+> **Status:** V1 backend created August 6, 2026. The website now reads experiences through Supabase (service role + Edge Functions). Places/events planner wiring is next.
 
 Nashroam should not be an AI model inventing Nashville recommendations. It should be a Nashville-specific data and editorial platform where AI/rules select from real, verified places and events.
 
@@ -14,7 +14,7 @@ The core principle is simple:
 
 | Provider | Status | Notes |
 |---|---|---|
-| **Viator Partner API v2** | Wired in Next.js (`src/lib/feeds/viator.ts`) | Server-only `VIATOR_API_KEY`. Nashville destination **799**. Marketplace at `/tours`. Use `productUrl` exactly for booking CTAs. Status: `/api/viator-status`. |
+| **Viator Partner API v2** | Supabase Edge Function `viator-sync` → Next.js Edge client | `VIATOR_API_KEY` lives in **Supabase secrets only** (sandbox Basic Access). Nashville destination **799**. Catalog tables + `/tours` + planner experience candidates. Status: `/api/viator-status`. See [VIATOR.md](./VIATOR.md). |
 | **Booking.com Demand API** | Scaffold (`src/lib/feeds/booking-demand.ts`) | Hotels are **not** Viator. Sample `/hotels` catalog ≠ production inventory. Status: `/api/booking-demand-status`. |
 | **Google Places** | Supplemental only | Maps/hours/ratings when permitted — never hotel booking inventory. |
 
@@ -32,12 +32,13 @@ The core principle is simple:
 - **Seeded neighborhoods:** 18
 - **Seeded source definitions:** 9
 
-Applied migrations:
+Applied / versioned migrations live under `supabase/migrations/`, including:
 
 1. `20260806212347_create_nashroam_data_platform_v1`
 2. `20260806212413_harden_and_index_nashroam_v1`
+3. Later seeds/grants (Viator/Booking sources, experience service-role grants, sandbox `base_url`)
 
-Both applied migrations are versioned under `supabase/migrations/` in this repository.
+Website server access uses `SUPABASE_SERVICE_ROLE_KEY` (never browser / `NEXT_PUBLIC_*`). Public clients use narrow APIs such as `/api/experiences`.
 
 ### Security posture
 

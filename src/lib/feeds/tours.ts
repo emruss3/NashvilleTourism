@@ -1,30 +1,55 @@
 /**
- * Tours catalog facade: NashRoam editorial + live Viator commercial data.
- * Providers own volatile fields; editorial rankings stay first-party.
+ * Tours catalog facade: Supabase experience catalog + NashRoam editorial formats.
  */
 
 import { TOUR_EDITORIAL, type TourEditorialRecommendation } from '@/lib/content/tour-editorial';
 import {
+  experienceToProductSummary,
+  getExperienceCatalog,
+  type ExperienceCard,
+} from '@/lib/feeds/experiences';
+import {
   getViatorProduct,
-  searchNashvilleProducts,
   type ViatorProductDetail,
   type ViatorProductSummary,
   type ViatorSearchParams,
-  type ViatorSearchResult,
 } from '@/lib/feeds/viator';
 
-export interface ToursCatalog extends ViatorSearchResult {
+export interface ToursCatalog {
+  configured: boolean;
+  live: boolean;
+  products: ViatorProductSummary[];
+  experiences: ExperienceCard[];
+  totalCount?: number;
+  fetchedAt: string;
+  error?: string;
+  httpStatus?: number;
+  source: 'supabase' | 'edge-search' | 'none';
   editorial: TourEditorialRecommendation[];
-  /** Provenance note for UI disclosures. */
   attribution: string;
 }
 
 export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<ToursCatalog> {
-  const result = await searchNashvilleProducts(params);
+  const catalog = await getExperienceCatalog({
+    query: params.query,
+    startDate: params.startDate,
+    endDate: params.endDate,
+    count: params.count ?? 24,
+    allowLiveFallback: true,
+    syncIfEmpty: true,
+  });
+
   return {
-    ...result,
+    configured: catalog.configured,
+    live: catalog.live,
+    products: catalog.experiences.map(experienceToProductSummary),
+    experiences: catalog.experiences,
+    totalCount: catalog.experiences.length,
+    fetchedAt: catalog.fetchedAt,
+    error: catalog.error,
+    source: catalog.source,
     editorial: TOUR_EDITORIAL,
-    attribution: 'Experiences powered by Viator. Ratings and prices from Viator; NashRoam ranks formats editorially.',
+    attribution: catalog.attribution,
   };
 }
 
@@ -38,11 +63,11 @@ export async function getTourProduct(productCode: string): Promise<{
   const result = await getViatorProduct(productCode);
   return {
     ...result,
-    attribution: 'Booked via Viator. Use the booking link exactly as provided for affiliate attribution.',
+    attribution:
+      'Booked via Viator. The booking link is the exact affiliate productUrl returned by Viator.',
   };
 }
 
-/** Match editorial format hints to live products without overwriting provider fields. */
 export function productsForEditorialHint(
   products: ViatorProductSummary[],
   hint: string,
@@ -52,7 +77,11 @@ export function productsForEditorialHint(
   return products
     .map((p) => {
       const title = p.title.toLowerCase();
-      const score = tokens.reduce((acc, t) => acc + (title.includes(t) ? 1 : 0), 0);
+      const cats = (p.categories ?? []).join(' ');
+      const score = tokens.reduce(
+        (acc, t) => acc + (title.includes(t) || cats.includes(t) ? 1 : 0),
+        0,
+      );
       return { p, score };
     })
     .filter((x) => x.score > 0)

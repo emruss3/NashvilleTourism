@@ -1,19 +1,42 @@
-import { getViatorAvailabilitySchedules } from '@/lib/feeds/viator';
+import { invokeEdgeFunction, isSupabaseConfigured } from '@/lib/supabase/server';
 
-/** Availability schedules when the account tier permits (often 403 on Basic). */
-export const revalidate = 300;
+/** Basic Access: GET /availability/schedules/{product-code} via Edge Function. */
+export const dynamic = 'force-dynamic';
 
 export async function GET(
   _request: Request,
   context: { params: { code: string } },
 ) {
-  const code = decodeURIComponent(context.params.code || '');
-  const result = await getViatorAvailabilitySchedules(code);
+  const code = decodeURIComponent(context.params.code || '').trim();
+  if (!code) {
+    return Response.json({ configured: false, live: false, error: 'product code required' }, { status: 400 });
+  }
+  if (!isSupabaseConfigured()) {
+    return Response.json(
+      { configured: false, live: false, error: 'Supabase not configured' },
+      { status: 503 },
+    );
+  }
 
-  return Response.json(result, {
-    status: result.live ? 200 : result.httpStatus === 403 ? 403 : result.configured ? 502 : 503,
-    headers: {
-      'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
+  const result = await invokeEdgeFunction<{
+    ok?: boolean;
+    schedules?: unknown;
+    error?: string;
+    environment?: string;
+  }>('viator-sync', { mode: 'get_schedules', productCode: code });
+
+  return Response.json(
+    {
+      configured: true,
+      live: Boolean(result.ok && result.data?.ok),
+      productCode: code,
+      schedules: result.data?.schedules ?? null,
+      environment: result.data?.environment,
+      error: result.data?.error,
     },
-  });
+    {
+      status: result.ok && result.data?.ok ? 200 : result.status || 502,
+      headers: { 'Cache-Control': 'private, max-age=300' },
+    },
+  );
 }

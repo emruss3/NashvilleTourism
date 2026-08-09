@@ -1,10 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
 import { neighborhoods } from '@/lib/content/neighborhoods';
-import { INTEREST_OPTIONS, TRIP_TYPE_LABELS, buildItinerary, suggestHotels, tripLength } from '@/lib/itinerary';
+import {
+  INTEREST_OPTIONS,
+  TRIP_TYPE_LABELS,
+  buildItinerary,
+  suggestHotels,
+  tripLength,
+  type ExperienceCandidate,
+} from '@/lib/itinerary';
 import type { Budget, NeighborhoodSlug, Pace, TripInput, TripType } from '@/lib/types';
 import { MapLink } from './Ui';
 import { formatDate } from './Trust';
@@ -32,10 +39,49 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
   const [submitted, setSubmitted] = useState(false);
   const [copied, setCopied] = useState(false);
   const [started, setStarted] = useState(false);
+  const [experienceCandidates, setExperienceCandidates] = useState<ExperienceCandidate[]>([]);
+  const [experiencesLoading, setExperiencesLoading] = useState(false);
 
   const days = useMemo(() => tripLength(input.startDate, input.endDate), [input.startDate, input.endDate]);
-  const itinerary = useMemo(() => (submitted ? buildItinerary(input) : []), [submitted, input]);
+  const itinerary = useMemo(
+    () => (submitted ? buildItinerary(input, experienceCandidates) : []),
+    [submitted, input, experienceCandidates],
+  );
   const hotelPicks = useMemo(() => (submitted && input.needsHotel ? suggestHotels(input) : []), [submitted, input]);
+
+  useEffect(() => {
+    if (!submitted) return;
+    let cancelled = false;
+    setExperiencesLoading(true);
+    const params = new URLSearchParams({
+      planner: '1',
+      tripType: input.tripType,
+      count: '12',
+    });
+    if (input.startDate) params.set('startDate', input.startDate);
+    if (input.endDate) params.set('endDate', input.endDate);
+    if (input.interests.length) params.set('interests', input.interests.join(','));
+
+    fetch(`/api/experiences?${params.toString()}`)
+      .then(async (res) => {
+        if (!res.ok) return { experiences: [] as ExperienceCandidate[] };
+        return res.json() as Promise<{ experiences?: ExperienceCandidate[] }>;
+      })
+      .then((data) => {
+        if (cancelled) return;
+        setExperienceCandidates(Array.isArray(data.experiences) ? data.experiences : []);
+      })
+      .catch(() => {
+        if (!cancelled) setExperienceCandidates([]);
+      })
+      .finally(() => {
+        if (!cancelled) setExperiencesLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [submitted, input.tripType, input.interests, input.startDate, input.endDate]);
 
   function set<K extends keyof TripInput>(key: K, value: TripInput[K]) {
     if (!started) {
@@ -258,6 +304,11 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
               <p className="mt-1 text-[15px] text-ink-soft">
                 {TRIP_TYPE_LABELS[input.tripType]} · {input.travelers} traveller
                 {input.travelers === 1 ? '' : 's'} · {input.pace} pace
+                {experiencesLoading
+                  ? ' · loading bookable experiences…'
+                  : experienceCandidates.length > 0
+                    ? ` · ${experienceCandidates.length} bookable experience${experienceCandidates.length === 1 ? '' : 's'} available`
+                    : ''}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">

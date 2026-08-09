@@ -13,7 +13,13 @@ function Stars({ rating }: { rating: number }) {
   );
 }
 
-export function TourProductCard({ product }: { product: ViatorProductSummary }) {
+export function TourProductCard({
+  product,
+  category,
+}: {
+  product: ViatorProductSummary;
+  category?: string;
+}) {
   const href = `/tours/${encodeURIComponent(product.productCode)}/`;
 
   return (
@@ -33,7 +39,10 @@ export function TourProductCard({ product }: { product: ViatorProductSummary }) 
         )}
       </Link>
       <div className="flex flex-1 flex-col p-5">
-        <h3 className="font-sans text-lg font-bold leading-snug text-navy">
+        {category ? (
+          <p className="text-2xs font-bold uppercase tracking-wider text-ink-faint">{category}</p>
+        ) : null}
+        <h3 className="mt-1 font-sans text-lg font-bold leading-snug text-navy">
           <Link href={href} className="hover:text-clay">
             {product.title}
           </Link>
@@ -73,7 +82,7 @@ export function TourProductCard({ product }: { product: ViatorProductSummary }) 
           </Link>
           <BookingLink
             url={product.productUrl}
-            label="Check availability"
+            label="Book on Viator"
             name={product.title}
             slug={product.productCode}
             event={ANALYTICS_EVENTS.ACTIVITY_AFFILIATE_CLICKED}

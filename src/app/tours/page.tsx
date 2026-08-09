@@ -54,10 +54,10 @@ export default async function ToursHub({
           title={q ? `Results for “${q}”` : 'Top-rated Nashville experiences'}
           description={
             catalog.live
-              ? catalog.attribution
+              ? `${catalog.attribution} Source: ${catalog.source}.`
               : catalog.configured
-                ? `Viator is configured but returned no live results${catalog.error ? `: ${catalog.error}` : '.'}`
-                : 'Viator is not configured in this environment. Editorial format guidance still applies below.'
+                ? `NashRoam could not load live Nashville experiences${catalog.error ? `: ${catalog.error}` : '.'}`
+                : 'Supabase is not configured on this server yet. Editorial format guidance still applies below.'
           }
         />
 
@@ -65,19 +65,19 @@ export default async function ToursHub({
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {catalog.products.map((p) => (
               <li key={p.productCode}>
-                <TourProductCard product={p} />
+                <TourProductCard product={p} category={p.categories?.[0]} />
               </li>
             ))}
           </ul>
         ) : (
           <div className="rounded-card border border-paper-edge bg-paper-card p-6 text-[15px] leading-relaxed text-ink-soft">
             <p>
-              Live tour inventory is unavailable right now. Use the format guide below, then try again
-              shortly — or browse once <code className="text-navy">VIATOR_API_KEY</code> is set on the
-              server.
-            </p>
-            <p className="mt-3 text-sm text-ink-faint">
-              Status: <a className="underline hover:text-clay" href="/api/viator-status">/api/viator-status</a>
+              Live Nashville tour inventory is unavailable right now. We are not showing sample tours in
+              its place. Try again shortly, or check{' '}
+              <a className="underline hover:text-clay" href="/api/viator-status">
+                /api/viator-status
+              </a>
+              .
             </p>
           </div>
         )}

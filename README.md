@@ -2,9 +2,11 @@
 
 The most useful way to plan, book, and experience Nashville.
 
-A conversion-focused city guide and trip-planning site. Built as a statically
-exported **Next.js 14 (App Router) + TypeScript + Tailwind** app with no runtime
-backend, so it deploys to any static host.
+A conversion-focused city guide and trip-planning site. Built with
+**Next.js 14 (App Router) + TypeScript + Tailwind** on Vercel with a server
+runtime (not a static export). Canonical experience inventory and Viator
+integration live in the **Nashroam Supabase** project; the browser never talks
+to Viator or uses the service-role key.
 
 Domain and legal entity remain placeholders in `src/lib/site.ts`. Brand rules:
 `.cursor/rules/nashville-brand.mdc`.
@@ -17,14 +19,15 @@ Domain and legal entity remain placeholders in `src/lib/site.ts`. Brand rules:
 npm install
 npm run dev          # http://localhost:3000
 
-npm run build        # static export to ./out
-npm run serve        # serve the built output on :3000
+npm run build        # production build (Vercel / Node server)
 npm run typecheck    # tsc --noEmit
 ```
 
 No credentials are required to run or build. Every integration degrades
 gracefully when its key is absent. Copy `.env.example` to `.env.local` to wire
-up the live feeds.
+up live feeds. For tours/experiences and planner bookables, set
+`SUPABASE_SERVICE_ROLE_KEY` (server-only). Viator credentials stay in Supabase
+Edge Function secrets — do not put `VIATOR_API_KEY` on Vercel.
 
 ---
 
@@ -32,7 +35,7 @@ up the live feeds.
 
 ```
 src/
-├── app/                    # Routes (App Router, all statically exported)
+├── app/                    # Routes + API (App Router, server runtime)
 ├── components/             # Reusable UI
 └── lib/
     ├── types.ts            # Content models
@@ -42,8 +45,12 @@ src/
     ├── media.ts            # Keyed image/video library
     ├── partners.ts         # Affiliate deep-link builders
     ├── itinerary.ts        # Trip planner rules engine
-    ├── feeds/              # Ticketmaster + reviews adapters
+    ├── supabase/           # Server-only Supabase client
+    ├── feeds/              # Ticketmaster, reviews, experiences, Viator Edge client
     └── content/            # Seed content (the CMS stand-in)
+supabase/
+├── migrations/             # Nashroam data platform schema
+└── functions/viator-sync/  # Viator Partner API boundary (sandbox)
 ```
 
 ### Content system
@@ -66,25 +73,25 @@ fetch calls that return the same shapes. Nothing else changes.
 ### Trip planner
 
 `src/lib/itinerary.ts` is a **deterministic rules engine**, not a generative
-model, and the UI says so rather than implying AI it does not have. It filters
-the content pool by budget, pace, party composition, and neighborhood, then
-composes day plans with travel notes, booking lead times, and alternatives.
+model. Candidate retrieval (Supabase experiences via `/api/experiences?planner=1`)
+is separate from scoring/composition. It never invents products, places, or
+prices — bookable afternoon stops resolve to real catalog rows when available.
 
 ---
 
 ## Integrations
 
-All three are written against the real API schemas and are inert until keyed.
-
-| Integration | Env var | Behavior without a key |
+| Integration | Env / boundary | Behavior without credentials |
 |---|---|---|
+| Viator (experiences) | Supabase `VIATOR_API_KEY` + site `SUPABASE_SERVICE_ROLE_KEY` | `/tours` shows empty/error state (no sample inventory) |
 | Ticketmaster Discovery | `TICKETMASTER_API_KEY` | `/live-music-tonight/` renders seeded shows and labels them as samples |
 | Google Places reviews | `GOOGLE_PLACES_API_KEY` | Review block renders nothing |
 | TripAdvisor rating | `TRIPADVISOR_API_KEY` | Review block renders nothing |
 | Affiliate IDs | `NEXT_PUBLIC_*` | Links work, carry no attribution |
 
-Feeds are fetched at **build time**, not per request. Rebuild on a schedule to
-refresh the calendar.
+Ticketmaster/reviews may still refresh on a schedule; experiences load at
+request time from Supabase (with Edge Function fallback for discovery). See
+`docs/data-platform/VIATOR.md`.
 
 **Review licensing** is handled in `src/lib/feeds/reviews.ts`. Google requires
 attribution, a link back, and forbids caching beyond 30 days. TripAdvisor

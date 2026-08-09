@@ -1,35 +1,45 @@
 import { searchNashvilleProducts } from '@/lib/feeds/viator';
-import { viatorProvenance } from '@/lib/feeds/provider-provenance';
 
-/** Nashville Viator product search — server-only key. Cache ≤ 1 hour. */
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const query = searchParams.get('q') || searchParams.get('query') || undefined;
-  const startDate = searchParams.get('startDate') || searchParams.get('date') || undefined;
-  const endDate = searchParams.get('endDate') || undefined;
-  const start = Number(searchParams.get('start') || '1');
-  const count = Number(searchParams.get('count') || '24');
-
+export async function GET(req: Request) {
+  const url = new URL(req.url);
   const result = await searchNashvilleProducts({
-    query,
-    startDate: startDate || undefined,
-    endDate: endDate || undefined,
-    start: Number.isFinite(start) ? start : 1,
-    count: Number.isFinite(count) ? count : 24,
+    query: url.searchParams.get('q') || undefined,
+    startDate: url.searchParams.get('startDate') || undefined,
+    endDate: url.searchParams.get('endDate') || undefined,
+    count: Math.min(Number(url.searchParams.get('count')) || 24, 50),
+    start: Number(url.searchParams.get('start')) || 1,
+    sort: url.searchParams.get('sort') || 'TRAVELER_RATING',
+    campaign: url.searchParams.get('campaign') || 'tours-marketplace',
   });
 
   return Response.json(
     {
-      ...result,
-      provenance: result.products.map((p) => viatorProvenance(p.productCode, result.fetchedAt)),
+      configured: result.configured,
+      live: result.live,
+      totalCount: result.totalCount,
+      environment: result.environment,
+      destinationId: '799',
+      products: result.products.map((p) => ({
+        productCode: p.productCode,
+        title: p.title,
+        productUrl: p.productUrl,
+        imageUrl: p.imageUrl,
+        rating: p.rating,
+        reviewCount: p.reviewCount,
+        fromPrice: p.fromPrice,
+        durationLabel: p.durationLabel,
+        freeCancellation: p.freeCancellation,
+        flags: p.flags,
+        categories: p.categories,
+      })),
+      error: result.error,
+      fetchedAt: result.fetchedAt,
     },
     {
       status: result.configured ? 200 : 503,
-      headers: {
-        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=300',
-      },
+      headers: { 'Cache-Control': 'private, max-age=60' },
     },
   );
 }

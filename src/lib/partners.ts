@@ -3,8 +3,8 @@
  *
  * Hotels / tickets / rentals still use affiliate deep links here.
  * Tours no longer construct Viator.com URLs with NEXT_PUBLIC_VIATOR_PID —
- * live inventory and productUrl attribution come from the server-side
- * Viator Partner API v2 (`VIATOR_API_KEY` → src/lib/feeds/viator.ts).
+ * live inventory and productUrl attribution come from Supabase Edge
+ * Functions (VIATOR_API_KEY lives in Supabase secrets, not Vercel).
  */
 
 const env = (k: string) => process.env[k] || '';
