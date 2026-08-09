@@ -1,10 +1,11 @@
 /**
- * Tours catalog facade: Supabase experience catalog + NashRoam editorial formats.
+ * Tours facade: public catalog + product detail are gated by Nashroam curation.
  */
 
 import { TOUR_EDITORIAL, type TourEditorialRecommendation } from '@/lib/content/tour-editorial';
 import {
   experienceToProductSummary,
+  getApprovedExperienceByProductCode,
   getExperienceCatalog,
   type ExperienceCard,
 } from '@/lib/feeds/experiences';
@@ -24,7 +25,7 @@ export interface ToursCatalog {
   fetchedAt: string;
   error?: string;
   httpStatus?: number;
-  source: 'supabase' | 'edge-search' | 'none';
+  source: 'supabase' | 'none';
   editorial: TourEditorialRecommendation[];
   attribution: string;
 }
@@ -35,8 +36,6 @@ export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<
     startDate: params.startDate,
     endDate: params.endDate,
     count: params.count ?? 24,
-    allowLiveFallback: true,
-    syncIfEmpty: true,
   });
 
   return {
@@ -53,6 +52,10 @@ export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<
   };
 }
 
+/**
+ * Product detail is intentionally gated before a live Viator call.
+ * Knowing a provider product code is not enough to publish it on Nashroam.
+ */
 export async function getTourProduct(productCode: string): Promise<{
   configured: boolean;
   live: boolean;
@@ -60,11 +63,33 @@ export async function getTourProduct(productCode: string): Promise<{
   error?: string;
   attribution: string;
 }> {
+  const approved = await getApprovedExperienceByProductCode(productCode);
+  const attribution =
+    'Booked via Viator. Provider ratings/prices remain attributed to Viator; Nashroam shows only approved experiences.';
+
+  if (!approved) {
+    return {
+      configured: true,
+      live: false,
+      error: 'This experience is not currently approved and published by Nashroam.',
+      attribution,
+    };
+  }
+
   const result = await getViatorProduct(productCode);
+  if (!result.live || !result.product) {
+    return {
+      ...result,
+      attribution,
+    };
+  }
+
   return {
     ...result,
-    attribution:
-      'Booked via Viator. The booking link is the exact affiliate productUrl returned by Viator.',
+    // Keep the provider-returned live productUrl when available. The canonical
+    // approved record still acts as the publication gate.
+    product: result.product,
+    attribution,
   };
 }
 
