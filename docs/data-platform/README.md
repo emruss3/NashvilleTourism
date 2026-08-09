@@ -1,668 +1,518 @@
 # Nashroam Data Platform Strategy
 
-> **Status:** V1 backend created August 6, 2026. The website now reads experiences through Supabase (service role + Edge Functions). Places/events planner wiring is next.
+> **Updated:** August 9, 2026  
+> **Supabase project:** `Nashroam`  
+> **Project ref:** `aeomrsutkhwmnscvvfur`  
+> **Region:** `us-east-2`
 
-Nashroam should not be an AI model inventing Nashville recommendations. It should be a Nashville-specific data and editorial platform where AI/rules select from real, verified places and events.
+Nashroam is not an LLM inventing Nashville recommendations. It is a Nashville-specific data, editorial, and transaction platform. Supabase is the system of record; outside providers supply narrowly defined facts or inventory; the planner selects only from real records.
 
-The core principle is simple:
-
-> **Nashroam owns the durable Nashville knowledge and recommendation logic. Licensed/official providers supply volatile facts. The planner chooses from verified records; it does not invent them.**
-
----
-
-### Provider integrations (website)
-
-| Provider | Status | Notes |
-|---|---|---|
-| **Viator Partner API v2** | Supabase Edge Function `viator-sync` → Next.js Edge client | `VIATOR_API_KEY` lives in **Supabase secrets only** (sandbox Basic Access). Nashville destination **799**. Catalog tables + `/tours` + planner experience candidates. Status: `/api/viator-status`. See [VIATOR.md](./VIATOR.md). |
-| **Booking.com Demand API** | Scaffold (`src/lib/feeds/booking-demand.ts`) | Hotels are **not** Viator. Sample `/hotels` catalog ≠ production inventory. Status: `/api/booking-demand-status`. |
-| **Google Places** | Supplemental only | Maps/hours/ratings when permitted — never hotel booking inventory. |
-
-**Provenance:** `src/lib/feeds/provider-provenance.ts` maps provider IDs without copying volatile fields into editorial columns. Seed providers via migration `20260807140000_seed_viator_booking_demand_sources.sql`.
+> **Core principle:** Nashroam owns durable Nashville identity, editorial judgment, relationships, and planner context. Licensed/official providers supply volatile operational and commercial data. Every external fact keeps its provenance, fetch time, expiry, and display/storage rules.
 
 ---
 
-### Supabase
+## 1. Current live state
 
-- **Project:** `Nashroam`
-- **Project ref:** `aeomrsutkhwmnscvvfur`
-- **Region:** `us-east-2`
-- **Postgres:** 17
-- **Current schema:** 18 application tables
-- **Seeded neighborhoods:** 18
-- **Seeded source definitions:** 9
+As of August 9, 2026, the dedicated Supabase project contains:
 
-Applied / versioned migrations live under `supabase/migrations/`, including:
+| Item | Live count / state |
+|---|---:|
+| Public-schema application tables | **27** |
+| Nashville neighborhoods | **18** |
+| Canonical place records | **22** |
+| Published places | **0** |
+| Viator experiences | **188** |
+| Approved/published experiences | **0** — all are pending curation |
+| Viator taxonomy tags | **1,263** |
+| Canonical events | **0** |
+| Source definitions | **13** |
+| Ingestion schedules defined | **3** |
+| System strategy documents | **1** |
 
-1. `20260806212347_create_nashroam_data_platform_v1`
-2. `20260806212413_harden_and_index_nashroam_v1`
-3. Later seeds/grants (Viator/Booking sources, experience service-role grants, sandbox `base_url`)
+The 22 place records are real Nashville institutions/venues seeded only as canonical stubs. They are deliberately `unverified` and unpublished until durable facts are verified. Fake/sample restaurant content from the original website has **not** been imported into Supabase.
 
-Website server access uses `SUPABASE_SERVICE_ROLE_KEY` (never browser / `NEXT_PUBLIC_*`). Public clients use narrow APIs such as `/api/experiences`.
-
-### Security posture
-
-Every application table has Row Level Security enabled.
-
-There are intentionally **no `anon` or `authenticated` policies yet**. The tables are private and service-role-only until the website integration is designed. This is deliberate: provider data, internal planner logic, raw snapshots, verification information, and saved-trip data should not become publicly queryable by accident.
-
-When the frontend is connected, expose the minimum necessary surface through tightly scoped RLS policies, server-side queries, or purpose-built endpoints.
-
-**Never put the Supabase service-role/secret key in browser code or a `NEXT_PUBLIC_*` variable.**
+The 188 Viator records are real Nashville products linked to Viator product codes and exact API-returned affiliate URLs. They are also unpublished until curated.
 
 ---
 
-## 2. Product thesis
+## 2. Architecture
 
-Generic AI already knows that Nashville has Broadway, hot chicken, the Ryman, and the Country Music Hall of Fame. That is not the product.
+```text
+Nashroam website / Plan Your Trip
+              |
+              v
+       Next.js server layer
+              |
+              v
+          Supabase
+   +----------+-----------+
+   |          |           |
+   v          v           v
+Places      Events    Experiences
+   |          |           |
+Editorial / planner context / relationships
+   |
+Source IDs + expiring provider state
+   |
+Supabase Edge Functions / scheduled ingestion
+   |
+   +--> Viator
+   +--> Foursquare OS / Foursquare
+   +--> Google Places
+   +--> Yelp
+   +--> OpenTable
+   +--> Ticketmaster
+   +--> SeatGeek
+   +--> Vivid Seats
+   +--> Visit Music City / NCVC
+   +--> Official venue/business sources
+```
 
-Nashroam becomes useful when it knows:
-
-- which restaurants are actually worth recommending;
-- what is open and operating now;
-- what is happening on the traveler's exact dates;
-- which events materially change an itinerary;
-- which neighborhoods pair well together;
-- where a traveler should eat before a specific show;
-- what requires advance reservations;
-- what works for couples, groups, families, first-timers, locals, food-focused travelers, etc.;
-- which recommendations are current and which need verification;
-- which booking/ticket links can generate revenue.
-
-The moat is the **Nashroam context layer**, not a generic language model.
+The browser should not hold privileged provider credentials. `VIATOR_API_KEY`, Supabase service-role credentials, and future private provider keys belong server-side only.
 
 ---
 
-## 3. Own durable data; rent volatile data
+## 3. Source strategy — complete provider matrix
 
-### Nashroam-owned data
+### First-party / authoritative sources
 
-This is first-party intellectual property and should live permanently in Supabase:
+| Source | Supabase key | Role | Current status | Storage / refresh rule |
+|---|---|---|---|---|
+| **Nashroam Editorial** | `nashroam_editorial` | Scores, recommendations, local notes, best-for, traveler fit, planner context | **Active** | Permanent first-party IP |
+| **Manual Verification** | `manual_verification` | Human confirmation and exception resolution | **Active** | Permanent verification history |
+| **Official Website / venue / business** | `official_website` | Official URLs and authoritative durable/operational facts | **Active** | Store durable facts/URLs; refresh priority listings frequently |
 
-- canonical place record;
-- Nashville neighborhood;
-- category/cuisine taxonomy;
-- Nashroam description and local note;
+### Places / restaurant / POI sources
+
+| Source | Supabase key | Role | Current status | Strategy |
+|---|---|---|---|---|
+| **Foursquare OS Places** | `foursquare_os` | **Primary durable POI backbone** | Inactive — Places Portal/token not configured | Import/store canonical POI identity; use releases/deltas for long-term maintenance |
+| **Foursquare Places API** | `foursquare` | Supplemental POI matching / place intelligence | Inactive — credential not configured | Useful for matching/enrichment where terms permit; not required for the OS backbone |
+| **Google Places** | `google_places` | **Just-in-time validation**: operating status, hours, ratings, place identity | Inactive — credential not configured | Persist Google Place IDs; do not turn Google volatile content into the permanent Nashroam warehouse; use for shortlisted/live checks |
+| **Yelp** | `yelp` | Consumer rating/review-count layer and permitted place facts | Inactive — credential not configured | Short-lived provider state only; keep Nashroam editorial score independent |
+| **TripAdvisor Content API** | repo adapter only today | Supplemental rating/review-count source | Not yet registered as a live Supabase source | Transitional website integration; add to Supabase only if approved partner access is used going forward |
+
+### Restaurant reservation source
+
+| Source | Supabase key | Role | Current status | Strategy |
+|---|---|---|---|---|
+| **OpenTable** | `opentable` | Restaurant reservation availability + deep links | Inactive — partnership/API approval pending | Query availability on demand for final planner candidates rather than warehousing availability |
+
+### Tours / experiences
+
+| Source | Supabase key | Role | Current status | Strategy |
+|---|---|---|---|---|
+| **Viator Partner API v2** | `viator` | Tours/experiences, ratings, prices, affiliate URLs, schedules | **Active** | Current sandbox Basic Access is verified; canonical curated subset + expiring provider state |
+
+#### Viator live facts
+
+- Current environment: **sandbox** until Viator issues/activates production access.
+- Nashville destination ID: **799**.
+- Parent destination ID: **295**.
+- Lookup ID: **`8.77.295.799`**.
+- Current canonical Viator experiences in Supabase: **188**.
+- Local Viator tag taxonomy: **1,263 tags**.
+- Viator `productUrl` must be stored and used **exactly as returned**; it contains affiliate attribution.
+- Current Basic Access workflow uses supported real-time endpoints such as destination/product search, product details, tags, attractions, and availability schedules.
+- Do not design ingestion around bulk/full-access endpoints that the account tier does not have.
+- Provider descriptions/tags are provider metadata. They are not automatically Nashroam editorial copy.
+
+### Events and tickets
+
+| Source | Supabase key | Role | Current status | Strategy |
+|---|---|---|---|---|
+| **Ticketmaster Discovery** | `ticketmaster` | **Primary automated concerts/sports/event feed** | Inactive — credential not configured in Supabase | Ingest Nashville events every few hours; dedupe into canonical `events`; preserve ticket/affiliate URL |
+| **SeatGeek** | `seatgeek` | Secondary event/ticket coverage + affiliate option | Inactive — credential not configured | Reconcile with canonical events rather than duplicate Ticketmaster records |
+| **Vivid Seats** | `vivid_seats` | Secondary ticket marketplace / affiliate deep links | Inactive — affiliate/partner feed not configured | Public affiliate/deep-link opportunity; no public consumer inventory API has been verified, so do not pretend it is a primary feed or scrape it |
+| **Visit Music City / NCVC** | `visit_music_city` | Nashville-specific festivals, civic/community events, annual calendar | Inactive — licensed feed/partnership pending | Use a licensed feed/approved relationship; ingest event facts, not copied editorial prose |
+| **Direct venue / institution calendars** | official-source pattern | Ryman, Opry, Bluebird, Cheekwood, TPAC, Zoo, Farmers' Market, sports venues, etc. | Planned | High-value Nashville-specific gap filler; official facts beat aggregators when conflicts exist |
+
+### Hotels / lodging
+
+| Source | Location today | Role | Current status | Strategy |
+|---|---|---|---|---|
+| **Booking.com Demand API** | repo scaffold: `src/lib/feeds/booking-demand.ts` | Live hotel inventory/rates/booking | Scaffold only | Hotels remain a separate lodging domain; move server-side provider state into Supabase when credentials are approved/configured |
+| Booking.com affiliate deep links | `src/lib/partners.ts` | Fallback hotel monetization | Existing link layer | Use only as fallback when live inventory is unavailable |
+| Vrbo affiliate/deep links | `src/lib/partners.ts` | Whole-home rental fallback | Existing link layer | Useful for larger groups; not a core POI source |
+
+---
+
+## 4. What each provider is allowed to decide
+
+No single third party should become “the Nashroam database.”
+
+| Question | Source of truth / strongest input |
+|---|---|
+| Does this place exist and where is it? | Nashroam canonical record + Foursquare OS / official source |
+| Is it worth recommending? | **Nashroam editorial** |
+| Who is it best for? | **Nashroam editorial** |
+| Is it open right now / on this trip? | Official source + live validation (eventually Google/Foursquare where licensed) |
+| What do consumers broadly think? | Yelp / Google / permitted provider rating signals |
+| Can I get a table? | OpenTable / restaurant reservation provider |
+| What tour should I book? | Nashroam ranking over real Viator inventory |
+| Can I buy this tour? | Viator exact `productUrl` / supported availability |
+| What concert/game is happening? | Ticketmaster + official venue + secondary event sources |
+| Where can I buy tickets? | Ticketmaster / SeatGeek / Vivid / official depending on availability and commercial relationship |
+| Does this event materially change the itinerary? | **Nashroam event impact + planner context** |
+
+---
+
+## 5. Durable data vs. volatile data
+
+### Nashroam owns permanently
+
+- canonical place / event / experience identity;
+- neighborhood and geography;
+- Nashroam descriptions and local notes;
 - `nashroam_score`;
 - editorial rank;
-- `best_for` tags;
-- traveler-type tags;
-- vibe;
-- typical visit duration;
-- tourist/local orientation;
-- family/group suitability;
-- rooftop/live-music/outdoor flags;
-- booking lead-time guidance;
+- `best_for` and traveler-type tags;
+- vibe and suitability;
+- typical duration;
 - planner priority;
-- `pairs_well_with`, alternatives, pre-dinner/post-dinner relationships;
+- place-to-place relationships;
 - neighborhood context;
 - event impact/context;
-- internal verification state;
-- first-party engagement/conversion signals when available.
+- curation status and human verification;
+- first-party engagement/conversion signals when added.
 
-### Volatile third-party data
-
-Do not pretend Nashroam can manually keep these current at scale:
-
-- current opening hours;
-- holiday/special hours;
-- temporary/permanent closure status;
-- third-party rating;
-- review count;
-- permitted review snippets;
-- reservation availability;
-- live ticket inventory;
-- event changes/cancellations/postponements;
-- provider-specific prices or metadata.
-
-These fields should be refreshed from approved providers and stored/displayed only within the provider's license, caching, attribution, and retention rules.
-
----
-
-## 4. Source hierarchy
-
-The initial source registry contains:
-
-| Source | Intended use | Initial state |
-|---|---|---|
-| Nashroam Editorial | First-party recommendations/context | Active |
-| Manual Verification | Human confirmation | Active |
-| Official Website | Durable official facts/URLs | Active |
-| Yelp | Ratings/review counts and permitted review content | Disabled pending credentials/terms |
-| Foursquare | POI verification/place intelligence | Disabled pending credentials/terms |
-| OpenTable | Reservations and availability | Disabled pending partnership/API approval |
-| Ticketmaster Discovery | Events/tickets | Disabled pending integration |
-| SeatGeek | Secondary event/ticket coverage | Disabled pending integration |
-| Visit Music City / NCVC | Local calendar/festival coverage | Disabled pending licensed feed/partnership |
-
-Additional direct sources should eventually include major Nashville institutions and venues where their terms/feed support automated use.
-
-### Source rules
-
-Every live fact needs:
-
-- a source;
-- a fetch timestamp;
-- an expiration timestamp when applicable;
-- attribution metadata when required;
-- a clear rule for whether the value can be displayed;
-- a clear rule for whether raw payloads may be stored.
-
-**Do not scrape and republish third-party editorial descriptions or reviews.**
-
----
-
-## 5. Database model
-
-### Core geography/content
-
-#### `neighborhoods`
-Canonical Nashville neighborhood records and planner summaries.
-
-#### `places`
-The golden record for restaurants, bars, coffee shops, music venues, attractions, shopping, parks, tours, etc.
-
-This table stores durable facts and Nashroam identity, not every volatile field from every provider.
-
-#### `place_editorial`
-Nashroam's opinion/context layer:
-
-- score;
-- editorial rank;
-- summary/local note;
-- vibe;
-- best-for and traveler types;
-- visit duration;
-- suitability flags;
-- reservation guidance;
-- planner priority;
-- human-verification date.
-
-#### `tags` / `place_tags`
-Flexible taxonomy used by guides, search, recommendations, SEO, and the trip planner.
-
-#### `place_relationships`
-First-party knowledge graph between places:
-
-- nearby;
-- pairs well with;
-- alternative;
-- pre-dinner;
-- post-dinner;
-- same experience;
-- avoid pairing.
-
-This is one of the most strategically valuable tables because generic POI providers do not know how Nashroam believes Nashville should be experienced.
-
----
-
-## 6. Provider identity and live state
-
-#### `data_sources`
-Master registry of external/internal providers, licensing capabilities, attribution requirements, and default freshness rules.
-
-#### `place_source_ids`
-Maps a Nashroam `place_id` to provider IDs such as Yelp, Foursquare, OpenTable, etc.
-
-This prevents repeated fuzzy matching and allows us to change providers without changing the canonical place record.
-
-#### `place_source_state`
-One current state per place/provider, including fields such as:
-
-- rating and scale;
-- review count;
-- provider business status;
-- regular/special hours;
-- open-now status;
-- fetched/expiry timestamps;
-- whether display is legally/contractually permitted;
-- attribution.
-
-Do not collapse all provider data into one field and lose provenance.
-
-#### `source_snapshots`
-Optional raw snapshots for providers whose terms explicitly allow storage.
-
-The database enforces the rule that a payload cannot be stored unless `storage_permitted = true`.
-
----
-
-## 7. Reliability and verification
-
-### `place_health`
-
-`confidence_score` measures **data reliability**, not restaurant quality.
-
-It should eventually incorporate:
-
-- freshness of operational data;
-- agreement/disagreement among providers;
-- official-source confirmation;
-- successful provider matching;
-- recent human verification;
-- unexplained changes in location/hours/status.
-
-Example:
-
-**95 confidence**
-
-- official site live;
-- provider IDs matched;
-- status sources agree;
-- current hours recently refreshed;
-- no location conflict;
-- recently human verified.
-
-**45 confidence**
-
-- one provider says closed;
-- another says open;
-- official site is unavailable;
-- hours are stale;
-- no recent human verification.
-
-Low-confidence places should be suppressed from automated itineraries or placed in the verification queue.
-
-### `verification_queue`
-
-Humans should work exceptions, not manually re-check hundreds of listings.
-
-Examples of queue reasons:
-
-- `status_conflict`;
-- `hours_conflict`;
-- `location_conflict`;
-- `provider_not_found`;
-- `website_dead`;
-- `stale_editorial_review`;
-- `possible_duplicate`;
-- `event_time_conflict`.
-
-The desired operating model is:
-
-> 95%+ of records refresh automatically; humans review the small set of exceptions.
-
----
-
-## 8. Events
-
-### `events`
-
-Canonical event record with:
-
-- title/type;
-- start/end;
-- venue/place;
-- neighborhood;
-- location;
-- official/ticket/affiliate URLs;
-- expected attendance when available;
-- `impact_level`;
-- `planner_priority`;
-- traveler-type relevance;
-- schedule/cancel/postpone status.
-
-### `event_source_links`
-
-Connects the same canonical event to Ticketmaster, SeatGeek, official calendars, NCVC, etc. so the database can deduplicate overlapping feeds.
-
-### Event philosophy
-
-The planner should distinguish between:
-
-1. an event that merely exists; and
-2. an event that should change the trip.
-
-A major Titans game, CMA Fest, Tomato Art Fest, a stadium concert, or a neighborhood festival can materially affect traffic, neighborhood choice, restaurant availability, and the value of spending time in that area.
-
-That impact belongs in Nashroam's own data.
-
----
-
-## 9. Nashroam context layer
-
-### `planner_context`
-
-This table stores the city knowledge that makes a Nashville planner better than a generic itinerary generator.
+### External provider state expires
 
 Examples:
 
-- "When there is a Ryman show, prioritize a walkable Downtown dinner beforehand."
-- "Do not schedule East Nashville-to-Downtown movement immediately after a Titans game unless necessary."
-- "12 South is normally a 2-3 hour shopping/lunch block, not an all-day itinerary."
-- "A Bluebird Cafe reservation is an anchor event; build the evening around its fixed time."
-- "First-time visitors should experience Broadway, but do not automatically allocate the entire day to it."
-- "During CMA Fest, Downtown congestion and crowds materially change normal itinerary logic."
+- current/special hours;
+- business status;
+- third-party ratings/review counts;
+- reservation availability;
+- ticket inventory/pricing;
+- Viator pricing/availability;
+- event postponements/cancellations;
+- any provider field whose terms or real-world accuracy require refresh.
 
-`planner_context` can be citywide, neighborhood-specific, event-specific, seasonal, logistical, audience-specific, or editorial.
+External state should carry at minimum:
+
+```text
+source_id
+external_id
+fetched_at
+expires_at
+display_allowed
+attribution
+metadata
+```
+
+Do not flatten provider values into first-party editorial columns and lose provenance.
 
 ---
 
-## 10. Ranking: quality is not reliability
+## 6. Current database model
 
-Do not confuse these concepts:
+### Places
+
+- `neighborhoods`
+- `places`
+- `place_editorial`
+- `tags`
+- `place_tags`
+- `place_relationships`
+- `place_source_ids`
+- `place_source_state`
+- `place_health`
+
+### Events
+
+- `events`
+- `event_source_links`
+- `planner_context`
+
+### Experiences / Viator
+
+- `experiences`
+- `experience_editorial`
+- `experience_source_ids`
+- `experience_source_state`
+- `viator_destinations`
+- `viator_tags`
+
+### Planner / persistence
+
+- `itineraries`
+- `itinerary_items`
+
+### Data operations / governance
+
+- `data_sources`
+- `source_snapshots`
+- `ingestion_runs`
+- `ingestion_cursors`
+- `ingestion_schedules`
+- `verification_queue`
+- `system_documents`
+
+### Private operational views
+
+- `experience_curation_queue`
+- `source_health`
+
+These views are for internal/service-role use, not public browser access.
+
+---
+
+## 7. Reliability / freshness engine
+
+Quality and reliability are different concepts.
 
 ### `nashroam_score`
-Our editorial view of the quality/value of a place.
+How strongly Nashroam recommends the experience/place.
 
 ### `confidence_score`
-How confident we are that the operational data is correct/current.
+How confident we are that the operational facts are current/correct.
 
 ### Planner fit
-How appropriate that place is for this traveler at this moment.
+How appropriate the item is for this particular traveler, date, neighborhood, budget, pace, and itinerary.
 
-The planner should rank using a combination of:
+A high external star rating does not automatically produce a high Nashroam recommendation.
 
-- editorial quality;
-- traveler fit;
-- neighborhood/geographic fit;
-- date/time fit;
-- current status/hours;
-- event context;
-- booking feasibility;
-- itinerary diversity;
-- first-party engagement/conversion data once available.
+### Priority tiers for places
 
-A 4.8-star restaurant should not automatically outrank a 4.6-star restaurant if the second one is materially better for the user's trip.
+**Tier A — ~150 high-frequency recommendations**  
+Daily operational refresh plus just-in-time validation when they make a final itinerary.
 
----
+**Tier B — ~300 secondary recommendations**  
+Refresh every 2–3 days.
 
-## 11. Trip planner contract
+**Tier C — long tail**  
+Weekly or when the record enters an active itinerary candidate set.
 
-The trip planner must follow these rules:
+### Conflict handling
 
-1. **Never invent a business, attraction, or event.** Every recommended place/event must resolve to a Supabase record ID.
-2. Use only active/publishable places that meet the minimum data-confidence threshold.
-3. Validate operational state near the trip date before presenting a place as open.
-4. Query date-relevant events before composing the itinerary.
-5. Treat high-impact events as itinerary constraints/context, not merely optional cards.
-6. Respect neighborhood geography; minimize unnecessary cross-city movement.
-7. Use `place_relationships` and `planner_context` to build locally coherent blocks.
-8. Request reservation/ticket availability on demand where integrations permit it.
-9. Persist the reason a recommendation was selected (`planner_reason`) so behavior can be audited/improved.
-10. Keep alternatives so a user can swap one stop without regenerating the entire trip.
+Provider disagreements create/update `verification_queue` rather than silently overwriting each other.
 
-### Planner flow
+Examples:
 
-```text
-Traveler inputs
-      |
-      v
-Trip dates + party + hotel + preferences
-      |
-      +----> Fetch date-relevant EVENTS
-      |
-      +----> Fetch eligible PLACES
-      |
-      +----> Apply LIVE STATE / CONFIDENCE
-      |
-      +----> Apply NASHROAM EDITORIAL + CONTEXT
-      |
-      +----> Apply GEOGRAPHY / RELATIONSHIPS
-      |
-      +----> Check BOOKING / TICKET feasibility
-      |
-      v
-Ranked itinerary candidates
-      |
-      v
-Deterministic planner / AI composition layer
-      |
-      v
-Persisted itinerary + explanation + alternatives
-```
+- `status_conflict`
+- `hours_conflict`
+- `location_conflict`
+- `provider_not_found`
+- `website_dead`
+- `possible_duplicate`
+- `stale_editorial_review`
+- `event_time_conflict`
 
-The model/rules engine is the **composer**, not the source of truth.
+Humans should work exceptions, not manually re-audit the entire catalog.
 
 ---
 
-## 12. Itinerary persistence
+## 8. Ingestion cadence
 
-### `itineraries`
-Stores trip dates, party/profile, preferences, hotel context, generation version, and status.
+Provider terms always override these operating targets.
 
-### `itinerary_items`
-Stores each itinerary stop with:
-
-- date/time;
-- place/event ID;
-- booking link/status;
-- planner reason;
-- alternatives;
-- notes.
-
-The `generation_version` field is important. As ranking/planner logic changes, we need to know which algorithm created an itinerary.
-
----
-
-## 13. Ingestion architecture
-
-### `ingestion_runs`
-Every refresh job should be auditable:
-
-- provider;
-- job type;
-- start/end;
-- fetched/upserted/flagged counts;
-- success/partial/failure;
-- error information.
-
-### Target workflow
-
-```text
-Supabase Cron
-     |
-     v
-Edge Function / worker
-     |
-     v
-Provider API / licensed feed
-     |
-     v
-Normalize + match external ID
-     |
-     +--> place_source_state / events
-     |
-     +--> source_snapshots (only if storage is permitted)
-     |
-     v
-Conflict + freshness checks
-     |
-     +--> place_health
-     |
-     +--> verification_queue
-     |
-     v
-Planner-ready dataset
-```
-
-Provider credentials belong in server-side secrets, never in the browser or repository.
-
-For larger workloads, introduce Supabase Queues so individual place/event refreshes can retry independently rather than failing an entire batch.
-
----
-
-## 14. Proposed freshness model
-
-These are operating targets, not provider-license overrides. Provider terms always win.
-
-| Data | Target refresh pattern |
+| Data / source | Target cadence |
 |---|---|
-| Permanent closure/status | Daily baseline; more frequently for itinerary candidates |
-| Regular/special hours | Daily baseline; refresh close to an active trip |
-| Ratings/review counts | Daily where permitted |
-| Major upcoming events | Multiple times per day |
+| Foursquare OS releases/deltas | Release/delta cadence once portal access is configured |
+| Tier A place status/hours | Daily baseline |
+| Tier B place status/hours | Every 2–3 days |
+| Tier C place status/hours | Weekly / on candidate use |
+| Google live validation | On demand for shortlist/final itinerary candidates |
+| Yelp sentiment | Daily where licensed/configured |
+| OpenTable availability | On demand |
+| Viator product catalog | Daily curated search refresh |
+| Viator tags | Weekly + refresh when unknown tag appears |
+| Viator destinations | Weekly |
+| Viator availability | On demand / close to trip date |
+| Ticketmaster near-term events | Every few hours |
 | Long-range events | Daily |
-| Reservation availability | On demand |
-| Ticket availability | On demand / near-real-time where permitted |
-| Nashroam editorial | Human review based on priority/staleness |
-| Neighborhood context | Human/editorial updates as Nashville changes |
+| NCVC/direct local calendars | Daily |
+| Nashroam editorial | Human review based on importance/staleness |
 
-Avoid wasting API calls refreshing every field at the same frequency.
+`ingestion_schedules` already contains initial Viator schedule definitions. Automated cron invocation still needs to be enabled deliberately after the production integration path is finalized.
 
 ---
 
-## 15. Initial content target
+## 9. Event strategy
 
-The goal is not every business in Davidson County. The goal is the set of places Nashroam would plausibly recommend.
+The planner must distinguish between **an event that exists** and **an event that changes the trip**.
 
-Suggested first target:
+Examples of high-impact context:
 
-| Category | Approx. target |
-|---|---:|
-| Restaurants | 250-300 |
-| Bars/nightlife | 75-100 |
-| Coffee/brunch | 50 |
-| Attractions/museums | 50-75 |
-| Shopping | 50 |
-| Live-music venues | 40-50 |
-| Parks/outdoor | 20-30 |
-| Tours/experiences | 40-50 |
+- Titans home game;
+- Predators playoff/game-night traffic;
+- CMA Fest;
+- major Nissan Stadium or Bridgestone concert;
+- Tomato Art Fest;
+- significant 12 South / East Nashville / Germantown festivals;
+- downtown road closures or major conventions.
 
-Roughly **500-750 high-quality places** is enough to make a Nashville-only planner feel deep without turning the project into an uncurated business directory.
+Canonical event facts live in `events`. Provider identities live in `event_source_links`. Nashroam-specific importance lives in `impact_level`, `planner_priority`, and `planner_context`.
 
----
-
-## 16. Neighborhoods seeded in V1
-
-- Downtown
-- SoBro
-- The Gulch
-- Germantown
-- East Nashville
-- Five Points
-- 12 South
-- Wedgewood-Houston
-- Music Row
-- Midtown
-- West End
-- Hillsboro Village
-- Belmont
-- Music Valley
-- Marathon Village
-- The Nations
-- Sylvan Park
-- Green Hills
-
-These are records, not a finished taxonomy. Neighborhood boundaries/centroids should be verified before location-sensitive planner logic relies on them.
+Ticket vendors should never be allowed to define event importance just because a ticket has a high price or commission.
 
 ---
 
-## 17. Monetization should sit on top of trust
+## 10. Planner contract
+
+The planner must:
+
+1. Never invent a business, attraction, experience, or event.
+2. Resolve every recommendation to a Supabase ID.
+3. Use only eligible/approved records.
+4. Suppress or flag stale/low-confidence operational data.
+5. Query date-relevant events before composing the trip.
+6. Treat high-impact events as constraints/context.
+7. Respect neighborhood geography and avoid unnecessary cross-city movement.
+8. Use Nashroam relationships/context to build coherent blocks.
+9. Check reservation/ticket/availability only for shortlisted candidates when possible.
+10. Persist `planner_reason` so recommendations can be audited/improved.
+11. Keep alternatives so a traveler can swap one stop without rebuilding the trip.
+
+```text
+Traveler input
+     |
+     +--> Supabase PLACES
+     +--> Supabase EVENTS
+     +--> Supabase EXPERIENCES
+     +--> LIVE / EXPIRING PROVIDER STATE
+     +--> NASHROAM EDITORIAL
+     +--> PLANNER CONTEXT + RELATIONSHIPS
+     |
+     v
+Eligible candidate set
+     |
+     v
+Ranking / itinerary composition
+     |
+     v
+On-demand availability for finalists
+     |
+     v
+Persisted itinerary + reasons + alternatives
+```
+
+The model/rules engine is a **composer**, never the source of truth.
+
+---
+
+## 11. Monetization rules
 
 Potential transaction layers:
 
-- restaurant reservations;
-- event tickets;
-- hotel bookings;
-- tours/experiences;
-- affiliate commerce.
+- Viator tours/experiences;
+- OpenTable restaurant reservations;
+- Ticketmaster tickets;
+- SeatGeek tickets;
+- Vivid Seats affiliate ticket links;
+- Booking.com lodging;
+- Vrbo rentals;
+- future local commerce.
 
-The ranking system must not silently become "highest commission wins."
+Commercial economics must not silently become “highest commission wins.”
 
-If commercial placement changes ranking, the UI/data model must clearly distinguish editorial, sponsored, and affiliate treatment. Nashroam's long-term value depends on users believing the itinerary is genuinely the best trip for them.
+If a placement changes ranking because it is sponsored, that treatment must be explicitly modeled/displayed separately from Nashroam editorial ranking.
 
----
-
-## 18. Cursor / implementation guardrails
-
-Any agent modifying this system should follow these rules:
-
-1. Do not create a second canonical place database in application code.
-2. `places.id` and `events.id` are the canonical identifiers.
-3. Do not hard-code live ratings, review counts, hours, or event status into editorial source files.
-4. Preserve source provenance on every imported live field.
-5. Do not save raw provider payloads unless `can_store_raw` / `storage_permitted` allows it.
-6. Do not expose Supabase service-role credentials to the client.
-7. Do not create broad public RLS policies for convenience.
-8. Do not allow the planner to emit a real-world recommendation without a database-backed place/event ID.
-9. Do not publish `unverified`, closed, cancelled, or stale records without explicit logic allowing it.
-10. Log ingestion runs and surface failures; silent stale data is worse than an explicit error.
-11. Keep Nashroam editorial score separate from provider rating and data-confidence score.
-12. Do not scrape copyrighted descriptions/reviews to populate Nashroam editorial copy.
-13. Prefer official/licensed feeds over brittle page scraping.
-14. Every new third-party integration must document caching, display, attribution, and retention rules before being enabled.
-15. Any schema change should be represented as a Supabase migration and run through Supabase security/performance advisors.
+Affiliate URLs must preserve provider attribution. For Viator specifically, store/use the API-returned `productUrl` exactly.
 
 ---
 
-## 19. Implementation phases
+## 12. Security posture
 
-### Phase 1 — Foundation **(started)**
+All application data is private by default.
 
-- [x] Create dedicated Nashroam Supabase project
-- [x] Create V1 schema
-- [x] Enable RLS on every application table
-- [x] Seed source registry
-- [x] Seed core neighborhoods
-- [x] Add indexes / security hardening
-- [x] Version migrations in this GitHub repository
-- [ ] Add Supabase server client to the Next.js app
-- [ ] Replace sample content layer with repository/data-access interfaces
+- RLS is enabled on application tables.
+- `anon` / `authenticated` access is intentionally restricted unless a narrow public read surface is explicitly created.
+- Service-role secrets never belong in `NEXT_PUBLIC_*` variables.
+- Provider secrets live server-side / Supabase secrets.
+- Raw provider payload storage is allowed only when the provider/license permits it.
+- Internal curation, source-health, verification, and ingestion tables/views are not browser APIs.
 
-### Phase 2 — First-party Nashville corpus
-
-- [ ] Import/curate first 250-300 restaurants
-- [ ] Add bars, coffee, shopping, attractions, music, parks, tours
-- [ ] Assign neighborhoods/tags
-- [ ] Add Nashroam editorial scores/context
-- [ ] Add place relationships
-- [ ] Human-verify launch set
-
-### Phase 3 — Live place reliability
-
-- [ ] Choose/approve place/review provider(s)
-- [ ] Build source-ID matching
-- [ ] Build operational refresh functions
-- [ ] Compute `place_health`
-- [ ] Build verification/admin queue
-- [ ] Add stale/conflict suppression to planner
-
-### Phase 4 — Live Nashville events
-
-- [ ] Ticketmaster ingestion
-- [ ] SeatGeek ingestion
-- [ ] Major venue/direct calendars
-- [ ] NCVC/Visit Music City partnership/feed if available
-- [ ] Event deduplication
-- [ ] Event impact/context rules
-
-### Phase 5 — Transactions
-
-- [ ] OpenTable partnership/API
-- [ ] Reservation availability/deep links
-- [ ] Ticket affiliate tracking
-- [ ] Tour/experience affiliate feeds
-- [ ] Conversion tracking by itinerary item
-
-### Phase 6 — Planner V2
-
-- [ ] Query Supabase rather than static sample modules
-- [ ] Require canonical IDs for recommendations
-- [ ] Date-aware event context
-- [ ] Neighborhood clustering
-- [ ] Availability-aware itinerary composition
-- [ ] Alternative/swap logic
-- [ ] Saved/shared itineraries
-- [ ] Generation analytics and ranking feedback loop
+When the website needs public data, prefer server components, route handlers, or purpose-built server endpoints instead of opening the underlying operational schema broadly.
 
 ---
 
-## 20. Definition of success
+## 13. Current gaps / next build order
 
-The data platform is working when a traveler can enter dates and preferences and Nashroam can reliably answer:
+### 1. Finish experience curation
 
-> **What should I actually do in Nashville on these exact dates, in what order, and why?**
+188 real Viator experiences are loaded, but none should be planner-eligible until approved. Use the 1,263-tag taxonomy plus ratings/review count and human judgment to reduce this to a strong Nashville catalog rather than publishing supplier spam/duplicates.
 
-with recommendations that are:
+### 2. Build the Nashville POI backbone
 
-- real;
-- current;
-- geographically coherent;
-- locally informed;
-- personalized;
-- explainable;
-- bookable where possible;
-- monetizable without compromising trust.
+Current `places` has 22 real institution stubs and **no real restaurant corpus yet**. Do not import the original `[Sample]` restaurant records.
 
-That is the product we are building.
+Preferred next step: configure **Foursquare OS Places** access and load the Nashville POI universe, then curate roughly:
+
+| Category | Target |
+|---|---:|
+| Restaurants | 250–300 |
+| Bars/nightlife | 75–100 |
+| Coffee/brunch | ~50 |
+| Attractions/museums | 50–75 |
+| Shopping | ~50 |
+| Live-music venues | 40–50 |
+| Parks/outdoor | 20–30 |
+| Tours/experiences | 100–200 curated |
+
+### 3. Add live place validation
+
+Configure Google Places and/or other approved operational sources for just-in-time status/hours validation. Add Yelp if desired for sentiment/review-count display under its commercial terms.
+
+### 4. Start event ingestion
+
+Configure Ticketmaster first. Then add direct/NCVC Nashville context and secondary ticket providers.
+
+### 5. OpenTable
+
+Apply/complete partnership and wire on-demand restaurant availability once the restaurant corpus is established.
+
+### 6. Move the planner off static arrays
+
+The current planner UI/rules are useful, but its candidate retrieval should become Supabase-backed. Preserve deterministic planner logic while replacing fake/static candidate pools with verified records.
+
+---
+
+## 14. Cursor / agent guardrails
+
+Any coding agent working on this project should:
+
+- read this document and `docs/data-platform/VIATOR.md` before changing provider architecture;
+- treat Supabase as the canonical data layer;
+- never duplicate provider credentials in browser code;
+- never invent provider endpoint schemas;
+- never import demo `[Sample]` listings into production Supabase;
+- preserve source IDs and provider provenance;
+- keep provider-specific volatile facts out of Nashroam editorial fields;
+- run database advisors after schema changes;
+- version live schema changes in `supabase/migrations/`;
+- verify integrations with real calls before claiming success;
+- keep temporary diagnostic endpoints locked/removed after use;
+- preserve exact affiliate URLs when provider attribution requires it;
+- fail gracefully rather than fabricating inventory.
+
+---
+
+## 15. Documentation map
+
+- `docs/data-platform/README.md` — **this file; primary data/source architecture**
+- `docs/data-platform/VIATOR.md` — Viator-specific integration and compliance notes
+- `supabase/migrations/` — versioned live database changes
+- `supabase/functions/viator-sync/` — server-side Viator integration
+- `src/lib/itinerary.ts` — current deterministic planner composition logic
+- `src/lib/partners.ts` — commercial/affiliate link layer
+- `src/lib/feeds/` — website-side provider adapters during migration to Supabase
+
+---
+
+## Bottom line
+
+The product is not “a database of Nashville businesses” and it is not “ChatGPT with a Nashville prompt.”
+
+The product is a **curated, continuously refreshed Nashville knowledge graph** that combines:
+
+1. durable POI identity;
+2. live operational facts;
+3. real event and bookable inventory;
+4. proprietary Nashroam editorial judgment;
+5. Nashville-specific context and geography;
+6. transaction links/availability;
+7. a planner that composes only from trusted records.
+
+That data layer is the long-term moat.
