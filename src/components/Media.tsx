@@ -1,4 +1,4 @@
-import { getImage, hasMedia, type ImageKey } from '@/lib/media';
+import { getImage, hasMedia, heroVideo, type ImageKey } from '@/lib/media';
 import { asset as assetUrl } from '@/lib/seo';
 
 /**
@@ -167,12 +167,24 @@ export function ContentImage({
   );
 }
 
+const PEXELS_NASHVILLE_AERIAL =
+  'https://videos.pexels.com/video-files/10973739/10973739-uhd_4096_2160_30fps.mp4';
+const JBJS_VIMEO =
+  'https://player.vimeo.com/video/1101419034?h=c863ccbf71&background=1&autoplay=1&muted=1&loop=1&autopause=0&controls=0&title=0&byline=0&portrait=0&playsinline=1';
+
 /**
- * Full-bleed hero. Static responsive skyline — no autoplay video download on the homepage.
- * Registered hero MP4/WebM remain available for a future smooth loop elsewhere.
+ * Full-bleed Nashville hero montage.
+ *
+ * Desktop: opens/closes on the user-selected Pexels Nashville aerial and
+ * crossfades through JBJ's BPH-owned venue reel for nightlife/live-music energy.
+ * Mobile: uses the locally optimized hero MP4 to avoid forcing a 4K stock-video
+ * download over cellular. Reduced-motion visitors keep the cleared static hero.
+ *
+ * This is intentionally assembled in the browser instead of depending on
+ * expiring Instagram CDN URLs. Once a single edited master is exported, it can
+ * replace the local heroVideo files without changing the homepage structure.
  */
 export function HeroMedia({ children }: { children: React.ReactNode }) {
-  // Cleared Pexels hero — Four Seasons `hero/nashroam-skyline` stays gated until authorized.
   const key = 'hero/downtown-rooftop' as const;
   const stillReady = hasMedia(key);
   const asset = getImage(key) as
@@ -185,6 +197,7 @@ export function HeroMedia({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="relative isolate min-h-[min(86vh,760px)] overflow-hidden bg-navy">
+      {/* Static base doubles as the reduced-motion and connection fallback. */}
       <div className="absolute inset-0" aria-hidden="true">
         {desktop && stillReady && asset ? (
           <picture>
@@ -208,13 +221,75 @@ export function HeroMedia({ children }: { children: React.ReactNode }) {
       </div>
 
       <div
-        className="absolute inset-0 bg-gradient-to-t from-navy/40 via-navy/10 to-transparent"
+        className="hero-motion hero-aerial absolute inset-0 overflow-hidden"
+        aria-hidden="true"
+      >
+        <video
+          className="h-full w-full object-cover object-center"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster={assetUrl(heroVideo.poster)}
+          tabIndex={-1}
+        >
+          <source media="(min-width: 768px)" src={PEXELS_NASHVILLE_AERIAL} type="video/mp4" />
+          <source src={assetUrl(heroVideo.mp4)} type="video/mp4" />
+        </video>
+      </div>
+
+      <div
+        className="hero-motion hero-venue absolute inset-0 overflow-hidden bg-navy"
+        aria-hidden="true"
+      >
+        <iframe
+          src={JBJS_VIMEO}
+          title=""
+          tabIndex={-1}
+          allow="autoplay; fullscreen; picture-in-picture"
+          className="pointer-events-none absolute left-1/2 top-1/2 border-0"
+          style={{
+            width: '177.77777778vh',
+            height: '56.25vw',
+            minWidth: '100%',
+            minHeight: '100%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        />
+      </div>
+
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-navy/55 via-navy/15 to-navy/5"
         aria-hidden="true"
       />
 
       <div className="relative flex min-h-[min(86vh,760px)] flex-col justify-end pb-20 pt-24 sm:pb-24 sm:pt-28">
         {children}
       </div>
+
+      <style>{`
+        .hero-aerial {
+          animation: nashroam-aerial 18s ease-in-out infinite;
+        }
+        .hero-venue {
+          opacity: 0;
+          animation: nashroam-venue 18s ease-in-out infinite;
+        }
+        @keyframes nashroam-aerial {
+          0%, 22% { opacity: 1; }
+          30%, 70% { opacity: 0; }
+          78%, 100% { opacity: 1; }
+        }
+        @keyframes nashroam-venue {
+          0%, 22% { opacity: 0; }
+          30%, 70% { opacity: 1; }
+          78%, 100% { opacity: 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .hero-motion { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 }
