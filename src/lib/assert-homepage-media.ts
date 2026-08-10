@@ -68,7 +68,11 @@ export function assertHomepageMediaIntegrity(): void {
     if (!AVAILABLE_MEDIA.has(key)) {
       continue;
     }
-    if (!asset.credit) {
+    // Third-party licences require a visible-in-registry credit. Owned BPH
+    // photography does not: /photo-credits states it carries no public
+    // photographer attribution, so the licence note alone satisfies rights.
+    const isOwnedMedia = (asset.licence ?? '').includes('BPH-owned');
+    if (!asset.credit && !isOwnedMedia) {
       errors.push(`Homepage key "${key}" is missing credit.`);
     }
     const list = srcToKeys.get(asset.src) ?? [];
