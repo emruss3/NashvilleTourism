@@ -10,6 +10,11 @@ function redirectTo(req: Request, params: Record<string, string>) {
   return NextResponse.redirect(url, { status: 303 });
 }
 
+function nextIdParam(form: FormData | null): string | undefined {
+  const nextId = String(form?.get('nextId') || '').trim();
+  return nextId || undefined;
+}
+
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   if (!hasAdminSession()) {
     return NextResponse.redirect(new URL('/admin/login', req.url), { status: 303 });
@@ -20,6 +25,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
   const form = await req.formData().catch(() => null);
   const notes = String(form?.get('curationNotes') || '').trim();
+  const nextId = nextIdParam(form);
   if (notes.length < 8) {
     return redirectTo(req, { error: 'rejection-reason-required', id: params.id });
   }
@@ -30,5 +36,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   });
 
   if (error) return redirectTo(req, { error: 'rejection-failed', id: params.id });
-  return redirectTo(req, { rejected: '1' });
+
+  const redirectParams: Record<string, string> = { rejected: '1' };
+  if (nextId) redirectParams.id = nextId;
+  return redirectTo(req, redirectParams);
 }

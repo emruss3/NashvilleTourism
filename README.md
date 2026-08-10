@@ -74,28 +74,55 @@ docs/data-platform/
 
 ---
 
-## Live Supabase snapshot — August 9, 2026
+## Live product state — August 10, 2026
 
-Project: `Nashroam`  
-Ref: `aeomrsutkhwmnscvvfur`  
-Region: `us-east-2`
+Project: `Nashroam` · Ref: `aeomrsutkhwmnscvvfur` · Region: `us-east-2`
 
-| Item | Current state |
-|---|---:|
-| Neighborhoods | **18** |
-| Canonical place stubs | **22** |
-| Published places | **0** |
-| Real Viator experiences | **188** |
-| Approved/published experiences | **0** |
-| Priority experience-review queue | **49** |
-| Viator taxonomy tags | **1,263** |
-| Canonical events | **0** |
-| Data-source definitions | **15** |
-| Active Viator Cron jobs | **3** |
+### LIVE (backend working)
 
-The 22 place stubs are real Nashville institutions but remain unpublished/unverified until durable facts are checked. The original `[Sample]` restaurants are **not** being imported into Supabase.
+| Item | State |
+|---|---|
+| Viator Edge Function + hourly product sync | **Live** — 188 Nashville experiences in Supabase |
+| Viator source | **Active** |
+| Canonical places (identity) | **~42** real records |
+| Planner context rules | Active |
+| Overture sync workflow code | On `main` (weekly + manual) |
+| Ticketmaster public calendar | **Live via legacy Vercel adapter** (not Supabase yet) |
 
-All Viator experiences are real API inventory but remain pending editorial approval.
+### CONNECTED BUT NOT PUBLISHED (users cannot see yet)
+
+| Item | State |
+|---|---|
+| Approved / published experiences | **0** — `/tours` empty until human approval |
+| Approved / published places | **0** — planner uses honest planning notes, not fake businesses |
+| Canonical events in Supabase | **0** |
+
+### PRODUCTION WEBSITE BLOCKER
+
+Vercel Production currently has **no** `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_URL`.
+
+Without those server-only vars, Next.js cannot read approved catalog rows, so even after you approve experiences/places in Supabase they will not appear on nashroam.com until the vars are added.
+
+Required on Vercel (Production + Preview):
+
+```text
+SUPABASE_URL=https://aeomrsutkhwmnscvvfur.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=...   # never NEXT_PUBLIC_*
+NASHROAM_ADMIN_TOKEN=...        # for /admin
+```
+
+Keep `VIATOR_API_KEY` in **Supabase Edge Function secrets only**. It should not be required on Vercel.
+
+Operator health (booleans/counts only): `/api/data-platform-status`
+
+### PREPARED / NOT CONFIGURED
+
+| Item | State |
+|---|---|
+| Ticketmaster Supabase sync | Prepared; source inactive until Edge secret + verified sync |
+| Foursquare OS | Waiting on portal access |
+| Google Places | JIT validation only; not configured |
+| Overture ingest to live DB | Workflow ready; needs GitHub secrets + successful run |
 
 ---
 

@@ -90,7 +90,7 @@ export const hasLaunchIdentity =
   !site.org.email.includes('[') &&
   !site.org.address.street.includes('[');
 
-/** Primary header navigation — brand guide §10. */
+/** Primary header navigation — brand guide §10. Tours promoted for Viator visibility. */
 export const primaryNav = [
   { label: 'Restaurants', href: '/restaurants/' },
   { label: 'Hotels', href: '/where-to-stay/' },
@@ -98,13 +98,12 @@ export const primaryNav = [
   { label: 'Events', href: '/events/' },
   { label: 'Music', href: '/music/' },
   { label: 'Neighborhoods', href: '/neighborhoods/' },
+  { label: 'Tours', href: '/tours/' },
   { label: 'Guides', href: '/guides/' },
-  { label: 'Shop', href: '/shop/' },
 ] as const;
 
 export const secondaryNav = [
   { label: 'Live Music Tonight', href: '/live-music-tonight/' },
-  { label: 'Tours', href: '/tours/' },
   { label: 'Honky Tonk Highway', href: '/honky-tonk-highway/' },
   { label: 'NASHVILLE Weekender', href: '/weekend/' },
   { label: 'Hotels A–Z', href: '/hotels/' },

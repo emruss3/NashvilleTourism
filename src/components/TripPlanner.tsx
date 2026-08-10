@@ -12,6 +12,7 @@ import {
   tripLength,
   type ExperienceCandidate,
   type PlannerContextCandidate,
+  type PlannerEventCandidate,
   type PlannerPlaceCandidate,
 } from '@/lib/itinerary';
 import type { Budget, NeighborhoodSlug, Pace, TripInput, TripType } from '@/lib/types';
@@ -43,13 +44,14 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
   const [started, setStarted] = useState(false);
   const [experienceCandidates, setExperienceCandidates] = useState<ExperienceCandidate[]>([]);
   const [placeCandidates, setPlaceCandidates] = useState<PlannerPlaceCandidate[]>([]);
+  const [eventCandidates, setEventCandidates] = useState<PlannerEventCandidate[]>([]);
   const [plannerContexts, setPlannerContexts] = useState<PlannerContextCandidate[]>([]);
   const [experiencesLoading, setExperiencesLoading] = useState(false);
 
   const days = useMemo(() => tripLength(input.startDate, input.endDate), [input.startDate, input.endDate]);
   const itinerary = useMemo(
-    () => (submitted ? buildItinerary(input, experienceCandidates, plannerContexts, placeCandidates) : []),
-    [submitted, input, experienceCandidates, plannerContexts, placeCandidates],
+    () => (submitted ? buildItinerary(input, experienceCandidates, plannerContexts, placeCandidates, eventCandidates) : []),
+    [submitted, input, experienceCandidates, plannerContexts, placeCandidates, eventCandidates],
   );
   const hotelPicks = useMemo(() => (submitted && input.needsHotel ? suggestHotels(input) : []), [submitted, input]);
 
@@ -74,6 +76,10 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
     }
     if (input.interests.length) experienceParams.set('interests', input.interests.join(','));
 
+    const eventParams = new URLSearchParams({ limit: '40' });
+    if (input.startDate) eventParams.set('startDate', input.startDate);
+    if (input.endDate) eventParams.set('endDate', input.endDate);
+
     Promise.all([
       fetch(`/api/experiences?${experienceParams.toString()}`)
         .then(async (res) => {
@@ -93,13 +99,19 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
           return res.json() as Promise<{ contexts?: PlannerContextCandidate[] }>;
         })
         .catch(() => ({ contexts: [] as PlannerContextCandidate[] })),
+      fetch(`/api/planner/events?${eventParams.toString()}`)
+        .then(async (res) => {
+          if (!res.ok) return { events: [] as PlannerEventCandidate[] };
+          return res.json() as Promise<{ events?: PlannerEventCandidate[] }>;
+        })
+        .catch(() => ({ events: [] as PlannerEventCandidate[] })),
     ])
-      .then(([experienceData, placeData, contextData]) => {
+      .then(([experienceData, placeData, contextData, eventData]) => {
         if (cancelled) return;
         setExperienceCandidates(Array.isArray(experienceData.experiences) ? experienceData.experiences : []);
-        // Only approved/published/active places with health gates — never discovery candidates.
         setPlaceCandidates(Array.isArray(placeData.places) ? placeData.places : []);
         setPlannerContexts(Array.isArray(contextData.contexts) ? contextData.contexts : []);
+        setEventCandidates(Array.isArray(eventData.events) ? eventData.events : []);
       })
       .finally(() => {
         if (!cancelled) setExperiencesLoading(false);

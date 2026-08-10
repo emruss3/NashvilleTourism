@@ -190,16 +190,27 @@ export async function getCalendar(opts: FetchOptions = {}): Promise<CalendarResu
     };
   }
 
-  // Transitional fallback until the Ticketmaster key is moved into Supabase and
-  // the first canonical sync succeeds. Remove once migration is complete.
+  // Transitional fallback until Ticketmaster key is in Supabase and the first
+  // canonical sync succeeds. Remove once migration is complete.
   const legacyEvents = await fetchLiveEvents(opts);
-  const useLegacy = legacyEvents.length > 0;
+  if (legacyEvents.length > 0) {
+    return {
+      events: legacyEvents.sort(
+        (a, b) => a.date.localeCompare(b.date) || (a.time ?? '').localeCompare(b.time ?? ''),
+      ),
+      live: true,
+      fetchedAt: new Date().toISOString(),
+      configured: true,
+    };
+  }
 
+  // Production: never show fictional seed events. Development may use seeds.
+  const allowSeed = process.env.NODE_ENV !== 'production';
   return {
-    events: (useLegacy ? legacyEvents : seedToLive(opts)).sort(
+    events: allowSeed ? seedToLive(opts).sort(
       (a, b) => a.date.localeCompare(b.date) || (a.time ?? '').localeCompare(b.time ?? ''),
-    ),
-    live: useLegacy,
+    ) : [],
+    live: false,
     fetchedAt: new Date().toISOString(),
     configured: supabase.configured || TICKETMASTER_CONFIGURED,
   };

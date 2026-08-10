@@ -5,7 +5,6 @@ import type {
   TripInput,
   TripType,
 } from './types';
-import { restaurants, venues, attractions } from './content/listings';
 import { hotels } from './content/hotels';
 import { neighborhoods, neighborhoodName } from './content/neighborhoods';
 
@@ -59,6 +58,21 @@ export interface PlannerContextCandidate {
   neighborhood?: string | null;
   priority: number;
   rules?: Record<string, unknown>;
+}
+
+export interface PlannerEventCandidate {
+  id: string;
+  name: string;
+  startsAt: string;
+  date: string;
+  time?: string;
+  venue?: string;
+  category: string;
+  impactLevel: number;
+  plannerPriority: number;
+  ticketUrl?: string;
+  neighborhood?: string | null;
+  guidance?: string;
 }
 
 export interface PlannerGuidance {
@@ -120,10 +134,6 @@ function pickHoods(input: TripInput): NeighborhoodSlug[] {
   return valid.length > 0 ? valid : ['downtown-broadway'];
 }
 
-function rotate<T>(list: T[], index: number): T | undefined {
-  return list.length ? list[index % list.length] : undefined;
-}
-
 function numericRule(context: PlannerContextCandidate | undefined, key: string): number | undefined {
   const raw = context?.rules?.[key];
   return typeof raw === 'number' && Number.isFinite(raw) ? raw : undefined;
@@ -179,22 +189,14 @@ export function buildItinerary(
   experienceCandidates: ExperienceCandidate[] = [],
   plannerContexts: PlannerContextCandidate[] = [],
   placeCandidates: PlannerPlaceCandidate[] = [],
+  eventCandidates: PlannerEventCandidate[] = [],
 ): PlannedItineraryDay[] {
   const days = tripLength(input.startDate, input.endDate);
   const hoods = pickHoods(input);
   const stopsPerDay = PACE_STOPS[input.pace];
 
-  const staticFoodPool = restaurants.filter((r) => {
-    if (input.hasChildren && !r.goodForGroups && input.travelers > 3) return false;
-    if (input.budget === 'value' && r.priceRange === '$$$$') return false;
-    if (input.budget === 'premium' && r.priceRange === '$') return false;
-    return true;
-  });
-  const staticSeePool = attractions.filter((a) => (input.hasChildren ? a.familyFriendly : true));
-  const staticNightPool = input.wantsNightlife ? venues : venues.filter((v) => v.coverNote.toLowerCase().includes('free'));
-
-  // Category cutover: if >=1 approved Supabase place exists in a category,
-  // that category uses only Supabase — never mix [Sample] static listings.
+  // Production rule: never invent/sample a business. Use approved Supabase
+  // places only. When a category pool is empty, emit an honest planning note.
   const rankedPlaces = rankPlacesForTrip(input, placeCandidates);
   const realFoodPool = rankedPlaces.filter((p) => ['restaurant', 'coffee'].includes(p.category));
   const realSeePool = rankedPlaces.filter((p) => ['attraction', 'park', 'outdoor'].includes(p.category));
@@ -206,6 +208,7 @@ export function buildItinerary(
   const result: PlannedItineraryDay[] = [];
   const usedExperienceIds = new Set<string>();
   const usedPlaceIds = new Set<string>();
+  const usedEventIds = new Set<string>();
 
   for (let i = 0; i < days; i += 1) {
     const hood = hoods[i % hoods.length];
@@ -214,6 +217,7 @@ export function buildItinerary(
     const maxBlockHours = numericRule(primaryHoodContext, 'max_block_hours');
     const compactBlock = maxBlockHours != null && maxBlockHours <= 4 && hoods.length > 1;
     const lateHood = compactBlock ? hoods[(i + 1) % hoods.length] : hood;
+    const dayDate = input.startDate ? addDays(input.startDate, i) : '';
 
     const inHoodFor = <T extends { neighborhood: NeighborhoodSlug }>(list: T[], target: NeighborhoodSlug) => {
       const local = list.filter((x) => x.neighborhood === target);
@@ -222,46 +226,31 @@ export function buildItinerary(
     const firstUnused = (list: PlannerPlaceCandidate[]) => list.find((p) => !usedPlaceIds.has(p.id)) ?? list[0];
 
     const realMorning = firstUnused(inHoodFor(realSeePool, hood));
-    const staticMorning = rotate(inHoodFor(staticSeePool, hood), i);
     const realLunchPool = inHoodFor(realFoodPool.filter((p) => !p.mealPeriods?.length || p.mealPeriods.some((m) => ['breakfast','brunch','lunch'].includes(m))), hood);
     const realDinnerPool = inHoodFor(realFoodPool.filter((p) => !p.mealPeriods?.length || p.mealPeriods.includes('dinner')), lateHood);
     const realLunch = firstUnused(realLunchPool);
     const realDinner = firstUnused(realDinnerPool);
-    const staticLunch = rotate(inHoodFor(staticFoodPool, hood), i);
-    const staticDinner = rotate(inHoodFor(staticFoodPool, lateHood), i + 2);
     const experience = experiencePool.find((e) => !usedExperienceIds.has(e.id));
-    const staticAfternoon = experience ? undefined : rotate(inHoodFor(staticSeePool, hood), i + 1);
     const realEvening = firstUnused(inHoodFor(realNightPool, lateHood));
-    const eveningPool = staticNightPool.length ? staticNightPool : venues;
-    const staticEvening = rotate(inHoodFor(eveningPool, lateHood), i);
+    const dayEvents = eventCandidates
+      .filter((e) => !dayDate || e.date === dayDate)
+      .filter((e) => !usedEventIds.has(e.id))
+      .sort((a, b) => b.impactLevel - a.impactLevel || b.plannerPriority - a.plannerPriority);
 
     const stops: ItineraryStop[] = [];
     let prevHood: string | undefined;
 
-    function pushStatic(
-      slot: ItineraryStop['slot'],
-      item: { slug: string; title: string; neighborhood: NeighborhoodSlug; summary: string; mapQuery: string } | undefined,
-      hrefBase: string,
-      reservationNote?: string,
-      altPool: { slug: string; title: string; summary: string }[] = [],
-    ) {
-      if (!item) return;
-      const alternatives = altPool.filter((x) => x.slug !== item.slug).slice(0, 2).map((x) => ({ title: x.title, href: `${hrefBase}${x.slug}/`, note: x.summary }));
+    function pushPlanningNote(slot: ItineraryStop['slot'], title: string, note: string, mapArea: NeighborhoodSlug) {
       stops.push({
         slot,
-        title: item.title,
-        href: `${hrefBase}${item.slug}/`,
-        neighborhood: neighborhoodName(item.neighborhood),
-        note: item.summary,
-        reservationNote,
-        travelNote: travelNote(prevHood, item.neighborhood),
-        mapQuery: item.mapQuery,
-        alternatives,
-        // Seed fallback records with bracketed names are fabrications; the UI
-        // labels them so a plan never passes one off as a real business.
-        isSample: item.title.includes('[Sample]'),
+        title,
+        neighborhood: neighborhoodName(mapArea),
+        note,
+        travelNote: travelNote(prevHood, mapArea),
+        mapQuery: `${neighborhoodName(mapArea)}, Nashville, TN`,
+        alternatives: [],
       });
-      prevHood = item.neighborhood;
+      prevHood = mapArea;
     }
 
     function pushReal(slot: ItineraryStop['slot'], item: PlannerPlaceCandidate | undefined, alternatives: PlannerPlaceCandidate[] = []) {
@@ -283,10 +272,24 @@ export function buildItinerary(
     }
 
     if (realSeePool.length) pushReal('Morning', realMorning, inHoodFor(realSeePool, hood));
-    else pushStatic('Morning', staticMorning, '/things-to-do/', undefined, inHoodFor(staticSeePool, hood));
+    else {
+      pushPlanningNote(
+        'Morning',
+        `Explore ${neighborhoodName(hood)}`,
+        `Attraction recommendations for ${neighborhoodName(hood)} are still being curated. Start with official museums, parks, and visitor centers nearby.`,
+        hood,
+      );
+    }
 
     if (realFoodPool.length) pushReal('Lunch', realLunch, realLunchPool);
-    else pushStatic('Lunch', staticLunch, '/restaurants/', 'Lunch rarely needs a booking. Arrive before noon or after 1.30pm to skip the rush.', inHoodFor(staticFoodPool, hood));
+    else {
+      pushPlanningNote(
+        'Lunch',
+        `Lunch in ${neighborhoodName(hood)}`,
+        `Restaurant recommendations are still being curated. Use official neighborhood guides and check current hours before you go.`,
+        hood,
+      );
+    }
 
     if (stopsPerDay >= 4) {
       if (experience) {
@@ -301,26 +304,74 @@ export function buildItinerary(
           alternatives: experiencePool.filter((e) => e.id !== experience.id).slice(0, 2).map((e) => ({ title: e.title, href: `/tours/${encodeURIComponent(e.productCode)}/`, note: e.durationLabel || 'Viator experience' })),
         });
         prevHood = hood;
+      } else if (dayEvents[0] && dayEvents[0].impactLevel >= 60) {
+        const event = dayEvents[0];
+        usedEventIds.add(event.id);
+        stops.push({
+          slot: 'Afternoon',
+          title: event.name,
+          href: event.ticketUrl,
+          neighborhood: event.venue || neighborhoodName(hood),
+          note: event.guidance || `Live event during your stay${event.time ? ` at ${event.time}` : ''}.`,
+          reservationNote: event.ticketUrl ? 'Check tickets and start times on the official listing.' : undefined,
+          travelNote: travelNote(prevHood, hood),
+          mapQuery: `${event.venue || event.name}, Nashville, TN`,
+          alternatives: [],
+        });
+        prevHood = hood;
       } else if (realSeePool.length) {
         pushReal('Afternoon', firstUnused(inHoodFor(realSeePool, hood)), inHoodFor(realSeePool, hood));
       } else {
-        pushStatic('Afternoon', staticAfternoon, '/things-to-do/', undefined, inHoodFor(staticSeePool, hood));
+        pushPlanningNote(
+          'Afternoon',
+          `Afternoon in ${neighborhoodName(hood)}`,
+          'Bookable experiences and attraction picks for this slot are still being curated.',
+          hood,
+        );
       }
     }
 
     if (realFoodPool.length) pushReal('Dinner', realDinner, realDinnerPool);
-    else pushStatic('Dinner', staticDinner, '/restaurants/', input.budget === 'premium' ? 'Book three to four weeks out for a weekend table.' : 'Book a week or two out for a weekend table.', inHoodFor(staticFoodPool, lateHood));
+    else {
+      pushPlanningNote(
+        'Dinner',
+        `Dinner in ${neighborhoodName(lateHood)}`,
+        `Dinner recommendations for ${neighborhoodName(lateHood)} are still being curated. Prefer restaurants with current official hours and reservation links.`,
+        lateHood,
+      );
+    }
 
     if ((stopsPerDay >= 5 || input.wantsNightlife) && !avoidLateNight) {
       if (realNightPool.length) pushReal('Evening', realEvening, inHoodFor(realNightPool, lateHood));
-      else pushStatic('Evening', staticEvening, '/music/', 'Check the venue calendar before you commit the night.', inHoodFor(venues, lateHood));
+      else {
+        pushPlanningNote(
+          'Evening',
+          `Evening in ${neighborhoodName(lateHood)}`,
+          'Music venue recommendations are still being curated. Check official venue calendars before you commit the night.',
+          lateHood,
+        );
+      }
     }
 
     const guidance: PlannerGuidance[] = [];
     if (primaryHoodContext) guidance.push({ title: primaryHoodContext.title, note: primaryHoodContext.guidance });
     if (i === 0 && globalAudienceContext[0]) guidance.push({ title: globalAudienceContext[0].title, note: globalAudienceContext[0].guidance });
+    const impact = dayEvents.find((e) => e.impactLevel >= 70);
+    if (impact) {
+      guidance.push({
+        title: `High-impact event: ${impact.name}`,
+        note: impact.guidance
+          || `${impact.venue || 'A major venue'} has a high-impact event this day. Expect heavier traffic and book dinner earlier if you are nearby.`,
+      });
+    }
 
-    result.push({ dayNumber: i + 1, date: input.startDate ? addDays(input.startDate, i) : '', theme: compactBlock ? `${neighborhoodName(hood)} + ${neighborhoodName(lateHood)}` : `${neighborhoodName(hood)} and around`, stops, guidance: guidance.slice(0, 2) });
+    result.push({
+      dayNumber: i + 1,
+      date: dayDate,
+      theme: compactBlock ? `${neighborhoodName(hood)} + ${neighborhoodName(lateHood)}` : `${neighborhoodName(hood)} and around`,
+      stops,
+      guidance: guidance.slice(0, 3),
+    });
   }
 
   return result;

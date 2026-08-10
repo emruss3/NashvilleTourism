@@ -16,30 +16,25 @@ Nashroam is a Nashville-specific data, editorial, planning, and transaction plat
 | Item | Live state |
 |---|---:|
 | Nashville neighborhoods | **18** |
-| Canonical place records | **22** |
-| Published places | **0** |
-| FSQ OS staging candidates | **0** — importer ready; dataset access still required |
+| Canonical place records | **~42** |
+| Approved / published places | **0** |
+| Tourism discovery candidates (Overture) | Depends on successful sync run |
 | Canonical Viator experiences | **188** |
 | Approved / published experiences | **0** |
-| Priority experience-review queue | **49** |
-| Viator taxonomy tags | **1,263** |
-| Canonical events | **0** |
+| Priority experience-review queue | **~49** |
+| Canonical events (Supabase) | **0** |
+| Public Ticketmaster calendar | Legacy Vercel adapter (Supabase path inactive) |
 | Active planner-context rules | **15** |
-| Canonical place relationships | **10** |
-| Registered data sources | **15** |
-| Active sources | **4** |
-| Enabled ingestion schedules | **3** (Viator) |
-| Prepared/disabled schedules | **1** (Ticketmaster) |
+| Viator sync | **Hourly — working** |
 
-The original website's fake `[Sample]` restaurants have **not** been imported into Supabase. The 22 current place records are real Nashville institution/venue stubs, deliberately unverified/unpublished until durable facts are confirmed.
+### Honesty labels
 
-All 188 Viator experiences are real API inventory and remain pending human curation. Machine review buckets are:
+- **LIVE** — Viator backend/catalog; Ticketmaster legacy public calendar; Overture workflow code
+- **CONNECTED BUT NOT PUBLISHED** — 188 experiences + ~42 places awaiting human approve/publish
+- **PREPARED** — Ticketmaster Edge sync, Overture GH Action, FSQ staging
+- **BLOCKER** — Vercel must have `SUPABASE_SERVICE_ROLE_KEY` for the website to show approved catalog rows
 
-- **49 priority-review**
-- **88 standard-review**
-- **51 long-tail**
-
-Machine scoring/classification is workflow triage only. It cannot publish a record or write a Nashroam editorial score.
+Manual restaurant seeding is **deprecated**. Use discovery + canonical review.
 
 ---
 

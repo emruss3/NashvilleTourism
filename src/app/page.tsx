@@ -6,8 +6,11 @@ import { GuideCard } from '@/components/Cards';
 import LiveEventCard from '@/components/LiveEventCard';
 import NeighborhoodMap from '@/components/NeighborhoodMap';
 import NewsletterForm from '@/components/NewsletterForm';
+import { TourProductCard } from '@/components/tours/TourProductCard';
 import { guides } from '@/lib/content';
 import { getCalendar } from '@/lib/feeds/calendar';
+import { getToursCatalog } from '@/lib/feeds/tours';
+import { experienceToProductSummary } from '@/lib/feeds/experiences';
 import { site } from '@/lib/site';
 import type { ImageKey } from '@/lib/media';
 import { assertHomepageMediaIntegrity } from '@/lib/assert-homepage-media';
@@ -86,8 +89,12 @@ const TRENDING_NOW: {
 ];
 
 export default async function HomePage() {
-  const { events, live, configured } = await getCalendar();
+  const [{ events, live, configured }, tours] = await Promise.all([
+    getCalendar(),
+    getToursCatalog({ count: 6 }),
+  ]);
   const soon = events.slice(0, 4);
+  const featuredExperiences = tours.live ? tours.experiences.slice(0, 6) : [];
   const startHere = [
     'nashville-first-time-visitors',
     'where-to-stay-nashville',
@@ -146,6 +153,29 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      {featuredExperiences.length > 0 ? (
+        <section className="border-y border-paper-edge bg-paper-card py-14 lg:py-16">
+          <div className="shell">
+            <SectionHeader
+              eyebrow="Bookable now"
+              title="Book a Nashville Experience"
+              description="Approved Nashroam picks from the live Viator catalog. Outbound booking uses the exact Viator product URL."
+              href="/tours/"
+              linkLabel="All tours"
+            />
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {featuredExperiences.map((experience) => (
+                <TourProductCard
+                  key={experience.id}
+                  product={experienceToProductSummary(experience)}
+                  category={experience.categories[0]}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <section className="border-y border-paper-edge bg-paper-card py-14 lg:py-16">
         <div className="shell">

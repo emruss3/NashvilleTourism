@@ -29,3 +29,5 @@ NashvilleTourism-media-repository/
 media-originals/
 tmp/
 
+.vercel
+.env*

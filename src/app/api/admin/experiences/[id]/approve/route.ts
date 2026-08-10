@@ -18,6 +18,11 @@ function list(value: FormDataEntryValue | null): string[] {
     .slice(0, 20);
 }
 
+function nextIdParam(form: FormData): string | undefined {
+  const nextId = String(form.get('nextId') || '').trim();
+  return nextId || undefined;
+}
+
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   if (!hasAdminSession()) {
     return NextResponse.redirect(new URL('/admin/login', req.url), { status: 303 });
@@ -35,6 +40,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const curationNotes = String(form.get('curationNotes') || '').trim();
   const bestFor = list(form.get('bestFor'));
   const travelerTypes = list(form.get('travelerTypes'));
+  const nextId = nextIdParam(form);
 
   if (!Number.isFinite(score) || score < 0 || score > 100) {
     return redirectTo(req, { error: 'score-must-be-0-100', id: params.id });
@@ -60,5 +66,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     return redirectTo(req, { error: 'approval-failed', id: params.id });
   }
 
-  return redirectTo(req, { approved: '1' });
+  const redirectParams: Record<string, string> = { approved: '1' };
+  if (nextId) redirectParams.id = nextId;
+  return redirectTo(req, redirectParams);
 }

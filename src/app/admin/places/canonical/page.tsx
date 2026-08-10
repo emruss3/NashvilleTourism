@@ -13,7 +13,29 @@ type Row = {
   cuisine: string[] | null; price_level: number | null; reservation_url: string | null;
 };
 
-const CATEGORIES = ['restaurant','venue','attraction','park','bar-nightlife','coffee','shopping','lodging'];
+const CATEGORIES = [
+  { key: 'restaurant', label: 'Restaurants' },
+  { key: 'venue', label: 'Music venues' },
+  { key: 'attraction', label: 'Attractions' },
+  { key: 'park', label: 'Parks' },
+  { key: 'bar-nightlife', label: 'Nightlife' },
+  { key: 'all', label: 'All' },
+] as const;
+
+function defaultSummary(item: Row) {
+  const hood = item.neighborhood_name || 'Nashville';
+  if (item.primary_category === 'restaurant') {
+    return `${item.name} is a ${hood} restaurant${item.cuisine?.length ? ` known for ${item.cuisine.slice(0, 2).join(' and ')}` : ''}. Confirm hours and reservations on the official site before you go.`;
+  }
+  if (item.primary_category === 'venue' || item.primary_category === 'live-music') {
+    return `${item.name} is a ${hood} music venue. Check the official calendar for the night you want before you commit.`;
+  }
+  return `${item.name} is a ${hood} ${item.primary_category.replace(/-/g, ' ')}. Confirm current hours on the official site.`;
+}
+
+function defaultLocalNote(item: Row) {
+  return `Worth considering for travelers exploring ${item.neighborhood_name || 'Nashville'}. Verify current hours and booking needs on the official site — conditions change.`;
+}
 
 export default async function CanonicalPlaceReview({ searchParams }: { searchParams?: { category?: string; approved?: string; rejected?: string; error?: string; id?: string } }) {
   if (!isAdminAuthConfigured()) redirect('/admin/login?error=not-configured');
@@ -46,7 +68,8 @@ export default async function CanonicalPlaceReview({ searchParams }: { searchPar
           <h1 className="mt-2 font-display text-3xl font-bold text-navy md:text-4xl">Canonical place review</h1>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ink-soft">Durable identity is already verified. Publishing still requires a human Nashroam score, summary, local note and planner fit.</p>
           <div className="mt-4 flex flex-wrap gap-4 text-sm font-semibold">
-            <Link href="/admin/experiences" className="text-navy hover:text-clay">Experiences</Link>
+            <Link href="/admin" className="text-navy hover:text-clay">Console</Link>
+            <Link href="/admin/experiences?view=shortlist" className="text-navy hover:text-clay">Experiences</Link>
             <Link href="/admin/places" className="text-navy hover:text-clay">Discovery</Link>
             <span className="text-ink-faint">Canonical places</span>
             <Link href="/admin/sources" className="text-navy hover:text-clay">Sources</Link>
@@ -64,7 +87,15 @@ export default async function CanonicalPlaceReview({ searchParams }: { searchPar
       </section>
 
       <nav className="mt-6 flex flex-wrap gap-2">
-        {['restaurant','venue','attraction','park','all'].map((c) => <Link key={c} href={`/admin/places/canonical?category=${c}`} className={`rounded-full border px-3 py-1.5 text-sm ${category===c?'border-clay bg-clay text-white':'border-paper-edge bg-white text-ink-soft'}`}>{c}</Link>)}
+        {CATEGORIES.map((c) => (
+          <Link
+            key={c.key}
+            href={`/admin/places/canonical?category=${c.key}`}
+            className={`rounded-full border px-3 py-1.5 text-sm ${category === c.key ? 'border-clay bg-clay text-white' : 'border-paper-edge bg-white text-ink-soft'}`}
+          >
+            {c.label}
+          </Link>
+        ))}
       </nav>
 
       <section className="mt-6 space-y-5">
@@ -83,22 +114,23 @@ export default async function CanonicalPlaceReview({ searchParams }: { searchPar
               </div>
             </div>
 
-            <details className="mt-5 rounded-lg border border-paper-edge bg-white p-4" open={searchParams?.id===item.id}>
+            <details className="mt-5 rounded-lg border border-paper-edge bg-white p-4" open={searchParams?.id===item.id || rows[0]?.id===item.id}>
               <summary className="cursor-pointer font-semibold text-navy">Editorial review</summary>
+              <p className="mt-2 text-xs text-ink-faint">Summary/local note are prefilled starters — edit them. Nashroam score stays blank until you set it (never copy provider ratings).</p>
               <form action={`/api/admin/canonical-places/${item.id}/approve`} method="post" className="mt-4 grid gap-4 md:grid-cols-2">
-                <label className="text-sm font-semibold text-navy">Nashroam score<input name="nashroamScore" type="number" min="0" max="100" required className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
-                <label className="text-sm font-semibold text-navy">Planner priority<input name="plannerPriority" type="number" min="0" max="100" required className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
-                <label className="md:col-span-2 text-sm font-semibold text-navy">Public summary<textarea name="summary" rows={2} required placeholder="Concise factual Nashroam description." className="mt-1 w-full rounded-lg border border-paper-edge p-3"/></label>
-                <label className="md:col-span-2 text-sm font-semibold text-navy">Local note<textarea name="localNote" rows={3} required placeholder="Why go, who it works for, and the honest tradeoff." className="mt-1 w-full rounded-lg border border-paper-edge p-3"/></label>
-                <label className="text-sm font-semibold text-navy">Best for<input name="bestFor" placeholder="date night, foodies, groups" className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
-                <label className="text-sm font-semibold text-navy">Traveler types<input name="travelerTypes" placeholder="couples, first-visit, food" className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
+                <label className="text-sm font-semibold text-navy">Nashroam score<input name="nashroamScore" type="number" min="0" max="100" required placeholder="Required — your judgment" className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
+                <label className="text-sm font-semibold text-navy">Planner priority<input name="plannerPriority" type="number" min="0" max="100" required defaultValue={Math.min(85, Math.max(50, item.confidence_score ?? 60))} className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
+                <label className="md:col-span-2 text-sm font-semibold text-navy">Public summary<textarea name="summary" rows={2} required defaultValue={defaultSummary(item)} className="mt-1 w-full rounded-lg border border-paper-edge p-3"/></label>
+                <label className="md:col-span-2 text-sm font-semibold text-navy">Local note<textarea name="localNote" rows={3} required defaultValue={defaultLocalNote(item)} className="mt-1 w-full rounded-lg border border-paper-edge p-3"/></label>
+                <label className="text-sm font-semibold text-navy">Best for<input name="bestFor" defaultValue={item.primary_category==='restaurant' ? 'food, first-visit' : item.primary_category==='venue' ? 'music, first-visit' : 'first-visit'} className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
+                <label className="text-sm font-semibold text-navy">Traveler types<input name="travelerTypes" defaultValue="first-visit,couples" className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
                 <label className="text-sm font-semibold text-navy">Vibe<input name="vibe" placeholder="lively, polished, intimate" className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
-                <label className="text-sm font-semibold text-navy">Typical duration (minutes)<input name="typicalDurationMinutes" type="number" min="15" max="720" className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
+                <label className="text-sm font-semibold text-navy">Typical duration (minutes)<input name="typicalDurationMinutes" type="number" min="15" max="720" defaultValue={item.primary_category==='restaurant' ? 90 : 120} className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
                 {item.primary_category==='restaurant' ? <>
-                  <label className="text-sm font-semibold text-navy">Cuisine<input name="cuisine" placeholder="Italian, New American" className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
-                  <label className="text-sm font-semibold text-navy">Price level<select name="priceLevel" defaultValue="" className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge bg-white px-3"><option value="">Unknown</option><option value="1">$</option><option value="2">$$</option><option value="3">$$$</option><option value="4">$$$$</option></select></label>
-                  <label className="text-sm font-semibold text-navy">Meal periods<input name="mealPeriods" placeholder="lunch, dinner, brunch" className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
-                  <label className="text-sm font-semibold text-navy">Reservation URL<input name="reservationUrl" type="url" placeholder="https://..." className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
+                  <label className="text-sm font-semibold text-navy">Cuisine<input name="cuisine" defaultValue={(item.cuisine ?? []).join(', ')} placeholder="Italian, New American" className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
+                  <label className="text-sm font-semibold text-navy">Price level<select name="priceLevel" defaultValue={item.price_level != null ? String(item.price_level) : ''} className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge bg-white px-3"><option value="">Unknown</option><option value="1">$</option><option value="2">$$</option><option value="3">$$$</option><option value="4">$$$$</option></select></label>
+                  <label className="text-sm font-semibold text-navy">Meal periods<input name="mealPeriods" defaultValue="lunch, dinner" className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
+                  <label className="text-sm font-semibold text-navy">Reservation URL<input name="reservationUrl" type="url" defaultValue={item.reservation_url || ''} placeholder="https://..." className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3"/></label>
                 </> : null}
                 {(['familyFriendly','groupFriendly','reservationRecommended'] as const).map((name) => <label key={name} className="text-sm font-semibold text-navy">{name.replace(/([A-Z])/g,' $1')}<select name={name} defaultValue="" className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge bg-white px-3"><option value="">Not rated</option><option value="true">Yes</option><option value="false">No</option></select></label>)}
                 <label className="md:col-span-2 text-sm font-semibold text-navy">Internal curation notes<textarea name="curationNotes" rows={2} className="mt-1 w-full rounded-lg border border-paper-edge p-3"/></label>
