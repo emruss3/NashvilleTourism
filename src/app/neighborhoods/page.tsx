@@ -1,5 +1,6 @@
 import { Breadcrumbs, JsonLd, PageHeader, SectionHeader } from '@/components/Ui';
 import { NeighborhoodCard } from '@/components/Cards';
+import HubLead from '@/components/HubLead';
 import { neighborhoods } from '@/lib/content';
 import { buildMetadata, itemListSchema } from '@/lib/seo';
 
@@ -29,6 +30,7 @@ export default function NeighborhoodsIndex() {
         title="Nashville Neighborhoods"
         intro="Nashville spreads out. Choosing a base is the single decision that shapes the rest of a trip, because it determines how much time you spend in a car."
       />
+      <HubLead imageKey="hub/neighborhoods-index" />
       <section className="py-10">
         <SectionHeader title={`All ${neighborhoods.length} neighborhoods`} />
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

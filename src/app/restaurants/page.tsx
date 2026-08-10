@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { JsonLd, Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
 import { RestaurantCard } from '@/components/Cards';
+import HubLead from '@/components/HubLead';
 import { HowWeChooseCallout } from '@/components/Trust';
 import { restaurants, guides, neighborhoods } from '@/lib/content';
 import { buildMetadata, isIndexableRecord, itemListSchema } from '@/lib/seo';
@@ -32,6 +33,7 @@ export default function RestaurantsIndex() {
         title="Nashville Restaurants"
         intro="Nashville's food scene spreads across neighborhoods rather than concentrating downtown. Where you eat usually depends on where you are willing to drive."
       />
+      <HubLead imageKey="guide/best-restaurants" />
 
       <section className="py-10">
         <SectionHeader title="All restaurants" description={`${restaurants.length} listings`} />

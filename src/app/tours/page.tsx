@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
+import HubLead from '@/components/HubLead';
 import { AffiliateDisclosure } from '@/components/Trust';
 import BookingWidget from '@/components/BookingWidget';
 import { TourProductCard } from '@/components/tours/TourProductCard';
@@ -38,6 +39,7 @@ export default async function ToursHub({
         title="Nashville Tours & Experiences"
         intro="A NashRoam marketplace of live Viator experiences for Nashville — with our editorial format guide kept separate from commercial inventory."
       />
+      <HubLead imageKey="hub/tours-lead" />
 
       <section className="py-6">
         <h2 className="sr-only">Find hotels, tours, or tickets</h2>

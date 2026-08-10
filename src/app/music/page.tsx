@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { JsonLd, Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
 import { EventCard, VenueCard } from '@/components/Cards';
+import HubLead from '@/components/HubLead';
 import { HowWeChooseCallout } from '@/components/Trust';
 import { venues, guides, upcomingEvents } from '@/lib/content';
 import { buildMetadata, isIndexableRecord, itemListSchema } from '@/lib/seo';
@@ -32,6 +33,7 @@ export default function MusicIndex() {
         title="Live Music in Nashville"
         intro="Three kinds of rooms matter here: free honky-tonks where bands play for tips, small listening rooms built around songwriters, and ticketed halls. Pick the format first, then the night."
       />
+      <HubLead imageKey="music/station-inn" />
 
       <section className="py-10">
         <SectionHeader title="Venues" description={`${venues.length} listings`} />

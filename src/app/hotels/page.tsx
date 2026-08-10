@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { JsonLd, Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
 import { HotelCard } from '@/components/Cards';
+import HubLead from '@/components/HubLead';
 import { AffiliateDisclosure, HowWeChooseCallout } from '@/components/Trust';
 import { hotels, guides, neighborhoods } from '@/lib/content';
 import { buildMetadata, isIndexableRecord, itemListSchema } from '@/lib/seo';
@@ -34,6 +35,7 @@ export default function HotelsIndex() {
         title="Nashville Hotels"
         intro="The neighborhood matters more than the property here. Downtown puts you inside the noise, and the districts just outside it trade a short drive for a night's sleep."
       />
+      <HubLead imageKey="hub/hotels-index" />
 
       <p className="mt-2 max-w-3xl rounded-card border border-paper-edge bg-sky/40 px-4 py-3 text-sm leading-relaxed text-ink-soft">
         Hotel cards below are editorial samples, not live Booking.com inventory. Live rates and

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Breadcrumbs, PageHeader, ScrollableTable, SectionHeader } from '@/components/Ui';
 import { HotelCard } from '@/components/Cards';
+import HubLead from '@/components/HubLead';
 import { AffiliateDisclosure } from '@/components/Trust';
 import BookingWidget from '@/components/BookingWidget';
 import { hotels } from '@/lib/content';
@@ -147,6 +148,7 @@ export default function WhereToStayHub() {
         title="Where to Stay in Nashville"
         intro="Pick the area first. In Nashville the block you sleep on decides how loud your night is and how far you walk, far more than which brand is on the door."
       />
+      <HubLead imageKey="hub/where-to-stay" />
 
       <section className="py-6">
         <h2 className="sr-only">Check rates and availability</h2>

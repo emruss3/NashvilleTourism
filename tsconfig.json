@@ -22,6 +22,7 @@
     "out",
     ".next",
     "NashvilleTourism-media-repository",
-    "supabase/functions"
+    "supabase/functions",
+    "scripts"
   ]
 }

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Breadcrumbs, PageHeader } from '@/components/Ui';
+import HubLead from '@/components/HubLead';
 import LiveMusicCalendar from '@/components/LiveMusicCalendar';
 import { getCalendar, genresOf, venuesOf } from '@/lib/feeds/calendar';
 import { buildMetadata } from '@/lib/seo';
@@ -28,6 +29,7 @@ export default async function LiveMusicPage() {
         title="Who's playing in Nashville"
         intro="Music events at Nashville venues only. Filter by tonight, this weekend, venue, or genre."
       />
+      <HubLead imageKey="music/ascend-amphitheater" />
 
       {!live && (
         <div className="mt-6 rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep">

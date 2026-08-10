@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import { Breadcrumbs, LoadingState, PageHeader } from '@/components/Ui';
+import HubLead from '@/components/HubLead';
 import PlannerClient from './PlannerClient';
 import { buildMetadata } from '@/lib/seo';
 
@@ -19,6 +20,7 @@ export default function PlanPage() {
         title="Plan your Nashville trip"
         intro="Answer a few questions and we will assemble a day-by-day plan from our published listings, with travel time between stops and how far ahead to book."
       />
+      <HubLead imageKey="hub/plan-lead" />
       <div className="py-10">
         <Suspense fallback={<LoadingState label="Loading the planner" />}>
           <PlannerClient />

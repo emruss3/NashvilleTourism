@@ -11,9 +11,13 @@ export const metadata = buildMetadata({
 
 const LICENSE_URLS: Record<string, string> = {
   'CC BY 2.0': 'https://creativecommons.org/licenses/by/2.0/',
+  'CC BY 3.0': 'https://creativecommons.org/licenses/by/3.0/',
+  'CC BY 4.0': 'https://creativecommons.org/licenses/by/4.0/',
   'CC BY-SA 2.0': 'https://creativecommons.org/licenses/by-sa/2.0/',
   'CC BY-SA 3.0': 'https://creativecommons.org/licenses/by-sa/3.0/',
   'CC BY-SA 4.0': 'https://creativecommons.org/licenses/by-sa/4.0/',
+  'Public Domain': 'https://creativecommons.org/publicdomain/mark/1.0/',
+  'CC0 1.0': 'https://creativecommons.org/publicdomain/zero/1.0/',
   'Pexels License': 'https://www.pexels.com/license/',
 };
 
@@ -73,12 +77,17 @@ function uniqueOpenLicenseCredits(rows: RightsRow[]): Credit[] {
 
   for (const row of rows) {
     if (row.rightsStatus === 'reference-only') continue;
-    if (!isClearedApproved(row) && row.rights_status !== 'approved-open-license') continue;
+    if (!isClearedApproved(row) && !String(row.rights_status || '').startsWith('approved-')) continue;
     const license = row.license || null;
     if (!row.credit || !row.source_page || !license) continue;
-    if (row.rights_status && row.rights_status !== 'approved-open-license') continue;
+    if (
+      row.rights_status &&
+      !['approved-open-license', 'approved-public-domain', 'approved-owned'].includes(row.rights_status)
+    ) {
+      continue;
+    }
 
-    const licenseUrl = LICENSE_URLS[license];
+    const licenseUrl = LICENSE_URLS[license] || (row as RightsRow & { licenseUrl?: string }).licenseUrl;
     if (!licenseUrl) continue;
 
     const key = `${row.credit}::${license}`;

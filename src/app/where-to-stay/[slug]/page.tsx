@@ -2,10 +2,12 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Breadcrumbs, Chip, EmptyState, PageHeader, SectionHeader } from '@/components/Ui';
 import { HotelCard } from '@/components/Cards';
+import HubLead from '@/components/HubLead';
 import { AffiliateDisclosure } from '@/components/Trust';
 import BookingWidget from '@/components/BookingWidget';
 import BookingLink from '@/components/BookingLink';
 import { hotels } from '@/lib/content';
+import { stayHubImageKey } from '@/lib/media-placements';
 import { partners } from '@/lib/partners';
 import { ANALYTICS_EVENTS, type AnalyticsEvent } from '@/lib/analytics';
 import { buildMetadata } from '@/lib/seo';
@@ -230,6 +232,7 @@ export default function StaySubHub({ params }: { params: { slug: string } }) {
           </div>
         }
       />
+      {stayHubImageKey(hub.slug) ? <HubLead imageKey={stayHubImageKey(hub.slug)!} /> : null}
 
       <section className="py-6">
         <h2 className="sr-only">Check rates and availability</h2>

@@ -1,0 +1,1233 @@
+{
+  "generated": "2026-08-09",
+  "assets": [
+    {
+      "key": "guide/best-restaurants",
+      "alt": "Nashville-style hot chicken drumsticks served with pickles.",
+      "local_jpg": "/media/guides/best-restaurants-nashville.jpg",
+      "width": 3200,
+      "height": 2151,
+      "srcSet": "/media/guides/best-restaurants-nashville-640.webp 640w, /media/guides/best-restaurants-nashville-960.webp 960w, /media/guides/best-restaurants-nashville-1600.webp 1600w, /media/guides/best-restaurants-nashville-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/guides/best-restaurants-nashville-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/guides/best-restaurants-nashville-960.webp",
+          "width": 960,
+          "height": 639
+        },
+        "1600": {
+          "path": "/media/guides/best-restaurants-nashville-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/guides/best-restaurants-nashville-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Myspiritanimalisamanatee",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ANashville_Hot_Chicken_Drumsticks.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0d/Nashville_Hot_Chicken_Drumsticks.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 4729,
+      "originalHeight": 3180,
+      "sourceSha256": "cd5a407b207db55a2332ad3bdacbb1170a2edacc928675a0d95b3126154da31e",
+      "commonsTitle": "File:Nashville_Hot_Chicken_Drumsticks.jpg"
+    },
+    {
+      "key": "guide/bars-rooftops",
+      "alt": "Bars and rooftops beneath the Nashville skyline.",
+      "local_jpg": "/media/guides/best-bars-rooftops-nashville.jpg",
+      "width": 3200,
+      "height": 2133,
+      "srcSet": "/media/guides/best-bars-rooftops-nashville-640.webp 640w, /media/guides/best-bars-rooftops-nashville-960.webp 960w, /media/guides/best-bars-rooftops-nashville-1600.webp 1600w, /media/guides/best-bars-rooftops-nashville-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/guides/best-bars-rooftops-nashville-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/guides/best-bars-rooftops-nashville-960.webp",
+          "width": 960,
+          "height": 639
+        },
+        "1600": {
+          "path": "/media/guides/best-bars-rooftops-nashville-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/guides/best-bars-rooftops-nashville-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Landscape crop preserving bar/rooftop context.; Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Karakorhummel",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ANashville_skyline_and_bars.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Nashville_skyline_and_bars.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 3456,
+      "originalHeight": 4608,
+      "sourceSha256": "a08ed89b43f3e9ad7c6dc9da14df3127f3a1f8f39610bf93959406650d95ea8f",
+      "commonsTitle": "File:Nashville_skyline_and_bars.jpg"
+    },
+    {
+      "key": "guide/live-music-venues",
+      "alt": "A large live performance at Ascend Amphitheater in downtown Nashville.",
+      "local_jpg": "/media/guides/best-live-music-venues-nashville.jpg",
+      "width": 3200,
+      "height": 2133,
+      "srcSet": "/media/guides/best-live-music-venues-nashville-640.webp 640w, /media/guides/best-live-music-venues-nashville-960.webp 960w, /media/guides/best-live-music-venues-nashville-1600.webp 1600w, /media/guides/best-live-music-venues-nashville-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/guides/best-live-music-venues-nashville-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/guides/best-live-music-venues-nashville-960.webp",
+          "width": 960,
+          "height": 639
+        },
+        "1600": {
+          "path": "/media/guides/best-live-music-venues-nashville-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/guides/best-live-music-venues-nashville-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "U.S. Marine Corps photo by Cpl. Vincent Needham",
+      "license": "Public Domain",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AMarine_Week_Nashville%3B_2nd_MAW_band_at_CMA_fest_%289103794%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e8/Marine_Week_Nashville%3B_2nd_MAW_band_at_CMA_fest_%289103794%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 7331,
+      "originalHeight": 4887,
+      "sourceSha256": "66a766afa09e1dbdbb70bbb5c62b75d441a3ddee93e8721676896fa146f8e7f7",
+      "commonsTitle": "File:Marine_Week_Nashville;_2nd_MAW_band_at_CMA_fest_(9103794).jpg"
+    },
+    {
+      "key": "guide/neighborhood-guide",
+      "alt": "Downtown Nashville skyline over the Cumberland River.",
+      "local_jpg": "/media/guides/nashville-neighborhood-guide.jpg",
+      "width": 3200,
+      "height": 1999,
+      "srcSet": "/media/guides/nashville-neighborhood-guide-640.webp 640w, /media/guides/nashville-neighborhood-guide-960.webp 960w, /media/guides/nashville-neighborhood-guide-1600.webp 1600w, /media/guides/nashville-neighborhood-guide-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/guides/nashville-neighborhood-guide-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/guides/nashville-neighborhood-guide-960.webp",
+          "width": 960,
+          "height": 640
+        },
+        "1600": {
+          "path": "/media/guides/nashville-neighborhood-guide-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/guides/nashville-neighborhood-guide-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Quintin Soloviev",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ANashville%2C_TN_skyline.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Nashville%2C_TN_skyline.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 11757,
+      "originalHeight": 7348,
+      "sourceSha256": "b4c71da5f428e2a427a5f05249962a0e32cfe563274c820a6dbe47423181a276",
+      "commonsTitle": "File:Nashville,_TN_skyline.jpg"
+    },
+    {
+      "key": "guide/first-time-visitors",
+      "alt": "Lower Broadway at Fourth Avenue in downtown Nashville.",
+      "local_jpg": "/media/guides/nashville-first-time-visitors.jpg",
+      "width": 3200,
+      "height": 2400,
+      "srcSet": "/media/guides/nashville-first-time-visitors-640.webp 640w, /media/guides/nashville-first-time-visitors-960.webp 960w, /media/guides/nashville-first-time-visitors-1600.webp 1600w, /media/guides/nashville-first-time-visitors-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/guides/nashville-first-time-visitors-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/guides/nashville-first-time-visitors-960.webp",
+          "width": 960,
+          "height": 639
+        },
+        "1600": {
+          "path": "/media/guides/nashville-first-time-visitors-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/guides/nashville-first-time-visitors-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Warren LeMay from Chicago, IL, United States",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ABroadway_and_4th_Avenue%2C_Nashville%2C_TN_%2854384489114%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8c/Broadway_and_4th_Avenue%2C_Nashville%2C_TN_%2854384489114%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 5236,
+      "originalHeight": 3927,
+      "sourceSha256": "65fa3fc8ad9c55211d392fb5ba721e00c05dec5f0ddb8e0eea8b78fe9ca20530",
+      "commonsTitle": "File:Broadway_and_4th_Avenue,_Nashville,_TN_(54384489114).jpg"
+    },
+    {
+      "key": "attractions/country-music-hall-of-fame",
+      "alt": "Exterior of the Country Music Hall of Fame and Museum in downtown Nashville.",
+      "local_jpg": "/media/attractions/country-music-hall-of-fame.jpg",
+      "width": 3199,
+      "height": 2133,
+      "srcSet": "/media/attractions/country-music-hall-of-fame-640.webp 640w, /media/attractions/country-music-hall-of-fame-960.webp 960w, /media/attractions/country-music-hall-of-fame-1600.webp 1600w, /media/attractions/country-music-hall-of-fame-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/attractions/country-music-hall-of-fame-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/attractions/country-music-hall-of-fame-960.webp",
+          "width": 960,
+          "height": 640
+        },
+        "1600": {
+          "path": "/media/attractions/country-music-hall-of-fame-1600.webp",
+          "width": 1600,
+          "height": 899
+        },
+        "2400": {
+          "path": "/media/attractions/country-music-hall-of-fame-2400.webp",
+          "width": 2400,
+          "height": 1349
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Antony-22",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ACountry_Music_Hall_of_Fame_2022c.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Country_Music_Hall_of_Fame_2022c.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 6240,
+      "originalHeight": 4160,
+      "sourceSha256": "a94876e1bfbf55d656d019d2e1c362adbee102fc71bacc4eb93458706ba541cc",
+      "commonsTitle": "File:Country_Music_Hall_of_Fame_2022c.jpg"
+    },
+    {
+      "key": "attractions/the-parthenon",
+      "alt": "The Parthenon replica in Centennial Park, Nashville.",
+      "local_jpg": "/media/attractions/the-parthenon.jpg",
+      "width": 3200,
+      "height": 1243,
+      "srcSet": "/media/attractions/the-parthenon-640.webp 640w, /media/attractions/the-parthenon-960.webp 960w, /media/attractions/the-parthenon-1600.webp 1600w",
+      "variants": {
+        "640": {
+          "path": "/media/attractions/the-parthenon-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/attractions/the-parthenon-960.webp",
+          "width": 960,
+          "height": 640
+        },
+        "1600": {
+          "path": "/media/attractions/the-parthenon-1600.webp",
+          "width": 1600,
+          "height": 900
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Euthman",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AThe_Parthenon_replica%2C_Centennial_Park%2C_Nashville%2C_Tennessee.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/2/25/The_Parthenon_replica%2C_Centennial_Park%2C_Nashville%2C_Tennessee.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 9394,
+      "originalHeight": 3649,
+      "sourceSha256": "e0622381f8682170120dd410cd3ab66939b4595c6aa5e17d2d906b162132fb4f",
+      "commonsTitle": "File:The_Parthenon_replica,_Centennial_Park,_Nashville,_Tennessee.jpg"
+    },
+    {
+      "key": "attractions/nashville-farmers-market",
+      "alt": "Vendors and shoppers inside Nashville Farmers' Market.",
+      "local_jpg": "/media/attractions/nashville-farmers-market.jpg",
+      "width": 3200,
+      "height": 2125,
+      "srcSet": "/media/attractions/nashville-farmers-market-640.webp 640w, /media/attractions/nashville-farmers-market-960.webp 960w, /media/attractions/nashville-farmers-market-1600.webp 1600w, /media/attractions/nashville-farmers-market-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/attractions/nashville-farmers-market-640.webp",
+          "width": 640,
+          "height": 425
+        },
+        "960": {
+          "path": "/media/attractions/nashville-farmers-market-960.webp",
+          "width": 960,
+          "height": 637
+        },
+        "1600": {
+          "path": "/media/attractions/nashville-farmers-market-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/attractions/nashville-farmers-market-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Interim exact-location federal photo (2010); replace with owned shoot.; Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Marty Bahamonde",
+      "license": "Public Domain",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AFEMA_-_44075_-_Disaster_Officials_meet_with_food_vendors_in_Tennessee.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/2/23/FEMA_-_44075_-_Disaster_Officials_meet_with_food_vendors_in_Tennessee.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 4288,
+      "originalHeight": 2848,
+      "sourceSha256": "26e7d00de25c361825283996bca1bc6d5fc36f20875e0e84017b19e50bfc6660",
+      "commonsTitle": "File:FEMA_-_44075_-_Disaster_Officials_meet_with_food_vendors_in_Tennessee.jpg"
+    },
+    {
+      "key": "attractions/ryman-auditorium-tour",
+      "alt": "Exterior of the Ryman Auditorium on Fifth Avenue in Nashville.",
+      "local_jpg": "/media/attractions/ryman-auditorium-tour.jpg",
+      "width": 2400,
+      "height": 3200,
+      "srcSet": "/media/attractions/ryman-auditorium-tour-640.webp 640w, /media/attractions/ryman-auditorium-tour-960.webp 960w, /media/attractions/ryman-auditorium-tour-1600.webp 1600w, /media/attractions/ryman-auditorium-tour-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/attractions/ryman-auditorium-tour-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/attractions/ryman-auditorium-tour-960.webp",
+          "width": 960,
+          "height": 640
+        },
+        "1600": {
+          "path": "/media/attractions/ryman-auditorium-tour-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/attractions/ryman-auditorium-tour-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Warren LeMay from Chicago, IL, United States",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ARyman_Auditorium%2C_5th_Avenue%2C_Nashville%2C_TN_%2854384525798%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Ryman_Auditorium%2C_5th_Avenue%2C_Nashville%2C_TN_%2854384525798%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 3951,
+      "originalHeight": 5268,
+      "sourceSha256": "3e9abc1be56fad968a68021d3aef60c9b98574f5b6cef2af5f9fd47583f99546",
+      "commonsTitle": "File:Ryman_Auditorium,_5th_Avenue,_Nashville,_TN_(54384525798).jpg"
+    },
+    {
+      "key": "attractions/frist-art-museum",
+      "alt": "The Frist Art Museum building at Broadway and Ninth Avenue in Nashville.",
+      "local_jpg": "/media/attractions/frist-art-museum.jpg",
+      "width": 3200,
+      "height": 2399,
+      "srcSet": "/media/attractions/frist-art-museum-640.webp 640w, /media/attractions/frist-art-museum-960.webp 960w, /media/attractions/frist-art-museum-1600.webp 1600w, /media/attractions/frist-art-museum-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/attractions/frist-art-museum-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/attractions/frist-art-museum-960.webp",
+          "width": 960,
+          "height": 639
+        },
+        "1600": {
+          "path": "/media/attractions/frist-art-museum-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/attractions/frist-art-museum-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Warren LeMay from Chicago, IL, United States",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AOld_Nashville_Post_Office_%28Frist_Art_Museum%29%2C_Broadway_and_9th_Avenue%2C_Nashville%2C_TN_%2854384287651%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Old_Nashville_Post_Office_%28Frist_Art_Museum%29%2C_Broadway_and_9th_Avenue%2C_Nashville%2C_TN_%2854384287651%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 5529,
+      "originalHeight": 4146,
+      "sourceSha256": "4d01f26411f01359cb6745f429b9aab5af0e10ca07c35275170a8bf1a97cca5a",
+      "commonsTitle": "File:Old_Nashville_Post_Office_(Frist_Art_Museum),_Broadway_and_9th_Avenue,_Nashville,_TN_(54384287651).jpg"
+    },
+    {
+      "key": "attractions/cheekwood-estate-gardens",
+      "alt": "Gardens and grounds at Cheekwood Estate & Gardens in Nashville.",
+      "local_jpg": "/media/attractions/cheekwood-estate-gardens.jpg",
+      "width": 3143,
+      "height": 2514,
+      "srcSet": "/media/attractions/cheekwood-estate-gardens-640.webp 640w, /media/attractions/cheekwood-estate-gardens-960.webp 960w, /media/attractions/cheekwood-estate-gardens-1600.webp 1600w, /media/attractions/cheekwood-estate-gardens-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/attractions/cheekwood-estate-gardens-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/attractions/cheekwood-estate-gardens-960.webp",
+          "width": 960,
+          "height": 639
+        },
+        "1600": {
+          "path": "/media/attractions/cheekwood-estate-gardens-1600.webp",
+          "width": 1600,
+          "height": 899
+        },
+        "2400": {
+          "path": "/media/attractions/cheekwood-estate-gardens-2400.webp",
+          "width": 2400,
+          "height": 1349
+        }
+      },
+      "modified": false,
+      "modificationNote": null,
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Sharon Mollerus",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ACheekwood_Estate_%26_Gardens%2C_Nashville_3_24_21_%2851118861080%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9b/Cheekwood_Estate_%26_Gardens%2C_Nashville_3_24_21_%2851118861080%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 3143,
+      "originalHeight": 2514,
+      "sourceSha256": "01849927a74badabcc6a3cee2e54eab3afd7e95bec8307a0a1722c12733066f2",
+      "commonsTitle": "File:Cheekwood_Estate_&_Gardens,_Nashville_3_24_21_(51118861080).jpg"
+    },
+    {
+      "key": "attractions/nmaam",
+      "alt": "National Museum of African American Music at Fifth + Broadway in Nashville.",
+      "local_jpg": "/media/attractions/nmaam.jpg",
+      "width": 2400,
+      "height": 3200,
+      "srcSet": "/media/attractions/nmaam-640.webp 640w, /media/attractions/nmaam-960.webp 960w, /media/attractions/nmaam-1600.webp 1600w, /media/attractions/nmaam-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/attractions/nmaam-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/attractions/nmaam-960.webp",
+          "width": 960,
+          "height": 640
+        },
+        "1600": {
+          "path": "/media/attractions/nmaam-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/attractions/nmaam-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Warren LeMay from Chicago, IL, United States",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ANational_Museum_of_African_American_Music%2C_Fifth_%2B_Broadway%2C_Broadway_and_5th_Avenue%2C_Nashville%2C_TN_%2854384524318%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9e/National_Museum_of_African_American_Music%2C_Fifth_%2B_Broadway%2C_Broadway_and_5th_Avenue%2C_Nashville%2C_TN_%2854384524318%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 4284,
+      "originalHeight": 5712,
+      "sourceSha256": "c5a371ca54736769610169a7465d87e97545e9b8b547b37ca51721a32fb9a7f0",
+      "commonsTitle": "File:National_Museum_of_African_American_Music,_Fifth_+_Broadway,_Broadway_and_5th_Avenue,_Nashville,_TN_(54384524318).jpg"
+    },
+    {
+      "key": "music/ryman-auditorium",
+      "alt": "Exterior of the Ryman Auditorium on Fifth Avenue in Nashville.",
+      "local_jpg": "/media/music/ryman-auditorium.jpg",
+      "width": 2400,
+      "height": 3200,
+      "srcSet": "/media/music/ryman-auditorium-640.webp 640w, /media/music/ryman-auditorium-960.webp 960w, /media/music/ryman-auditorium-1600.webp 1600w, /media/music/ryman-auditorium-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/music/ryman-auditorium-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/music/ryman-auditorium-960.webp",
+          "width": 960,
+          "height": 640
+        },
+        "1600": {
+          "path": "/media/music/ryman-auditorium-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/music/ryman-auditorium-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Warren LeMay from Chicago, IL, United States",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ARyman_Auditorium%2C_5th_Avenue%2C_Nashville%2C_TN_%2854384525798%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Ryman_Auditorium%2C_5th_Avenue%2C_Nashville%2C_TN_%2854384525798%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 3951,
+      "originalHeight": 5268,
+      "sourceSha256": "3e9abc1be56fad968a68021d3aef60c9b98574f5b6cef2af5f9fd47583f99546",
+      "commonsTitle": "File:Ryman_Auditorium,_5th_Avenue,_Nashville,_TN_(54384525798).jpg"
+    },
+    {
+      "key": "music/station-inn",
+      "alt": "Exterior of Station Inn in Nashville.",
+      "local_jpg": "/media/music/station-inn.jpg",
+      "width": 3200,
+      "height": 2400,
+      "srcSet": "/media/music/station-inn-640.webp 640w, /media/music/station-inn-960.webp 960w, /media/music/station-inn-1600.webp 1600w, /media/music/station-inn-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/music/station-inn-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/music/station-inn-960.webp",
+          "width": 960,
+          "height": 639
+        },
+        "1600": {
+          "path": "/media/music/station-inn-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/music/station-inn-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Nick Shields",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AStation_Inn_Nashville_%288729882676%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Station_Inn_Nashville_%288729882676%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 4896,
+      "originalHeight": 3672,
+      "sourceSha256": "ce2f692b038f9ce579de577ad9f1fb9276e20b96ebcdc0a62cb59385065142ff",
+      "commonsTitle": "File:Station_Inn_Nashville_(8729882676).jpg"
+    },
+    {
+      "key": "music/bluebird-cafe",
+      "alt": "A live performance inside The Bluebird Cafe in Nashville.",
+      "local_jpg": "/media/music/bluebird-cafe.jpg",
+      "width": 3200,
+      "height": 2179,
+      "srcSet": "/media/music/bluebird-cafe-640.webp 640w, /media/music/bluebird-cafe-960.webp 960w, /media/music/bluebird-cafe-1600.webp 1600w, /media/music/bluebird-cafe-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/music/bluebird-cafe-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/music/bluebird-cafe-960.webp",
+          "width": 960,
+          "height": 639
+        },
+        "1600": {
+          "path": "/media/music/bluebird-cafe-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/music/bluebird-cafe-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Purple7Management",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AJillian_Kohr_Live_At_The_Bluebird_Cafe.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Jillian_Kohr_Live_At_The_Bluebird_Cafe.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 3456,
+      "originalHeight": 2354,
+      "sourceSha256": "ba392550c4a2c4ee91a5d3c68b2d6886ecafc80c08348eb8fce4ef90a3942a4d",
+      "commonsTitle": "File:Jillian_Kohr_Live_At_The_Bluebird_Cafe.jpg"
+    },
+    {
+      "key": "music/ascend-amphitheater",
+      "alt": "A large live performance at Ascend Amphitheater in downtown Nashville.",
+      "local_jpg": "/media/music/ascend-amphitheater.jpg",
+      "width": 3200,
+      "height": 2133,
+      "srcSet": "/media/music/ascend-amphitheater-640.webp 640w, /media/music/ascend-amphitheater-960.webp 960w, /media/music/ascend-amphitheater-1600.webp 1600w, /media/music/ascend-amphitheater-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/music/ascend-amphitheater-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/music/ascend-amphitheater-960.webp",
+          "width": 960,
+          "height": 639
+        },
+        "1600": {
+          "path": "/media/music/ascend-amphitheater-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/music/ascend-amphitheater-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "U.S. Marine Corps photo by Cpl. Vincent Needham",
+      "license": "Public Domain",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AMarine_Week_Nashville%3B_2nd_MAW_band_at_CMA_fest_%289103794%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e8/Marine_Week_Nashville%3B_2nd_MAW_band_at_CMA_fest_%289103794%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 7331,
+      "originalHeight": 4887,
+      "sourceSha256": "66a766afa09e1dbdbb70bbb5c62b75d441a3ddee93e8721676896fa146f8e7f7",
+      "commonsTitle": "File:Marine_Week_Nashville;_2nd_MAW_band_at_CMA_fest_(9103794).jpg"
+    },
+    {
+      "key": "music/bridgestone-arena",
+      "alt": "Bridgestone Arena and the Nashville Visitor Center on Broadway.",
+      "local_jpg": "/media/music/bridgestone-arena.jpg",
+      "width": 2399,
+      "height": 3200,
+      "srcSet": "/media/music/bridgestone-arena-640.webp 640w, /media/music/bridgestone-arena-960.webp 960w, /media/music/bridgestone-arena-1600.webp 1600w",
+      "variants": {
+        "640": {
+          "path": "/media/music/bridgestone-arena-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/music/bridgestone-arena-960.webp",
+          "width": 960,
+          "height": 639
+        },
+        "1600": {
+          "path": "/media/music/bridgestone-arena-1600.webp",
+          "width": 1600,
+          "height": 899
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Warren LeMay from Chicago, IL, United States",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ANashville_Visitor_Center_and_Bridgestone_Arena%2C_Broadway_and_5th_Avenue%2C_Nashville%2C_TN_%2854384487819%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Nashville_Visitor_Center_and_Bridgestone_Arena%2C_Broadway_and_5th_Avenue%2C_Nashville%2C_TN_%2854384487819%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 3956,
+      "originalHeight": 5275,
+      "sourceSha256": "110eb44e733b55a1ed00b85cd5832d758184396b1d88925a4a92bb02d35586b3",
+      "commonsTitle": "File:Nashville_Visitor_Center_and_Bridgestone_Arena,_Broadway_and_5th_Avenue,_Nashville,_TN_(54384487819).jpg"
+    },
+    {
+      "key": "neighborhood/downtown-broadway",
+      "alt": "Lower Broadway at Fourth Avenue in downtown Nashville.",
+      "local_jpg": "/media/neighborhoods/downtown-broadway.jpg",
+      "width": 3200,
+      "height": 2400,
+      "srcSet": "/media/neighborhoods/downtown-broadway-640.webp 640w, /media/neighborhoods/downtown-broadway-960.webp 960w, /media/neighborhoods/downtown-broadway-1600.webp 1600w, /media/neighborhoods/downtown-broadway-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/neighborhoods/downtown-broadway-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/neighborhoods/downtown-broadway-960.webp",
+          "width": 960,
+          "height": 639
+        },
+        "1600": {
+          "path": "/media/neighborhoods/downtown-broadway-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/neighborhoods/downtown-broadway-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Warren LeMay from Chicago, IL, United States",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ABroadway_and_4th_Avenue%2C_Nashville%2C_TN_%2854384489114%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8c/Broadway_and_4th_Avenue%2C_Nashville%2C_TN_%2854384489114%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 5236,
+      "originalHeight": 3927,
+      "sourceSha256": "65fa3fc8ad9c55211d392fb5ba721e00c05dec5f0ddb8e0eea8b78fe9ca20530",
+      "commonsTitle": "File:Broadway_and_4th_Avenue,_Nashville,_TN_(54384489114).jpg"
+    },
+    {
+      "key": "neighborhood/12-south",
+      "alt": "The I Believe in Nashville mural in 12 South.",
+      "local_jpg": "/media/neighborhoods/12-south.jpg",
+      "width": 3200,
+      "height": 2133,
+      "srcSet": "/media/neighborhoods/12-south-640.webp 640w, /media/neighborhoods/12-south-960.webp 960w, /media/neighborhoods/12-south-1600.webp 1600w, /media/neighborhoods/12-south-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/neighborhoods/12-south-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/neighborhoods/12-south-960.webp",
+          "width": 960,
+          "height": 639
+        },
+        "1600": {
+          "path": "/media/neighborhoods/12-south-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/neighborhoods/12-south-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Landscape crop keeping the complete mural visible.; Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "https://www.flickr.com/photos/jamesonfink/",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AI_Believe_in_Nashville_Mural_Jameson_Fink.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d7/I_Believe_in_Nashville_Mural_Jameson_Fink.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 2448,
+      "originalHeight": 3264,
+      "sourceSha256": "3772fc18d487da8221cdaa8fe3ab5f5ef42341f24b248d48832cf4c47f039a88",
+      "commonsTitle": "File:I_Believe_in_Nashville_Mural_Jameson_Fink.jpg"
+    },
+    {
+      "key": "neighborhood/the-gulch",
+      "alt": "Nashville skyline viewed from the Gulch.",
+      "local_jpg": "/media/neighborhoods/the-gulch.jpg",
+      "width": 3200,
+      "height": 1648,
+      "srcSet": "/media/neighborhoods/the-gulch-640.webp 640w, /media/neighborhoods/the-gulch-960.webp 960w, /media/neighborhoods/the-gulch-1600.webp 1600w, /media/neighborhoods/the-gulch-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/neighborhoods/the-gulch-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/neighborhoods/the-gulch-960.webp",
+          "width": 960,
+          "height": 640
+        },
+        "1600": {
+          "path": "/media/neighborhoods/the-gulch-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/neighborhoods/the-gulch-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Marlamorrismusic",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ACity_of_Nashville_skyline_from_Gulch_-_Oct_2019.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/d/dd/City_of_Nashville_skyline_from_Gulch_-_Oct_2019.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 6000,
+      "originalHeight": 3091,
+      "sourceSha256": "49706c791841cafadbe2cbf58e6d7b20971a7964b4ea4f1a2c299e0bbbc58e86",
+      "commonsTitle": "File:City_of_Nashville_skyline_from_Gulch_-_Oct_2019.jpg"
+    },
+    {
+      "key": "neighborhood/east-nashville",
+      "alt": "Streetscape in East Nashville.",
+      "local_jpg": "/media/neighborhoods/east-nashville.jpg",
+      "width": 3200,
+      "height": 1139,
+      "srcSet": "/media/neighborhoods/east-nashville-640.webp 640w, /media/neighborhoods/east-nashville-960.webp 960w, /media/neighborhoods/east-nashville-1600.webp 1600w",
+      "variants": {
+        "640": {
+          "path": "/media/neighborhoods/east-nashville-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/neighborhoods/east-nashville-960.webp",
+          "width": 960,
+          "height": 640
+        },
+        "1600": {
+          "path": "/media/neighborhoods/east-nashville-1600.webp",
+          "width": 1600,
+          "height": 900
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Andrew Jameson",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AEastNashvilleHD.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b1/EastNashvilleHD.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 3573,
+      "originalHeight": 1272,
+      "sourceSha256": "51921cb94c37deeee945f858e5773786570e506cc264c2934b1e734923cbc1bd",
+      "commonsTitle": "File:EastNashvilleHD.jpg"
+    },
+    {
+      "key": "neighborhood/germantown",
+      "alt": "Streetscape in Germantown, Nashville.",
+      "local_jpg": "/media/neighborhoods/germantown.jpg",
+      "width": 3200,
+      "height": 1177,
+      "srcSet": "/media/neighborhoods/germantown-640.webp 640w, /media/neighborhoods/germantown-960.webp 960w, /media/neighborhoods/germantown-1600.webp 1600w",
+      "variants": {
+        "640": {
+          "path": "/media/neighborhoods/germantown-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/neighborhoods/germantown-960.webp",
+          "width": 960,
+          "height": 640
+        },
+        "1600": {
+          "path": "/media/neighborhoods/germantown-1600.webp",
+          "width": 1600,
+          "height": 900
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Andrew Jameson",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AGermantownHDNashville.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9c/GermantownHDNashville.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 3701,
+      "originalHeight": 1362,
+      "sourceSha256": "577d36e03ddfee3e2631174adadb3a1be880011f097d449230ca3b0717698180",
+      "commonsTitle": "File:GermantownHDNashville.jpg"
+    },
+    {
+      "key": "neighborhood/hillsboro-village",
+      "alt": "The Belcourt Theatre in Hillsboro Village.",
+      "local_jpg": "/media/neighborhoods/hillsboro-village.jpg",
+      "width": 2812,
+      "height": 1405,
+      "srcSet": "/media/neighborhoods/hillsboro-village-640.webp 640w, /media/neighborhoods/hillsboro-village-960.webp 960w, /media/neighborhoods/hillsboro-village-1600.webp 1600w, /media/neighborhoods/hillsboro-village-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/neighborhoods/hillsboro-village-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/neighborhoods/hillsboro-village-960.webp",
+          "width": 960,
+          "height": 640
+        },
+        "1600": {
+          "path": "/media/neighborhoods/hillsboro-village-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/neighborhoods/hillsboro-village-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": false,
+      "modificationNote": null,
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "CEWall",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ADSCF9014-crop1.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b9/DSCF9014-crop1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 2812,
+      "originalHeight": 1405,
+      "sourceSha256": "a74b10af940fa2acbdf906877fd2691f95560952a73b784f9f06e802afa04fc7",
+      "commonsTitle": "File:DSCF9014-crop1.jpg"
+    },
+    {
+      "key": "neighborhood/sylvan-park",
+      "alt": "St. Andrew's Anglican Church in the Sylvan Park area of Nashville.",
+      "local_jpg": "/media/neighborhoods/sylvan-park.jpg",
+      "width": 3200,
+      "height": 2400,
+      "srcSet": "/media/neighborhoods/sylvan-park-640.webp 640w, /media/neighborhoods/sylvan-park-960.webp 960w, /media/neighborhoods/sylvan-park-1600.webp 1600w, /media/neighborhoods/sylvan-park-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/neighborhoods/sylvan-park-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/neighborhoods/sylvan-park-960.webp",
+          "width": 960,
+          "height": 639
+        },
+        "1600": {
+          "path": "/media/neighborhoods/sylvan-park-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/neighborhoods/sylvan-park-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Dclemens1971",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ASt._Andrew%E2%80%99s_Anglican_Church%2C_Nashville_01.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/8/82/St._Andrew%E2%80%99s_Anglican_Church%2C_Nashville_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 4032,
+      "originalHeight": 3024,
+      "sourceSha256": "6200659b64d2c2d1d62f70460e7062b4d07a4f7e52cdfc9b799bcfac8144dfd0",
+      "commonsTitle": "File:St._Andrew\u2019s_Anglican_Church,_Nashville_01.jpg"
+    },
+    {
+      "key": "neighborhood/green-hills",
+      "alt": "The Mall at Green Hills in Nashville.",
+      "local_jpg": "/media/neighborhoods/green-hills.jpg",
+      "width": 2486,
+      "height": 3200,
+      "srcSet": "/media/neighborhoods/green-hills-640.webp 640w, /media/neighborhoods/green-hills-960.webp 960w, /media/neighborhoods/green-hills-1600.webp 1600w, /media/neighborhoods/green-hills-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/neighborhoods/green-hills-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/neighborhoods/green-hills-960.webp",
+          "width": 960,
+          "height": 639
+        },
+        "1600": {
+          "path": "/media/neighborhoods/green-hills-1600.webp",
+          "width": 1600,
+          "height": 899
+        },
+        "2400": {
+          "path": "/media/neighborhoods/green-hills-2400.webp",
+          "width": 2400,
+          "height": 1349
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "TenPoundHammer",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AGreen_hills_1.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/d/db/Green_hills_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 3010,
+      "originalHeight": 3873,
+      "sourceSha256": "c1f1c84fb99d6cdda3fb3f0f77753f14d43c18555584b79529594166fb63cb76",
+      "commonsTitle": "File:Green_hills_1.jpg"
+    },
+    {
+      "key": "stay/walkable-to-broadway",
+      "alt": "Lower Broadway at Fourth Avenue in downtown Nashville.",
+      "local_jpg": "/media/stay/walkable-to-broadway.jpg",
+      "width": 3200,
+      "height": 2400,
+      "srcSet": "/media/stay/walkable-to-broadway-640.webp 640w, /media/stay/walkable-to-broadway-960.webp 960w, /media/stay/walkable-to-broadway-1600.webp 1600w, /media/stay/walkable-to-broadway-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/stay/walkable-to-broadway-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/stay/walkable-to-broadway-960.webp",
+          "width": 960,
+          "height": 639
+        },
+        "1600": {
+          "path": "/media/stay/walkable-to-broadway-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/stay/walkable-to-broadway-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Warren LeMay from Chicago, IL, United States",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ABroadway_and_4th_Avenue%2C_Nashville%2C_TN_%2854384489114%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8c/Broadway_and_4th_Avenue%2C_Nashville%2C_TN_%2854384489114%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 5236,
+      "originalHeight": 3927,
+      "sourceSha256": "65fa3fc8ad9c55211d392fb5ba721e00c05dec5f0ddb8e0eea8b78fe9ca20530",
+      "commonsTitle": "File:Broadway_and_4th_Avenue,_Nashville,_TN_(54384489114).jpg"
+    },
+    {
+      "key": "hub/neighborhoods-index",
+      "alt": "Downtown Nashville skyline over the Cumberland River.",
+      "local_jpg": "/media/hubs/neighborhoods-index.jpg",
+      "width": 3200,
+      "height": 1999,
+      "srcSet": "/media/hubs/neighborhoods-index-640.webp 640w, /media/hubs/neighborhoods-index-960.webp 960w, /media/hubs/neighborhoods-index-1600.webp 1600w, /media/hubs/neighborhoods-index-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/hubs/neighborhoods-index-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/hubs/neighborhoods-index-960.webp",
+          "width": 960,
+          "height": 640
+        },
+        "1600": {
+          "path": "/media/hubs/neighborhoods-index-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/hubs/neighborhoods-index-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "Quintin Soloviev",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ANashville%2C_TN_skyline.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Nashville%2C_TN_skyline.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 11757,
+      "originalHeight": 7348,
+      "sourceSha256": "b4c71da5f428e2a427a5f05249962a0e32cfe563274c820a6dbe47423181a276",
+      "commonsTitle": "File:Nashville,_TN_skyline.jpg"
+    },
+    {
+      "key": "neighborhood/midtown",
+      "alt": "Midtown Nashville street view.",
+      "local_jpg": "/media/neighborhoods/midtown.jpg",
+      "width": 3200,
+      "height": 1913,
+      "srcSet": "/media/neighborhoods/midtown-640.webp 640w, /media/neighborhoods/midtown-960.webp 960w, /media/neighborhoods/midtown-1600.webp 1600w, /media/neighborhoods/midtown-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/neighborhoods/midtown-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/neighborhoods/midtown-960.webp",
+          "width": 960,
+          "height": 640
+        },
+        "1600": {
+          "path": "/media/neighborhoods/midtown-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/neighborhoods/midtown-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "md. childress",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AMidtown%2C_Nashville%2C_TN%2C_USA_-_panoramio.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Midtown%2C_Nashville%2C_TN%2C_USA_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 3264,
+      "originalHeight": 1952,
+      "sourceSha256": "ac4cda96c967be6704e61a58ba2ecc0c0c146d6bbc75129bf54b3180c6e499a5",
+      "commonsTitle": "File:Midtown,_Nashville,_TN,_USA_-_panoramio.jpg"
+    },
+    {
+      "key": "stay/value-stays-midtown",
+      "alt": "Midtown Nashville street view.",
+      "local_jpg": "/media/stay/value-stays-midtown.jpg",
+      "width": 3200,
+      "height": 1913,
+      "srcSet": "/media/stay/value-stays-midtown-640.webp 640w, /media/stay/value-stays-midtown-960.webp 960w, /media/stay/value-stays-midtown-1600.webp 1600w, /media/stay/value-stays-midtown-2400.webp 2400w",
+      "variants": {
+        "640": {
+          "path": "/media/stay/value-stays-midtown-640.webp",
+          "width": 640,
+          "height": 426
+        },
+        "960": {
+          "path": "/media/stay/value-stays-midtown-960.webp",
+          "width": 960,
+          "height": 640
+        },
+        "1600": {
+          "path": "/media/stay/value-stays-midtown-1600.webp",
+          "width": 1600,
+          "height": 900
+        },
+        "2400": {
+          "path": "/media/stay/value-stays-midtown-2400.webp",
+          "width": 2400,
+          "height": 1350
+        }
+      },
+      "modified": true,
+      "modificationNote": "Resized master longest edge to 3200px (no upscale).",
+      "rightsStatus": "cleared",
+      "approvalStatus": "approved",
+      "credit": "md. childress",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AMidtown%2C_Nashville%2C_TN%2C_USA_-_panoramio.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Midtown%2C_Nashville%2C_TN%2C_USA_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalWidth": 3264,
+      "originalHeight": 1952,
+      "sourceSha256": "ac4cda96c967be6704e61a58ba2ecc0c0c146d6bbc75129bf54b3180c6e499a5",
+      "commonsTitle": "File:Midtown,_Nashville,_TN,_USA_-_panoramio.jpg"
+    }
+  ],
+  "errors": []
+}

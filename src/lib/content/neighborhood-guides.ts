@@ -75,7 +75,7 @@ export const neighborhoodGuides: NeighborhoodEditorialGuide[] = [
     h1: 'Downtown Nashville & Lower Broadway',
     intro:
       "The easiest part of Nashville to experience without a car: honky-tonks on Lower Broadway, the Ryman and major music museums within a few blocks, plus the city's biggest arenas and hotels. It's also the loudest, busiest part of town after dark.",
-    heroImageKey: 'editorial/broadway-nightlife',
+    heroImageKey: 'neighborhood/downtown-broadway',
     verdict: {
       summary:
         "Stay Downtown on a first trip if you have one to three nights, want to walk to live music and major attractions, and don't want to think about transportation. Stay somewhere else if quiet nights, neighborhood restaurants, and a local residential feel matter more.",
@@ -408,7 +408,7 @@ export const neighborhoodGuides: NeighborhoodEditorialGuide[] = [
     h1: 'The Gulch',
     intro:
       'A compact, recently built district between downtown and Midtown — hotels, restaurants, and the Station Inn within a walkable grid. Dinner is the practical reason most visitors plan a Gulch stop.',
-    heroImageKey: 'editorial/cocktail-service',
+    heroImageKey: 'neighborhood/the-gulch',
     navStyle: 'dining-forward',
     verdict: {
       summary:
@@ -480,7 +480,7 @@ export const neighborhoodGuides: NeighborhoodEditorialGuide[] = [
     h1: '12 South',
     intro:
       'A walkable half-mile of restaurants, coffee, and boutiques through a pocket of bungalows south of downtown. Dining works best when you pick by use case — breakfast, destination dinner, patio lunch, BBQ, or casual drinks — instead of treating every restaurant as interchangeable brunch.',
-    heroImageKey: 'hub/outdoor-living',
+    heroImageKey: 'neighborhood/12-south',
     navStyle: 'dining-forward',
     verdict: {
       summary:
@@ -562,7 +562,7 @@ export const neighborhoodGuides: NeighborhoodEditorialGuide[] = [
     h1: 'Germantown',
     intro:
       'A compact historic district north of downtown: brick streets, a dense restaurant row, and an easy walk to the Farmers’ Market. Dinner is the neighborhood’s strength — four restaurants are enough if you pick by use case.',
-    heroImageKey: 'editorial/private-events',
+    heroImageKey: 'neighborhood/germantown',
     navStyle: 'dining-forward',
     verdict: {
       summary:

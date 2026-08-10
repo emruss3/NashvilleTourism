@@ -12,47 +12,10 @@
  * See `public/media/README.md` and `docs/media/COMMERCIAL-MEDIA-SOURCING.md`.
  */
 
-export interface MediaAsset {
-  /** Path under /public. */
-  src: string;
-  /** Required alt text. Describes the photo, not the page. */
-  alt: string;
-  /** Photographer or agency. Displayed where the licence requires it. */
-  credit?: string;
-  /** Licence note kept for the record, e.g. "Unsplash Licence", "Licensed 2026". */
-  licence?: string;
-  /** Intrinsic size, used to reserve layout space and avoid CLS. */
-  width: number;
-  height: number;
-  /** Tiny blurred placeholder (data URI) if one has been generated. */
-  blurDataURL?: string;
-  /** Focal point for art direction on tight crops. */
-  focal?: 'center' | 'top' | 'bottom';
-  /** Optional mobile/portrait crop for <picture> heroes. */
-  srcMobile?: string;
-  /** Responsive srcSet for desktop/default source. */
-  srcSet?: string;
-  /** Responsive srcSet for mobile art-directed crop. */
-  srcMobileSet?: string;
-  /** CSS object-position for desktop. */
-  objectPosition?: string;
-  /** CSS object-position for mobile crop. */
-  objectPositionMobile?: string;
-}
+import { adobePurchaseMedia, restoredMedia } from './media-restored';
+import type { MediaAsset, VideoAsset } from './media-types';
 
-/**
- * Hero video. A short, muted, looping clip. Keep it under ~4 MB and provide
- * both formats; browsers pick the first they can play.
- */
-export interface VideoAsset {
-  webm?: string;
-  mp4?: string;
-  /** Still frame shown before the video loads, and to anyone who prefers reduced motion. */
-  poster?: string;
-  alt: string;
-  credit?: string;
-  licence?: string;
-}
+export type { MediaAsset, VideoAsset } from './media-types';
 
 export const heroVideo: VideoAsset = {
   webm: '/media/hero/nashville-hero.webm',
@@ -62,7 +25,7 @@ export const heroVideo: VideoAsset = {
   licence: 'Pexels License',
 };
 
-export const images = {
+const baseImages = {
   'editorial/broadway-nightlife': {
     src: '/media/editorial/broadway-nightlife.jpg',
     alt: 'A crowded Nashville rooftop after dark.',
@@ -844,11 +807,17 @@ export const images = {
   },
 } as const satisfies Record<string, MediaAsset>;
 
+/** Restored Commons keys override retired CVC / placeholder paths for the same key. */
+export const images = {
+  ...baseImages,
+  ...restoredMedia,
+  // Registry stubs only — excluded from AVAILABLE_MEDIA until licensed files arrive.
+  ...adobePurchaseMedia,
+} as const;
+
 export type ImageKey = keyof typeof images;
 
-export const AVAILABLE_MEDIA: ReadonlySet<string> = new Set<string>([
-  // Production gate: rightsStatus === 'cleared' && approvalStatus === 'approved'.
-  // CVC / Visit Music City assets are never listed here.
+const OWNED_AND_OPEN_BASE: readonly string[] = [
   'hero/video',
   'editorial/broadway-nightlife',
   'editorial/broadway-rooftop-day',
@@ -896,7 +865,6 @@ export const AVAILABLE_MEDIA: ReadonlySet<string> = new Set<string>([
   'venues/jbjs-interior',
   'venues/jbjs-rooftop',
   'venues/the-lanes-homes',
-  // Partner / property media on disk with cleared licence notes (not CVC).
   'downtown/sobro',
   'downtown/nashville-yards',
   'venues/roberts-western-world',
@@ -912,6 +880,14 @@ export const AVAILABLE_MEDIA: ReadonlySet<string> = new Set<string>([
   'hotels/the-joseph',
   'hotels/grand-hyatt-nashville',
   'attractions/country-music-hall-of-fame-night',
+];
+
+export const AVAILABLE_MEDIA: ReadonlySet<string> = new Set<string>([
+  // Production gate: rightsStatus === 'cleared' && approvalStatus === 'approved'.
+  // CVC / Visit Music City assets are never listed here.
+  // Adobe purchase-required keys are intentionally omitted until licensed files land.
+  ...OWNED_AND_OPEN_BASE,
+  ...Object.keys(restoredMedia),
 ]);
 
 export function getImage(key: ImageKey | undefined): MediaAsset | undefined {
@@ -924,5 +900,22 @@ export function isMediaClearedForProduction(key: string): boolean {
 }
 
 export function hasMedia(key: string): boolean {
-  return isMediaClearedForProduction(key);
+  if (!isMediaClearedForProduction(key)) return false;
+  const asset = images[key as ImageKey];
+  return Boolean(asset?.src);
+}
+
+/** Build a listing ImageRef from a cleared media key (exact-place photography only). */
+export function listingImageFromKey(key: ImageKey): import('./types').ImageRef | undefined {
+  if (!hasMedia(key)) return undefined;
+  const asset = images[key] as MediaAsset;
+  return {
+    src: asset.src,
+    srcSet: asset.srcSet,
+    alt: asset.alt,
+    credit: asset.credit,
+    width: asset.width,
+    height: asset.height,
+    focal: asset.focal,
+  };
 }

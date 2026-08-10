@@ -64,7 +64,7 @@ Status values: `not-started` · `contact-found` · `drafted` · `sent` · `appro
 | Assembly Food Hall | Market hall interior | Assembly / Nashville Yards | TBD | Official property media pending | not-started |
 | Bacco | Dining room | Four Seasons / restaurant | TBD | Press pending | not-started |
 | etch | Dining room | etch restaurant | TBD | Official site pending | not-started |
-| The Pinnacle | Concert bowl / exterior | Venue media | TBD | docs/media/reference/venue-the-pinnacle.md | not-started |
+| The Pinnacle | **HIGH** — Exact MUSIC VENUE exterior or bowl (not Symphony Place / Yards office tower). No All-Rights-Reserved Flickr substitutes. | Venue media / Live Nation | TBD | Keep branded PhotoSlot until cleared. Target: `/media/music/the-pinnacle.jpg` | not-started |
 | Ascend Amphitheater | Riverfront amphitheater | Live Nation / Ascend media | TBD | docs/media/reference/venue-ascend-amphitheater.md | not-started |
 | Bridgestone Arena | Exterior or bowl | Arena media | TBD | docs/media/reference/venue-bridgestone-arena.md | not-started |
 
@@ -118,7 +118,7 @@ Status values: `not-started` · `contact-found` · `drafted` · `sent` · `appro
 | Bastion | Exterior / dining | Restaurant | TBD | docs/media/reference/wedgewood-houston.md | not-started |
 | Soho House | Exterior only if permitted | Membership / PR (expect restrictions) | TBD | WeHo guide | not-started |
 | Never Never | Bar / patio | Venue | TBD | WeHo dining guide | not-started |
-| The Truth | Facade / entrance | Live Nation / venue | TBD | Architectural rendering pending — prefer photograph | not-started |
+| The Truth | **HIGH after Fall 2026 opening** — Exact facade/entrance photograph. Do not scrape copyrighted architectural renderings. Keep PhotoSlot + “Opening Fall 2026” until then. Target: `/media/music/the-truth.jpg` | Live Nation / venue | TBD | Original NashRoam shoot immediately after opening | not-started |
 
 ### Midtown
 

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { JsonLd, Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
 import { AttractionCard } from '@/components/Cards';
+import HubLead from '@/components/HubLead';
 import { HowWeChooseCallout } from '@/components/Trust';
 import { attractions, guides } from '@/lib/content';
 import { buildMetadata, isIndexableRecord, itemListSchema } from '@/lib/seo';
@@ -33,6 +34,7 @@ export default function ThingsToDoIndex() {
         title="Things to Do in Nashville"
         intro="Museums, parks, tours, and landmarks. Most of these take half a day or less, which makes them easy to slot around a dinner reservation or a show."
       />
+      <HubLead imageKey="attractions/the-parthenon" />
 
       <section className="py-10">
         <SectionHeader title="All attractions" description={`${attractions.length} listings`} />

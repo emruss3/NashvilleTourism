@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Breadcrumbs, EmptyState, PageHeader, SectionHeader } from '@/components/Ui';
+import HubLead from '@/components/HubLead';
 import LiveEventCard from '@/components/LiveEventCard';
 import { getCalendar } from '@/lib/feeds/calendar';
 import { buildMetadata } from '@/lib/seo';
@@ -59,6 +60,7 @@ export default async function ThisWeekendPage() {
         title="Nashville Events This Weekend"
         intro="Current Ticketmaster listings at Nashville venues only. Confirm final times and ticket availability before you go."
       />
+      <HubLead imageKey="hub/events-this-weekend" />
 
       {!live && (
         <div className="mt-6 rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep">

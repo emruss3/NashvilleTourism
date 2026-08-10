@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Breadcrumbs, MapLink, PageHeader, ScrollableTable, SectionHeader } from '@/components/Ui';
+import HubLead from '@/components/HubLead';
 import { AffiliateDisclosure } from '@/components/Trust';
 import BookingLink from '@/components/BookingLink';
 import { partners } from '@/lib/partners';
@@ -110,6 +111,7 @@ export default function HonkyTonkHighway() {
         intro="Roughly five blocks of Broadway between the river and 5th Avenue. Walkable end to end in about fifteen minutes. Here is how the strip is laid out and when to walk it."
         meta={<MapLink query="Lower Broadway, Nashville, TN" label="Open Lower Broadway in maps" />}
       />
+      <HubLead imageKey="neighborhood/downtown-broadway" />
 
       <section className="py-6">
         <SectionHeader title="How it works" />

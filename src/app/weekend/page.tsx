@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
+import HubLead from '@/components/HubLead';
 import { AffiliateDisclosure } from '@/components/Trust';
 import BookingWidget from '@/components/BookingWidget';
 import BookingLink from '@/components/BookingLink';
@@ -159,6 +160,7 @@ export default function WeekendHub() {
         title="NASHVILLE Weekender"
         intro="Three slots a day, three days. Book the room, one show, and one dinner, and leave the rest loose."
       />
+      <HubLead imageKey="hub/weekend-lead" />
 
       <section className="py-6">
         <h2 className="sr-only">Book your weekend</h2>

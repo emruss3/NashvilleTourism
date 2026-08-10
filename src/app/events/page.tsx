@@ -27,7 +27,7 @@ const EVENT_PATHS: {
     label: 'Upcoming Events',
     description: 'See what is coming up across Nashville.',
     href: '#upcoming',
-    image: 'hero/lower-broadway',
+    image: 'music/ascend-amphitheater',
   },
   {
     label: 'Festivals',

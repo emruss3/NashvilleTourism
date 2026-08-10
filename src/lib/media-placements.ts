@@ -3,44 +3,59 @@ import type { ImageKey } from '@/lib/media';
 
 /**
  * Cleared production image keys for UI placements.
- * CVC neighborhood/guide/premium files were removed — do not point UI at those keys.
+ * Every guide has its own canonical cover key (no cluster fallbacks).
  */
 
-export function guideImageKey(item: Guide): ImageKey {
-  const bySlug: Partial<Record<string, ImageKey>> = {
-    'nashville-first-time-visitors': 'editorial/broadway-nightlife',
-    'where-to-stay-nashville': 'hub/hotels',
-    'nashville-weekend-itinerary': 'hub/weekend',
-  };
-  const slugKey = bySlug[item.slug];
-  if (slugKey) return slugKey;
+export const GUIDE_IMAGES: Record<string, ImageKey> = {
+  'best-restaurants-nashville': 'guide/best-restaurants',
+  'best-bars-rooftops-nashville': 'guide/bars-rooftops',
+  'best-live-music-venues-nashville': 'guide/live-music-venues',
+  'where-to-stay-nashville': 'guide/where-to-stay',
+  'best-things-to-do-nashville': 'guide/best-things-to-do',
+  'nashville-neighborhood-guide': 'guide/neighborhood-guide',
+  'nashville-first-time-visitors': 'guide/first-time-visitors',
+  'nashville-weekend-itinerary': 'guide/weekend-itinerary',
+  'nashville-bachelorette-guide': 'guide/bachelorette',
+  'nashville-with-kids': 'guide/with-kids',
+};
 
-  const byCluster: Record<Guide['cluster'], ImageKey> = {
-    'Trip Planning': 'hub/weekend',
-    Restaurants: 'hub/restaurants',
-    Hotels: 'hub/hotels',
-    'Things to Do': 'hub/tours',
-    Music: 'hub/live-music',
-    Events: 'hub/tickets',
-  };
-  return byCluster[item.cluster];
+export function guideImageKey(item: Guide): ImageKey {
+  const key = GUIDE_IMAGES[item.slug];
+  if (!key) {
+    throw new Error(`Guide "${item.slug}" is missing from GUIDE_IMAGES — every guide needs its own cover key.`);
+  }
+  return key;
 }
 
-/** Cleared atmosphere stand-ins until neighborhood STOCK/COMMISSION photos ship. */
+/** Canonical neighborhood photography (Commons restored or cleared BPH WeHo). */
 export function neighborhoodImageKey(slug: string): ImageKey {
   const bySlug: Record<string, ImageKey> = {
-    'downtown-broadway': 'editorial/broadway-nightlife',
-    'the-gulch': 'editorial/cocktail-service',
-    'east-nashville': 'editorial/nashville-food',
-    germantown: 'editorial/private-events',
-    midtown: 'editorial/live-performance-overhead',
-    '12-south': 'hub/outdoor-living',
-    'hillsboro-village': 'editorial/parthenon-west-end',
+    'downtown-broadway': 'neighborhood/downtown-broadway',
+    'the-gulch': 'neighborhood/the-gulch',
+    'east-nashville': 'neighborhood/east-nashville',
+    germantown: 'neighborhood/germantown',
+    midtown: 'neighborhood/midtown',
+    '12-south': 'neighborhood/12-south',
+    'hillsboro-village': 'neighborhood/hillsboro-village',
     'music-row': 'editorial/music-row-studio-b',
-    'green-hills': 'hub/wellness',
-    'wedgewood-houston': 'venues/delux-weho-exterior',
-    'sylvan-park': 'hub/pool',
-    'west-end': 'editorial/opryland-atrium',
+    'green-hills': 'neighborhood/green-hills',
+    // BPH-owned exact WeHo photograph — rights audit cleared (ASSET-RIGHTS weho-skyline).
+    'wedgewood-houston': 'editorial/weho-skyline',
+    'sylvan-park': 'neighborhood/sylvan-park',
+    'west-end': 'editorial/parthenon-west-end',
   };
-  return bySlug[slug] ?? 'editorial/skyline';
+  return bySlug[slug] ?? 'hub/neighborhoods-index';
+}
+
+/** Where-to-stay category hub leads. */
+export function stayHubImageKey(slug: string): ImageKey | undefined {
+  const bySlug: Record<string, ImageKey> = {
+    'boutique-hotels-downtown': 'stay/boutique-hotels-downtown',
+    'group-rentals-bachelor-bachelorette': 'stay/group-rentals',
+    'luxury-resorts-opryland': 'stay/luxury-resorts-opryland',
+    'walkable-to-broadway': 'stay/walkable-to-broadway',
+    'hotels-with-pools': 'stay/hotels-with-pools',
+    'value-stays-midtown': 'stay/value-stays-midtown',
+  };
+  return bySlug[slug];
 }

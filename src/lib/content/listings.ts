@@ -1,4 +1,5 @@
 import type { Restaurant, Hotel, NashvilleEvent, Venue, Attraction, Listing } from '../types';
+import { listingImageFromKey, type ImageKey } from '../media';
 
 /**
  * Listing data for the template.
@@ -813,7 +814,7 @@ export const events: NashvilleEvent[] = [
 
 /* ------------------------------------ Venues ------------------------------------- */
 
-export const venues: Venue[] = [
+const venuesBase: Venue[] = [
   {
     kind: 'venue',
     slug: 'ryman-auditorium',
@@ -964,7 +965,27 @@ export const venues: Venue[] = [
 
 /* ---------------------------------- Attractions ---------------------------------- */
 
-export const attractions: Attraction[] = [
+const ATTRACTION_IMAGES: Record<string, ImageKey> = {
+  'country-music-hall-of-fame': 'attractions/country-music-hall-of-fame',
+  'the-parthenon': 'attractions/the-parthenon',
+  'nashville-farmers-market': 'attractions/nashville-farmers-market',
+  'shelby-bottoms-greenway': 'attractions/shelby-bottoms-greenway',
+  'ryman-auditorium-tour': 'attractions/ryman-auditorium-tour',
+  'frist-art-museum': 'attractions/frist-art-museum',
+  'cheekwood-estate-gardens': 'attractions/cheekwood-estate-gardens',
+  'national-museum-of-african-american-music': 'attractions/nmaam',
+};
+
+const VENUE_IMAGES: Record<string, ImageKey> = {
+  'ryman-auditorium': 'music/ryman-auditorium',
+  'station-inn': 'music/station-inn',
+  'bluebird-cafe': 'music/bluebird-cafe',
+  'ascend-amphitheater': 'music/ascend-amphitheater',
+  'bridgestone-arena': 'music/bridgestone-arena',
+  // the-pinnacle / the-truth: intentional PhotoSlot until exact cleared media
+};
+
+const attractionsBase: Attraction[] = [
   {
     kind: 'attraction',
     slug: 'country-music-hall-of-fame',
@@ -1150,6 +1171,18 @@ export const attractions: Attraction[] = [
     placement: 'editorial'
   },
 ];
+
+export const venues: Venue[] = venuesBase.map((v) => {
+  const key = VENUE_IMAGES[v.slug];
+  const image = key ? listingImageFromKey(key) : undefined;
+  return image ? { ...v, image } : v;
+});
+
+export const attractions: Attraction[] = attractionsBase.map((a) => {
+  const key = ATTRACTION_IMAGES[a.slug];
+  const image = key ? listingImageFromKey(key) : undefined;
+  return image ? { ...a, image } : a;
+});
 
 /* ---------------------------------- Lookup helpers -------------------------------- */
 
