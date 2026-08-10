@@ -117,9 +117,18 @@ ${hoodBlocks}
 
 ## Build status
 
-Demonstration build. Restaurant and hotel records use bracketed \`[Sample]\`
-names and are not verified. Landmark and neighborhood information is general
-public knowledge; operational specifics are placeholders pending verification.
+Data maturity varies by section:
+
+- Tours and experiences are real, bookable Viator inventory; only editorially
+  approved products are published.
+- Hotels are real Nashville properties whose practical details carry a
+  "needs re-check" status until re-verified by a person.
+- Restaurant records still use bracketed \`[Sample]\` names and must not be
+  presented as real businesses.
+- Events labelled \`[Sample]\` are placeholders; unlabelled events come from a
+  live feed.
+- Neighborhood and guide content is editorial, based on general local
+  knowledge, with visible check dates.
 `;
 
   return new Response(body, {

@@ -11,6 +11,31 @@ const UNITED_STATES = "US";
 const TIME_ZONE = "America/Chicago";
 const STATE_TTL_HOURS = 6;
 
+// SHA-256 of the vault-held nashroam_cron_token. Same value viator-sync pins;
+// only the hash lives in code, never the token itself.
+const CRON_TOKEN_SHA256 = "bf6d4248c199262ce56e654bef557f6bc37f32a4481521c6340574df329db7a7";
+
+async function sha256Hex(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * Same gate as viator-sync: service-role key, or the vault cron token.
+ * Without this, anyone could trigger sync_events (service-role writes) or
+ * burn the Ticketmaster API quota through search_events.
+ */
+async function isAuthorized(req: Request) {
+  const apiKey = req.headers.get("apikey")?.trim();
+  const authorization = req.headers.get("authorization")?.trim();
+  if (apiKey && apiKey === SERVICE_ROLE_KEY) return true;
+  if (authorization === `Bearer ${SERVICE_ROLE_KEY}`) return true;
+  const cronToken = req.headers.get("x-nashroam-cron-token")?.trim();
+  if (!cronToken) return false;
+  return (await sha256Hex(cronToken)) === CRON_TOKEN_SHA256;
+}
+
 function response(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -314,6 +339,7 @@ async function syncEvents(input: any) {
 
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return response({ error: "POST required" }, 405);
+  if (!(await isAuthorized(req))) return response({ error: "Unauthorized" }, 401);
   let body: any = {};
   try { body = await req.json(); } catch { body = {}; }
   const mode = body?.mode ?? "health";
