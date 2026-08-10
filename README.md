@@ -52,11 +52,12 @@ Repository structure:
 
 ```text
 src/
-├── app/                    # Routes + server APIs
+├── app/                    # Routes + server APIs + private admin
 ├── components/             # UI
 └── lib/
     ├── itinerary.ts        # Planner composition/rules
     ├── partners.ts         # Affiliate/deep-link helpers
+    ├── admin-auth.ts       # Server-only signed admin session
     ├── supabase/           # Server-only Supabase access
     ├── feeds/              # Provider adapters / data access
     └── content/            # Legacy/seed editorial content
@@ -89,7 +90,7 @@ Region: `us-east-2`
 | Priority experience-review queue | **49** |
 | Viator taxonomy tags | **1,263** |
 | Canonical events | **0** |
-| Data-source definitions | **13** |
+| Data-source definitions | **15** |
 | Active Viator Cron jobs | **3** |
 
 The 22 place stubs are real Nashville institutions but remain unpublished/unverified until durable facts are checked. The original `[Sample]` restaurants are **not** being imported into Supabase.
@@ -111,7 +112,7 @@ The full rules live in `docs/data-platform/README.md`.
 | **Foursquare Places API** | Supplemental POI matching/intelligence | Not configured |
 | **Google Places** | Just-in-time hours/status/rating validation | Not configured |
 | **Yelp** | Consumer sentiment / rating + review-count layer | Not configured |
-| **TripAdvisor Content API** | Supplemental ratings through existing repo adapter | Transitional / not in Supabase yet |
+| **TripAdvisor Content API** | Supplemental rating/review-count source | Registered in Supabase; credentials not configured |
 | **OpenTable** | Restaurant availability + reservation deep links | Partnership/API pending |
 | **Viator Partner API v2** | Tours/experiences, pricing, ratings, affiliate booking URLs | **Active** |
 | **Ticketmaster Discovery** | Primary automated concert/sports/event feed | Not configured in Supabase |
@@ -119,7 +120,7 @@ The full rules live in `docs/data-platform/README.md`.
 | **Vivid Seats** | Secondary ticket marketplace / affiliate deep links | Partner/feed not configured |
 | **Visit Music City / NCVC** | Nashville festivals/community/annual events | Licensed feed/partnership pending |
 | **Direct venue calendars** | Ryman/Opry/Bluebird/Cheekwood/TPAC/etc. | Planned |
-| **Booking.com Demand API** | Hotel inventory/rates/booking | Repo scaffold only |
+| **Booking.com Demand API** | Hotel inventory/rates/booking | Registered in Supabase; repo scaffold only |
 | **Vrbo / Booking affiliate links** | Lodging fallback / large-group rentals | Existing link layer |
 
 ### Source philosophy
@@ -128,7 +129,7 @@ No provider is “the Nashroam database.”
 
 - **Foursquare OS / official data** → durable place identity
 - **Google / Foursquare / official source** → live operational validation
-- **Yelp / Google** → consumer sentiment signals
+- **Yelp / Google / TripAdvisor where licensed** → consumer sentiment signals
 - **OpenTable** → restaurant availability
 - **Viator** → bookable experience inventory
 - **Ticketmaster + secondary ticket providers** → event/ticket inventory
@@ -182,6 +183,29 @@ See `docs/data-platform/VIATOR.md`.
 
 ---
 
+## Internal curation admin
+
+The private review surface is at:
+
+```text
+/admin/experiences
+```
+
+It is **fail-closed** unless `NASHROAM_ADMIN_TOKEN` is configured server-side in Vercel. Login exchanges the shared token for a signed, HttpOnly, SameSite=Strict session cookie with a cryptographically enforced 12-hour expiry; the raw token is never placed in a URL or browser-readable cookie.
+
+The dashboard shows:
+
+- the priority-review queue ranked by machine discovery score;
+- Viator rating/review/price evidence;
+- machine category/traveler suggestions and risk flags;
+- hourly/weekly ingestion health;
+- explicit human fields for Nashroam score, planner priority, local note, best-for, traveler types, and curation notes;
+- atomic approve/publish and reject actions through Supabase RPCs.
+
+Machine suggestions are display-only hints. Human editorial fields start blank.
+
+---
+
 ## Trip planner
 
 `src/lib/itinerary.ts` remains a deterministic composition/rules layer. The strategic split is:
@@ -226,6 +250,7 @@ Provider disagreements go to `verification_queue`; they do not silently overwrit
 - Scheduled Edge Function calls authenticate using a private Supabase Vault credential.
 - `viator-sync` uses custom service/Cron authorization and rejects unauthenticated traffic.
 - The manual `/api/viator/sync` endpoint **fails closed** unless `NASHROAM_SYNC_TOKEN` is explicitly configured.
+- `/admin/*` fails closed unless `NASHROAM_ADMIN_TOKEN` is configured and a valid signed session exists.
 - Public website access uses server-side/narrow routes rather than broad database exposure.
 - Raw provider payloads are stored only when provider terms allow it.
 
@@ -233,14 +258,14 @@ Provider disagreements go to `verification_queue`; they do not silently overwrit
 
 ## Current build order
 
-1. Curate the **49 priority Viator experiences** first, then the standard-review set.
+1. Use `/admin/experiences` to curate the **49 priority Viator experiences**, then the standard-review set.
 2. Configure Foursquare OS Places and build the real restaurant/bar/attraction backbone.
 3. Add live place validation (Google/Foursquare/Yelp as appropriate).
 4. Configure Ticketmaster and begin canonical event ingestion.
 5. Add NCVC/direct Nashville calendars and event context.
 6. Complete OpenTable partnership/integration.
 7. Move remaining planner candidate pools off static/sample content and onto Supabase.
-8. Build an authenticated curation/verification dashboard over the service-role RPCs.
+8. Extend the admin workflow from experiences to places/events/verification exceptions.
 
 Target place corpus is roughly **500–750 places we would actually recommend**, not every business in Davidson County.
 
@@ -264,9 +289,10 @@ Target place corpus is roughly **500–750 places we would actually recommend**,
 2. The event table is not populated yet.
 3. Viator experiences still require curation/approval before public/planner eligibility.
 4. Several static site listing modules still contain `[Sample]` content and must not be treated as verified production data.
-5. Ticketmaster, Foursquare, Google, Yelp, SeatGeek, OpenTable, and Vivid are not yet credentialed in Supabase.
+5. Ticketmaster, Foursquare, Google, Yelp, SeatGeek, OpenTable, Vivid, TripAdvisor, and Booking Demand are not yet credentialed in the Nashroam Supabase project (except Viator).
 6. Booking.com Demand API remains a scaffold, not live hotel inventory.
 7. Author, privacy/legal, and some media workflows still require production cleanup.
+8. The repo currently has no GitHub Actions build attached to these commits; run `npm run typecheck` and `npm run build` after pulling latest `main`.
 
 ---
 
