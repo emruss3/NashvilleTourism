@@ -30,4 +30,3 @@ media-originals/
 tmp/
 
 .vercel
-.env*
