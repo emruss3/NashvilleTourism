@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "serve": "npx --yes serve out -l 3000"
+    "serve": "npx --yes serve out -l 3000",
+    "import:fsq-os": "node scripts/import-fsq-os.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",
