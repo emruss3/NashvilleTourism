@@ -33,8 +33,8 @@ export default async function LiveMusicPage() {
         <div className="mt-6 rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep">
           <strong className="font-semibold">Sample listings.</strong>{' '}
           {configured
-            ? 'The Ticketmaster music feed did not return Nashville results. Showing clearly labeled fallback records instead.'
-            : 'No events feed is connected yet. Set TICKETMASTER_API_KEY to pull the live calendar.'}
+            ? 'The live Ticketmaster-backed calendar did not return fresh Nashville results. Showing clearly labeled fallback records instead.'
+            : 'No canonical events feed is active yet. Configure TICKETMASTER_API_KEY in Supabase, run the first verified sync, and then enable the scheduled event refresh.'}
         </div>
       )}
 
@@ -50,7 +50,7 @@ export default async function LiveMusicPage() {
       <div className="mt-8 flex flex-wrap items-center justify-between gap-4 text-sm text-ink-faint">
         <p>
           Calendar refreshed <time dateTime={fetchedAt}>{formatDate(fetchedAt.slice(0, 10))}</time>.
-          {live ? ' Listings supplied by Ticketmaster.' : ''}
+          {live ? ' Listings supplied by Ticketmaster through Nashroam’s canonical event feed.' : ''}
         </p>
         <p>
           <Link href="/music/" className="text-clay underline underline-offset-2">
