@@ -291,11 +291,17 @@ function rankExperiencesForTrip(input: TripInput, candidates: ExperienceCandidat
   return [...candidates]
     .map((e) => {
       let score = e.plannerPriority ?? 50;
-      if (e.travelerTypes?.some((t) => blob.includes(t) || blob.includes(t.replace(/-/g, ' ')))) score += 15;
-      if (blob.includes('music') && e.categories.includes('music')) score += 12;
-      if (blob.includes('food') && e.categories.includes('food')) score += 12;
-      if ((blob.includes('whiskey') || blob.includes('brew')) && e.categories.includes('brewery-distillery')) score += 12;
-      if (input.hasChildren && e.categories.includes('family')) score += 10;
+      const categories = new Set(e.categories);
+      const travelers = new Set(e.travelerTypes ?? []);
+      if ([...travelers].some((t) => blob.includes(t) || blob.includes(t.replace(/-/g, ' ')))) score += 15;
+      if (blob.includes('music') && categories.has('music')) score += 12;
+      if ((blob.includes('food') || blob.includes('restaurant')) && categories.has('food-drink')) score += 12;
+      if ((blob.includes('whiskey') || blob.includes('brew') || blob.includes('wine')) && categories.has('food-drink')) score += 12;
+      if ((blob.includes('history') || blob.includes('museum')) && (categories.has('history') || categories.has('attractions-museums'))) score += 10;
+      if ((blob.includes('outdoor') || blob.includes('park')) && categories.has('water-outdoors')) score += 10;
+      if ((input.tripType === 'friends' || input.tripType === 'bachelor' || input.tripType === 'bachelorette') && categories.has('nightlife-party')) score += 10;
+      if (input.hasChildren && travelers.has('families')) score += 12;
+      if (input.tripType === 'first-visit' && (categories.has('city-sightseeing') || categories.has('attractions-museums'))) score += 8;
       if (e.rating != null) score += e.rating * 2;
       return { e, score };
     })
