@@ -218,23 +218,23 @@ export default async function ExperienceCurationPage({
                       <form action={`/api/admin/experiences/${item.id}/approve`} method="post" className="mt-4 grid gap-4 lg:grid-cols-2">
                         <div>
                           <label className="text-sm font-semibold text-navy">Nashroam score (0–100)</label>
-                          <input name="nashroamScore" type="number" min="0" max="100" step="1" required className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3" />
+                          <input name="nashroamScore" type="number" min="0" max="100" step="1" required placeholder="0–100" className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3" />
                         </div>
                         <div>
                           <label className="text-sm font-semibold text-navy">Planner priority (0–100)</label>
-                          <input name="plannerPriority" type="number" min="0" max="100" step="1" defaultValue="70" required className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3" />
+                          <input name="plannerPriority" type="number" min="0" max="100" step="1" required placeholder="0–100" className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3" />
                         </div>
                         <div className="lg:col-span-2">
                           <label className="text-sm font-semibold text-navy">Nashroam local note</label>
                           <textarea name="localNote" rows={3} required placeholder="Why should a Nashville visitor actually choose this? Include the tradeoff/caveat." className="mt-1 w-full rounded-lg border border-paper-edge p-3" />
                         </div>
                         <div>
-                          <label className="text-sm font-semibold text-navy">Best for <span className="font-normal text-ink-faint">(edit machine suggestion)</span></label>
-                          <input name="bestFor" defaultValue={categories.join(', ')} className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3" />
+                          <label className="text-sm font-semibold text-navy">Best for <span className="font-normal text-ink-faint">(human editorial)</span></label>
+                          <input name="bestFor" placeholder={categories.length ? `Machine suggests: ${categories.join(', ')}` : 'e.g. first-time visitors, couples'} className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3" />
                         </div>
                         <div>
-                          <label className="text-sm font-semibold text-navy">Traveler types <span className="font-normal text-ink-faint">(edit machine suggestion)</span></label>
-                          <input name="travelerTypes" defaultValue={travelers.join(', ')} className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3" />
+                          <label className="text-sm font-semibold text-navy">Traveler types <span className="font-normal text-ink-faint">(human editorial)</span></label>
+                          <input name="travelerTypes" placeholder={travelers.length ? `Machine suggests: ${travelers.join(', ')}` : 'e.g. music-focused, families'} className="mt-1 min-h-[42px] w-full rounded-lg border border-paper-edge px-3" />
                         </div>
                         <div className="lg:col-span-2">
                           <label className="text-sm font-semibold text-navy">Internal curation notes</label>
