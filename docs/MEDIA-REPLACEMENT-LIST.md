@@ -4,7 +4,7 @@ Audit of every key in `src/lib/media.ts` plus hero video. Do not use AI-generate
 
 | Key | Current source | Accurate? | Keep / Replace | Replacement brief | Dimensions / crop | Original shoot required? |
 |---|---|---|---|---|---|---|
-| `hero/video` | Pexels 9481012 (K) — generic concert | Partial — music mood only | **Replace as sole hero** | Daylight establishing montage: skyline/bridge, hospitality, live room, neighborhood street. Keep concert as one beat only. | 1920×1080, ≤4 MB, 8–15s loop | Preferred for brand films |
+| `hero/video` | Pexels 10973739 — Alexander Wark Feeney drone skyline | Yes | **Live on homepage** | 12s muted daylight loop + poster | ~1920×1012, ≤4 MB | Done 2026-08-09 |
 | `hero/lower-broadway` | Cameron Stewart / Unsplash — Pedestrian Bridge | Yes | **Keep** as poster / still | Optional second still: bright Lower Broadway daytime | 2400×1600, 16:10 | No |
 | `neighborhood/downtown-broadway` | Wikimedia — Broadway neon | Yes | **Keep** | Optional daytime alternate for variety | 1600×1067+ | No |
 | `neighborhood/12-south` | Wikimedia — I Believe mural | Yes | **Keep** | Optional: 12th Ave streetscape with bungalows | 1600×1067, avoid portrait-only | No |

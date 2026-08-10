@@ -74,7 +74,14 @@ The BPH-owned assets do not require public attribution unless an underlying phot
 
 ## Pexels License
 
-Pexels photographs are free for commercial use. Attribution is not required and no endorsement is implied. They are listed here so `/photo-credits/` stays complete.
+Pexels photographs and videos are free for commercial use. Attribution is not required and no endorsement is implied. They are listed here so `/photo-credits/` stays complete.
+
+## Alexander Wark Feeney — Pexels License
+
+- **Used for:** Homepage hero video; Homepage hero video poster
+- **Source:** https://www.pexels.com/video/drone-footage-of-skyscrapers-in-nashville-city-10973739/
+- **License:** https://www.pexels.com/license/
+- **Changes:** Trimmed to a 12-second muted loop; resized for web delivery; poster still extracted from the source; no generative editing.
 
 ## Rachel Claire — Pexels License
 
@@ -106,7 +113,7 @@ Pexels photographs are free for commercial use. Attribution is not required and 
 
 ## Tatiana Bidon — Pexels License
 
-- **Used for:** Neighborhood: Downtown / Broadway; Hero: Lower Broadway (day); Primary hero poster; Editorial: Printers Alley
+- **Used for:** Neighborhood: Downtown / Broadway; Hero: Lower Broadway (day); Editorial: Printers Alley
 - **Sources:**
   - https://www.pexels.com/photo/vibrant-street-with-neon-signs-in-nashville-29319088/
   - https://www.pexels.com/photo/skyline-view-of-downtown-nashville-street-scene-29319083/

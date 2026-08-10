@@ -5,23 +5,40 @@
  * never hardcode a path. Drop the licensed files into `public/media/` using the
  * filenames below and every surface that uses the key picks them up.
  *
- * An image may render only when it is in AVAILABLE_MEDIA, which means
- * `rightsStatus === 'cleared'` and `approvalStatus === 'approved'`.
- * CVC / Visit Music City photography is never cleared. Missing or uncleared
- * keys render a typographic fallback — never a wrong-business substitute.
+ * Production rule: an image may render only when it is in AVAILABLE_MEDIA
+ * (`rightsStatus === 'cleared'` && `approvalStatus === 'approved'`).
+ * TEMP_ALLOW_UNCLEARED_MEDIA temporarily also shows uncleared keys that still
+ * have files on disk (CVC / pending press). Flip that flag off before any
+ * production rights claim. Missing keys still render a typographic fallback —
+ * never a wrong-business substitute.
  * See `public/media/README.md` and `docs/media/COMMERCIAL-MEDIA-SOURCING.md`.
  */
 
+import fs from 'node:fs';
+import path from 'node:path';
 import { adobePurchaseMedia, restoredMedia } from './media-restored';
 import type { MediaAsset, VideoAsset } from './media-types';
 
 export type { MediaAsset, VideoAsset } from './media-types';
 
+/** TEMP: show uncleared stills that still have files. Hero video stays the cleared Pexels drone loop — uncleared hero keys stay gated. Set false before launch claims. */
+export const TEMP_ALLOW_UNCLEARED_MEDIA = true;
+
+function publicMediaExists(src: string): boolean {
+  return fs.existsSync(path.join(process.cwd(), 'public', src.replace(/^\//, '')));
+}
+
+/** Adobe stubs only win when the purchased original is actually on disk. */
+const adobeReadyMedia = Object.fromEntries(
+  Object.entries(adobePurchaseMedia).filter(([, asset]) => publicMediaExists(asset.src)),
+) as Partial<typeof adobePurchaseMedia>;
+
 export const heroVideo: VideoAsset = {
   webm: '/media/hero/nashville-hero.webm',
   mp4: '/media/hero/nashville-hero.mp4',
-  poster: '/media/hero/nashville-hero-poster.jpg',
-  alt: 'Skyline view of a downtown Nashville street scene.',
+  poster: '/media/hero/nashville-hero-drone-poster.jpg',
+  alt: "Drone footage of Nashville's downtown skyline on a clear day.",
+  credit: 'Alexander Wark Feeney / Pexels',
   licence: 'Pexels License',
 };
 
@@ -811,8 +828,8 @@ const baseImages = {
 export const images = {
   ...baseImages,
   ...restoredMedia,
-  // Registry stubs only — excluded from AVAILABLE_MEDIA until licensed files arrive.
-  ...adobePurchaseMedia,
+  // Adobe purchase stubs only when the licensed file is present on disk.
+  ...adobeReadyMedia,
 } as const;
 
 export type ImageKey = keyof typeof images;
@@ -882,13 +899,41 @@ const OWNED_AND_OPEN_BASE: readonly string[] = [
   'attractions/country-music-hall-of-fame-night',
 ];
 
-export const AVAILABLE_MEDIA: ReadonlySet<string> = new Set<string>([
-  // Production gate: rightsStatus === 'cleared' && approvalStatus === 'approved'.
-  // CVC / Visit Music City assets are never listed here.
-  // Adobe purchase-required keys are intentionally omitted until licensed files land.
+function assetFilesPresent(asset: MediaAsset): boolean {
+  if (!publicMediaExists(asset.src)) return false;
+  if (asset.srcMobile && !publicMediaExists(asset.srcMobile)) return false;
+  return true;
+}
+
+/** Cleared hero keys stay allowlisted; uncleared hero stills stay gated. Hero video is the Pexels drone loop only. */
+const CLEARED_OR_RESTORED = new Set<string>([
+  'hero/video',
   ...OWNED_AND_OPEN_BASE,
   ...Object.keys(restoredMedia),
 ]);
+
+const unclearedPresentKeys = TEMP_ALLOW_UNCLEARED_MEDIA
+  ? (Object.keys(images) as ImageKey[]).filter((key) => {
+      if (!assetFilesPresent(images[key] as MediaAsset)) return false;
+      // Keep the licensed Pexels hero video; do not re-open uncleared hero keys.
+      if (key === 'hero/video' || key.startsWith('hero/')) {
+        return CLEARED_OR_RESTORED.has(key);
+      }
+      return true;
+    })
+  : [];
+
+export const AVAILABLE_MEDIA: ReadonlySet<string> = new Set<string>(
+  TEMP_ALLOW_UNCLEARED_MEDIA
+    ? ['hero/video', ...unclearedPresentKeys]
+    : [
+        // Production gate: rightsStatus === 'cleared' && approvalStatus === 'approved'.
+        // CVC / Visit Music City assets are never listed here.
+        // Adobe purchase-required keys are intentionally omitted until licensed files land.
+        ...OWNED_AND_OPEN_BASE,
+        ...Object.keys(restoredMedia),
+      ],
+);
 
 export function getImage(key: ImageKey | undefined): MediaAsset | undefined {
   return key ? images[key] : undefined;

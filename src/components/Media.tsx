@@ -1,5 +1,6 @@
-import { getImage, hasMedia, type ImageKey } from '@/lib/media';
+import { getImage, hasMedia, heroVideo, type ImageKey } from '@/lib/media';
 import { asset as assetUrl } from '@/lib/seo';
+import HeroVideo from '@/components/HeroVideo';
 
 /**
  * Renders a real photograph when the licensed file has been added, and a
@@ -168,47 +169,34 @@ export function ContentImage({
 }
 
 /**
- * Full-bleed hero. Static responsive skyline — no autoplay video download on the homepage.
- * Registered hero MP4/WebM remain available for a future smooth loop elsewhere.
+ * Full-bleed hero. Daylight Nashville drone loop with poster fallback for
+ * reduced-motion and before the first frame paints.
  */
 export function HeroMedia({ children }: { children: React.ReactNode }) {
-  // Cleared Pexels hero — Four Seasons `hero/nashroam-skyline` stays gated until authorized.
-  const key = 'hero/downtown-rooftop' as const;
-  const stillReady = hasMedia(key);
-  const asset = getImage(key) as
-    | (NonNullable<ReturnType<typeof getImage>> & {
-        srcMobile?: string;
-      })
-    | undefined;
-  const desktop = asset ? assetUrl(asset.src) : undefined;
-  const mobile = asset?.srcMobile ? assetUrl(asset.srcMobile) : desktop;
+  const poster = heroVideo.poster ? assetUrl(heroVideo.poster) : undefined;
 
   return (
     <div className="relative isolate min-h-[min(86vh,760px)] overflow-hidden bg-navy">
       <div className="absolute inset-0" aria-hidden="true">
-        {desktop && stillReady && asset ? (
-          <picture>
-            {mobile && mobile !== desktop ? (
-              <source media="(max-width: 767px)" srcSet={mobile} />
-            ) : null}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={desktop}
-              alt=""
-              width={asset.width}
-              height={asset.height}
-              className="h-full w-full object-cover object-center"
-              fetchPriority="high"
-              decoding="sync"
-            />
-          </picture>
+        {poster ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={poster}
+            alt=""
+            width={1920}
+            height={1012}
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            fetchPriority="high"
+            decoding="sync"
+          />
         ) : (
           <div className="h-full w-full bg-[radial-gradient(1100px_480px_at_80%_-10%,#3A6A94_0%,transparent_55%),radial-gradient(900px_420px_at_5%_110%,#8FC4AD_0%,transparent_50%),linear-gradient(165deg,#214A72_0%,#102A43_100%)]" />
         )}
+        <HeroVideo />
       </div>
 
       <div
-        className="absolute inset-0 bg-gradient-to-t from-navy/40 via-navy/10 to-transparent"
+        className="absolute inset-0 bg-gradient-to-t from-navy/35 via-navy/10 to-transparent"
         aria-hidden="true"
       />
 
