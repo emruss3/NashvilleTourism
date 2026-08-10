@@ -245,7 +245,20 @@ export function buildItinerary(
     ) {
       if (!item) return;
       const alternatives = altPool.filter((x) => x.slug !== item.slug).slice(0, 2).map((x) => ({ title: x.title, href: `${hrefBase}${x.slug}/`, note: x.summary }));
-      stops.push({ slot, title: item.title, href: `${hrefBase}${item.slug}/`, neighborhood: neighborhoodName(item.neighborhood), note: item.summary, reservationNote, travelNote: travelNote(prevHood, item.neighborhood), mapQuery: item.mapQuery, alternatives });
+      stops.push({
+        slot,
+        title: item.title,
+        href: `${hrefBase}${item.slug}/`,
+        neighborhood: neighborhoodName(item.neighborhood),
+        note: item.summary,
+        reservationNote,
+        travelNote: travelNote(prevHood, item.neighborhood),
+        mapQuery: item.mapQuery,
+        alternatives,
+        // Seed fallback records with bracketed names are fabrications; the UI
+        // labels them so a plan never passes one off as a real business.
+        isSample: item.title.includes('[Sample]'),
+      });
       prevHood = item.neighborhood;
     }
 

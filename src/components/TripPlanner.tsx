@@ -229,6 +229,13 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
 
       {submitted && (
         <section id="itinerary-result" aria-live="polite" className="mt-12">
+          {itinerary.some((day) => day.stops.some((stop) => stop.isSample)) && (
+            <div className="mb-4 rounded-card border border-clay/25 bg-clay-wash/30 p-4 text-sm leading-relaxed text-clay-deep">
+              <strong className="font-semibold">Some stops are samples.</strong> Stops marked
+              &ldquo;Sample&rdquo; are demonstration records, not real businesses — we have not
+              published verified places in that category yet. Everything else in this plan is real.
+            </div>
+          )}
           <div className="flex flex-wrap items-end justify-between gap-4 border-b border-paper-edge pb-4">
             <div>
               <p className="eyebrow mb-1">Your plan</p>
@@ -295,6 +302,11 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
                       <div className="flex flex-wrap items-baseline gap-x-3">
                         <span className="eyebrow text-clay">{stop.slot}</span>
                         <span className="text-2xs text-ink-faint">{stop.neighborhood}</span>
+                        {stop.isSample && (
+                          <span className="rounded border border-clay/25 bg-clay-wash/40 px-1.5 py-0.5 text-2xs font-bold uppercase tracking-wider text-clay-deep">
+                            Sample — not a real business
+                          </span>
+                        )}
                       </div>
                       <h4 className="mt-1 font-sans text-lg font-bold">
                         {stop.href ? <Link href={stop.href} className="hover:text-clay">{stop.title}</Link> : stop.title}

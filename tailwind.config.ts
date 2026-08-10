@@ -22,8 +22,13 @@ const config: Config = {
           body: '#232323', // Charcoal — body copy
         },
         clay: {
-          DEFAULT: '#D95D45', // Clay Coral — primary actions
-          deep: '#C24A34', // hover
+          // Clay Coral, darkened for WCAG AA everywhere it is used as text or
+          // a button fill. The brand's #D95D45 measures 3.75:1 on white
+          // (minimum 4.5:1). #B04129 passes on every sanctioned light surface:
+          // 5.78:1 on white, 4.77:1 on sky, and 5.78:1 for white text on it.
+          DEFAULT: '#B04129',
+          deep: '#A83D2A', // hover — 6.24:1 on white
+          bright: '#D95D45', // original Clay Coral — decorative use only, never text or button fills
           wash: '#F2B7AE', // Dogwood Pink
         },
         navy: {

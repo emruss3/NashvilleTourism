@@ -20,7 +20,8 @@ Master brand: **NASHVILLE**. Promise: *The most useful way to plan, book, and ex
 |---|---|---|
 | Navy | `#102A43` | Logo, nav, headings, secondary buttons |
 | Cumberland | `#214A72` | Inverse section — one per page maximum |
-| Clay Coral | `#D95D45` | Primary CTAs (Plan Your Trip, Check Availability) |
+| Clay Coral (interactive) | `#B04129` | Primary CTAs, links, active tabs. Darkened from `#D95D45` because the original measures 3.75:1 on white and fails WCAG AA (4.5:1 minimum). `#B04129` passes on every sanctioned light surface: 5.78:1 on white, 4.77:1 on Sky. Hover: `#A83D2A` (6.24:1). |
+| Clay Coral (decorative) | `#D95D45` | Available as `clay-bright` for non-text decorative accents only — never button fills or text. |
 | Dogwood | `#F2B7AE` | Badges and chips only |
 | Sky Wash | `#DDECEF` | Component accents only |
 | Park Mint | `#8FC4AD` | Verified / positive / selective CTAs |

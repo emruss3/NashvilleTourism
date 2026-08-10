@@ -69,7 +69,9 @@ export default function NewsletterForm({ location }: { location: string }) {
           Enter a valid email address.
         </p>
       )}
-      <p className="mt-2 text-2xs text-ink-faint">
+      {/* ink-soft, not ink-faint: this renders on tinted section backgrounds
+          where ink-faint measures 4.31:1 at this size and fails WCAG AA. */}
+      <p className="mt-2 text-2xs text-ink-soft">
         One email a week. Unsubscribe anytime. We do not sell reader data.
       </p>
     </form>

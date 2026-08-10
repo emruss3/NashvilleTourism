@@ -290,6 +290,12 @@ export interface ItineraryStop {
   travelNote?: string;
   mapQuery: string;
   alternatives: { title: string; href?: string; note: string }[];
+  /**
+   * True when this stop came from seed demonstration data rather than a real
+   * Supabase record. The planner must never present a fabricated business as
+   * real, so the UI renders these with an explicit sample label.
+   */
+  isSample?: boolean;
 }
 
 export interface ItineraryDay {
