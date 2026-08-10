@@ -1,6 +1,6 @@
 # Nashroam Data Platform Strategy
 
-> **Updated:** August 9, 2026  
+> **Updated:** August 10, 2026  
 > **Supabase project:** `Nashroam`  
 > **Project ref:** `aeomrsutkhwmnscvvfur`  
 > **Region:** `us-east-2`
@@ -91,13 +91,17 @@ Public site surfaces should use narrow server APIs/server components. Operationa
 
 | Source | Supabase key | Role | Status / rule |
 |---|---|---|---|
-| **Foursquare OS Places** | `foursquare_os` | **Primary durable POI backbone** | Staging/import/promotion pipeline is live; dataset access/export still required. |
+| **Overture Maps Places** | `overture_maps` | **Primary automated POI discovery** | Credential-free weekly bbox extract → `place_discovery_candidates` → score/match/auto-create unpublished canonical places. Never auto-publishes. See [OVERTURE.md](./OVERTURE.md). |
+| **Foursquare OS Places** | `foursquare_os` | **Secondary durable enrichment / deltas** | Staging still available; prefer feeding the generic discovery table when portal access exists. Not a blocker for Overture. |
 | **Foursquare Places API** | `foursquare` | Supplemental matching/enrichment | Inactive; credentials not configured. |
 | **Google Places** | `google_places` | **Just-in-time operational validation** | Inactive; credential not configured. Persist durable Google Place IDs; do not make volatile Google content the permanent warehouse. |
 | **Yelp** | `yelp` | Consumer rating/review-count layer where licensed | Inactive; credential not configured. Keep provider state separate from Nashroam score. |
 | **TripAdvisor Content API** | `tripadvisor` | Supplemental rating/review-count source | Registered; inactive pending approved credentials/current terms. |
 
-See [FOURSQUARE.md](./FOURSQUARE.md) for the bulk POI workflow.
+See [OVERTURE.md](./OVERTURE.md) for the primary automated discovery workflow.  
+See [FOURSQUARE.md](./FOURSQUARE.md) for the secondary FSQ OS bulk workflow.
+
+> **Deprecated:** manually researching and seeding restaurants one-by-one. Keep the existing officially verified bootstrap restaurants as matcher anchors only.
 
 ### Restaurant reservations
 
@@ -153,7 +157,7 @@ See [TICKETMASTER.md](./TICKETMASTER.md).
 
 | Question | Strongest source |
 |---|---|
-| Does this place exist / where is it? | Nashroam canonical record + Foursquare OS / official source |
+| Does this place exist / where is it? | Nashroam canonical record + Overture / FSQ OS / official source |
 | Is it worth recommending? | **Nashroam editorial** |
 | Who is it best for? | **Nashroam editorial** |
 | Is it open right now? | Official source + live validation |
@@ -217,11 +221,23 @@ metadata
 
 `neighborhoods`, `places`, `place_editorial`, `tags`, `place_tags`, `place_relationships`, `place_source_ids`, `place_source_state`, `place_health`
 
-### FSQ OS staging
+### Generic place discovery (Overture / FSQ OS / future POI)
+
+`place_discovery_candidates`, private view `place_discovery_queue`
+
+Service-role RPCs:
+
+- `score_place_discovery_candidates()`
+- `match_place_discovery_candidates(p_min_score, p_auto_create)`
+- `flag_stale_place_discovery_candidates(p_source_id, p_source_release, p_stale_after)`
+
+Automation may create unpublished canonical places. Only `approve_place` / `reject_place` publish.
+
+### FSQ OS staging (legacy / secondary)
 
 `fsq_os_categories`, `fsq_os_place_candidates`, private view `fsq_os_place_candidate_queue`
 
-Promotion is service-role-only through `promote_fsq_os_candidate(...)`. Bulk FSQ data never publishes directly into the canonical corpus.
+Promotion is service-role-only through `promote_fsq_os_candidate(...)`. Prefer migrating FSQ deltas into `place_discovery_candidates` once the generic pipeline is proven.
 
 ### Events
 
@@ -243,7 +259,7 @@ Promotion is service-role-only through `promote_fsq_os_candidate(...)`. Bulk FSQ
 
 ### Private operational views
 
-`experience_curation_queue`, `experience_auto_curation`, `experience_duplicate_candidates`, `source_health`, `fsq_os_place_candidate_queue`
+`experience_curation_queue`, `experience_auto_curation`, `experience_duplicate_candidates`, `source_health`, `place_discovery_queue`, `fsq_os_place_candidate_queue`, `place_curation_queue`
 
 ---
 

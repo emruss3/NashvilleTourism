@@ -1,0 +1,65 @@
+name: Overture place sync
+
+on:
+  schedule:
+    # Monday 06:00 UTC
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: overture-place-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Download + ingest Nashville Overture places
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    env:
+      # Davidson / central Nashville — override via repo variable if needed.
+      NASHVILLE_BBOX: ${{ vars.NASHVILLE_BBOX || '-87.06,35.97,-86.46,36.41' }}
+      MIN_CANDIDATE_SCORE: ${{ vars.MIN_CANDIDATE_SCORE || '70' }}
+      GEOJSON_PATH: /tmp/nashville-overture.geojson
+      # Never put service role in NEXT_PUBLIC_* or artifacts.
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: scripts/requirements-overture.txt
+
+      - name: Install Python deps
+        run: pip install -r scripts/requirements-overture.txt
+
+      - name: Verify secrets present
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY repository secrets are required."
+            exit 1
+          fi
+          echo "Secrets present (values not printed)."
+
+      - name: Sync Overture places
+        run: python scripts/sync-overture-places.py
+
+      - name: Summarize report (no secrets)
+        if: always()
+        run: |
+          if [ -f tmp/overture-sync-report.json ]; then
+            python -c "import json; print(json.dumps(json.load(open('tmp/overture-sync-report.json')), indent=2))"
+          else
+            echo "No report file produced."
+          fi
+
+      # Do not upload GeoJSON — it can be large and is not needed as an artifact.

@@ -12,6 +12,7 @@ import {
   tripLength,
   type ExperienceCandidate,
   type PlannerContextCandidate,
+  type PlannerPlaceCandidate,
 } from '@/lib/itinerary';
 import type { Budget, NeighborhoodSlug, Pace, TripInput, TripType } from '@/lib/types';
 import { MapLink } from './Ui';
@@ -41,13 +42,14 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
   const [copied, setCopied] = useState(false);
   const [started, setStarted] = useState(false);
   const [experienceCandidates, setExperienceCandidates] = useState<ExperienceCandidate[]>([]);
+  const [placeCandidates, setPlaceCandidates] = useState<PlannerPlaceCandidate[]>([]);
   const [plannerContexts, setPlannerContexts] = useState<PlannerContextCandidate[]>([]);
   const [experiencesLoading, setExperiencesLoading] = useState(false);
 
   const days = useMemo(() => tripLength(input.startDate, input.endDate), [input.startDate, input.endDate]);
   const itinerary = useMemo(
-    () => (submitted ? buildItinerary(input, experienceCandidates, plannerContexts) : []),
-    [submitted, input, experienceCandidates, plannerContexts],
+    () => (submitted ? buildItinerary(input, experienceCandidates, plannerContexts, placeCandidates) : []),
+    [submitted, input, experienceCandidates, plannerContexts, placeCandidates],
   );
   const hotelPicks = useMemo(() => (submitted && input.needsHotel ? suggestHotels(input) : []), [submitted, input]);
 
@@ -79,6 +81,12 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
           return res.json() as Promise<{ experiences?: ExperienceCandidate[] }>;
         })
         .catch(() => ({ experiences: [] as ExperienceCandidate[] })),
+      fetch('/api/planner/places?limit=120')
+        .then(async (res) => {
+          if (!res.ok) return { places: [] as PlannerPlaceCandidate[] };
+          return res.json() as Promise<{ places?: PlannerPlaceCandidate[] }>;
+        })
+        .catch(() => ({ places: [] as PlannerPlaceCandidate[] })),
       fetch(`/api/planner/context?${contextParams.toString()}`)
         .then(async (res) => {
           if (!res.ok) return { contexts: [] as PlannerContextCandidate[] };
@@ -86,9 +94,11 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
         })
         .catch(() => ({ contexts: [] as PlannerContextCandidate[] })),
     ])
-      .then(([experienceData, contextData]) => {
+      .then(([experienceData, placeData, contextData]) => {
         if (cancelled) return;
         setExperienceCandidates(Array.isArray(experienceData.experiences) ? experienceData.experiences : []);
+        // Only approved/published/active places with health gates — never discovery candidates.
+        setPlaceCandidates(Array.isArray(placeData.places) ? placeData.places : []);
         setPlannerContexts(Array.isArray(contextData.contexts) ? contextData.contexts : []);
       })
       .finally(() => {

@@ -193,9 +193,11 @@ export function buildItinerary(
   const staticSeePool = attractions.filter((a) => (input.hasChildren ? a.familyFriendly : true));
   const staticNightPool = input.wantsNightlife ? venues : venues.filter((v) => v.coverNote.toLowerCase().includes('free'));
 
+  // Category cutover: if >=1 approved Supabase place exists in a category,
+  // that category uses only Supabase — never mix [Sample] static listings.
   const rankedPlaces = rankPlacesForTrip(input, placeCandidates);
-  const realFoodPool = rankedPlaces.filter((p) => p.category === 'restaurant');
-  const realSeePool = rankedPlaces.filter((p) => ['attraction', 'park'].includes(p.category));
+  const realFoodPool = rankedPlaces.filter((p) => ['restaurant', 'coffee'].includes(p.category));
+  const realSeePool = rankedPlaces.filter((p) => ['attraction', 'park', 'outdoor'].includes(p.category));
   const realNightPool = rankedPlaces.filter((p) => ['venue', 'live-music', 'bar-nightlife'].includes(p.category));
   const experiencePool = rankExperiencesForTrip(input, experienceCandidates);
 

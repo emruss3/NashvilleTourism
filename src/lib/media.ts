@@ -7,31 +7,28 @@
  *
  * Production rule: an image may render only when it is in AVAILABLE_MEDIA
  * (`rightsStatus === 'cleared'` && `approvalStatus === 'approved'`).
- * TEMP_ALLOW_UNCLEARED_MEDIA temporarily also shows uncleared keys that still
- * have files on disk (CVC / pending press). Flip that flag off before any
- * production rights claim. Missing keys still render a typographic fallback —
- * never a wrong-business substitute.
- * See `public/media/README.md` and `docs/media/COMMERCIAL-MEDIA-SOURCING.md`.
+ * TEMP_ALLOW_UNCLEARED_MEDIA temporarily also shows uncleared keys (CVC /
+ * pending press). Flip that flag off before any production rights claim.
+ * Missing keys still render a typographic fallback — never a wrong-business
+ * substitute. See `public/media/README.md` and
+ * `docs/media/COMMERCIAL-MEDIA-SOURCING.md`.
+ *
+ * This module is imported by client components — never import node:fs/path here.
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
 import { adobePurchaseMedia, restoredMedia } from './media-restored';
 import type { MediaAsset, VideoAsset } from './media-types';
 
 export type { MediaAsset, VideoAsset } from './media-types';
 
-/** TEMP: show uncleared stills that still have files. Hero video stays the cleared Pexels drone loop — uncleared hero keys stay gated. Set false before launch claims. */
+/** TEMP: show uncleared stills. Hero video stays the cleared Pexels drone loop — uncleared hero keys stay gated. Set false before launch claims. */
 export const TEMP_ALLOW_UNCLEARED_MEDIA = true;
 
-function publicMediaExists(src: string): boolean {
-  return fs.existsSync(path.join(process.cwd(), 'public', src.replace(/^\//, '')));
-}
-
-/** Adobe stubs only win when the purchased original is actually on disk. */
-const adobeReadyMedia = Object.fromEntries(
-  Object.entries(adobePurchaseMedia).filter(([, asset]) => publicMediaExists(asset.src)),
-) as Partial<typeof adobePurchaseMedia>;
+/**
+ * Adobe purchase stubs stay out of the client bundle until licensed files land.
+ * Do not reintroduce filesystem probes here — they break the Next client build.
+ */
+const adobeReadyMedia = {} as Partial<typeof adobePurchaseMedia>;
 
 export const heroVideo: VideoAsset = {
   webm: '/media/hero/nashville-hero.webm',
@@ -899,12 +896,6 @@ const OWNED_AND_OPEN_BASE: readonly string[] = [
   'attractions/country-music-hall-of-fame-night',
 ];
 
-function assetFilesPresent(asset: MediaAsset): boolean {
-  if (!publicMediaExists(asset.src)) return false;
-  if (asset.srcMobile && !publicMediaExists(asset.srcMobile)) return false;
-  return true;
-}
-
 /** Cleared hero keys stay allowlisted; uncleared hero stills stay gated. Hero video is the Pexels drone loop only. */
 const CLEARED_OR_RESTORED = new Set<string>([
   'hero/video',
@@ -914,9 +905,8 @@ const CLEARED_OR_RESTORED = new Set<string>([
 
 const unclearedPresentKeys = TEMP_ALLOW_UNCLEARED_MEDIA
   ? (Object.keys(images) as ImageKey[]).filter((key) => {
-      if (!assetFilesPresent(images[key] as MediaAsset)) return false;
-      // Keep the licensed Pexels hero video; do not re-open uncleared hero keys.
-      if (key === 'hero/video' || key.startsWith('hero/')) {
+      // Do not re-open uncleared hero stills; hero motion uses the Pexels drone loop.
+      if (String(key).startsWith('hero/')) {
         return CLEARED_OR_RESTORED.has(key);
       }
       return true;

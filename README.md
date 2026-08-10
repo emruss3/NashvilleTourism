@@ -108,9 +108,10 @@ The full rules live in `docs/data-platform/README.md`.
 | **Nashroam Editorial** | First-party scores, local notes, best-for, planner context | **Active** |
 | **Manual Verification** | Human confirmation / exception handling | **Active** |
 | **Official Websites / venue sources** | Authoritative durable facts and URLs | **Active** |
-| **Foursquare OS Places** | Planned durable Nashville POI backbone | Waiting on access/token |
+| **Overture Maps Places** | Primary automated Nashville POI discovery | Credential-free; weekly GH Action |
+| **Foursquare OS Places** | Secondary durable enrichment / deltas | Waiting on portal access — not a blocker |
 | **Foursquare Places API** | Supplemental POI matching/intelligence | Not configured |
-| **Google Places** | Just-in-time hours/status/rating validation | Not configured |
+| **Google Places** | Just-in-time hours/status/rating validation | Not configured — not the POI warehouse |
 | **Yelp** | Consumer sentiment / rating + review-count layer | Not configured |
 | **TripAdvisor Content API** | Supplemental rating/review-count source | Registered in Supabase; credentials not configured |
 | **OpenTable** | Restaurant availability + reservation deep links | Partnership/API pending |
@@ -127,13 +128,16 @@ The full rules live in `docs/data-platform/README.md`.
 
 No provider is “the Nashroam database.”
 
-- **Foursquare OS / official data** → durable place identity
-- **Google / Foursquare / official source** → live operational validation
+- **Overture Maps** → primary automated place discovery (`place_discovery_candidates`)
+- **Foursquare OS / official data** → secondary durable enrichment + verification anchors
+- **Google Places** → just-in-time validation only (never permanent warehouse content)
 - **Yelp / Google / TripAdvisor where licensed** → consumer sentiment signals
 - **OpenTable** → restaurant availability
 - **Viator** → bookable experience inventory
 - **Ticketmaster + secondary ticket providers** → event/ticket inventory
 - **Nashroam** → quality judgment, traveler fit, local context, geography, itinerary logic
+
+**Manual restaurant seeding is deprecated.** Existing officially verified restaurants are bootstrap matcher anchors only.
 
 ---
 
@@ -218,7 +222,7 @@ Machine suggestions are display-only hints. Human editorial fields start blank.
 
 The planner must never invent a place, event, experience, price, opening time, or availability claim. Every final recommendation should resolve to a real eligible Supabase record.
 
-Experiences now honor the approval gate. Places/events are next.
+Experiences and approved places honor the curation gate. `TripPlanner` loads `/api/planner/places` and, category-by-category, replaces static `[Sample]` pools when approved Supabase places exist. Discovery candidates never appear publicly.
 
 ---
 
@@ -259,25 +263,27 @@ Provider disagreements go to `verification_queue`; they do not silently overwrit
 ## Current build order
 
 1. Use `/admin/experiences` to curate the **49 priority Viator experiences**, then the standard-review set.
-2. Configure Foursquare OS Places and build the real restaurant/bar/attraction backbone.
-3. Add live place validation (Google/Foursquare/Yelp as appropriate).
-4. Configure Ticketmaster and begin canonical event ingestion.
-5. Add NCVC/direct Nashville calendars and event context.
-6. Complete OpenTable partnership/integration.
-7. Move remaining planner candidate pools off static/sample content and onto Supabase.
-8. Extend the admin workflow from experiences to places/events/verification exceptions.
+2. Run the weekly Overture place sync; review exceptions in `/admin/places`; publish via `/admin/places/canonical`.
+3. When available, add Foursquare OS as a secondary delta/enrichment source into the same discovery table.
+4. Add live place validation (Google JIT only where needed).
+5. Configure Ticketmaster and begin canonical event ingestion.
+6. Add NCVC/direct Nashville calendars and event context.
+7. Complete OpenTable partnership/integration.
+8. Keep extending admin exception workflows for places/events/verification.
 
-Target place corpus is roughly **500–750 places we would actually recommend**, not every business in Davidson County.
+Target place corpus is roughly **500–750 places we would actually recommend**, not every business in Davidson County. Automation finds candidates; humans approve the shortlist.
 
 ---
 
 ## Documentation
 
 - `docs/data-platform/README.md` — **primary source/data strategy**
+- `docs/data-platform/OVERTURE.md` — Overture primary place discovery
 - `docs/data-platform/VIATOR.md` — Viator integration and curation rules
 - `docs/ANALYTICS.md` — analytics contract
 - `supabase/migrations/` — versioned schema history
 - `supabase/functions/viator-sync/` — Viator server boundary
+- `.github/workflows/overture-place-sync.yml` — weekly Overture sync
 - `public/media/README.md` — media sourcing brief
 - `.env.example` — website environment variables
 
@@ -285,14 +291,14 @@ Target place corpus is roughly **500–750 places we would actually recommend**,
 
 ## Known limitations
 
-1. The real restaurant/place corpus is not loaded yet.
+1. The restaurant/place corpus is shifting to automated Overture discovery; human approval still gates publication.
 2. The event table is not populated yet.
 3. Viator experiences still require curation/approval before public/planner eligibility.
 4. Several static site listing modules still contain `[Sample]` content and must not be treated as verified production data.
-5. Ticketmaster, Foursquare, Google, Yelp, SeatGeek, OpenTable, Vivid, TripAdvisor, and Booking Demand are not yet credentialed in the Nashroam Supabase project (except Viator).
+5. Ticketmaster, Foursquare, Google, Yelp, SeatGeek, OpenTable, Vivid, TripAdvisor, and Booking Demand are not yet credentialed in the Nashroam Supabase project (except Viator). Overture needs no provider API key; Supabase service-role is required for ingest writes.
 6. Booking.com Demand API remains a scaffold, not live hotel inventory.
 7. Author, privacy/legal, and some media workflows still require production cleanup.
-8. The repo currently has no GitHub Actions build attached to these commits; run `npm run typecheck` and `npm run build` after pulling latest `main`.
+8. Configure GitHub secrets `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` for the Overture sync workflow.
 
 ---
 

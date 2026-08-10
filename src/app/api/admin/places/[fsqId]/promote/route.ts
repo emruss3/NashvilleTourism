@@ -5,7 +5,7 @@ import { getSupabaseServiceClient } from '@/lib/supabase/server';
 export const dynamic = 'force-dynamic';
 
 function redirectTo(req: Request, params: Record<string, string>) {
-  const url = new URL('/admin/places', req.url);
+  const url = new URL('/admin/places/fsq', req.url);
   for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
   return NextResponse.redirect(url, { status: 303 });
 }

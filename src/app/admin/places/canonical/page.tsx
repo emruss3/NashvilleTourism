@@ -47,7 +47,7 @@ export default async function CanonicalPlaceReview({ searchParams }: { searchPar
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ink-soft">Durable identity is already verified. Publishing still requires a human Nashroam score, summary, local note and planner fit.</p>
           <div className="mt-4 flex flex-wrap gap-4 text-sm font-semibold">
             <Link href="/admin/experiences" className="text-navy hover:text-clay">Experiences</Link>
-            <Link href="/admin/places" className="text-navy hover:text-clay">FSQ staging</Link>
+            <Link href="/admin/places" className="text-navy hover:text-clay">Discovery</Link>
             <span className="text-ink-faint">Canonical places</span>
             <Link href="/admin/sources" className="text-navy hover:text-clay">Sources</Link>
           </div>
