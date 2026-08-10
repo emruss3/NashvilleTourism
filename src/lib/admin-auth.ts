@@ -15,10 +15,12 @@ function safeEqual(a: string, b: string): boolean {
   return aa.length === bb.length && timingSafeEqual(aa, bb);
 }
 
-function expectedSessionValue(): string | undefined {
+function signature(expiresAt: number): string | undefined {
   const token = adminToken();
   if (!token) return undefined;
-  return createHmac('sha256', token).update(SESSION_LABEL).digest('hex');
+  return createHmac('sha256', token)
+    .update(`${SESSION_LABEL}.${expiresAt}`)
+    .digest('hex');
 }
 
 export function isAdminAuthConfigured(): boolean {
@@ -31,7 +33,10 @@ export function verifyAdminToken(candidate: string): boolean {
 }
 
 export function adminSessionCookieValue(): string | undefined {
-  return expectedSessionValue();
+  const expiresAt = Math.floor(Date.now() / 1000) + SESSION_MAX_AGE_SECONDS;
+  const sig = signature(expiresAt);
+  if (!sig) return undefined;
+  return `v1.${expiresAt}.${sig}`;
 }
 
 export function adminSessionMaxAge(): number {
@@ -39,8 +44,13 @@ export function adminSessionMaxAge(): number {
 }
 
 export function hasAdminSession(): boolean {
-  const expected = expectedSessionValue();
-  if (!expected) return false;
   const actual = cookies().get(ADMIN_SESSION_COOKIE)?.value || '';
-  return safeEqual(actual, expected);
+  const [version, rawExpiry, actualSig] = actual.split('.');
+  if (version !== 'v1' || !rawExpiry || !actualSig) return false;
+
+  const expiresAt = Number(rawExpiry);
+  if (!Number.isFinite(expiresAt) || expiresAt <= Math.floor(Date.now() / 1000)) return false;
+
+  const expectedSig = signature(expiresAt);
+  return Boolean(expectedSig && safeEqual(actualSig, expectedSig));
 }
