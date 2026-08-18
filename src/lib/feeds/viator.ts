@@ -1,20 +1,25 @@
 /**
- * NashRoam server-side client for the Supabase Viator integration.
+ * NashRoam server-side client for Viator.
  *
- * Architecture:
- *   Next.js (this module) → Supabase Edge Function `viator-sync` → Viator sandbox
+ * Public marketplace path:
+ *   Next.js -> Supabase Edge Function `viator-live` -> Viator production
  *
- * - DO NOT call api.viator.com from Next.js.
- * - DO NOT require VIATOR_API_KEY in Vercel — the key lives in Supabase secrets.
- * - Default Viator environment is sandbox (Basic Access Affiliate).
- * - Destination: Nashville = 799.
+ * Ingestion / curation path:
+ *   Supabase cron -> Edge Function `viator-sync` -> Viator sandbox/catalog store
+ *
+ * Security:
+ * - Never call Viator directly from browser code.
+ * - Never put a Viator key in Vercel or NEXT_PUBLIC_*.
+ * - VIATOR_PRODUCTION_API_KEY lives in Supabase project secrets and is used by
+ *   `viator-live`; the existing VIATOR_API_KEY can remain the sandbox key used
+ *   by the ingestion pipeline.
+ * - Nashville destination id is 799.
  */
 
 import { invokeEdgeFunction, isSupabaseConfigured } from '@/lib/supabase/server';
 
 export const VIATOR_NASHVILLE_DESTINATION_ID = '799';
 export const VIATOR_NASHVILLE_LOOKUP_ID = '8.77.295.799';
-/** Max cache for search/product per Viator real-time guidance. */
 export const VIATOR_REVALIDATE_SECONDS = 3600;
 
 export type ViatorAccessTier =
@@ -143,11 +148,10 @@ function mapNormalized(raw: Record<string, unknown>): ViatorProductSummary | nul
 }
 
 export function isViatorConfigured(): boolean {
-  // Configured when Supabase service role can reach the Edge Function.
-  // VIATOR_API_KEY is intentionally NOT read here.
   return isSupabaseConfigured();
 }
 
+/** Live, production Viator inventory for the public marketplace. */
 export async function searchNashvilleProducts(
   params: ViatorSearchParams = {},
 ): Promise<ViatorSearchResult> {
@@ -179,7 +183,7 @@ export async function searchNashvilleProducts(
   if (existing) return existing;
 
   const promise = (async (): Promise<ViatorSearchResult> => {
-    const result = await invokeEdgeFunction<EdgeEnvelope>('viator-sync', {
+    const result = await invokeEdgeFunction<EdgeEnvelope>('viator-live', {
       mode: 'search_products',
       start: params.start ?? 1,
       count: Math.min(params.count ?? 24, 50),
@@ -200,7 +204,10 @@ export async function searchNashvilleProducts(
         live: false,
         products: [],
         fetchedAt,
-        error: data?.error || `viator-sync search failed (${result.status})`,
+        error:
+          typeof data?.error === 'string'
+            ? data.error
+            : `viator-live search failed (${result.status})`,
         httpStatus: result.status,
         environment: data?.environment,
         rateLimitRemaining: data?.rateLimitRemaining,
@@ -208,16 +215,15 @@ export async function searchNashvilleProducts(
     }
 
     const products = (data.products ?? [])
-      .map((p) => mapNormalized(p))
+      .map((product) => mapNormalized(product))
       .filter(Boolean) as ViatorProductSummary[];
 
-    // Optional free-text filter client-side (Viator search is structured filters)
     const q = params.query?.trim().toLowerCase();
     const filtered = q
       ? products.filter(
-          (p) =>
-            p.title.toLowerCase().includes(q) ||
-            (p.description?.toLowerCase().includes(q) ?? false),
+          (product) =>
+            product.title.toLowerCase().includes(q) ||
+            (product.description?.toLowerCase().includes(q) ?? false),
         )
       : products;
 
@@ -241,12 +247,14 @@ export async function searchNashvilleProducts(
   }
 }
 
+/** Live product detail from Viator production for marketplace pages. */
 export async function getViatorProduct(productCode: string): Promise<{
   configured: boolean;
   live: boolean;
   product?: ViatorProductDetail;
   error?: string;
   httpStatus?: number;
+  environment?: string;
 }> {
   if (!isSupabaseConfigured()) {
     return {
@@ -262,7 +270,7 @@ export async function getViatorProduct(productCode: string): Promise<{
     return { configured: true, live: false, error: 'productCode required', httpStatus: 400 };
   }
 
-  const result = await invokeEdgeFunction<EdgeEnvelope>('viator-sync', {
+  const result = await invokeEdgeFunction<EdgeEnvelope>('viator-live', {
     mode: 'get_product',
     productCode: code,
     campaign: 'tours-detail',
@@ -273,51 +281,50 @@ export async function getViatorProduct(productCode: string): Promise<{
     return {
       configured: true,
       live: false,
-      error: data?.error || `viator-sync get_product failed (${result.status})`,
+      error:
+        typeof data?.error === 'string'
+          ? data.error
+          : `viator-live get_product failed (${result.status})`,
       httpStatus: result.status,
+      environment: data?.environment,
     };
   }
 
-  const normalized = data.normalized
-    ? mapNormalized(data.normalized)
-    : data.product
-      ? mapNormalized({
-          productCode: data.product.productCode,
-          title: data.product.title,
-          description: data.product.description,
-          productUrl: data.product.productUrl,
-          imageUrl: undefined,
-          rating: (data.product.reviews as { combinedAverageRating?: number } | undefined)
-            ?.combinedAverageRating,
-          reviewCount: (data.product.reviews as { totalReviews?: number } | undefined)?.totalReviews,
-          fromPrice: (data.product.pricing as { summary?: { fromPrice?: number } } | undefined)
-            ?.summary?.fromPrice,
-          currency: (data.product.pricing as { currency?: string } | undefined)?.currency,
-          flags: data.product.flags,
-          freeCancellation: Array.isArray(data.product.flags)
-            ? (data.product.flags as string[]).includes('FREE_CANCELLATION')
-            : false,
-        })
-      : null;
-
+  const normalized = data.normalized ? mapNormalized(data.normalized) : null;
   if (!normalized) {
-    return { configured: true, live: false, error: 'Product missing affiliate productUrl', httpStatus: 502 };
+    return {
+      configured: true,
+      live: false,
+      error: 'Product missing affiliate productUrl',
+      httpStatus: 502,
+      environment: data.environment,
+    };
   }
 
+  const raw = data.normalized ?? {};
   return {
     configured: true,
     live: true,
     httpStatus: 200,
+    environment: data.environment,
     product: {
       ...normalized,
       confirmationType:
-        typeof data.product?.confirmationType === 'string'
-          ? data.product.confirmationType
-          : undefined,
+        typeof raw.confirmationType === 'string' ? raw.confirmationType : undefined,
+      languages: Array.isArray(raw.languages) ? raw.languages.map(String) : undefined,
+      inclusions: Array.isArray(raw.inclusions) ? raw.inclusions.map(String) : undefined,
+      exclusions: Array.isArray(raw.exclusions) ? raw.exclusions.map(String) : undefined,
+      additionalInfo: Array.isArray(raw.additionalInfo) ? raw.additionalInfo.map(String) : undefined,
+      itineraryOverview:
+        typeof raw.itineraryOverview === 'string' ? raw.itineraryOverview : undefined,
     },
   };
 }
 
+/**
+ * Catalog ingestion remains a separate curation operation. It uses viator-sync
+ * and never automatically publishes experiences into NashRoam editorial/plans.
+ */
 export async function syncNashvilleCatalog(opts: {
   maxPages?: number;
   limit?: number;
@@ -343,14 +350,18 @@ export async function syncNashvilleCatalog(opts: {
     published?: number;
     sample?: Array<{ productCode: string; title: string; productUrl: string }>;
     environment?: string;
-  }>('viator-sync', {
-    mode: 'sync_nashville_catalog',
-    maxPages: opts.maxPages ?? 3,
-    limit: opts.limit ?? 180,
-    startDate: opts.startDate,
-    endDate: opts.endDate,
-    campaign: 'catalog-sync',
-  }, { timeoutMs: 120_000 });
+  }>(
+    'viator-sync',
+    {
+      mode: 'sync_nashville_catalog',
+      maxPages: opts.maxPages ?? 3,
+      limit: opts.limit ?? 180,
+      startDate: opts.startDate,
+      endDate: opts.endDate,
+      campaign: 'catalog-sync',
+    },
+    { timeoutMs: 120_000 },
+  );
 
   return {
     ok: Boolean(result.ok && result.data?.ok),
@@ -363,7 +374,7 @@ export async function syncNashvilleCatalog(opts: {
   };
 }
 
-/** Health via Edge Function — Basic Access only (no Full Access probes). */
+/** Health check for the production Basic Access Affiliate path. */
 export async function probeViatorAccess(): Promise<{
   configured: boolean;
   inferredTier: ViatorAccessTier;
@@ -384,15 +395,19 @@ export async function probeViatorAccess(): Promise<{
     };
   }
 
-  const health = await invokeEdgeFunction<EdgeEnvelope>('viator-sync', { mode: 'health' });
+  const health = await invokeEdgeFunction<EdgeEnvelope>('viator-live', { mode: 'health' });
   const probes: ViatorProbeResult[] = [
     {
-      endpoint: 'edge:viator-sync/health→GET /destinations',
+      endpoint: 'edge:viator-live/health→GET production /destinations',
       method: 'GET',
       httpStatus: health.status,
       ok: Boolean(health.ok && health.data?.ok),
-      clue: health.data?.error ||
-        (health.data?.ok ? `OK (${health.data.environment || 'sandbox'})` : `HTTP ${health.status}`),
+      clue:
+        typeof health.data?.error === 'string'
+          ? health.data.error
+          : health.data?.ok
+            ? `OK (${health.data.environment || 'production'})`
+            : `HTTP ${health.status}`,
     },
   ];
 
@@ -400,11 +415,12 @@ export async function probeViatorAccess(): Promise<{
   if (health.ok && health.data?.ok) {
     const search = await searchNashvilleProducts({ count: 1, sort: 'TRAVELER_RATING' });
     probes.push({
-      endpoint: 'edge:viator-sync/search_products→POST /products/search',
+      endpoint: 'edge:viator-live/search_products→POST production /products/search',
       method: 'POST',
       httpStatus: search.httpStatus ?? null,
       ok: search.live,
-      clue: search.error ||
+      clue:
+        search.error ||
         (search.live ? `OK · dest ${VIATOR_NASHVILLE_DESTINATION_ID}` : 'No products'),
     });
     sampleProductCode = search.products[0]?.productCode;
@@ -412,7 +428,7 @@ export async function probeViatorAccess(): Promise<{
     if (sampleProductCode) {
       const detail = await getViatorProduct(sampleProductCode);
       probes.push({
-        endpoint: `edge:viator-sync/get_product→GET /products/${sampleProductCode}`,
+        endpoint: `edge:viator-live/get_product→GET production /products/${sampleProductCode}`,
         method: 'GET',
         httpStatus: detail.httpStatus ?? null,
         ok: Boolean(detail.live),
@@ -422,11 +438,7 @@ export async function probeViatorAccess(): Promise<{
   }
 
   const inferredTier: ViatorAccessTier =
-    !health.ok
-      ? 'error'
-      : health.data?.ok
-        ? 'basic_affiliate'
-        : 'error';
+    health.ok && health.data?.ok ? 'basic_affiliate' : 'error';
 
   return {
     configured: true,
