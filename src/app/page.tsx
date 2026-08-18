@@ -134,23 +134,53 @@ export default async function HomePage() {
       </div>
 
       <section id="explore" className="shell scroll-mt-24 pb-14 pt-12 lg:pb-16 lg:pt-14">
-        <SectionHeader title="What are you here to do?" />
+        <div className="mb-8">
+          <p className="eyebrow text-clay">Choose your path</p>
+          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-navy sm:text-[28px] lg:text-3xl">
+            What are you here to do?
+          </h2>
+          <div className="mt-3 h-px w-12 bg-clay" aria-hidden="true" />
+        </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {INTENT_HUBS.map((hub) => (
-            <Link
-              key={hub.href}
-              href={hub.href}
-              className="group relative overflow-hidden rounded-card border border-paper-edge bg-paper-card transition-colors hover:border-ink/20 focus-visible:outline-2"
-            >
-              <SmartImage imageKey={hub.image} ratio="aspect-[16/10]" />
-              <div className="p-4">
-                <h3 className="text-lg font-bold leading-snug text-ink group-hover:text-clay">
+          {INTENT_HUBS.map((hub, index) => {
+            // Checkerboard: even tiles lead with copy; odd tiles lead with photo.
+            const imageFirst = index % 2 === 1;
+            const copy = (
+              <div className="flex flex-1 flex-col justify-center p-5 sm:p-6">
+                <h3 className="font-sans text-lg font-bold uppercase tracking-wide text-navy group-hover:text-clay">
                   {hub.title}
                 </h3>
-                <p className="mt-1 text-[15px] leading-relaxed text-ink-soft">{hub.blurb}</p>
+                <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">{hub.blurb}</p>
               </div>
-            </Link>
-          ))}
+            );
+            const photo = (
+              <SmartImage
+                imageKey={hub.image}
+                ratio="aspect-[16/10]"
+                className="shrink-0"
+                sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+              />
+            );
+            return (
+              <Link
+                key={hub.href}
+                href={hub.href}
+                className="group flex min-h-[280px] flex-col overflow-hidden border border-navy/80 bg-paper-card transition-colors hover:border-clay focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay"
+              >
+                {imageFirst ? (
+                  <>
+                    {photo}
+                    {copy}
+                  </>
+                ) : (
+                  <>
+                    {copy}
+                    {photo}
+                  </>
+                )}
+              </Link>
+            );
+          })}
         </div>
       </section>
 
@@ -179,14 +209,21 @@ export default async function HomePage() {
 
       <section className="border-y border-paper-edge bg-paper-card py-14 lg:py-16">
         <div className="shell">
-          <SectionHeader
-            eyebrow="Start here"
-            title="Plan the shape of your trip"
-            description="Answer the big questions first: where to stay, what fits into a weekend, and what a first visit actually needs."
-            href="/guides/"
-            linkLabel="All guides"
-          />
-          <div className="grid gap-4 lg:grid-cols-3">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="eyebrow text-clay">Start here</p>
+              <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-navy sm:text-[28px] lg:text-3xl">
+                Plan the shape of your trip
+              </h2>
+            </div>
+            <Link
+              href="/guides/"
+              className="shrink-0 text-sm font-semibold uppercase tracking-wide text-clay underline-offset-4 hover:text-clay-deep hover:underline"
+            >
+              All guides →
+            </Link>
+          </div>
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-10">
             {startHere.map((guide) => (
               <GuideCard key={guide.slug} item={guide} />
             ))}

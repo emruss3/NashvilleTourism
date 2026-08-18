@@ -13,7 +13,7 @@ import type { ImageKey } from '@/lib/media';
 import { guideImageKey, neighborhoodImageKey } from '@/lib/media-placements';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
 import { ContentImage, SmartImage } from './Media';
-import { PlacementLabel, VerificationBadge, formatDateShort } from './Trust';
+import { PlacementLabel, VerificationBadge } from './Trust';
 
 export { guideImageKey, neighborhoodImageKey } from '@/lib/media-placements';
 
@@ -223,24 +223,24 @@ export function AttractionCard({ item }: { item: Attraction }) {
 export function GuideCard({ item, featured = false }: { item: Guide; featured?: boolean }) {
   return (
     <article
-      className={`card group relative flex overflow-hidden ${featured ? 'flex-col sm:flex-row' : 'flex-col'}`}
+      className={`group relative flex overflow-hidden bg-transparent ${featured ? 'flex-col sm:flex-row sm:gap-5' : 'flex-col'}`}
     >
       <SmartImage
         imageKey={guideImageKey(item)}
         ratio={featured ? 'aspect-[3/2] sm:aspect-square sm:w-52 sm:shrink-0' : 'aspect-[3/2]'}
         sizes={featured ? '(max-width: 640px) 100vw, 208px' : '(max-width: 640px) 100vw, 33vw'}
+        className={featured ? 'sm:rounded-none' : ''}
       />
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <MetaRow items={[item.cluster, `${item.readingTimeMinutes} min read`]} />
-        <h3 className={`font-sans font-bold leading-snug ${featured ? 'text-xl' : 'text-lg'}`}>
+      <div className={`flex flex-1 flex-col ${featured ? 'gap-2 py-1 sm:py-0' : 'gap-2 pt-4'}`}>
+        <p className="text-2xs font-semibold uppercase tracking-wider text-clay">
+          {[item.cluster, `${item.readingTimeMinutes} min read`].filter(Boolean).join(' · ')}
+        </p>
+        <h3 className={`font-sans font-bold uppercase leading-snug tracking-wide text-navy ${featured ? 'text-xl' : 'text-lg'}`}>
           <Link href={`/guides/${item.slug}/`} className="after:absolute after:inset-0 hover:text-clay">
             {item.title}
           </Link>
         </h3>
         <p className="flex-1 text-[15px] leading-relaxed text-ink-soft">{item.summary}</p>
-        <p className="text-2xs text-ink-faint">
-          Updated {formatDateShort(item.dateUpdated || item.datePublished)}
-        </p>
       </div>
     </article>
   );
