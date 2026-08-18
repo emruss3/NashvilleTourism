@@ -6,24 +6,27 @@ import {
 } from '@/lib/feeds/viator';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
 
-/** Safe health snapshot; never returns API keys. */
+/** Safe production health snapshot; never returns API keys. */
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const probe = await probeViatorAccess();
-  const sampleSearch = probe.configured
+  const sampleSearch = probe.configured && probe.probes[0]?.ok
     ? await searchNashvilleProducts({ count: 10, sort: 'TRAVELER_RATING' })
     : null;
+  const supabaseConfigured = isSupabaseConfigured();
+  const productionAuthenticated = Boolean(probe.probes[0]?.ok);
 
   return Response.json(
     {
       configured: probe.configured,
-      supabaseConfigured: isSupabaseConfigured(),
-      integrationBoundary: 'supabase-edge-function:viator-sync',
+      supabaseConfigured,
+      productionAuthenticated,
+      integrationBoundary: 'supabase-edge-function:viator-live',
       destinationId: VIATOR_NASHVILLE_DESTINATION_ID,
       lookupId: VIATOR_NASHVILLE_LOOKUP_ID,
-      environment: probe.environment ?? null,
-      baseUrl: probe.baseUrl ?? null,
+      environment: probe.environment ?? 'production',
+      baseUrl: probe.baseUrl ?? 'https://api.viator.com/partner',
       inferredTier: probe.inferredTier,
       sampleProductCode: probe.sampleProductCode,
       rateLimitRemaining: probe.rateLimitRemaining ?? null,
@@ -53,16 +56,19 @@ export async function GET() {
           }
         : null,
       fetchedAt: probe.fetchedAt,
-      blocker: !isSupabaseConfigured()
-        ? 'Set SUPABASE_SERVICE_ROLE_KEY on Vercel (server-only). Do not set VIATOR_API_KEY on Vercel — it stays in Supabase Edge Function secrets.'
-        : null,
+      blocker: !supabaseConfigured
+        ? 'Set SUPABASE_SERVICE_ROLE_KEY on Vercel (server-only). Viator credentials stay in Supabase.'
+        : !productionAuthenticated
+          ? 'Viator production is not authenticated. Add the production key to the Nashroam Supabase project as VIATOR_PRODUCTION_API_KEY. Keep the existing sandbox key in VIATOR_API_KEY for ingestion/testing.'
+          : null,
       notes: [
-        'Viator powers /tours experiences — not /events (Ticketmaster).',
-        'VIATOR_API_KEY lives in Supabase Edge Function secrets — not Vercel, never browser.',
-        'Next.js calls only Supabase; Edge Function calls Viator sandbox by default.',
-        'Do not call api.viator.com (production) with the sandbox key.',
-        'Nashville destination id is 799. Basic Access endpoints only.',
-        'Affiliate productUrl must be stored and used exactly as returned.',
+        'Viator powers /tours experiences; Ticketmaster separately powers /events and live music.',
+        'Public marketplace traffic uses viator-live -> https://api.viator.com/partner.',
+        'VIATOR_PRODUCTION_API_KEY belongs in Supabase Edge Function secrets only — never Vercel or browser code.',
+        'The existing viator-sync ingestion pipeline can keep its sandbox VIATOR_API_KEY.',
+        'Nashville destination id is 799.',
+        'Affiliate productUrl is used exactly as returned by Viator.',
+        'Raw marketplace inventory is not automatically treated as a NashRoam editorial recommendation or planner candidate.',
       ],
     },
     { headers: { 'Cache-Control': 'no-store' } },
