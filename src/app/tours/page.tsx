@@ -39,7 +39,7 @@ export default async function ToursHub({
     startDate: date,
     endDate: date,
     count: 24,
-    sort: 'TRAVELER_RATING',
+    sort: 'DEFAULT',
   });
   const hasResults = catalog.live && catalog.products.length > 0;
   const liveNoResults = catalog.live && catalog.products.length === 0;
@@ -87,7 +87,13 @@ export default async function ToursHub({
       <section className="py-6">
         <SectionHeader
           eyebrow={catalog.live ? 'Live from Viator' : 'Experiences'}
-          title={q ? `Results for “${q}”` : date ? `Experiences for ${date}` : 'Top-rated Nashville experiences'}
+          title={
+            q
+              ? `Results for “${q}”`
+              : date
+                ? `Experiences for ${date}`
+                : 'Recommended Nashville experiences'
+          }
           description={
             hasResults
               ? `${catalog.products.length} live matches shown. ${catalog.attribution}`
