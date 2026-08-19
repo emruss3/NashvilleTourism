@@ -1,0 +1,1 @@
+Viator schedule support is implemented and deployed through the `viator-availability` Supabase Edge Function. Real-time `/availability/check` is implemented behind Viator Full-access Affiliate permission and degrades to a checkout handoff until approval.
