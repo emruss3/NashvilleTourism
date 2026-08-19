@@ -9,44 +9,54 @@ type Variant = 'default' | 'hero';
 
 const TABS: { key: Tab; label: string; cta: string }[] = [
   { key: 'hotels', label: 'Hotels', cta: 'Check Availability' },
-  { key: 'tours', label: 'Tours', cta: 'Check Availability' },
+  { key: 'tours', label: 'Tours', cta: 'Find Experiences' },
   { key: 'tickets', label: 'Tickets', cta: 'Buy Tickets' },
 ];
 
-const TOUR_TYPES = [
+const TOUR_SUGGESTIONS = [
   'Party bus',
-  'Pedal tavern',
-  'Honky-tonk crawl',
-  'Whiskey tasting',
+  'Honky-tonk pub crawl',
+  'Whiskey distillery',
   'City sightseeing',
-  'Live music tour',
-];
+  'Music history',
+  'Food tour',
+  'Bike tour',
+  'Boat tour',
+  'Jack Daniel’s',
+] as const;
 
-/** Today in YYYY-MM-DD, used as the minimum selectable date. */
+/** Nashville-local today in YYYY-MM-DD, used as the minimum selectable date. */
 function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Chicago',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date());
+  const value = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((part) => part.type === type)?.value || '';
+  return `${value('year')}-${value('month')}-${value('day')}`;
 }
 
 /**
- * The primary conversion surface. Three tabs, one row, always above the fold.
- * Each tab builds a partner deep link from the user's own inputs rather than
- * dumping them on a generic homepage.
- *
- * `variant="hero"` is a lower-profile shell for concept / hero overlays.
- * The default variant is unchanged for production pages.
+ * The primary conversion surface. Each tab routes through the corresponding
+ * NashRoam marketplace/provider flow rather than dumping users on a generic
+ * partner homepage.
  */
 export default function BookingWidget({
   compact = false,
   variant = 'default',
+  defaultTab = 'hotels',
 }: {
   compact?: boolean;
   variant?: Variant;
+  defaultTab?: Tab;
 }) {
-  const [tab, setTab] = useState<Tab>('hotels');
+  const [tab, setTab] = useState<Tab>(defaultTab);
   const [checkin, setCheckin] = useState('');
   const [checkout, setCheckout] = useState('');
   const [adults, setAdults] = useState(2);
-  const [tourType, setTourType] = useState(TOUR_TYPES[0]);
+  const [tourQuery, setTourQuery] = useState('');
   const [tourDate, setTourDate] = useState('');
   const [artist, setArtist] = useState('');
   const [ticketDate, setTicketDate] = useState('');
@@ -56,7 +66,8 @@ export default function BookingWidget({
   function submit(e: React.FormEvent) {
     e.preventDefault();
     let url = '';
-    let event: (typeof ANALYTICS_EVENTS)[keyof typeof ANALYTICS_EVENTS] = ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED;
+    let event: (typeof ANALYTICS_EVENTS)[keyof typeof ANALYTICS_EVENTS] =
+      ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED;
     let partner = '';
     let openExternal = true;
 
@@ -65,8 +76,9 @@ export default function BookingWidget({
       event = ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED;
       partner = partners.hotels.name;
     } else if (tab === 'tours') {
-      // Stay on NashRoam marketplace — live Viator productUrl is used on product pages.
-      url = partners.tours.marketplacePath({ query: tourType, date: tourDate });
+      // Stay on NashRoam. Search is resolved against live Viator inventory and
+      // exact Viator productUrl attribution is used only on result/detail CTAs.
+      url = partners.tours.marketplacePath({ query: tourQuery.trim() || undefined, date: tourDate });
       event = ANALYTICS_EVENTS.ACTIVITY_AFFILIATE_CLICKED;
       partner = partners.tours.name;
       openExternal = false;
@@ -94,7 +106,6 @@ export default function BookingWidget({
           : 'overflow-hidden rounded-card border border-paper-edge bg-paper-card shadow-card'
       }
     >
-      {/* Tabs */}
       <div role="tablist" aria-label="What do you want to book?" className="flex border-b border-paper-edge">
         {TABS.map((t) => {
           const selected = t.key === tab;
@@ -128,13 +139,7 @@ export default function BookingWidget({
         })}
       </div>
 
-      {/* The tabpanel role goes on a wrapper, not the form. A <form> has its own
-          implicit role and `tabpanel` is not permitted on it. */}
-      <div
-        role="tabpanel"
-        id={`${baseId}-panel-${tab}`}
-        aria-labelledby={`${baseId}-tab-${tab}`}
-      >
+      <div role="tabpanel" id={`${baseId}-panel-${tab}`} aria-labelledby={`${baseId}-tab-${tab}`}>
         <form
           onSubmit={submit}
           aria-label={`${active.label} search`}
@@ -181,19 +186,23 @@ export default function BookingWidget({
 
           {tab === 'tours' && (
             <>
-              <Field label="Experience" id={`${baseId}-tt`} className="lg:col-span-2">
-                <select
-                  id={`${baseId}-tt`}
-                  value={tourType}
-                  onChange={(e) => setTourType(e.target.value)}
+              <Field label="What do you want to do?" id={`${baseId}-tq`} className="lg:col-span-2">
+                <input
+                  id={`${baseId}-tq`}
+                  type="search"
+                  list={`${baseId}-tour-suggestions`}
+                  value={tourQuery}
+                  onChange={(e) => setTourQuery(e.target.value)}
+                  placeholder="Party bus, food tour, Jack Daniel’s…"
                   className="field-input"
-                >
-                  {TOUR_TYPES.map((t) => (
-                    <option key={t}>{t}</option>
+                />
+                <datalist id={`${baseId}-tour-suggestions`}>
+                  {TOUR_SUGGESTIONS.map((suggestion) => (
+                    <option key={suggestion} value={suggestion} />
                   ))}
-                </select>
+                </datalist>
               </Field>
-              <Field label="Date" id={`${baseId}-td`}>
+              <Field label="Date (optional)" id={`${baseId}-td`}>
                 <input
                   id={`${baseId}-td`}
                   type="date"
@@ -246,8 +255,9 @@ export default function BookingWidget({
             : 'border-t border-paper-edge px-4 py-2 text-center text-2xs text-ink-faint sm:px-5'
         }
       >
-        We earn a commission on bookings made through these partners. It never changes what we
-        recommend.
+        {tab === 'tours'
+          ? 'Live products and starting prices from Viator. Final availability and checkout are confirmed on Viator.'
+          : 'We earn a commission on bookings made through these partners. It never changes what we recommend.'}
       </p>
     </div>
   );

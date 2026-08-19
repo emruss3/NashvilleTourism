@@ -14,6 +14,8 @@ import {
   getExperienceCatalog,
   type ExperienceCard,
 } from '@/lib/feeds/experiences';
+import { rankMarketplaceBrowse } from '@/lib/feeds/tour-marketplace-rank';
+import { filterKnownTourIntent } from '@/lib/feeds/tour-intent-filter';
 import {
   getViatorProduct,
   searchNashvilleProducts,
@@ -39,33 +41,50 @@ export interface ToursCatalog {
 }
 
 export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<ToursCatalog> {
+  const requestedCount = Math.min(Math.max(params.count ?? 24, 1), 50);
+  const usesProductBrowse = !params.query?.trim();
+  const isGenericBrowse =
+    usesProductBrowse && !params.startDate?.trim() && !params.endDate?.trim();
+
   const [provider, approved] = await Promise.all([
     searchNashvilleProducts({
       ...params,
-      campaign: params.campaign ?? 'tours-marketplace',
+      count: isGenericBrowse ? 50 : requestedCount,
+      sort: params.sort ?? (usesProductBrowse ? 'DEFAULT' : undefined),
+      campaign: params.campaign ?? (params.query ? 'tours-search' : 'tours-marketplace'),
     }),
     getExperienceCatalog({
       query: params.query,
       startDate: params.startDate,
       endDate: params.endDate,
-      count: params.count ?? 24,
+      count: requestedCount,
     }),
   ]);
 
-  if (provider.live && provider.products.length > 0) {
+  // A successful live provider request remains live when a narrow filter has no
+  // matches. Zero results must not be mistaken for an integration outage.
+  if (provider.live) {
+    const intent = filterKnownTourIntent(provider.products, params.query);
+    const products = isGenericBrowse
+      ? rankMarketplaceBrowse(intent.products, requestedCount)
+      : intent.products.slice(0, requestedCount);
+
     return {
       configured: true,
       live: true,
-      products: provider.products,
+      products,
       experiences: approved.experiences,
-      totalCount: provider.totalCount ?? provider.products.length,
+      totalCount: intent.constrained
+        ? products.length
+        : provider.totalCount ?? provider.products.length,
       fetchedAt: provider.fetchedAt,
       httpStatus: provider.httpStatus,
       environment: provider.environment,
       source: 'viator',
       editorial: TOUR_EDITORIAL,
-      attribution:
-        'Live product details, ratings, prices, photos, and booking links supplied by Viator. Marketplace listings are provider inventory, not NashRoam editorial endorsements.',
+      attribution: isGenericBrowse
+        ? 'Live product details, ratings, prices, photos, and booking links supplied by Viator. Browse order starts with Viator’s featured results, then NashRoam applies local-relevance and variety safeguards. Marketplace listings are provider inventory, not NashRoam editorial endorsements.'
+        : 'Live product details, ratings, prices, photos, and booking links supplied by Viator. Marketplace listings are provider inventory, not NashRoam editorial endorsements.',
     };
   }
 
@@ -73,7 +92,7 @@ export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<
     return {
       configured: approved.configured || provider.configured,
       live: true,
-      products: approved.experiences.map(experienceToProductSummary),
+      products: approved.experiences.map(experienceToProductSummary).slice(0, requestedCount),
       experiences: approved.experiences,
       totalCount: approved.experiences.length,
       fetchedAt: approved.fetchedAt,

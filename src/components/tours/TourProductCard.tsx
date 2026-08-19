@@ -66,7 +66,7 @@ export function TourProductCard({
           {product.fromPrice ? (
             <p className="text-base font-semibold text-navy">
               From {product.fromPrice.formatted}
-              <span className="ml-1 text-xs font-medium text-ink-faint">per person</span>
+              <span className="ml-1 text-xs font-medium text-ink-faint">starting price</span>
             </p>
           ) : (
             <p className="text-sm text-ink-faint">See price on Viator</p>
@@ -82,7 +82,7 @@ export function TourProductCard({
           </Link>
           <BookingLink
             url={product.productUrl}
-            label="Book on Viator"
+            label="Check dates on Viator"
             name={product.title}
             slug={product.productCode}
             event={ANALYTICS_EVENTS.ACTIVITY_AFFILIATE_CLICKED}

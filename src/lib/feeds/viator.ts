@@ -4,16 +4,10 @@
  * Public marketplace path:
  *   Next.js -> Supabase Edge Function `viator-live` -> Viator production
  *
- * Ingestion / curation path:
- *   Supabase cron -> Edge Function `viator-sync` -> Viator sandbox/catalog store
- *
- * Security:
- * - Never call Viator directly from browser code.
- * - Never put a Viator key in Vercel or NEXT_PUBLIC_*.
- * - VIATOR_PRODUCTION_API_KEY lives in Supabase project secrets and is used by
- *   `viator-live`; the existing VIATOR_API_KEY can remain the sandbox key used
- *   by the ingestion pipeline.
- * - Nashville destination id is 799.
+ * Search strategy:
+ * - unfiltered Nashville browse -> /products/search
+ * - user-entered words -> /search/freetext with searchType PRODUCTS
+ * - selected result -> /products/{product-code}
  */
 
 import { invokeEdgeFunction, isSupabaseConfigured } from '@/lib/supabase/server';
@@ -38,7 +32,7 @@ export interface ViatorProductSummary {
   productCode: string;
   title: string;
   description?: string;
-  /** Exact Viator affiliate productUrl — never reconstruct. */
+  /** Exact Viator affiliate productUrl — never reconstruct or modify. */
   productUrl: string;
   imageUrl?: string;
   rating?: number;
@@ -93,6 +87,10 @@ export interface ViatorProductDetail extends ViatorProductSummary {
   exclusions?: string[];
   additionalInfo?: string[];
   itineraryOverview?: string;
+  pricingType?: 'PER_PERSON' | 'UNIT' | string;
+  unitType?: string;
+  minTravelers?: number;
+  maxTravelers?: number;
   itineraryType?: string;
   skipTheLine?: boolean;
   privateTour?: boolean;
@@ -124,6 +122,7 @@ export interface ViatorSearchParams {
 
 export interface ViatorSearchResult {
   configured: boolean;
+  /** True when the live provider request succeeded, even when there are zero matches. */
   live: boolean;
   products: ViatorProductSummary[];
   totalCount?: number;
@@ -149,7 +148,6 @@ type EdgeEnvelope = {
   baseUrl?: string;
   products?: Array<Record<string, unknown>>;
   totalCount?: number;
-  product?: Record<string, unknown>;
   normalized?: Record<string, unknown>;
   rateLimitRemaining?: string | null;
   retryAfter?: string | null;
@@ -159,6 +157,143 @@ type EdgeEnvelope = {
 };
 
 const inFlight = new Map<string, Promise<ViatorSearchResult>>();
+
+function queryTokens(query: string): string[] {
+  const stop = new Set(['nashville', 'tour', 'tours', 'the', 'and', 'with']);
+  return query
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .split(/\s+/)
+    .filter((token) => token.length > 2 && !stop.has(token));
+}
+
+function productSearchText(product: ViatorProductSummary): string {
+  return [
+    product.title,
+    product.description ?? '',
+    ...(product.categories ?? []),
+  ]
+    .join(' ')
+    .toLowerCase();
+}
+
+type IntentConstraintResult = {
+  products: ViatorProductSummary[];
+  constrained: boolean;
+};
+
+/**
+ * Viator freetext intentionally favors recall. For a handful of high-intent
+ * Nashville marketplace phrases, that can create bad semantic collisions:
+ * "pedal tavern" -> pedal kayak, or "party bus" -> party boat. These rules do
+ * not invent inventory; they only remove provider results that clearly fail the
+ * user's stated intent. For a known intent, zero accurate matches is preferable
+ * to showing an unrelated experience.
+ */
+function constrainKnownIntent(
+  products: ViatorProductSummary[],
+  query: string,
+): IntentConstraintResult {
+  const q = query.trim().toLowerCase().replace(/[’']/g, "'");
+  const keep = (predicate: (text: string) => boolean) => ({
+    products: products.filter((product) => predicate(productSearchText(product))),
+    constrained: true,
+  });
+
+  if (/\b(pedal tavern|pedal pub|party bike|pedal bar)\b/.test(q)) {
+    return keep(
+      (text) =>
+        !/\b(kayak|canoe|paddleboard|paddle board)\b/.test(text) &&
+        (/\b(pedal tavern|pedal pub|party bike|pedal bar)\b/.test(text) ||
+          (/\bpedal\b/.test(text) && /\b(tavern|pub|bar|party bike)\b/.test(text))),
+    );
+  }
+
+  if (/\bparty bus\b/.test(q)) {
+    return keep(
+      (text) =>
+        !/\b(boat|pontoon|cruise|kayak)\b/.test(text) &&
+        /\b(bus|vehicle|truck|on wheels)\b/.test(text) &&
+        /\b(party|honky|drag|bar|nightlife)\b/.test(text),
+    );
+  }
+
+  if (/\b(pub crawl|bar crawl|honky.?tonk.*crawl)\b/.test(q)) {
+    return keep(
+      (text) =>
+        /\bcrawl\b/.test(text) &&
+        /\b(pub|bar|honky|drink|drinks|whiskey|nightlife)\b/.test(text),
+    );
+  }
+
+  if (/\b(whiskey|whisky|distill|bourbon|jack daniel)\b/.test(q)) {
+    return keep((text) => /\b(whiskey|whisky|distill\w*|bourbon|barrel|jack daniel|lynchburg)\b/.test(text));
+  }
+
+  if (/\bboat tour\b/.test(q)) {
+    return keep(
+      (text) =>
+        !/\b(bus|trolley)\b/.test(text) &&
+        /\b(boat|pontoon|cruise|riverboat|river cruise)\b/.test(text),
+    );
+  }
+
+  if (/\b(bike tour|bicycle tour|e-?bike tour|cycling tour)\b/.test(q)) {
+    return keep(
+      (text) =>
+        !/\b(kayak|canoe|paddleboard|paddle board)\b/.test(text) &&
+        /\b(bike|bicycle|e-bike|ebike|cycling)\b/.test(text),
+    );
+  }
+
+  if (/\bfood tour\b/.test(q)) {
+    return keep((text) => /\b(food|culinary|tasting|bbq|barbecue|restaurant|donut|chocolate|coffee)\b/.test(text));
+  }
+
+  if (/\bmusic history\b/.test(q)) {
+    return keep((text) => /\b(music|songwriter|studio|music row|country music|ryman|opry)\b/.test(text));
+  }
+
+  if (/\bcity sightseeing\b/.test(q)) {
+    return keep((text) => /\b(sightseeing|city tour|walking tour|trolley|landmark|mural|history tour)\b/.test(text));
+  }
+
+  return { products, constrained: false };
+}
+
+/**
+ * Viator does the actual freetext retrieval. Local scoring is only a stable
+ * presentation tie-breaker so a direct title phrase stays ahead of a product
+ * that mentions the phrase once deep in its teaser.
+ */
+function rankForQuery(products: ViatorProductSummary[], query: string): ViatorProductSummary[] {
+  const q = query.trim().toLowerCase();
+  const tokens = queryTokens(query);
+  if (!q || !tokens.length) return products;
+
+  return products
+    .map((product, index) => {
+      const title = product.title.toLowerCase();
+      const description = product.description?.toLowerCase() ?? '';
+      const categories = (product.categories ?? []).join(' ').toLowerCase();
+      const haystack = `${title} ${categories} ${description}`;
+      let score = title.includes(q) ? 30 : haystack.includes(q) ? 15 : 0;
+      for (const token of tokens) {
+        if (title.includes(token)) score += 6;
+        else if (categories.includes(token)) score += 3;
+        else if (description.includes(token)) score += 1;
+      }
+      return { product, score, index };
+    })
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        (b.product.rating ?? 0) - (a.product.rating ?? 0) ||
+        (b.product.reviewCount ?? 0) - (a.product.reviewCount ?? 0) ||
+        a.index - b.index,
+    )
+    .map(({ product }) => product);
+}
 
 function formatMoney(amount: number | undefined, currency = 'USD'): ViatorMoney | undefined {
   if (amount == null || Number.isNaN(amount)) return undefined;
@@ -199,7 +334,6 @@ export function isViatorConfigured(): boolean {
   return isSupabaseConfigured();
 }
 
-/** Live, production Viator inventory for the public marketplace. */
 export async function searchNashvilleProducts(
   params: ViatorSearchParams = {},
 ): Promise<ViatorSearchResult> {
@@ -215,11 +349,18 @@ export async function searchNashvilleProducts(
     };
   }
 
+  const query = params.query?.trim();
+  const requestedCount = Math.min(params.count ?? 24, 50);
+  const providerCount = query ? 50 : requestedCount;
+  const mode = query ? 'search_freetext' : 'search_products';
+
   const key = JSON.stringify({
-    mode: 'search_products',
+    mode,
+    query: query ?? null,
     start: params.start ?? 1,
-    count: params.count ?? 24,
+    count: providerCount,
     sort: params.sort ?? 'TRAVELER_RATING',
+    order: params.order ?? 'DESCENDING',
     startDate: params.startDate ?? null,
     endDate: params.endDate ?? null,
     campaign: params.campaign ?? 'tours-marketplace',
@@ -232,9 +373,10 @@ export async function searchNashvilleProducts(
 
   const promise = (async (): Promise<ViatorSearchResult> => {
     const result = await invokeEdgeFunction<EdgeEnvelope>('viator-live', {
-      mode: 'search_products',
+      mode,
+      query,
       start: params.start ?? 1,
-      count: Math.min(params.count ?? 24, 50),
+      count: providerCount,
       sort: params.sort ?? 'TRAVELER_RATING',
       order: params.order ?? 'DESCENDING',
       startDate: params.startDate,
@@ -242,7 +384,7 @@ export async function searchNashvilleProducts(
       currency: params.currency ?? 'USD',
       flags: params.flags,
       tags: params.tags,
-      campaign: params.campaign ?? 'tours-marketplace',
+      campaign: params.campaign ?? (query ? 'tours-search' : 'tours-marketplace'),
     });
 
     const data = result.data;
@@ -255,7 +397,7 @@ export async function searchNashvilleProducts(
         error:
           typeof data?.error === 'string'
             ? data.error
-            : `viator-live search failed (${result.status})`,
+            : `viator-live ${mode} failed (${result.status})`,
         httpStatus: result.status,
         environment: data?.environment,
         rateLimitRemaining: data?.rateLimitRemaining,
@@ -265,21 +407,16 @@ export async function searchNashvilleProducts(
     const products = (data.products ?? [])
       .map((product) => mapNormalized(product))
       .filter(Boolean) as ViatorProductSummary[];
-
-    const q = params.query?.trim().toLowerCase();
-    const filtered = q
-      ? products.filter(
-          (product) =>
-            product.title.toLowerCase().includes(q) ||
-            (product.description?.toLowerCase().includes(q) ?? false),
-        )
-      : products;
+    const constrained = query
+      ? constrainKnownIntent(products, query)
+      : { products, constrained: false };
+    const ranked = query ? rankForQuery(constrained.products, query) : products;
 
     return {
       configured: true,
-      live: filtered.length > 0,
-      products: filtered,
-      totalCount: data.totalCount,
+      live: true,
+      products: ranked.slice(0, requestedCount),
+      totalCount: constrained.constrained ? ranked.length : data.totalCount ?? ranked.length,
       fetchedAt,
       httpStatus: 200,
       environment: data.environment,
@@ -295,7 +432,6 @@ export async function searchNashvilleProducts(
   }
 }
 
-/** Live product detail from Viator production for marketplace pages. */
 export async function getViatorProduct(productCode: string): Promise<{
   configured: boolean;
   live: boolean;
@@ -469,13 +605,13 @@ function mapProductDetail(
     pickupLabel: typeof raw.pickupLabel === 'string' ? raw.pickupLabel : undefined,
     productOptions: productOptions.length ? productOptions : undefined,
     images: images.length ? images : undefined,
+    pricingType: typeof raw.pricingType === 'string' ? raw.pricingType : undefined,
+    unitType: typeof raw.unitType === 'string' ? raw.unitType : undefined,
+    minTravelers: typeof raw.minTravelers === 'number' ? raw.minTravelers : undefined,
+    maxTravelers: typeof raw.maxTravelers === 'number' ? raw.maxTravelers : undefined,
   };
 }
 
-/**
- * Catalog ingestion remains a separate curation operation. It uses viator-sync
- * and never automatically publishes experiences into NashRoam editorial/plans.
- */
 export async function syncNashvilleCatalog(opts: {
   maxPages?: number;
   limit?: number;
@@ -525,7 +661,6 @@ export async function syncNashvilleCatalog(opts: {
   };
 }
 
-/** Health check for the production Basic Access Affiliate path. */
 export async function probeViatorAccess(): Promise<{
   configured: boolean;
   inferredTier: ViatorAccessTier;
@@ -569,10 +704,10 @@ export async function probeViatorAccess(): Promise<{
       endpoint: 'edge:viator-live/search_products→POST production /products/search',
       method: 'POST',
       httpStatus: search.httpStatus ?? null,
-      ok: search.live,
+      ok: search.live && search.products.length > 0,
       clue:
         search.error ||
-        (search.live ? `OK · dest ${VIATOR_NASHVILLE_DESTINATION_ID}` : 'No products'),
+        (search.products.length ? `OK · dest ${VIATOR_NASHVILLE_DESTINATION_ID}` : 'No products'),
     });
     sampleProductCode = search.products[0]?.productCode;
 

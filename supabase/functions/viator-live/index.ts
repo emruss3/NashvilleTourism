@@ -1,20 +1,26 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-/**
- * Nashroam public marketplace -> Viator production boundary.
- *
- * This function is intentionally separate from viator-sync:
- * - viator-sync can keep the sandbox ingestion/curation workflow intact.
- * - viator-live uses Viator production and returns only live marketplace data.
- * - raw provider inventory is not written to Nashroam editorial/planner tables.
- * - VIATOR_PRODUCTION_API_KEY never leaves Supabase.
- */
-
-const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-const VIATOR_API_KEY = Deno.env.get("VIATOR_PRODUCTION_API_KEY") ?? Deno.env.get("VIATOR_API_KEY") ?? "";
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "https://aeomrsutkhwmnscvvfur.supabase.co";
+const VIATOR_API_KEY =
+  Deno.env.get("VIATOR_PRODUCTION_API_KEY") ?? Deno.env.get("VIATOR_API_KEY") ?? "";
 const VIATOR_BASE = "https://api.viator.com/partner";
 const NASHVILLE_DESTINATION_ID = "799";
-const CRON_TOKEN_SHA256 = "bf6d4248c199262ce56e654bef557f6bc37f32a4481521c6340574df329db7a7";
+
+const TAG_LABELS: Record<number, string> = {
+  11930: "Bus Tours",
+  12033: "Pub Tours",
+  12046: "Walking Tours",
+  12075: "City Tours",
+  12691: "Boat Tours",
+  13018: "Bike Tours",
+  13279: "Bar & Pub Tours",
+  13284: "Distillery Tours",
+  21515: "Music Tours",
+  21702: "Bike Tours",
+  21729: "Sightseeing Cruises",
+  21911: "Food & Drink",
+  22189: "Boat Tours",
+};
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -23,20 +29,23 @@ function json(body: unknown, status = 200) {
   });
 }
 
-async function sha256Hex(value: string) {
-  const bytes = new TextEncoder().encode(value);
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
-}
+async function hasServiceAccess(req: Request): Promise<boolean> {
+  const apiKey = req.headers.get("apikey")?.trim() ?? "";
+  if (!apiKey) return false;
 
-async function isAuthorized(req: Request) {
-  const apiKey = req.headers.get("apikey")?.trim();
-  const authorization = req.headers.get("authorization")?.trim();
-  if (SERVICE_ROLE_KEY && apiKey === SERVICE_ROLE_KEY) return true;
-  if (SERVICE_ROLE_KEY && authorization === `Bearer ${SERVICE_ROLE_KEY}`) return true;
-  const cronToken = req.headers.get("x-nashroam-cron-token")?.trim();
-  if (!cronToken) return false;
-  return (await sha256Hex(cronToken)) === CRON_TOKEN_SHA256;
+  const headers = new Headers({ apikey: apiKey, Accept: "application/json" });
+  if (apiKey.startsWith("eyJ")) headers.set("Authorization", `Bearer ${apiKey}`);
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/data_sources?select=id&limit=1`, {
+      method: "GET",
+      headers,
+      cache: "no-store",
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 function sleep(ms: number) {
@@ -57,7 +66,7 @@ async function viatorFetch(path: string, init: RequestInit = {}): Promise<Viator
     return {
       ok: false,
       status: 503,
-      data: { error: "VIATOR_PRODUCTION_API_KEY is not configured in Supabase" },
+      data: { error: "Viator production API key is not configured in Supabase" },
       requestId: null,
       rateLimitRemaining: null,
       retryAfter: null,
@@ -86,16 +95,18 @@ async function viatorFetch(path: string, init: RequestInit = {}): Promise<Viator
       status: res.status,
       data,
       requestId: res.headers.get("x-unique-id") ?? res.headers.get("X-Unique-ID"),
-      rateLimitRemaining: res.headers.get("ratelimit-remaining") ?? res.headers.get("RateLimit-Remaining"),
+      rateLimitRemaining:
+        res.headers.get("ratelimit-remaining") ?? res.headers.get("RateLimit-Remaining"),
       retryAfter: res.headers.get("retry-after") ?? res.headers.get("Retry-After"),
     };
 
     if (res.ok || ![429, 500, 502, 503, 504].includes(res.status)) return last;
     const retrySeconds = Number(last.retryAfter);
-    const delay = Number.isFinite(retrySeconds) && retrySeconds > 0
-      ? Math.min(retrySeconds * 1000, 5000)
-      : 600 * (attempt + 1);
-    await sleep(delay);
+    await sleep(
+      Number.isFinite(retrySeconds) && retrySeconds > 0
+        ? Math.min(retrySeconds * 1000, 5000)
+        : 600 * (attempt + 1),
+    );
   }
   return last!;
 }
@@ -105,8 +116,9 @@ function pickVariantUrl(image: any, targetWidth = 960): string | null {
     ? image.variants.filter((variant: any) => typeof variant?.url === "string")
     : [];
   if (!variants.length) return typeof image?.url === "string" ? image.url : null;
-  variants.sort((a: any, b: any) =>
-    Math.abs(Number(a.width ?? 0) - targetWidth) - Math.abs(Number(b.width ?? 0) - targetWidth),
+  variants.sort(
+    (a: any, b: any) =>
+      Math.abs(Number(a.width ?? 0) - targetWidth) - Math.abs(Number(b.width ?? 0) - targetWidth),
   );
   return variants[0]?.url ?? null;
 }
@@ -162,11 +174,13 @@ function textList(value: any): string[] | undefined {
         ? item
         : typeof item?.description === "string"
           ? item.description
-          : typeof item?.text === "string"
-            ? item.text
-            : typeof item?.name === "string"
-              ? item.name
-              : null;
+          : typeof item?.otherDescription === "string"
+            ? item.otherDescription
+            : typeof item?.text === "string"
+              ? item.text
+              : typeof item?.name === "string"
+                ? item.name
+                : null;
     if (!text) continue;
     counts.set(text, (counts.get(text) ?? 0) + 1);
   }
@@ -359,6 +373,14 @@ function normalizeItinerary(itinerary: any, locations: Map<string, { name?: stri
   };
 }
 
+function categoryLabels(tags: any): string[] {
+  if (!Array.isArray(tags)) return [];
+  const labels = tags
+    .map((tag: any) => TAG_LABELS[Number(tag)])
+    .filter((label: string | undefined): label is string => Boolean(label));
+  return [...new Set(labels)].slice(0, 3);
+}
+
 function normalizeProduct(product: any, detail = false, locations = new Map<string, { name?: string; address?: string }>()) {
   const productCode = String(product?.productCode ?? "").trim();
   const title = String(product?.title ?? "").trim();
@@ -367,7 +389,12 @@ function normalizeProduct(product: any, detail = false, locations = new Map<stri
 
   const flags = Array.isArray(product?.flags) ? product.flags.map(String) : [];
   const price = Number(product?.pricing?.summary?.fromPrice ?? product?.pricingInfo?.fromPrice);
-  const currency = typeof product?.pricing?.currency === "string" ? product.pricing.currency : "USD";
+  const currency =
+    typeof product?.pricing?.currency === "string"
+      ? product.pricing.currency
+      : typeof product?.currency === "string"
+        ? product.currency
+        : "USD";
   const rating = Number(product?.reviews?.combinedAverageRating);
   const reviewCount = Number(product?.reviews?.totalReviews);
   const images = pickImages(product?.images);
@@ -385,7 +412,7 @@ function normalizeProduct(product: any, detail = false, locations = new Map<stri
     durationLabel: durationLabel(product?.duration ?? product?.itinerary?.duration) ?? undefined,
     freeCancellation: flags.includes("FREE_CANCELLATION"),
     flags,
-    categories: [],
+    categories: categoryLabels(product?.tags),
   };
 
   if (detail) {
@@ -437,18 +464,31 @@ function normalizeProduct(product: any, detail = false, locations = new Map<stri
       pickupLabel: pickupLabel(product?.logistics?.travelerPickup?.pickupOptionType),
       productOptions: productOptions.length ? productOptions : undefined,
       images,
+      pricingType:
+        typeof product?.pricingInfo?.type === "string" ? product.pricingInfo.type : undefined,
+      unitType:
+        typeof product?.pricingInfo?.unitType === "string" ? product.pricingInfo.unitType : undefined,
+      minTravelers:
+        typeof product?.bookingRequirements?.minTravelersPerBooking === "number"
+          ? product.bookingRequirements.minTravelersPerBooking
+          : undefined,
+      maxTravelers:
+        typeof product?.bookingRequirements?.maxTravelersPerBooking === "number"
+          ? product.bookingRequirements.maxTravelersPerBooking
+          : undefined,
       ...normalizeItinerary(product?.itinerary, locations),
     });
   }
   return normalized;
 }
 
-function buildSearchBody(input: any) {
+function buildProductSearchBody(input: any) {
   const filtering: Record<string, unknown> = { destination: NASHVILLE_DESTINATION_ID };
   if (input?.startDate) filtering.startDate = String(input.startDate);
   if (input?.endDate) filtering.endDate = String(input.endDate);
   if (Array.isArray(input?.flags) && input.flags.length) filtering.flags = input.flags;
   if (Array.isArray(input?.tags) && input.tags.length) filtering.tags = input.tags;
+
   return {
     filtering,
     sorting: {
@@ -463,8 +503,58 @@ function buildSearchBody(input: any) {
   };
 }
 
+function buildFreetextBody(input: any) {
+  const productFiltering: Record<string, unknown> = { destination: NASHVILLE_DESTINATION_ID };
+  if (input?.startDate || input?.endDate) {
+    productFiltering.dateRange = {
+      from: String(input?.startDate ?? input?.endDate),
+      to: String(input?.endDate ?? input?.startDate),
+    };
+  }
+  if (Array.isArray(input?.tags) && input.tags.length) productFiltering.tags = input.tags;
+  if (Array.isArray(input?.flags) && input.flags.length) productFiltering.flags = input.flags;
+
+  return {
+    searchTerm: String(input?.query ?? "").trim(),
+    productFiltering,
+    productSorting: {
+      sort: input?.freetextSort ?? "REVIEW_AVG_RATING",
+      order: input?.order === "ASCENDING" ? "ASCENDING" : "DESCENDING",
+    },
+    searchTypes: [
+      {
+        searchType: "PRODUCTS",
+        pagination: {
+          start: Math.max(Number(input?.start) || 1, 1),
+          count: Math.min(Math.max(Number(input?.count) || 24, 1), 50),
+        },
+      },
+    ],
+    currency: input?.currency ?? "USD",
+  };
+}
+
+function freetextProducts(data: any): any[] {
+  if (Array.isArray(data?.products)) return data.products;
+  if (Array.isArray(data?.products?.results)) return data.products.results;
+  if (Array.isArray(data?.results?.products)) return data.results.products;
+  if (Array.isArray(data?.searchResults?.products)) return data.searchResults.products;
+  return [];
+}
+
+function freetextTotal(data: any, fallback: number): number {
+  const candidates = [
+    data?.totalCount,
+    data?.products?.totalCount,
+    data?.results?.totalCount,
+    data?.searchResults?.totalCount,
+  ];
+  const found = candidates.find((value) => typeof value === "number");
+  return typeof found === "number" ? found : fallback;
+}
+
 Deno.serve(async (req: Request) => {
-  if (!(await isAuthorized(req))) return json({ ok: false, error: "Unauthorized" }, 401);
+  if (!(await hasServiceAccess(req))) return json({ ok: false, error: "Unauthorized" }, 401);
   if (req.method !== "POST") return json({ ok: false, error: "POST required" }, 405);
 
   let body: any = {};
@@ -483,44 +573,78 @@ Deno.serve(async (req: Request) => {
         : Array.isArray(result.data)
           ? result.data
           : [];
-      return json({
-        ok: result.ok,
-        environment: "production",
-        baseUrl: VIATOR_BASE,
-        status: result.status,
-        authenticated: result.ok,
-        destinationCount: destinations.length,
-        nashvilleMatches: destinations.filter(
-          (destination: any) => Number(destination?.destinationId) === 799,
-        ),
-        requestId: result.requestId,
-        rateLimitRemaining: result.rateLimitRemaining,
-        error: result.ok ? null : result.data,
-      }, result.ok ? 200 : result.status);
+      return json(
+        {
+          ok: result.ok,
+          environment: "production",
+          baseUrl: VIATOR_BASE,
+          status: result.status,
+          authenticated: result.ok,
+          destinationCount: destinations.length,
+          nashvilleMatches: destinations.filter(
+            (destination: any) => Number(destination?.destinationId) === 799,
+          ),
+          requestId: result.requestId,
+          rateLimitRemaining: result.rateLimitRemaining,
+          error: result.ok ? null : result.data,
+        },
+        result.ok ? 200 : result.status,
+      );
     }
 
     if (mode === "search_products") {
       const campaign = encodeURIComponent(String(body?.campaign ?? "tours-marketplace"));
       const result = await viatorFetch(`/products/search?campaign-value=${campaign}`, {
         method: "POST",
-        body: JSON.stringify(buildSearchBody(body)),
+        body: JSON.stringify(buildProductSearchBody(body)),
       });
       const rawProducts =
         result.ok && Array.isArray(result.data?.products) ? result.data.products : [];
       const products = rawProducts.map((product: any) => normalizeProduct(product)).filter(Boolean);
-      return json({
-        ok: result.ok,
-        environment: "production",
-        baseUrl: VIATOR_BASE,
-        status: result.status,
-        destinationId: 799,
-        products,
-        totalCount: result.data?.totalCount ?? products.length,
-        requestId: result.requestId,
-        rateLimitRemaining: result.rateLimitRemaining,
-        retryAfter: result.retryAfter,
-        error: result.ok ? null : result.data,
-      }, result.ok ? 200 : result.status);
+      return json(
+        {
+          ok: result.ok,
+          environment: "production",
+          baseUrl: VIATOR_BASE,
+          status: result.status,
+          destinationId: 799,
+          products,
+          totalCount: result.data?.totalCount ?? products.length,
+          requestId: result.requestId,
+          rateLimitRemaining: result.rateLimitRemaining,
+          retryAfter: result.retryAfter,
+          error: result.ok ? null : result.data,
+        },
+        result.ok ? 200 : result.status,
+      );
+    }
+
+    if (mode === "search_freetext") {
+      const query = String(body?.query ?? "").trim();
+      if (!query) return json({ ok: false, error: "query required" }, 400);
+      const campaign = encodeURIComponent(String(body?.campaign ?? "tours-search"));
+      const result = await viatorFetch(`/search/freetext?campaign-value=${campaign}`, {
+        method: "POST",
+        body: JSON.stringify(buildFreetextBody(body)),
+      });
+      const rawProducts = result.ok ? freetextProducts(result.data) : [];
+      const products = rawProducts.map((product: any) => normalizeProduct(product)).filter(Boolean);
+      return json(
+        {
+          ok: result.ok,
+          environment: "production",
+          baseUrl: VIATOR_BASE,
+          status: result.status,
+          destinationId: 799,
+          products,
+          totalCount: freetextTotal(result.data, products.length),
+          requestId: result.requestId,
+          rateLimitRemaining: result.rateLimitRemaining,
+          retryAfter: result.retryAfter,
+          error: result.ok ? null : result.data,
+        },
+        result.ok ? 200 : result.status,
+      );
     }
 
     if (mode === "get_product") {
@@ -568,13 +692,19 @@ Deno.serve(async (req: Request) => {
       }, normalized ? 200 : 502);
     }
 
-    return json({ ok: false, error: `Unsupported mode: ${mode}` }, 400);
+    return json(
+      { ok: false, error: `Unsupported mode: ${mode}`, supported: ["health", "search_products", "search_freetext", "get_product"] },
+      400,
+    );
   } catch (error) {
-    return json({
-      ok: false,
-      environment: "production",
-      baseUrl: VIATOR_BASE,
-      error: error instanceof Error ? error.message : String(error),
-    }, 500);
+    return json(
+      {
+        ok: false,
+        environment: "production",
+        baseUrl: VIATOR_BASE,
+        error: error instanceof Error ? error.message : String(error),
+      },
+      500,
+    );
   }
 });

@@ -1,6 +1,10 @@
 /**
  * NashRoam-owned tour editorial layer.
  * Separate from Viator commercial/product data (price, photos, ratings, URLs).
+ *
+ * This list is intentionally limited to formats with current Viator marketplace
+ * inventory. A Nashville activity can still be editorially relevant without
+ * being advertised here as a live-bookable Viator format.
  */
 
 export interface TourEditorialRecommendation {
@@ -30,17 +34,6 @@ export const TOUR_EDITORIAL: TourEditorialRecommendation[] = [
     watchOut: 'Confirm the alcohol policy and whether coolers, ice, and cups are provided before you turn up with a case of beer.',
     searchHint: 'Party bus',
     editorialRank: 10,
-  },
-  {
-    slug: 'pedal-tavern',
-    name: 'Pedal tavern',
-    what: 'A pedal-powered bar on wheels that crawls a short downtown route while your group pedals it.',
-    groupSize: '8-16, often a whole-vehicle booking',
-    priceGuidance: 'Roughly $35-$60 per person for a two-hour ride',
-    bestFor: 'Daytime groups, first-timers, people who want photos more than distance covered',
-    watchOut: 'You cover only a few blocks in two hours. Book it as an activity, not as transport between neighborhoods.',
-    searchHint: 'Pedal tavern',
-    editorialRank: 20,
   },
   {
     slug: 'honky-tonk-crawl',
