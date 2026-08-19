@@ -131,17 +131,22 @@ function pickImageUrl(images: any): string | null {
 
 function pickImages(images: any) {
   if (!Array.isArray(images) || !images.length) return undefined;
+  const seen = new Set<string>();
   const mapped = images
     .map((image: any) => {
       const url = pickVariantUrl(image, 1200);
-      if (!url) return null;
+      if (!url || seen.has(url)) return null;
+      seen.add(url);
       return {
         url,
+        thumbUrl: pickVariantUrl(image, 240) ?? url,
         caption: typeof image?.caption === "string" && image.caption.trim() ? image.caption.trim() : undefined,
         isCover: Boolean(image?.isCover),
       };
     })
-    .filter(Boolean);
+    .filter(Boolean) as Array<{ url: string; thumbUrl: string; caption?: string; isCover: boolean }>;
+
+  mapped.sort((a, b) => Number(b.isCover) - Number(a.isCover));
   return mapped.length ? mapped : undefined;
 }
 

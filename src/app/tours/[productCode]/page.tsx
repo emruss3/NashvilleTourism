@@ -6,6 +6,7 @@ import TourPhotoGallery from '@/components/tours/TourPhotoGallery';
 import { ANALYTICS_EVENTS } from '@/lib/analytics';
 import { getTourProduct } from '@/lib/feeds/tours';
 import type {
+  ViatorImage,
   ViatorItineraryStop,
   ViatorLogisticsPoint,
   ViatorProductDetail,
@@ -74,11 +75,7 @@ export default async function TourProductPage({ params }: { params: { productCod
 
   const facts = factChips(product);
   const overview = product.description ? viatorParagraphs(product.description) : [];
-  const gallery = product.images?.length
-    ? product.images
-    : product.imageUrl
-      ? [{ url: product.imageUrl, isCover: true }]
-      : [];
+  const gallery = buildGallery(product);
   const sections = [
     { id: 'overview', label: 'Overview' },
     product.inclusions?.length || product.exclusions?.length
@@ -115,251 +112,52 @@ export default async function TourProductPage({ params }: { params: { productCod
         ]}
       />
 
-      {gallery.length ? <TourPhotoGallery images={gallery} title={product.title} /> : null}
+      <p className="eyebrow mt-6">Live Viator experience</p>
+      <h1 className="mt-2 font-display text-3xl font-bold leading-tight text-navy md:text-4xl">
+        {product.title}
+      </h1>
+      {product.supplierName ? (
+        <p className="mt-2 text-sm text-ink-faint">By {product.supplierName}</p>
+      ) : null}
 
-      <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
-        <div>
-          <p className="eyebrow">Live Viator experience</p>
-          <h1 className="mt-2 font-display text-3xl font-bold leading-tight text-navy md:text-4xl">
-            {product.title}
-          </h1>
-          {product.supplierName ? (
-            <p className="mt-2 text-sm text-ink-faint">By {product.supplierName}</p>
-          ) : null}
-
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-ink-soft">
-            {product.rating != null ? (
-              <p>
-                <span className="font-semibold text-navy">{product.rating.toFixed(1)}</span>
-                <span aria-hidden="true" className="ml-1 text-clay">
-                  {'★'.repeat(Math.round(product.rating))}
-                </span>
-                {product.reviewCount != null ? (
-                  <>
-                    {' '}
-                    <a href="#reviews" className="underline-offset-2 hover:text-clay hover:underline">
-                      {product.reviewCount.toLocaleString()} reviews
-                    </a>
-                  </>
-                ) : (
-                  ' · Viator rating'
-                )}
-              </p>
-            ) : null}
-            {product.durationLabel ? <p>{product.durationLabel}</p> : null}
-            {product.freeCancellation ? (
-              <p className="font-semibold text-navy">Free cancellation</p>
-            ) : null}
-            {product.privateTour ? <p className="font-semibold text-navy">Private tour</p> : null}
-          </div>
-
-          {product.categories?.length ? (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {product.categories.map((category) => (
-                <span key={category} className="rounded-full bg-sky/60 px-3 py-1 text-xs font-semibold text-ink-soft">
-                  {category}
-                </span>
-              ))}
-            </div>
-          ) : null}
-
-          {facts.length ? (
-            <ul className="mt-5 flex flex-wrap gap-2">
-              {facts.map((fact) => (
-                <li
-                  key={fact}
-                  className="rounded-full border border-paper-edge bg-paper-card px-3 py-1 text-sm text-ink-soft"
-                >
-                  {fact}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-
-          <nav aria-label="On this page" className="mt-8 border-y border-paper-edge py-3">
-            <ul className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-medium text-ink-soft">
-              {sections.map((section) => (
-                <li key={section.id}>
-                  <a href={`#${section.id}`} className="hover:text-clay">
-                    {section.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          <section id="overview" className="scroll-mt-24 py-8">
-            <h2 className="font-sans text-xl font-bold text-navy">Overview</h2>
-            {overview.length ? (
-              <div className="mt-3 max-w-prose space-y-4 text-small leading-relaxed text-ink-soft">
-                {overview.map((paragraph) => (
-                  <p key={paragraph.slice(0, 48)}>{paragraph}</p>
-                ))}
-              </div>
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-ink-soft">
+        {product.rating != null ? (
+          <p>
+            <span className="font-semibold text-navy">{product.rating.toFixed(1)}</span>
+            <span aria-hidden="true" className="ml-1 text-clay">
+              {'★'.repeat(Math.round(product.rating))}
+            </span>
+            {product.reviewCount != null ? (
+              <>
+                {' '}
+                <a href="#reviews" className="underline-offset-2 hover:text-clay hover:underline">
+                  {product.reviewCount.toLocaleString()} reviews
+                </a>
+              </>
             ) : (
-              <p className="mt-3 max-w-prose text-small text-ink-soft">
-                Full overview copy is available on the Viator booking page.
-              </p>
+              ' · Viator rating'
             )}
-          </section>
+          </p>
+        ) : null}
+        {product.durationLabel ? <p>{product.durationLabel}</p> : null}
+        {product.freeCancellation ? (
+          <p className="font-semibold text-navy">Free cancellation</p>
+        ) : null}
+        {product.privateTour ? <p className="font-semibold text-navy">Private tour</p> : null}
+      </div>
 
-          {(product.inclusions?.length || product.exclusions?.length) && (
-            <section id="included" className="scroll-mt-24 border-t border-paper-edge py-8">
-              <h2 className="font-sans text-xl font-bold text-navy">What&apos;s included</h2>
-              <div className="mt-4 grid gap-8 sm:grid-cols-2">
-                {product.inclusions?.length ? (
-                  <div>
-                    <h3 className="font-sans text-sm font-bold uppercase tracking-wider text-navy">
-                      Included
-                    </h3>
-                    <ul className="mt-3 space-y-2 text-small text-ink-soft">
-                      {product.inclusions.map((item) => (
-                        <li key={item} className="flex gap-2">
-                          <span aria-hidden="true" className="mt-1 text-moss">
-                            ✓
-                          </span>
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-                {product.exclusions?.length ? (
-                  <div>
-                    <h3 className="font-sans text-sm font-bold uppercase tracking-wider text-navy">
-                      Not included
-                    </h3>
-                    <ul className="mt-3 space-y-2 text-small text-ink-soft">
-                      {product.exclusions.map((item) => (
-                        <li key={item} className="flex gap-2">
-                          <span aria-hidden="true" className="mt-1 text-ink-faint">
-                            ×
-                          </span>
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-              </div>
-            </section>
-          )}
-
-          {(product.meetingPoints?.length || product.endPoints?.length || product.pickupLabel) && (
-            <section id="meeting" className="scroll-mt-24 border-t border-paper-edge py-8">
-              <h2 className="font-sans text-xl font-bold text-navy">Meeting and pickup</h2>
-              {product.pickupLabel ? (
-                <p className="mt-3 text-small text-ink-soft">{product.pickupLabel}</p>
-              ) : null}
-              {product.meetingPoints?.length ? (
-                <div className="mt-5">
-                  <h3 className="font-sans text-base font-bold text-navy">Meeting point</h3>
-                  <LogisticsList points={product.meetingPoints} />
-                </div>
-              ) : null}
-              {product.endPoints?.length ? (
-                <div className="mt-5">
-                  <h3 className="font-sans text-base font-bold text-navy">End point</h3>
-                  <LogisticsList points={product.endPoints} />
-                </div>
-              ) : null}
-            </section>
-          )}
-
-          {(product.itineraryStops?.length || product.itineraryOverview) && (
-            <section id="expect" className="scroll-mt-24 border-t border-paper-edge py-8">
-              <h2 className="font-sans text-xl font-bold text-navy">What to expect</h2>
-              {product.itineraryOverview ? (
-                <div className="mt-3 max-w-prose space-y-4 text-small leading-relaxed text-ink-soft">
-                  {viatorParagraphs(product.itineraryOverview).map((paragraph) => (
-                    <p key={paragraph.slice(0, 48)}>{paragraph}</p>
-                  ))}
-                </div>
-              ) : null}
-              {product.itineraryStops?.length ? (
-                <ol className="mt-6 space-y-5">
-                  {product.itineraryStops.map((stop, index) => (
-                    <ItineraryStopRow key={`${stop.name ?? 'stop'}-${index}`} stop={stop} index={index} />
-                  ))}
-                </ol>
-              ) : null}
-            </section>
-          )}
-
-          {product.additionalInfo?.length ? (
-            <section id="additional" className="scroll-mt-24 border-t border-paper-edge py-8">
-              <h2 className="font-sans text-xl font-bold text-navy">Additional info</h2>
-              <ul className="mt-3 list-disc space-y-2 pl-5 text-small text-ink-soft">
-                {product.additionalInfo.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
-
-          {product.cancellationPolicy?.description ? (
-            <section id="cancellation" className="scroll-mt-24 border-t border-paper-edge py-8">
-              <h2 className="font-sans text-xl font-bold text-navy">Cancellation policy</h2>
-              <div className="mt-3 max-w-prose space-y-3 text-small leading-relaxed text-ink-soft">
-                {viatorParagraphs(product.cancellationPolicy.description).map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
-                ))}
-                {product.cancellationPolicy.cancelIfBadWeather ? (
-                  <p>This activity may be canceled due to bad weather.</p>
-                ) : null}
-                {product.cancellationPolicy.cancelIfInsufficientTravelers ? (
-                  <p>This activity may be canceled if there are not enough travelers.</p>
-                ) : null}
-              </div>
-            </section>
-          ) : null}
-
-          {product.productOptions && product.productOptions.length > 1 ? (
-            <section className="border-t border-paper-edge py-8">
-              <h2 className="font-sans text-xl font-bold text-navy">Available options</h2>
-              <ul className="mt-4 space-y-4">
-                {product.productOptions.map((option) => (
-                  <li key={option.code || option.title} className="rounded-card border border-paper-edge bg-paper-card p-4">
-                    <h3 className="font-sans text-base font-bold text-navy">{option.title}</h3>
-                    {option.description ? (
-                      <p className="mt-1 text-small text-ink-soft">
-                        {viatorParagraphs(option.description).join(' ')}
-                      </p>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
-
-          <section id="reviews" className="scroll-mt-24 border-t border-paper-edge py-8">
-            <h2 className="font-sans text-xl font-bold text-navy">Reviews</h2>
-            {product.rating != null ? (
-              <p className="mt-3 text-small text-ink-soft">
-                <span className="font-semibold text-navy">{product.rating.toFixed(1)} / 5</span>
-                {product.reviewCount != null
-                  ? ` from ${product.reviewCount.toLocaleString()} Viator traveler reviews.`
-                  : ' on Viator.'}{' '}
-                Individual review text is shown on the Viator booking page.
-              </p>
-            ) : (
-              <p className="mt-3 text-small text-ink-soft">Reviews for this experience live on Viator.</p>
-            )}
-            <div className="mt-4">
-              <BookingLink
-                url={product.productUrl}
-                label="Read reviews on Viator"
-                name={product.title}
-                slug={product.productCode}
-                event={ANALYTICS_EVENTS.ACTIVITY_AFFILIATE_CLICKED}
-                partner="Viator"
-                placement="affiliate"
-                variant="secondary"
-              />
-            </div>
-            <p className="mt-6 text-sm text-ink-faint">Product code: {product.productCode}</p>
-          </section>
+      {product.categories?.length ? (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {product.categories.map((category) => (
+            <span key={category} className="rounded-full bg-sky/60 px-3 py-1 text-xs font-semibold text-ink-soft">
+              {category}
+            </span>
+          ))}
         </div>
+      ) : null}
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] lg:items-start">
+        {gallery.length ? <TourPhotoGallery images={gallery} title={product.title} /> : null}
 
         <aside className="h-fit rounded-card border border-paper-edge bg-paper-card p-6 shadow-card lg:sticky lg:top-24">
           {product.fromPrice ? (
@@ -423,6 +221,205 @@ export default async function TourProductPage({ params }: { params: { productCod
         </aside>
       </div>
 
+      {facts.length ? (
+        <ul className="mt-6 flex flex-wrap gap-2 border-y border-paper-edge py-4">
+          {facts.map((fact) => (
+            <li
+              key={fact}
+              className="rounded-full border border-paper-edge bg-paper-card px-3 py-1 text-sm text-ink-soft"
+            >
+              {fact}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      <div className="mt-8">
+        <nav aria-label="On this page" className="border-b border-paper-edge pb-3">
+          <ul className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-medium text-ink-soft">
+            {sections.map((section) => (
+              <li key={section.id}>
+                <a href={`#${section.id}`} className="hover:text-clay">
+                  {section.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <section id="overview" className="scroll-mt-24 py-8">
+          <h2 className="font-sans text-xl font-bold text-navy">Overview</h2>
+          {overview.length ? (
+            <div className="mt-3 max-w-prose space-y-4 text-small leading-relaxed text-ink-soft">
+              {overview.map((paragraph) => (
+                <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 max-w-prose text-small text-ink-soft">
+              Full overview copy is available on the Viator booking page.
+            </p>
+          )}
+        </section>
+
+        {(product.inclusions?.length || product.exclusions?.length) && (
+          <section id="included" className="scroll-mt-24 border-t border-paper-edge py-8">
+            <h2 className="font-sans text-xl font-bold text-navy">What&apos;s included</h2>
+            <div className="mt-4 grid gap-8 sm:grid-cols-2">
+              {product.inclusions?.length ? (
+                <div>
+                  <h3 className="font-sans text-sm font-bold uppercase tracking-wider text-navy">
+                    Included
+                  </h3>
+                  <ul className="mt-3 space-y-2 text-small text-ink-soft">
+                    {product.inclusions.map((item) => (
+                      <li key={item} className="flex gap-2">
+                        <span aria-hidden="true" className="mt-1 text-moss">
+                          ✓
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {product.exclusions?.length ? (
+                <div>
+                  <h3 className="font-sans text-sm font-bold uppercase tracking-wider text-navy">
+                    Not included
+                  </h3>
+                  <ul className="mt-3 space-y-2 text-small text-ink-soft">
+                    {product.exclusions.map((item) => (
+                      <li key={item} className="flex gap-2">
+                        <span aria-hidden="true" className="mt-1 text-ink-faint">
+                          ×
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          </section>
+        )}
+
+        {(product.meetingPoints?.length || product.endPoints?.length || product.pickupLabel) && (
+          <section id="meeting" className="scroll-mt-24 border-t border-paper-edge py-8">
+            <h2 className="font-sans text-xl font-bold text-navy">Meeting and pickup</h2>
+            {product.pickupLabel ? (
+              <p className="mt-3 text-small text-ink-soft">{product.pickupLabel}</p>
+            ) : null}
+            {product.meetingPoints?.length ? (
+              <div className="mt-5">
+                <h3 className="font-sans text-base font-bold text-navy">Meeting point</h3>
+                <LogisticsList points={product.meetingPoints} />
+              </div>
+            ) : null}
+            {product.endPoints?.length ? (
+              <div className="mt-5">
+                <h3 className="font-sans text-base font-bold text-navy">End point</h3>
+                <LogisticsList points={product.endPoints} />
+              </div>
+            ) : null}
+          </section>
+        )}
+
+        {(product.itineraryStops?.length || product.itineraryOverview) && (
+          <section id="expect" className="scroll-mt-24 border-t border-paper-edge py-8">
+            <h2 className="font-sans text-xl font-bold text-navy">What to expect</h2>
+            {product.itineraryOverview ? (
+              <div className="mt-3 max-w-prose space-y-4 text-small leading-relaxed text-ink-soft">
+                {viatorParagraphs(product.itineraryOverview).map((paragraph) => (
+                  <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+                ))}
+              </div>
+            ) : null}
+            {product.itineraryStops?.length ? (
+              <ol className="mt-6 space-y-5">
+                {product.itineraryStops.map((stop, index) => (
+                  <ItineraryStopRow key={`${stop.name ?? 'stop'}-${index}`} stop={stop} index={index} />
+                ))}
+              </ol>
+            ) : null}
+          </section>
+        )}
+
+        {product.additionalInfo?.length ? (
+          <section id="additional" className="scroll-mt-24 border-t border-paper-edge py-8">
+            <h2 className="font-sans text-xl font-bold text-navy">Additional info</h2>
+            <ul className="mt-3 list-disc space-y-2 pl-5 text-small text-ink-soft">
+              {product.additionalInfo.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {product.cancellationPolicy?.description ? (
+          <section id="cancellation" className="scroll-mt-24 border-t border-paper-edge py-8">
+            <h2 className="font-sans text-xl font-bold text-navy">Cancellation policy</h2>
+            <div className="mt-3 max-w-prose space-y-3 text-small leading-relaxed text-ink-soft">
+              {viatorParagraphs(product.cancellationPolicy.description).map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+              {product.cancellationPolicy.cancelIfBadWeather ? (
+                <p>This activity may be canceled due to bad weather.</p>
+              ) : null}
+              {product.cancellationPolicy.cancelIfInsufficientTravelers ? (
+                <p>This activity may be canceled if there are not enough travelers.</p>
+              ) : null}
+            </div>
+          </section>
+        ) : null}
+
+        {product.productOptions && product.productOptions.length > 1 ? (
+          <section className="border-t border-paper-edge py-8">
+            <h2 className="font-sans text-xl font-bold text-navy">Available options</h2>
+            <ul className="mt-4 space-y-4">
+              {product.productOptions.map((option) => (
+                <li key={option.code || option.title} className="rounded-card border border-paper-edge bg-paper-card p-4">
+                  <h3 className="font-sans text-base font-bold text-navy">{option.title}</h3>
+                  {option.description ? (
+                    <p className="mt-1 text-small text-ink-soft">
+                      {viatorParagraphs(option.description).join(' ')}
+                    </p>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        <section id="reviews" className="scroll-mt-24 border-t border-paper-edge py-8">
+          <h2 className="font-sans text-xl font-bold text-navy">Reviews</h2>
+          {product.rating != null ? (
+            <p className="mt-3 text-small text-ink-soft">
+              <span className="font-semibold text-navy">{product.rating.toFixed(1)} / 5</span>
+              {product.reviewCount != null
+                ? ` from ${product.reviewCount.toLocaleString()} Viator traveler reviews.`
+                : ' on Viator.'}{' '}
+              Individual review text is shown on the Viator booking page.
+            </p>
+          ) : (
+            <p className="mt-3 text-small text-ink-soft">Reviews for this experience live on Viator.</p>
+          )}
+          <div className="mt-4">
+            <BookingLink
+              url={product.productUrl}
+              label="Read reviews on Viator"
+              name={product.title}
+              slug={product.productCode}
+              event={ANALYTICS_EVENTS.ACTIVITY_AFFILIATE_CLICKED}
+              partner="Viator"
+              placement="affiliate"
+              variant="secondary"
+            />
+          </div>
+          <p className="mt-6 text-sm text-ink-faint">Product code: {product.productCode}</p>
+        </section>
+      </div>
+
       <div className="mt-10">
         <Link href="/tours/" className="text-sm font-semibold text-navy underline-offset-4 hover:text-clay hover:underline">
           ← All Nashville tours
@@ -430,6 +427,23 @@ export default async function TourProductPage({ params }: { params: { productCod
       </div>
     </div>
   );
+}
+
+function buildGallery(product: ViatorProductDetail): ViatorImage[] {
+  const seen = new Set<string>();
+  const images: ViatorImage[] = [];
+
+  for (const image of product.images ?? []) {
+    if (!image.url || seen.has(image.url)) continue;
+    seen.add(image.url);
+    images.push(image);
+  }
+
+  if (!images.length && product.imageUrl && !seen.has(product.imageUrl)) {
+    images.push({ url: product.imageUrl, isCover: true });
+  }
+
+  return images;
 }
 
 function factChips(product: ViatorProductDetail): string[] {

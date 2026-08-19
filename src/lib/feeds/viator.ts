@@ -47,6 +47,7 @@ export interface ViatorProductSummary {
 
 export interface ViatorImage {
   url: string;
+  thumbUrl?: string;
   caption?: string;
   isCover?: boolean;
 }
@@ -535,10 +536,12 @@ function mapProductDetail(
       if (typeof row.url !== 'string' || !row.url) continue;
       images.push({
         url: row.url,
+        thumbUrl: typeof row.thumbUrl === 'string' ? row.thumbUrl : undefined,
         caption: typeof row.caption === 'string' ? row.caption : undefined,
         isCover: Boolean(row.isCover),
       });
     }
+    images.sort((a, b) => Number(b.isCover) - Number(a.isCover));
   }
 
   const itineraryStops: ViatorItineraryStop[] = [];
