@@ -121,6 +121,100 @@ function queryTokens(query: string): string[] {
     .filter((token) => token.length > 2 && !stop.has(token));
 }
 
+function productSearchText(product: ViatorProductSummary): string {
+  return [
+    product.title,
+    product.description ?? '',
+    ...(product.categories ?? []),
+  ]
+    .join(' ')
+    .toLowerCase();
+}
+
+type IntentConstraintResult = {
+  products: ViatorProductSummary[];
+  constrained: boolean;
+};
+
+/**
+ * Viator freetext intentionally favors recall. For a handful of high-intent
+ * Nashville marketplace phrases, that can create bad semantic collisions:
+ * "pedal tavern" -> pedal kayak, or "party bus" -> party boat. These rules do
+ * not invent inventory; they only remove provider results that clearly fail the
+ * user's stated intent. For a known intent, zero accurate matches is preferable
+ * to showing an unrelated experience.
+ */
+function constrainKnownIntent(
+  products: ViatorProductSummary[],
+  query: string,
+): IntentConstraintResult {
+  const q = query.trim().toLowerCase().replace(/[’']/g, "'");
+  const keep = (predicate: (text: string) => boolean) => ({
+    products: products.filter((product) => predicate(productSearchText(product))),
+    constrained: true,
+  });
+
+  if (/\b(pedal tavern|pedal pub|party bike|pedal bar)\b/.test(q)) {
+    return keep(
+      (text) =>
+        !/\b(kayak|canoe|paddleboard|paddle board)\b/.test(text) &&
+        (/\b(pedal tavern|pedal pub|party bike|pedal bar)\b/.test(text) ||
+          (/\bpedal\b/.test(text) && /\b(tavern|pub|bar|party bike)\b/.test(text))),
+    );
+  }
+
+  if (/\bparty bus\b/.test(q)) {
+    return keep(
+      (text) =>
+        !/\b(boat|pontoon|cruise|kayak)\b/.test(text) &&
+        /\b(bus|vehicle|truck|on wheels)\b/.test(text) &&
+        /\b(party|honky|drag|bar|nightlife)\b/.test(text),
+    );
+  }
+
+  if (/\b(pub crawl|bar crawl|honky.?tonk.*crawl)\b/.test(q)) {
+    return keep(
+      (text) =>
+        /\bcrawl\b/.test(text) &&
+        /\b(pub|bar|honky|drink|drinks|whiskey|nightlife)\b/.test(text),
+    );
+  }
+
+  if (/\b(whiskey|whisky|distill|bourbon|jack daniel)\b/.test(q)) {
+    return keep((text) => /\b(whiskey|whisky|distill\w*|bourbon|barrel|jack daniel|lynchburg)\b/.test(text));
+  }
+
+  if (/\bboat tour\b/.test(q)) {
+    return keep(
+      (text) =>
+        !/\b(bus|trolley)\b/.test(text) &&
+        /\b(boat|pontoon|cruise|riverboat|river cruise)\b/.test(text),
+    );
+  }
+
+  if (/\b(bike tour|bicycle tour|e-?bike tour|cycling tour)\b/.test(q)) {
+    return keep(
+      (text) =>
+        !/\b(kayak|canoe|paddleboard|paddle board)\b/.test(text) &&
+        /\b(bike|bicycle|e-bike|ebike|cycling)\b/.test(text),
+    );
+  }
+
+  if (/\bfood tour\b/.test(q)) {
+    return keep((text) => /\b(food|culinary|tasting|bbq|barbecue|restaurant|donut|chocolate|coffee)\b/.test(text));
+  }
+
+  if (/\bmusic history\b/.test(q)) {
+    return keep((text) => /\b(music|songwriter|studio|music row|country music|ryman|opry)\b/.test(text));
+  }
+
+  if (/\bcity sightseeing\b/.test(q)) {
+    return keep((text) => /\b(sightseeing|city tour|walking tour|trolley|landmark|mural|history tour)\b/.test(text));
+  }
+
+  return { products, constrained: false };
+}
+
 /**
  * Viator does the actual freetext retrieval. Local scoring is only a stable
  * presentation tie-breaker so a direct title phrase stays ahead of a product
@@ -267,13 +361,16 @@ export async function searchNashvilleProducts(
     const products = (data.products ?? [])
       .map((product) => mapNormalized(product))
       .filter(Boolean) as ViatorProductSummary[];
-    const ranked = query ? rankForQuery(products, query) : products;
+    const constrained = query
+      ? constrainKnownIntent(products, query)
+      : { products, constrained: false };
+    const ranked = query ? rankForQuery(constrained.products, query) : products;
 
     return {
       configured: true,
       live: true,
       products: ranked.slice(0, requestedCount),
-      totalCount: data.totalCount ?? ranked.length,
+      totalCount: constrained.constrained ? ranked.length : data.totalCount ?? ranked.length,
       fetchedAt,
       httpStatus: 200,
       environment: data.environment,
