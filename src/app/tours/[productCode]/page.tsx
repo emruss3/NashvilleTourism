@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Ui';
 import { AffiliateDisclosure } from '@/components/Trust';
 import BookingLink from '@/components/BookingLink';
+import TourAvailabilityWidget from '@/components/tours/TourAvailabilityWidget';
 import TourPhotoGallery from '@/components/tours/TourPhotoGallery';
 import { ANALYTICS_EVENTS } from '@/lib/analytics';
 import { getTourProduct } from '@/lib/feeds/tours';
@@ -92,12 +93,6 @@ export default async function TourProductPage({ params }: { params: { productCod
     { id: 'reviews', label: 'Reviews' },
   ].filter(Boolean) as { id: string; label: string }[];
 
-  const priceBasis =
-    product.pricingType === 'PER_PERSON'
-      ? 'per person'
-      : product.pricingType === 'UNIT'
-        ? unitLabel(product.unitType) || 'per unit'
-        : undefined;
   const travelerRange =
     product.minTravelers != null || product.maxTravelers != null
       ? `${product.minTravelers ?? 1}${product.maxTravelers != null ? `–${product.maxTravelers}` : '+'} travelers per booking`
@@ -160,17 +155,15 @@ export default async function TourProductPage({ params }: { params: { productCod
         {gallery.length ? <TourPhotoGallery images={gallery} title={product.title} /> : null}
 
         <aside className="h-fit rounded-card border border-paper-edge bg-paper-card p-6 shadow-card lg:sticky lg:top-24">
-          {product.fromPrice ? (
-            <div>
-              <p className="text-2xs font-bold uppercase tracking-wider text-ink-faint">Starting from</p>
-              <p className="mt-1 text-2xl font-bold text-navy">
-                {product.fromPrice.formatted}
-                {priceBasis ? <span className="ml-2 text-sm font-medium text-ink-faint">{priceBasis}</span> : null}
-              </p>
-            </div>
-          ) : (
-            <p className="text-lg font-semibold text-navy">See live price on Viator</p>
-          )}
+          <TourAvailabilityWidget
+            productCode={product.productCode}
+            productTitle={product.title}
+            productUrl={product.productUrl}
+            productOptions={product.productOptions}
+            pricingType={product.pricingType}
+            unitType={product.unitType}
+            fallbackFromPrice={product.fromPrice}
+          />
 
           <dl className="mt-5 space-y-3 border-t border-paper-edge pt-5 text-sm">
             {travelerRange ? (
@@ -199,21 +192,6 @@ export default async function TourProductPage({ params }: { params: { productCod
             {product.ticketTypeDescription ? <li>{product.ticketTypeDescription}</li> : null}
           </ul>
 
-          <p className="mt-5 text-sm leading-relaxed text-ink-soft">
-            NashRoam shows Viator product information and a starting price. Exact date availability,
-            start times, party-size pricing, and checkout are confirmed on Viator.
-          </p>
-          <div className="mt-5">
-            <BookingLink
-              url={product.productUrl}
-              label="Check dates & prices on Viator"
-              name={product.title}
-              slug={product.productCode}
-              event={ANALYTICS_EVENTS.ACTIVITY_AFFILIATE_CLICKED}
-              partner="Viator"
-              placement="affiliate"
-            />
-          </div>
           <p className="mt-4 text-2xs text-ink-faint">{attribution}</p>
           <div className="mt-4">
             <AffiliateDisclosure compact />
