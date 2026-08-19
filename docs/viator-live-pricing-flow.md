@@ -1,0 +1,1 @@
+NashRoam displays Viator schedule-level retail pricing when available, checks real-time date/time/traveler pricing after Full-access Affiliate approval, and sends the customer to Viator for the transaction. No payment-card data enters NashRoam systems.
