@@ -69,7 +69,7 @@ type MusicVenueSeed = Omit<
 export const musicVenueGroups: MusicVenueGroup[] = [
   {
     id: 'nashville-icons',
-    title: 'Nashville icons',
+    title: 'Historic halls',
     description:
       'The two rooms most visitors build a music trip around: one downtown and one at the Opry campus.',
   },

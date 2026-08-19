@@ -40,76 +40,63 @@ export function MusicVenueMedia({
 export default function MusicVenueCard({
   venue,
   events,
+  featured = false,
 }: {
   venue: MusicVenueEntry;
   events: LiveEvent[];
+  featured?: boolean;
 }) {
   const nextEvent = events[0];
   const href = `/music/${venue.slug}/`;
 
   return (
-    <article className="card group flex h-full flex-col overflow-hidden">
-      <Link href={href} className="block overflow-hidden" aria-label={`View ${venue.name}`}>
+    <article
+      className={`card group relative flex h-full flex-col overflow-hidden ${
+        featured ? 'sm:flex-row' : ''
+      }`}
+    >
+      <div className={featured ? 'overflow-hidden sm:w-1/2' : 'overflow-hidden'}>
         <MusicVenueMedia
           venue={venue}
+          ratio={featured ? 'aspect-[16/10] sm:h-full sm:min-h-[16rem] sm:aspect-auto' : 'aspect-[3/2]'}
           className="transition duration-500 group-hover:scale-[1.02]"
+          priority={featured}
         />
-      </Link>
+      </div>
 
-      <div className="flex flex-1 flex-col p-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-2xs font-bold uppercase tracking-wider text-ink-faint">
-            {venue.area} · {venue.format}
-          </p>
-          {venue.tourQuery ? (
-            <span className="rounded-full bg-mint-wash px-2.5 py-1 text-2xs font-bold uppercase tracking-wider text-moss">
-              Tour option
-            </span>
-          ) : venue.openingNote ? (
-            <span className="rounded-full bg-gold-wash px-2.5 py-1 text-2xs font-bold uppercase tracking-wider text-gold">
-              Coming soon
-            </span>
-          ) : null}
-        </div>
+      <div className={`flex flex-1 flex-col p-5 ${featured ? 'sm:w-1/2 sm:justify-center' : ''}`}>
+        <p className="text-2xs font-medium uppercase tracking-wider text-ink-faint">
+          {venue.area} · {venue.format}
+        </p>
 
-        <h3 className="mt-2 font-sans text-xl font-bold leading-tight text-navy">
-          <Link href={href} className="hover:text-clay">
+        <h3 className="mt-2 font-sans text-lg font-bold leading-tight text-navy">
+          <Link href={href} className="after:absolute after:inset-0 hover:text-clay">
             {venue.name}
           </Link>
         </h3>
-        <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">{venue.summary}</p>
+        <p className="mt-2 flex-1 text-small leading-relaxed text-ink-soft">{venue.summary}</p>
 
         {nextEvent ? (
-          <div className="mt-5 rounded border border-paper-edge bg-paper-sunk p-3">
-            <p className="text-2xs font-bold uppercase tracking-wider text-clay">Next show</p>
-            <p className="mt-1 font-semibold leading-snug text-ink">{nextEvent.name}</p>
-            <p className="mt-1 text-sm text-ink-faint">
-              {formatEventDate(nextEvent.date)}
+          <p className="mt-4 text-sm text-ink">
+            <span className="font-semibold">Next:</span>{' '}
+            {nextEvent.name}
+            <span className="text-ink-faint">
+              {' '}
+              · {formatEventDate(nextEvent.date)}
               {nextEvent.time ? ` · ${formatTime(nextEvent.time)}` : ''}
-            </p>
-          </div>
-        ) : venue.openingNote ? (
-          <div className="mt-5 rounded border border-gold/20 bg-gold-wash p-3 text-sm font-semibold text-gold">
-            {venue.openingNote}
-          </div>
-        ) : (
-          <div className="mt-5 rounded border border-paper-edge bg-paper-sunk p-3 text-sm text-ink-faint">
-            No current Ticketmaster dates matched.
-          </div>
-        )}
-
-        <div className="mt-auto flex items-center justify-between gap-4 pt-5">
-          <p className="text-sm font-medium text-ink-faint">
-            {events.length > 0
-              ? `${events.length} upcoming ${events.length === 1 ? 'event' : 'events'}`
-              : venue.active
-                ? 'Venue guide'
-                : 'Track this venue'}
+            </span>
           </p>
-          <Link href={href} className="btn-secondary min-h-[44px] shrink-0">
-            View venue
-          </Link>
-        </div>
+        ) : venue.openingNote ? (
+          <p className="mt-4 text-sm font-medium text-ink-soft">{venue.openingNote}</p>
+        ) : null}
+
+        <p className="mt-3 text-sm font-semibold text-clay">
+          {events.length > 0
+            ? `${events.length} upcoming ${events.length === 1 ? 'date' : 'dates'}`
+            : venue.active
+              ? 'Venue guide'
+              : 'Track this venue'}
+        </p>
       </div>
     </article>
   );
