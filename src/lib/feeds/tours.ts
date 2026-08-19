@@ -42,13 +42,15 @@ export interface ToursCatalog {
 
 export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<ToursCatalog> {
   const requestedCount = Math.min(Math.max(params.count ?? 24, 1), 50);
-  const isBrowse = !params.query?.trim();
+  const usesProductBrowse = !params.query?.trim();
+  const isGenericBrowse =
+    usesProductBrowse && !params.startDate?.trim() && !params.endDate?.trim();
 
   const [provider, approved] = await Promise.all([
     searchNashvilleProducts({
       ...params,
-      count: isBrowse ? 50 : requestedCount,
-      sort: params.sort ?? (isBrowse ? 'DEFAULT' : undefined),
+      count: isGenericBrowse ? 50 : requestedCount,
+      sort: params.sort ?? (usesProductBrowse ? 'DEFAULT' : undefined),
       campaign: params.campaign ?? (params.query ? 'tours-search' : 'tours-marketplace'),
     }),
     getExperienceCatalog({
@@ -63,7 +65,7 @@ export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<
   // matches. Zero results must not be mistaken for an integration outage.
   if (provider.live) {
     const intent = filterKnownTourIntent(provider.products, params.query);
-    const products = isBrowse
+    const products = isGenericBrowse
       ? rankMarketplaceBrowse(intent.products, requestedCount)
       : intent.products.slice(0, requestedCount);
 
@@ -80,7 +82,7 @@ export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<
       environment: provider.environment,
       source: 'viator',
       editorial: TOUR_EDITORIAL,
-      attribution: isBrowse
+      attribution: isGenericBrowse
         ? 'Live product details, ratings, prices, photos, and booking links supplied by Viator. Browse order starts with Viator’s featured results, then NashRoam applies local-relevance and variety safeguards. Marketplace listings are provider inventory, not NashRoam editorial endorsements.'
         : 'Live product details, ratings, prices, photos, and booking links supplied by Viator. Marketplace listings are provider inventory, not NashRoam editorial endorsements.',
     };
