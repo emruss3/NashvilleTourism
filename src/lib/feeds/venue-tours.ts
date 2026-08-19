@@ -1,4 +1,5 @@
 import {
+  getViatorProduct,
   searchNashvilleProducts,
   type ViatorProductSummary,
 } from '@/lib/feeds/viator';
@@ -9,6 +10,7 @@ export interface CuratedVenueTourResult {
   product?: ViatorProductSummary;
 }
 
+const RYMAN_SELF_GUIDED_PRODUCT_CODE = '6585P3';
 const BROAD_TOUR_TERMS =
   /\b(trolley|hop[- ]on|city tour|food tour|ghost|pub crawl|bar crawl|party bus|private tour|sightseeing bus)\b/i;
 const DIRECT_PRODUCT_TERMS =
@@ -34,10 +36,20 @@ function rymanScore(product: ViatorProductSummary): number {
 }
 
 /**
- * Returns only a clearly Ryman-specific Viator product. A broad Nashville tour
- * that merely mentions the Ryman is intentionally rejected.
+ * Prefer Viator's exact Ryman self-guided product. Freetext search is retained
+ * only as a provider fallback because its ranking can surface generic Nashville
+ * tours that merely pass the Ryman.
  */
 export async function getRymanTour(): Promise<CuratedVenueTourResult> {
+  const direct = await getViatorProduct(RYMAN_SELF_GUIDED_PRODUCT_CODE);
+  if (direct.product && rymanScore(direct.product) >= 100) {
+    return {
+      configured: direct.configured,
+      live: direct.live,
+      product: direct.product,
+    };
+  }
+
   const result = await searchNashvilleProducts({
     query: 'Ryman Auditorium tour',
     count: 16,
@@ -50,8 +62,8 @@ export async function getRymanTour(): Promise<CuratedVenueTourResult> {
     .sort((a, b) => b.score - a.score);
 
   return {
-    configured: result.configured,
-    live: result.live,
+    configured: direct.configured || result.configured,
+    live: direct.live || result.live,
     product: ranked[0]?.product,
   };
 }
