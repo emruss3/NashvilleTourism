@@ -4,13 +4,14 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
+  const query = url.searchParams.get('q') || undefined;
   const result = await searchNashvilleProducts({
-    query: url.searchParams.get('q') || undefined,
+    query,
     startDate: url.searchParams.get('startDate') || undefined,
     endDate: url.searchParams.get('endDate') || undefined,
     count: Math.min(Number(url.searchParams.get('count')) || 24, 50),
     start: Number(url.searchParams.get('start')) || 1,
-    sort: url.searchParams.get('sort') || 'TRAVELER_RATING',
+    sort: url.searchParams.get('sort') || (query ? 'TRAVELER_RATING' : 'DEFAULT'),
     campaign: url.searchParams.get('campaign') || 'tours-marketplace',
   });
 
