@@ -7,7 +7,7 @@ import {
   FactTable,
   JsonLd,
   MapLink,
-  Pill,
+  Chip,
   SectionHeader,
 } from '@/components/Ui';
 import {
@@ -303,7 +303,7 @@ export default async function VenueDetail({
 
           <div className="not-prose mt-6 flex flex-wrap gap-2">
             {venue.genres.map((genre) => (
-              <Pill key={genre}>{genre}</Pill>
+              <Chip key={genre}>{genre}</Chip>
             ))}
           </div>
         </article>
