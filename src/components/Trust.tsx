@@ -151,15 +151,15 @@ export function Byline({
 }
 
 /**
- * Site-wide notice that the seeded records are demonstration data.
- * Remove once real verified content replaces the samples.
+ * Site-wide early-access notice. Some editorial place records are still being
+ * verified, while provider-backed booking inventory can already be live.
  */
 export function DemoDataNotice() {
   return (
     <div className="border-b border-paper-edge bg-sky">
       <div className="shell py-1.5 text-center text-2xs text-ink-faint sm:text-sm">
-        <strong className="font-semibold text-ink">Demonstration build.</strong>{' '}
-        Sample listings — not for planning.
+        <strong className="font-semibold text-ink">Early access.</strong>{' '}
+        Some editorial listings are still being verified; live booking inventory is labeled by provider.
       </div>
     </div>
   );

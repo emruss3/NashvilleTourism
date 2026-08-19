@@ -42,7 +42,7 @@ export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<
   const [provider, approved] = await Promise.all([
     searchNashvilleProducts({
       ...params,
-      campaign: params.campaign ?? 'tours-marketplace',
+      campaign: params.campaign ?? (params.query ? 'tours-search' : 'tours-marketplace'),
     }),
     getExperienceCatalog({
       query: params.query,
@@ -52,7 +52,9 @@ export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<
     }),
   ]);
 
-  if (provider.live && provider.products.length > 0) {
+  // A successful live provider request remains live when a narrow filter has no
+  // matches. Zero results must not be mistaken for an integration outage.
+  if (provider.live) {
     return {
       configured: true,
       live: true,
