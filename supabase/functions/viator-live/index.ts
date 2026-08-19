@@ -100,16 +100,37 @@ async function viatorFetch(path: string, init: RequestInit = {}): Promise<Viator
   return last!;
 }
 
-function pickImageUrl(images: any): string | null {
-  if (!Array.isArray(images) || !images.length) return null;
-  const image = images.find((item: any) => item?.isCover) ?? images[0];
+function pickVariantUrl(image: any, targetWidth = 960): string | null {
   const variants = Array.isArray(image?.variants)
     ? image.variants.filter((variant: any) => typeof variant?.url === "string")
     : [];
+  if (!variants.length) return typeof image?.url === "string" ? image.url : null;
   variants.sort((a: any, b: any) =>
-    Math.abs(Number(a.width ?? 0) - 960) - Math.abs(Number(b.width ?? 0) - 960),
+    Math.abs(Number(a.width ?? 0) - targetWidth) - Math.abs(Number(b.width ?? 0) - targetWidth),
   );
   return variants[0]?.url ?? null;
+}
+
+function pickImageUrl(images: any): string | null {
+  if (!Array.isArray(images) || !images.length) return null;
+  const image = images.find((item: any) => item?.isCover) ?? images[0];
+  return pickVariantUrl(image);
+}
+
+function pickImages(images: any) {
+  if (!Array.isArray(images) || !images.length) return undefined;
+  const mapped = images
+    .map((image: any) => {
+      const url = pickVariantUrl(image, 1200);
+      if (!url) return null;
+      return {
+        url,
+        caption: typeof image?.caption === "string" && image.caption.trim() ? image.caption.trim() : undefined,
+        isCover: Boolean(image?.isCover),
+      };
+    })
+    .filter(Boolean);
+  return mapped.length ? mapped : undefined;
 }
 
 function minutesLabel(minutes: number): string {
@@ -134,19 +155,211 @@ function durationLabel(duration: any): string | null {
 
 function textList(value: any): string[] | undefined {
   if (!Array.isArray(value)) return undefined;
-  const items = value
-    .map((item: any) => {
-      if (typeof item === "string") return item;
-      if (typeof item?.description === "string") return item.description;
-      if (typeof item?.text === "string") return item.text;
-      if (typeof item?.name === "string") return item.name;
-      return null;
-    })
-    .filter((item: string | null): item is string => Boolean(item));
+  const counts = new Map<string, number>();
+  for (const item of value) {
+    const text =
+      typeof item === "string"
+        ? item
+        : typeof item?.description === "string"
+          ? item.description
+          : typeof item?.text === "string"
+            ? item.text
+            : typeof item?.name === "string"
+              ? item.name
+              : null;
+    if (!text) continue;
+    counts.set(text, (counts.get(text) ?? 0) + 1);
+  }
+  const items = [...counts.entries()].map(([text, count]) => (count > 1 ? `${text} (${count})` : text));
   return items.length ? items : undefined;
 }
 
-function normalizeProduct(product: any, detail = false) {
+function uniqueStrings(values: string[]) {
+  return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+}
+
+function languageName(code: string) {
+  const names: Record<string, string> = {
+    en: "English",
+    "en-us": "English",
+    es: "Spanish",
+    fr: "French",
+    de: "German",
+    it: "Italian",
+    pt: "Portuguese",
+    ja: "Japanese",
+    zh: "Chinese",
+    ko: "Korean",
+    nl: "Dutch",
+    da: "Danish",
+    sv: "Swedish",
+    no: "Norwegian",
+  };
+  return names[code.toLowerCase()] ?? code;
+}
+
+function languageGuideLabel(guide: any): string | null {
+  const code = typeof guide?.language === "string" ? guide.language : null;
+  const codes = Array.isArray(guide?.languages) ? guide.languages.map(String) : code ? [code] : [];
+  if (!codes.length) return null;
+  const names = uniqueStrings(codes.map(languageName)).join(", ");
+  const type = String(guide?.type ?? "").toUpperCase();
+  if (type === "AUDIO") return `Audio guide: ${names}`;
+  if (type === "WRITTEN") return `Written guide: ${names}`;
+  return `Live guide: ${names}`;
+}
+
+function collectLocationRefs(product: any): string[] {
+  const refs: string[] = [];
+  const push = (ref: unknown) => {
+    if (typeof ref === "string" && ref.startsWith("LOC-")) refs.push(ref);
+  };
+  for (const point of product?.logistics?.start ?? []) push(point?.location?.ref);
+  for (const point of product?.logistics?.end ?? []) push(point?.location?.ref);
+  for (const item of product?.itinerary?.itineraryItems ?? []) {
+    push(item?.pointOfInterestLocation?.location?.ref);
+  }
+  for (const poi of product?.itinerary?.pointsOfInterest ?? []) push(poi?.ref ?? poi?.location?.ref);
+  push(product?.itinerary?.activityInfo?.location?.ref);
+  for (const day of product?.itinerary?.days ?? []) {
+    for (const item of day?.items ?? []) push(item?.pointOfInterestLocation?.location?.ref);
+  }
+  for (const route of product?.itinerary?.routes ?? []) {
+    for (const stop of route?.stops ?? []) push(stop?.stopLocation?.ref ?? stop?.location?.ref);
+  }
+  return uniqueStrings(refs);
+}
+
+function locationLookup(locations: any[]) {
+  const map = new Map<string, { name?: string; address?: string }>();
+  for (const location of locations) {
+    const ref = typeof location?.reference === "string" ? location.reference : "";
+    if (!ref) continue;
+    const addressParts = [
+      location?.address?.street,
+      location?.address?.administrativeArea,
+      location?.address?.state,
+      location?.address?.postcode,
+      location?.address?.country,
+    ].filter((part) => typeof part === "string" && part.trim());
+    map.set(ref, {
+      name: typeof location?.name === "string" ? location.name : undefined,
+      address: addressParts.length ? addressParts.join(", ") : undefined,
+    });
+  }
+  return map;
+}
+
+function logisticsPoints(points: any, locations: Map<string, { name?: string; address?: string }>) {
+  if (!Array.isArray(points) || !points.length) return undefined;
+  const mapped = points
+    .map((point: any) => {
+      const ref = typeof point?.location?.ref === "string" ? point.location.ref : "";
+      const resolved = locations.get(ref);
+      const description = typeof point?.description === "string" ? point.description : undefined;
+      return {
+        name: resolved?.name,
+        description,
+        address: resolved?.address,
+      };
+    })
+    .filter((point: any) => point.name || point.description || point.address);
+  return mapped.length ? mapped : undefined;
+}
+
+function pickupLabel(type: unknown): string | undefined {
+  switch (String(type ?? "")) {
+    case "PICKUP_EVERYONE":
+      return "Pickup included";
+    case "MEET_EVERYONE_AT_START_POINT":
+      return "Meet at the starting point";
+    case "PICKUP_AND_MEET_AT_START_POINT":
+      return "Hotel pickup or meet at the starting point";
+    default:
+      return undefined;
+  }
+}
+
+function itineraryStop(
+  item: any,
+  locations: Map<string, { name?: string; address?: string }>,
+  dayLabel?: string,
+) {
+  const ref = item?.pointOfInterestLocation?.location?.ref ?? item?.stopLocation?.ref ?? item?.location?.ref;
+  const resolved = typeof ref === "string" ? locations.get(ref) : undefined;
+  const description = typeof item?.description === "string" ? item.description : undefined;
+  const name = resolved?.name;
+  if (!name && !description) return null;
+  return {
+    name,
+    description,
+    durationLabel: durationLabel(item?.duration) ?? undefined,
+    passByWithoutStopping: Boolean(item?.passByWithoutStopping),
+    admissionIncluded: typeof item?.admissionIncluded === "string" ? item.admissionIncluded : undefined,
+    dayLabel,
+  };
+}
+
+function normalizeItinerary(itinerary: any, locations: Map<string, { name?: string; address?: string }>) {
+  if (!itinerary || typeof itinerary !== "object") return {};
+  const stops: any[] = [];
+  if (Array.isArray(itinerary.itineraryItems)) {
+    for (const item of itinerary.itineraryItems) {
+      const stop = itineraryStop(item, locations);
+      if (stop) stops.push(stop);
+    }
+  }
+  if (Array.isArray(itinerary.days)) {
+    itinerary.days.forEach((day: any, index: number) => {
+      const dayLabel = typeof day?.title === "string" ? day.title : `Day ${index + 1}`;
+      for (const item of day?.items ?? []) {
+        const stop = itineraryStop(item, locations, dayLabel);
+        if (stop) stops.push(stop);
+      }
+    });
+  }
+  if (Array.isArray(itinerary.routes)) {
+    for (const route of itinerary.routes) {
+      for (const item of route?.stops ?? []) {
+        const stop = itineraryStop(item, locations, typeof route?.title === "string" ? route.title : undefined);
+        if (stop) stops.push(stop);
+      }
+    }
+  }
+  if (itinerary.activityInfo) {
+    const ref = itinerary.activityInfo?.location?.ref;
+    const resolved = typeof ref === "string" ? locations.get(ref) : undefined;
+    const description = typeof itinerary.activityInfo?.description === "string"
+      ? itinerary.activityInfo.description
+      : undefined;
+    if (resolved?.name || description) {
+      stops.unshift({
+        name: resolved?.name,
+        description,
+      });
+    }
+  }
+
+  const unstructured =
+    typeof itinerary.unstructuredDescription === "string"
+      ? itinerary.unstructuredDescription
+      : typeof itinerary.unstructuredItinerary === "string"
+        ? itinerary.unstructuredItinerary
+        : undefined;
+
+  return {
+    itineraryType: typeof itinerary.itineraryType === "string" ? itinerary.itineraryType : undefined,
+    skipTheLine: typeof itinerary.skipTheLine === "boolean" ? itinerary.skipTheLine : undefined,
+    privateTour: typeof itinerary.privateTour === "boolean" ? itinerary.privateTour : undefined,
+    maxTravelersInSharedTour: Number.isFinite(Number(itinerary.maxTravelersInSharedTour))
+      ? Number(itinerary.maxTravelersInSharedTour)
+      : undefined,
+    itineraryOverview: unstructured,
+    itineraryStops: stops.length ? stops : undefined,
+  };
+}
+
+function normalizeProduct(product: any, detail = false, locations = new Map<string, { name?: string; address?: string }>()) {
   const productCode = String(product?.productCode ?? "").trim();
   const title = String(product?.title ?? "").trim();
   const productUrl = typeof product?.productUrl === "string" ? product.productUrl : "";
@@ -157,13 +370,14 @@ function normalizeProduct(product: any, detail = false) {
   const currency = typeof product?.pricing?.currency === "string" ? product.pricing.currency : "USD";
   const rating = Number(product?.reviews?.combinedAverageRating);
   const reviewCount = Number(product?.reviews?.totalReviews);
+  const images = pickImages(product?.images);
 
   const normalized: Record<string, unknown> = {
     productCode,
     title,
     description: typeof product?.description === "string" ? product.description : undefined,
     productUrl,
-    imageUrl: pickImageUrl(product?.images) ?? undefined,
+    imageUrl: pickImageUrl(product?.images) ?? images?.[0]?.url ?? undefined,
     rating: Number.isFinite(rating) ? rating : undefined,
     reviewCount: Number.isFinite(reviewCount) ? reviewCount : undefined,
     fromPrice: Number.isFinite(price) ? price : undefined,
@@ -175,16 +389,56 @@ function normalizeProduct(product: any, detail = false) {
   };
 
   if (detail) {
-    normalized.confirmationType =
-      product?.bookingConfirmationSettings?.confirmationType ?? product?.confirmationType ?? undefined;
-    normalized.languages = Array.isArray(product?.languageGuides)
-      ? product.languageGuides.flatMap((guide: any) =>
-          Array.isArray(guide?.languages) ? guide.languages.map(String) : [],
+    const languages = Array.isArray(product?.languageGuides)
+      ? uniqueStrings(
+          product.languageGuides.flatMap((guide: any) => {
+            if (typeof guide?.language === "string") return [languageName(guide.language)];
+            if (Array.isArray(guide?.languages)) return guide.languages.map((code: string) => languageName(String(code)));
+            return [];
+          }),
         )
-      : undefined;
-    normalized.inclusions = textList(product?.inclusions);
-    normalized.exclusions = textList(product?.exclusions);
-    normalized.additionalInfo = textList(product?.additionalInfo);
+      : [];
+    const languageGuideLabels = Array.isArray(product?.languageGuides)
+      ? uniqueStrings(product.languageGuides.map(languageGuideLabel).filter(Boolean) as string[])
+      : [];
+    const productOptions = Array.isArray(product?.productOptions)
+      ? product.productOptions
+          .map((option: any) => ({
+            code: String(option?.productOptionCode ?? "").trim(),
+            title: String(option?.title ?? "").trim(),
+            description: typeof option?.description === "string" ? option.description : undefined,
+          }))
+          .filter((option: { title: string }) => option.title)
+      : [];
+
+    Object.assign(normalized, {
+      confirmationType:
+        product?.bookingConfirmationSettings?.confirmationType ?? product?.confirmationType ?? undefined,
+      languages: languages.length ? languages : undefined,
+      languageGuideLabels: languageGuideLabels.length ? languageGuideLabels : undefined,
+      inclusions: textList(product?.inclusions),
+      exclusions: textList(product?.exclusions),
+      additionalInfo: textList(product?.additionalInfo),
+      ticketTypeDescription:
+        typeof product?.ticketInfo?.ticketTypeDescription === "string"
+          ? product.ticketInfo.ticketTypeDescription
+          : undefined,
+      supplierName: typeof product?.supplier?.name === "string" ? product.supplier.name : undefined,
+      cancellationPolicy: product?.cancellationPolicy
+        ? {
+            type: product.cancellationPolicy.type,
+            description: product.cancellationPolicy.description,
+            cancelIfBadWeather: Boolean(product.cancellationPolicy.cancelIfBadWeather),
+            cancelIfInsufficientTravelers: Boolean(product.cancellationPolicy.cancelIfInsufficientTravelers),
+          }
+        : undefined,
+      meetingPoints: logisticsPoints(product?.logistics?.start, locations),
+      endPoints: logisticsPoints(product?.logistics?.end, locations),
+      pickupLabel: pickupLabel(product?.logistics?.travelerPickup?.pickupOptionType),
+      productOptions: productOptions.length ? productOptions : undefined,
+      images,
+      ...normalizeItinerary(product?.itinerary, locations),
+    });
   }
   return normalized;
 }
@@ -276,17 +530,42 @@ Deno.serve(async (req: Request) => {
       const result = await viatorFetch(
         `/products/${encodeURIComponent(code)}?campaign-value=${campaign}`,
       );
-      const normalized = result.ok ? normalizeProduct(result.data, true) : null;
+      if (!result.ok) {
+        return json({
+          ok: false,
+          environment: "production",
+          baseUrl: VIATOR_BASE,
+          status: result.status,
+          normalized: null,
+          requestId: result.requestId,
+          rateLimitRemaining: result.rateLimitRemaining,
+          error: result.data,
+        }, result.status || 502);
+      }
+
+      const refs = collectLocationRefs(result.data);
+      let locations = new Map<string, { name?: string; address?: string }>();
+      if (refs.length) {
+        const locationResult = await viatorFetch("/locations/bulk", {
+          method: "POST",
+          body: JSON.stringify({ locations: refs.slice(0, 500) }),
+        });
+        if (locationResult.ok && Array.isArray(locationResult.data?.locations)) {
+          locations = locationLookup(locationResult.data.locations);
+        }
+      }
+
+      const normalized = normalizeProduct(result.data, true, locations);
       return json({
-        ok: Boolean(result.ok && normalized),
+        ok: Boolean(normalized),
         environment: "production",
         baseUrl: VIATOR_BASE,
         status: result.status,
         normalized,
         requestId: result.requestId,
         rateLimitRemaining: result.rateLimitRemaining,
-        error: result.ok && normalized ? null : result.data,
-      }, result.ok && normalized ? 200 : result.status || 502);
+        error: normalized ? null : result.data,
+      }, normalized ? 200 : 502);
     }
 
     return json({ ok: false, error: `Unsupported mode: ${mode}` }, 400);

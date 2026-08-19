@@ -51,13 +51,61 @@ export interface ViatorProductSummary {
   provider: 'viator';
 }
 
+export interface ViatorImage {
+  url: string;
+  caption?: string;
+  isCover?: boolean;
+}
+
+export interface ViatorItineraryStop {
+  name?: string;
+  description?: string;
+  durationLabel?: string;
+  passByWithoutStopping?: boolean;
+  admissionIncluded?: string;
+  dayLabel?: string;
+}
+
+export interface ViatorLogisticsPoint {
+  name?: string;
+  description?: string;
+  address?: string;
+}
+
+export interface ViatorProductOption {
+  code: string;
+  title: string;
+  description?: string;
+}
+
+export interface ViatorCancellationPolicy {
+  type?: string;
+  description: string;
+  cancelIfBadWeather?: boolean;
+  cancelIfInsufficientTravelers?: boolean;
+}
+
 export interface ViatorProductDetail extends ViatorProductSummary {
   confirmationType?: string;
   languages?: string[];
+  languageGuideLabels?: string[];
   inclusions?: string[];
   exclusions?: string[];
   additionalInfo?: string[];
   itineraryOverview?: string;
+  itineraryType?: string;
+  skipTheLine?: boolean;
+  privateTour?: boolean;
+  maxTravelersInSharedTour?: number;
+  itineraryStops?: ViatorItineraryStop[];
+  ticketTypeDescription?: string;
+  supplierName?: string;
+  cancellationPolicy?: ViatorCancellationPolicy;
+  meetingPoints?: ViatorLogisticsPoint[];
+  endPoints?: ViatorLogisticsPoint[];
+  pickupLabel?: string;
+  productOptions?: ViatorProductOption[];
+  images?: ViatorImage[];
 }
 
 export interface ViatorSearchParams {
@@ -307,17 +355,120 @@ export async function getViatorProduct(productCode: string): Promise<{
     live: true,
     httpStatus: 200,
     environment: data.environment,
-    product: {
-      ...normalized,
-      confirmationType:
-        typeof raw.confirmationType === 'string' ? raw.confirmationType : undefined,
-      languages: Array.isArray(raw.languages) ? raw.languages.map(String) : undefined,
-      inclusions: Array.isArray(raw.inclusions) ? raw.inclusions.map(String) : undefined,
-      exclusions: Array.isArray(raw.exclusions) ? raw.exclusions.map(String) : undefined,
-      additionalInfo: Array.isArray(raw.additionalInfo) ? raw.additionalInfo.map(String) : undefined,
-      itineraryOverview:
-        typeof raw.itineraryOverview === 'string' ? raw.itineraryOverview : undefined,
-    },
+    product: mapProductDetail(normalized, raw),
+  };
+}
+
+function stringList(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const items = value.map(String).filter(Boolean);
+  return items.length ? items : undefined;
+}
+
+function mapLogisticsPoints(value: unknown): ViatorLogisticsPoint[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const points = value
+    .map((item) => {
+      if (!item || typeof item !== 'object') return null;
+      const row = item as Record<string, unknown>;
+      const point: ViatorLogisticsPoint = {
+        name: typeof row.name === 'string' ? row.name : undefined,
+        description: typeof row.description === 'string' ? row.description : undefined,
+        address: typeof row.address === 'string' ? row.address : undefined,
+      };
+      return point.name || point.description || point.address ? point : null;
+    })
+    .filter((item): item is ViatorLogisticsPoint => Boolean(item));
+  return points.length ? points : undefined;
+}
+
+function mapProductDetail(
+  summary: ViatorProductSummary,
+  raw: Record<string, unknown>,
+): ViatorProductDetail {
+  const cancellation =
+    raw.cancellationPolicy && typeof raw.cancellationPolicy === 'object'
+      ? (raw.cancellationPolicy as Record<string, unknown>)
+      : null;
+
+  const images: ViatorImage[] = [];
+  if (Array.isArray(raw.images)) {
+    for (const item of raw.images) {
+      if (!item || typeof item !== 'object') continue;
+      const row = item as Record<string, unknown>;
+      if (typeof row.url !== 'string' || !row.url) continue;
+      images.push({
+        url: row.url,
+        caption: typeof row.caption === 'string' ? row.caption : undefined,
+        isCover: Boolean(row.isCover),
+      });
+    }
+  }
+
+  const itineraryStops: ViatorItineraryStop[] = [];
+  if (Array.isArray(raw.itineraryStops)) {
+    for (const item of raw.itineraryStops) {
+      if (!item || typeof item !== 'object') continue;
+      const row = item as Record<string, unknown>;
+      const stop: ViatorItineraryStop = {
+        name: typeof row.name === 'string' ? row.name : undefined,
+        description: typeof row.description === 'string' ? row.description : undefined,
+        durationLabel: typeof row.durationLabel === 'string' ? row.durationLabel : undefined,
+        passByWithoutStopping: Boolean(row.passByWithoutStopping),
+        admissionIncluded: typeof row.admissionIncluded === 'string' ? row.admissionIncluded : undefined,
+        dayLabel: typeof row.dayLabel === 'string' ? row.dayLabel : undefined,
+      };
+      if (stop.name || stop.description) itineraryStops.push(stop);
+    }
+  }
+
+  const productOptions: ViatorProductOption[] = [];
+  if (Array.isArray(raw.productOptions)) {
+    for (const item of raw.productOptions) {
+      if (!item || typeof item !== 'object') continue;
+      const row = item as Record<string, unknown>;
+      const title = typeof row.title === 'string' ? row.title : '';
+      if (!title) continue;
+      productOptions.push({
+        code: typeof row.code === 'string' ? row.code : '',
+        title,
+        description: typeof row.description === 'string' ? row.description : undefined,
+      });
+    }
+  }
+
+  return {
+    ...summary,
+    confirmationType: typeof raw.confirmationType === 'string' ? raw.confirmationType : undefined,
+    languages: stringList(raw.languages),
+    languageGuideLabels: stringList(raw.languageGuideLabels),
+    inclusions: stringList(raw.inclusions),
+    exclusions: stringList(raw.exclusions),
+    additionalInfo: stringList(raw.additionalInfo),
+    itineraryOverview: typeof raw.itineraryOverview === 'string' ? raw.itineraryOverview : undefined,
+    itineraryType: typeof raw.itineraryType === 'string' ? raw.itineraryType : undefined,
+    skipTheLine: typeof raw.skipTheLine === 'boolean' ? raw.skipTheLine : undefined,
+    privateTour: typeof raw.privateTour === 'boolean' ? raw.privateTour : undefined,
+    maxTravelersInSharedTour:
+      typeof raw.maxTravelersInSharedTour === 'number' ? raw.maxTravelersInSharedTour : undefined,
+    itineraryStops: itineraryStops.length ? itineraryStops : undefined,
+    ticketTypeDescription:
+      typeof raw.ticketTypeDescription === 'string' ? raw.ticketTypeDescription : undefined,
+    supplierName: typeof raw.supplierName === 'string' ? raw.supplierName : undefined,
+    cancellationPolicy:
+      cancellation && typeof cancellation.description === 'string'
+        ? {
+            type: typeof cancellation.type === 'string' ? cancellation.type : undefined,
+            description: cancellation.description,
+            cancelIfBadWeather: Boolean(cancellation.cancelIfBadWeather),
+            cancelIfInsufficientTravelers: Boolean(cancellation.cancelIfInsufficientTravelers),
+          }
+        : undefined,
+    meetingPoints: mapLogisticsPoints(raw.meetingPoints),
+    endPoints: mapLogisticsPoints(raw.endPoints),
+    pickupLabel: typeof raw.pickupLabel === 'string' ? raw.pickupLabel : undefined,
+    productOptions: productOptions.length ? productOptions : undefined,
+    images: images.length ? images : undefined,
   };
 }
 
