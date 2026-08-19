@@ -14,6 +14,7 @@ import {
   getExperienceCatalog,
   type ExperienceCard,
 } from '@/lib/feeds/experiences';
+import { rankMarketplaceBrowse } from '@/lib/feeds/tour-marketplace-rank';
 import { filterKnownTourIntent } from '@/lib/feeds/tour-intent-filter';
 import {
   getViatorProduct,
@@ -40,16 +41,21 @@ export interface ToursCatalog {
 }
 
 export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<ToursCatalog> {
+  const requestedCount = Math.min(Math.max(params.count ?? 24, 1), 50);
+  const isBrowse = !params.query?.trim();
+
   const [provider, approved] = await Promise.all([
     searchNashvilleProducts({
       ...params,
+      count: isBrowse ? 50 : requestedCount,
+      sort: params.sort ?? (isBrowse ? 'DEFAULT' : undefined),
       campaign: params.campaign ?? (params.query ? 'tours-search' : 'tours-marketplace'),
     }),
     getExperienceCatalog({
       query: params.query,
       startDate: params.startDate,
       endDate: params.endDate,
-      count: params.count ?? 24,
+      count: requestedCount,
     }),
   ]);
 
@@ -57,21 +63,26 @@ export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<
   // matches. Zero results must not be mistaken for an integration outage.
   if (provider.live) {
     const intent = filterKnownTourIntent(provider.products, params.query);
+    const products = isBrowse
+      ? rankMarketplaceBrowse(intent.products, requestedCount)
+      : intent.products.slice(0, requestedCount);
+
     return {
       configured: true,
       live: true,
-      products: intent.products,
+      products,
       experiences: approved.experiences,
       totalCount: intent.constrained
-        ? intent.products.length
+        ? products.length
         : provider.totalCount ?? provider.products.length,
       fetchedAt: provider.fetchedAt,
       httpStatus: provider.httpStatus,
       environment: provider.environment,
       source: 'viator',
       editorial: TOUR_EDITORIAL,
-      attribution:
-        'Live product details, ratings, prices, photos, and booking links supplied by Viator. Marketplace listings are provider inventory, not NashRoam editorial endorsements.',
+      attribution: isBrowse
+        ? 'Live product details, ratings, prices, photos, and booking links supplied by Viator. Browse order starts with Viator’s featured results, then NashRoam applies local-relevance and variety safeguards. Marketplace listings are provider inventory, not NashRoam editorial endorsements.'
+        : 'Live product details, ratings, prices, photos, and booking links supplied by Viator. Marketplace listings are provider inventory, not NashRoam editorial endorsements.',
     };
   }
 
@@ -79,7 +90,7 @@ export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<
     return {
       configured: approved.configured || provider.configured,
       live: true,
-      products: approved.experiences.map(experienceToProductSummary),
+      products: approved.experiences.map(experienceToProductSummary).slice(0, requestedCount),
       experiences: approved.experiences,
       totalCount: approved.experiences.length,
       fetchedAt: approved.fetchedAt,
