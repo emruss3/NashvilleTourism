@@ -1,36 +1,10 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-/**
- * NashRoam public marketplace -> Viator production boundary.
- *
- * viator-live is separate from viator-sync so public marketplace reads can use
- * Viator production while ingestion/curation remains independently managed.
- */
-
-const LEGACY_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "https://aeomrsutkhwmnscvvfur.supabase.co";
 const VIATOR_API_KEY =
   Deno.env.get("VIATOR_PRODUCTION_API_KEY") ?? Deno.env.get("VIATOR_API_KEY") ?? "";
 const VIATOR_BASE = "https://api.viator.com/partner";
 const NASHVILLE_DESTINATION_ID = "799";
-const CRON_TOKEN_SHA256 = "bf6d4248c199262ce56e654bef557f6bc37f32a4481521c6340574df329db7a7";
-
-function secretApiKeys(): string[] {
-  const raw = Deno.env.get("SUPABASE_SECRET_KEYS");
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    return Object.values(parsed)
-      .filter((value): value is string => typeof value === "string")
-      .map((value) => value.trim())
-      .filter(Boolean);
-  } catch {
-    return [];
-  }
-}
-
-const SUPABASE_SERVER_KEYS = new Set(
-  [LEGACY_SERVICE_ROLE_KEY, ...secretApiKeys()].map((value) => value.trim()).filter(Boolean),
-);
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -39,29 +13,28 @@ function json(body: unknown, status = 200) {
   });
 }
 
-async function sha256Hex(value: string) {
-  const bytes = new TextEncoder().encode(value);
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-async function isAuthorized(req: Request) {
-  // New Supabase sb_secret_* credentials are API keys, not JWTs, so service
-  // callers send them on `apikey`. Legacy service_role JWT remains supported.
+async function hasServiceAccess(req: Request): Promise<boolean> {
   const apiKey = req.headers.get("apikey")?.trim() ?? "";
-  if (apiKey && SUPABASE_SERVER_KEYS.has(apiKey)) return true;
+  if (!apiKey) return false;
 
-  const authorization = req.headers.get("authorization")?.trim() ?? "";
-  if (
-    LEGACY_SERVICE_ROLE_KEY &&
-    authorization === `Bearer ${LEGACY_SERVICE_ROLE_KEY}`
-  ) {
-    return true;
+  const headers = new Headers({ apikey: apiKey, Accept: "application/json" });
+  if (apiKey.startsWith("eyJ")) {
+    headers.set("Authorization", `Bearer ${apiKey}`);
   }
 
-  const cronToken = req.headers.get("x-nashroam-cron-token")?.trim();
-  if (!cronToken) return false;
-  return (await sha256Hex(cronToken)) === CRON_TOKEN_SHA256;
+  try {
+    // data_sources has RLS enabled with no public policies. Supabase therefore
+    // becomes the source of truth for deciding whether this is a privileged
+    // server key instead of duplicating key-format logic inside the function.
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/data_sources?select=id&limit=1`, {
+      method: "GET",
+      headers,
+      cache: "no-store",
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 function sleep(ms: number) {
@@ -118,11 +91,11 @@ async function viatorFetch(path: string, init: RequestInit = {}): Promise<Viator
 
     if (res.ok || ![429, 500, 502, 503, 504].includes(res.status)) return last;
     const retrySeconds = Number(last.retryAfter);
-    const delay =
+    await sleep(
       Number.isFinite(retrySeconds) && retrySeconds > 0
         ? Math.min(retrySeconds * 1000, 5000)
-        : 600 * (attempt + 1);
-    await sleep(delay);
+        : 600 * (attempt + 1),
+    );
   }
   return last!;
 }
@@ -163,13 +136,17 @@ function durationLabel(duration: any): string | null {
 function textList(value: any): string[] | undefined {
   if (!Array.isArray(value)) return undefined;
   const items = value
-    .map((item: any) => {
-      if (typeof item === "string") return item;
-      if (typeof item?.description === "string") return item.description;
-      if (typeof item?.text === "string") return item.text;
-      if (typeof item?.name === "string") return item.name;
-      return null;
-    })
+    .map((item: any) =>
+      typeof item === "string"
+        ? item
+        : typeof item?.description === "string"
+          ? item.description
+          : typeof item?.text === "string"
+            ? item.text
+            : typeof item?.name === "string"
+              ? item.name
+              : null,
+    )
     .filter((item: string | null): item is string => Boolean(item));
   return items.length ? items : undefined;
 }
@@ -182,8 +159,7 @@ function normalizeProduct(product: any, detail = false) {
 
   const flags = Array.isArray(product?.flags) ? product.flags.map(String) : [];
   const price = Number(product?.pricing?.summary?.fromPrice ?? product?.pricingInfo?.fromPrice);
-  const currency =
-    typeof product?.pricing?.currency === "string" ? product.pricing.currency : "USD";
+  const currency = typeof product?.pricing?.currency === "string" ? product.pricing.currency : "USD";
   const rating = Number(product?.reviews?.combinedAverageRating);
   const reviewCount = Number(product?.reviews?.totalReviews);
 
@@ -205,9 +181,7 @@ function normalizeProduct(product: any, detail = false) {
 
   if (detail) {
     normalized.confirmationType =
-      product?.bookingConfirmationSettings?.confirmationType ??
-      product?.confirmationType ??
-      undefined;
+      product?.bookingConfirmationSettings?.confirmationType ?? product?.confirmationType ?? undefined;
     normalized.languages = Array.isArray(product?.languageGuides)
       ? product.languageGuides.flatMap((guide: any) =>
           Array.isArray(guide?.languages) ? guide.languages.map(String) : [],
@@ -226,6 +200,7 @@ function buildSearchBody(input: any) {
   if (input?.endDate) filtering.endDate = String(input.endDate);
   if (Array.isArray(input?.flags) && input.flags.length) filtering.flags = input.flags;
   if (Array.isArray(input?.tags) && input.tags.length) filtering.tags = input.tags;
+
   return {
     filtering,
     sorting: {
@@ -241,7 +216,9 @@ function buildSearchBody(input: any) {
 }
 
 Deno.serve(async (req: Request) => {
-  if (!(await isAuthorized(req))) return json({ ok: false, error: "Unauthorized" }, 401);
+  if (!(await hasServiceAccess(req))) {
+    return json({ ok: false, error: "Unauthorized" }, 401);
+  }
   if (req.method !== "POST") return json({ ok: false, error: "POST required" }, 405);
 
   let body: any = {};
