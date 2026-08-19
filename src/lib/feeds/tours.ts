@@ -14,6 +14,7 @@ import {
   getExperienceCatalog,
   type ExperienceCard,
 } from '@/lib/feeds/experiences';
+import { filterKnownTourIntent } from '@/lib/feeds/tour-intent-filter';
 import {
   getViatorProduct,
   searchNashvilleProducts,
@@ -55,12 +56,15 @@ export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<
   // A successful live provider request remains live when a narrow filter has no
   // matches. Zero results must not be mistaken for an integration outage.
   if (provider.live) {
+    const intent = filterKnownTourIntent(provider.products, params.query);
     return {
       configured: true,
       live: true,
-      products: provider.products,
+      products: intent.products,
       experiences: approved.experiences,
-      totalCount: provider.totalCount ?? provider.products.length,
+      totalCount: intent.constrained
+        ? intent.products.length
+        : provider.totalCount ?? provider.products.length,
       fetchedAt: provider.fetchedAt,
       httpStatus: provider.httpStatus,
       environment: provider.environment,
