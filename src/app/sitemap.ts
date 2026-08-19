@@ -1,5 +1,14 @@
 import type { MetadataRoute } from 'next';
-import { restaurants, hotels, events, venues, attractions, guides, neighborhoods, authors } from '@/lib/content';
+import {
+  restaurants,
+  hotels,
+  events,
+  attractions,
+  guides,
+  neighborhoods,
+  authors,
+} from '@/lib/content';
+import { musicVenues } from '@/lib/music-venues';
 import { allowIndexing, canonical, isIndexableRecord } from '@/lib/seo';
 
 /**
@@ -11,7 +20,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const now = new Date().toISOString();
 
-  const staticPaths: { path: string; priority: number; freq: MetadataRoute.Sitemap[number]['changeFrequency'] }[] = [
+  const staticPaths: {
+    path: string;
+    priority: number;
+    freq: MetadataRoute.Sitemap[number]['changeFrequency'];
+  }[] = [
     { path: '/', priority: 1.0, freq: 'daily' },
     // Intent hubs. These are the primary organic landing pages.
     { path: '/where-to-stay/', priority: 1.0, freq: 'weekly' },
@@ -39,14 +52,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/photo-credits/', priority: 0.2, freq: 'yearly' },
   ];
 
-  const entries: MetadataRoute.Sitemap = staticPaths.map((p) => ({
-    url: canonical(p.path),
+  const entries: MetadataRoute.Sitemap = staticPaths.map((path) => ({
+    url: canonical(path.path),
     lastModified: now,
-    changeFrequency: p.freq,
-    priority: p.priority,
+    changeFrequency: path.freq,
+    priority: path.priority,
   }));
 
-  const push = (prefix: string, items: { slug: string; dateUpdated?: string; dateChecked?: string }[], priority: number) => {
+  const push = (
+    prefix: string,
+    items: { slug: string; dateUpdated?: string; dateChecked?: string }[],
+    priority: number,
+  ) => {
     for (const item of items) {
       entries.push({
         url: canonical(`${prefix}${item.slug}/`),
@@ -74,12 +91,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     });
   }
 
+  const indexableMusicVenues = musicVenues.filter((venue) =>
+    venue.editorial
+      ? isIndexableRecord(venue.editorial)
+      : venue.dataStatus === 'verified',
+  );
+
   push('/guides/', guides, 0.8);
   push('/restaurants/', restaurants.filter(isIndexableRecord), 0.7);
   push('/hotels/', hotels.filter(isIndexableRecord), 0.7);
   push('/events/', events.filter(isIndexableRecord), 0.7);
   push('/things-to-do/', attractions.filter(isIndexableRecord), 0.7);
-  push('/music/', venues.filter(isIndexableRecord), 0.6);
+  push('/music/', indexableMusicVenues, 0.6);
   push('/neighborhoods/', neighborhoods, 0.7);
   push('/authors/', authors.filter((author) => !author.name.startsWith('[')), 0.3);
 

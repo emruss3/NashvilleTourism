@@ -12,6 +12,7 @@ import {
 import { hotels } from './hotels';
 import { guides } from './guides';
 import { neighborhoods, neighborhoodName } from './neighborhoods';
+import { musicVenues } from '../music-venues';
 
 export {
   restaurants,
@@ -48,80 +49,114 @@ export const allListings: Listing[] = [
  * records from the shared live calendar instead.
  */
 export const searchIndex: SearchDoc[] = [
-  ...restaurants.map<SearchDoc>((r) => ({
-    slug: r.slug,
-    href: `/restaurants/${r.slug}/`,
-    title: r.title,
-    summary: r.summary,
+  ...restaurants.map<SearchDoc>((restaurant) => ({
+    slug: restaurant.slug,
+    href: `/restaurants/${restaurant.slug}/`,
+    title: restaurant.title,
+    summary: restaurant.summary,
     type: 'Restaurant',
-    neighborhood: neighborhoodName(r.neighborhood),
-    keywords: [r.cuisine, r.priceRange, ...r.bestFor, 'restaurant', 'eat', 'dinner'],
+    neighborhood: neighborhoodName(restaurant.neighborhood),
+    keywords: [
+      restaurant.cuisine,
+      restaurant.priceRange,
+      ...restaurant.bestFor,
+      'restaurant',
+      'eat',
+      'dinner',
+    ],
   })),
-  ...hotels.map<SearchDoc>((h) => ({
-    slug: h.slug,
-    href: `/hotels/${h.slug}/`,
-    title: h.title,
-    summary: h.summary,
+  ...hotels.map<SearchDoc>((hotel) => ({
+    slug: hotel.slug,
+    href: `/hotels/${hotel.slug}/`,
+    title: hotel.title,
+    summary: hotel.summary,
     type: 'Hotel',
-    neighborhood: neighborhoodName(h.neighborhood),
-    keywords: [h.priceCategory, ...h.bestFor, ...h.amenities, 'hotel', 'stay', 'where to stay'],
+    neighborhood: neighborhoodName(hotel.neighborhood),
+    keywords: [
+      hotel.priceCategory,
+      ...hotel.bestFor,
+      ...hotel.amenities,
+      'hotel',
+      'stay',
+      'where to stay',
+    ],
   })),
-  ...venues.map<SearchDoc>((v) => ({
-    slug: v.slug,
-    href: `/music/${v.slug}/`,
-    title: v.title,
-    summary: v.summary,
+  ...musicVenues.map<SearchDoc>((venue) => ({
+    slug: venue.slug,
+    href: `/music/${venue.slug}/`,
+    title: venue.name,
+    summary: venue.summary,
     type: 'Venue',
-    neighborhood: neighborhoodName(v.neighborhood),
-    keywords: [...v.genres, 'live music', 'venue', 'show', 'concert'],
+    neighborhood: venue.area,
+    keywords: [
+      ...venue.genres,
+      venue.format,
+      ...venue.ticketmasterAliases,
+      'live music',
+      'venue',
+      'show',
+      'concert',
+    ],
   })),
-  ...attractions.map<SearchDoc>((a) => ({
-    slug: a.slug,
-    href: `/things-to-do/${a.slug}/`,
-    title: a.title,
-    summary: a.summary,
+  ...attractions.map<SearchDoc>((attraction) => ({
+    slug: attraction.slug,
+    href: `/things-to-do/${attraction.slug}/`,
+    title: attraction.title,
+    summary: attraction.summary,
     type: 'Attraction',
-    neighborhood: neighborhoodName(a.neighborhood),
-    keywords: [a.category, ...a.bestFor, 'things to do', 'attraction', 'activity'],
+    neighborhood: neighborhoodName(attraction.neighborhood),
+    keywords: [
+      attraction.category,
+      ...attraction.bestFor,
+      'things to do',
+      'attraction',
+      'activity',
+    ],
   })),
-  ...guides.map<SearchDoc>((g) => ({
-    slug: g.slug,
-    href: `/guides/${g.slug}/`,
-    title: g.title,
-    summary: g.summary,
+  ...guides.map<SearchDoc>((guide) => ({
+    slug: guide.slug,
+    href: `/guides/${guide.slug}/`,
+    title: guide.title,
+    summary: guide.summary,
     type: 'Guide',
-    keywords: [g.cluster, 'guide', 'best', 'itinerary'],
+    keywords: [guide.cluster, 'guide', 'best', 'itinerary'],
   })),
-  ...neighborhoods.map<SearchDoc>((n) => ({
-    slug: n.slug,
-    href: `/neighborhoods/${n.slug}/`,
-    title: n.name,
-    summary: n.summary,
+  ...neighborhoods.map<SearchDoc>((neighborhood) => ({
+    slug: neighborhood.slug,
+    href: `/neighborhoods/${neighborhood.slug}/`,
+    title: neighborhood.name,
+    summary: neighborhood.summary,
     type: 'Neighborhood',
-    neighborhood: n.name,
-    keywords: [...n.knownFor, ...n.bestFor, 'neighborhood', 'area', 'district'],
+    neighborhood: neighborhood.name,
+    keywords: [
+      ...neighborhood.knownFor,
+      ...neighborhood.bestFor,
+      'neighborhood',
+      'area',
+      'district',
+    ],
   })),
 ];
 
 /** Simple scored substring match. Ranked: title > neighborhood > summary > keywords. */
 export function searchDocs(query: string, extraDocs: SearchDoc[] = []): SearchDoc[] {
-  const q = query.trim().toLowerCase();
-  if (q.length < 2) return [];
-  const terms = q.split(/\s+/);
+  const normalizedQuery = query.trim().toLowerCase();
+  if (normalizedQuery.length < 2) return [];
+  const terms = normalizedQuery.split(/\s+/);
 
   return [...searchIndex, ...extraDocs]
     .map((doc) => {
       let score = 0;
       const title = doc.title.toLowerCase();
       const summary = doc.summary.toLowerCase();
-      const hood = (doc.neighborhood || '').toLowerCase();
-      const kw = doc.keywords.join(' ').toLowerCase();
+      const neighborhood = (doc.neighborhood || '').toLowerCase();
+      const keywords = doc.keywords.join(' ').toLowerCase();
 
       for (const term of terms) {
         if (title.includes(term)) score += title.startsWith(term) ? 12 : 8;
-        if (hood.includes(term)) score += 5;
+        if (neighborhood.includes(term)) score += 5;
         if (summary.includes(term)) score += 3;
-        if (kw.includes(term)) score += 2;
+        if (keywords.includes(term)) score += 2;
         if (doc.type.toLowerCase().includes(term)) score += 4;
       }
       return { doc, score };
