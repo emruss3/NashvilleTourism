@@ -1,20 +1,36 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 /**
- * Nashroam public marketplace -> Viator production boundary.
+ * NashRoam public marketplace -> Viator production boundary.
  *
- * This function is intentionally separate from viator-sync:
- * - viator-sync can keep the sandbox ingestion/curation workflow intact.
- * - viator-live uses Viator production and returns only live marketplace data.
- * - raw provider inventory is not written to Nashroam editorial/planner tables.
- * - VIATOR_PRODUCTION_API_KEY never leaves Supabase.
+ * viator-live is separate from viator-sync so public marketplace reads can use
+ * Viator production while ingestion/curation remains independently managed.
  */
 
-const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-const VIATOR_API_KEY = Deno.env.get("VIATOR_PRODUCTION_API_KEY") ?? Deno.env.get("VIATOR_API_KEY") ?? "";
+const LEGACY_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+const VIATOR_API_KEY =
+  Deno.env.get("VIATOR_PRODUCTION_API_KEY") ?? Deno.env.get("VIATOR_API_KEY") ?? "";
 const VIATOR_BASE = "https://api.viator.com/partner";
 const NASHVILLE_DESTINATION_ID = "799";
 const CRON_TOKEN_SHA256 = "bf6d4248c199262ce56e654bef557f6bc37f32a4481521c6340574df329db7a7";
+
+function secretApiKeys(): string[] {
+  const raw = Deno.env.get("SUPABASE_SECRET_KEYS");
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    return Object.values(parsed)
+      .filter((value): value is string => typeof value === "string")
+      .map((value) => value.trim())
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+const SUPABASE_SERVER_KEYS = new Set(
+  [LEGACY_SERVICE_ROLE_KEY, ...secretApiKeys()].map((value) => value.trim()).filter(Boolean),
+);
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -30,10 +46,19 @@ async function sha256Hex(value: string) {
 }
 
 async function isAuthorized(req: Request) {
-  const apiKey = req.headers.get("apikey")?.trim();
-  const authorization = req.headers.get("authorization")?.trim();
-  if (SERVICE_ROLE_KEY && apiKey === SERVICE_ROLE_KEY) return true;
-  if (SERVICE_ROLE_KEY && authorization === `Bearer ${SERVICE_ROLE_KEY}`) return true;
+  // New Supabase sb_secret_* credentials are API keys, not JWTs, so service
+  // callers send them on `apikey`. Legacy service_role JWT remains supported.
+  const apiKey = req.headers.get("apikey")?.trim() ?? "";
+  if (apiKey && SUPABASE_SERVER_KEYS.has(apiKey)) return true;
+
+  const authorization = req.headers.get("authorization")?.trim() ?? "";
+  if (
+    LEGACY_SERVICE_ROLE_KEY &&
+    authorization === `Bearer ${LEGACY_SERVICE_ROLE_KEY}`
+  ) {
+    return true;
+  }
+
   const cronToken = req.headers.get("x-nashroam-cron-token")?.trim();
   if (!cronToken) return false;
   return (await sha256Hex(cronToken)) === CRON_TOKEN_SHA256;
@@ -57,7 +82,7 @@ async function viatorFetch(path: string, init: RequestInit = {}): Promise<Viator
     return {
       ok: false,
       status: 503,
-      data: { error: "VIATOR_PRODUCTION_API_KEY is not configured in Supabase" },
+      data: { error: "Viator production API key is not configured in Supabase" },
       requestId: null,
       rateLimitRemaining: null,
       retryAfter: null,
@@ -86,15 +111,17 @@ async function viatorFetch(path: string, init: RequestInit = {}): Promise<Viator
       status: res.status,
       data,
       requestId: res.headers.get("x-unique-id") ?? res.headers.get("X-Unique-ID"),
-      rateLimitRemaining: res.headers.get("ratelimit-remaining") ?? res.headers.get("RateLimit-Remaining"),
+      rateLimitRemaining:
+        res.headers.get("ratelimit-remaining") ?? res.headers.get("RateLimit-Remaining"),
       retryAfter: res.headers.get("retry-after") ?? res.headers.get("Retry-After"),
     };
 
     if (res.ok || ![429, 500, 502, 503, 504].includes(res.status)) return last;
     const retrySeconds = Number(last.retryAfter);
-    const delay = Number.isFinite(retrySeconds) && retrySeconds > 0
-      ? Math.min(retrySeconds * 1000, 5000)
-      : 600 * (attempt + 1);
+    const delay =
+      Number.isFinite(retrySeconds) && retrySeconds > 0
+        ? Math.min(retrySeconds * 1000, 5000)
+        : 600 * (attempt + 1);
     await sleep(delay);
   }
   return last!;
@@ -106,8 +133,9 @@ function pickImageUrl(images: any): string | null {
   const variants = Array.isArray(image?.variants)
     ? image.variants.filter((variant: any) => typeof variant?.url === "string")
     : [];
-  variants.sort((a: any, b: any) =>
-    Math.abs(Number(a.width ?? 0) - 960) - Math.abs(Number(b.width ?? 0) - 960),
+  variants.sort(
+    (a: any, b: any) =>
+      Math.abs(Number(a.width ?? 0) - 960) - Math.abs(Number(b.width ?? 0) - 960),
   );
   return variants[0]?.url ?? null;
 }
@@ -154,7 +182,8 @@ function normalizeProduct(product: any, detail = false) {
 
   const flags = Array.isArray(product?.flags) ? product.flags.map(String) : [];
   const price = Number(product?.pricing?.summary?.fromPrice ?? product?.pricingInfo?.fromPrice);
-  const currency = typeof product?.pricing?.currency === "string" ? product.pricing.currency : "USD";
+  const currency =
+    typeof product?.pricing?.currency === "string" ? product.pricing.currency : "USD";
   const rating = Number(product?.reviews?.combinedAverageRating);
   const reviewCount = Number(product?.reviews?.totalReviews);
 
@@ -176,7 +205,9 @@ function normalizeProduct(product: any, detail = false) {
 
   if (detail) {
     normalized.confirmationType =
-      product?.bookingConfirmationSettings?.confirmationType ?? product?.confirmationType ?? undefined;
+      product?.bookingConfirmationSettings?.confirmationType ??
+      product?.confirmationType ??
+      undefined;
     normalized.languages = Array.isArray(product?.languageGuides)
       ? product.languageGuides.flatMap((guide: any) =>
           Array.isArray(guide?.languages) ? guide.languages.map(String) : [],
@@ -229,20 +260,23 @@ Deno.serve(async (req: Request) => {
         : Array.isArray(result.data)
           ? result.data
           : [];
-      return json({
-        ok: result.ok,
-        environment: "production",
-        baseUrl: VIATOR_BASE,
-        status: result.status,
-        authenticated: result.ok,
-        destinationCount: destinations.length,
-        nashvilleMatches: destinations.filter(
-          (destination: any) => Number(destination?.destinationId) === 799,
-        ),
-        requestId: result.requestId,
-        rateLimitRemaining: result.rateLimitRemaining,
-        error: result.ok ? null : result.data,
-      }, result.ok ? 200 : result.status);
+      return json(
+        {
+          ok: result.ok,
+          environment: "production",
+          baseUrl: VIATOR_BASE,
+          status: result.status,
+          authenticated: result.ok,
+          destinationCount: destinations.length,
+          nashvilleMatches: destinations.filter(
+            (destination: any) => Number(destination?.destinationId) === 799,
+          ),
+          requestId: result.requestId,
+          rateLimitRemaining: result.rateLimitRemaining,
+          error: result.ok ? null : result.data,
+        },
+        result.ok ? 200 : result.status,
+      );
     }
 
     if (mode === "search_products") {
@@ -254,19 +288,22 @@ Deno.serve(async (req: Request) => {
       const rawProducts =
         result.ok && Array.isArray(result.data?.products) ? result.data.products : [];
       const products = rawProducts.map((product: any) => normalizeProduct(product)).filter(Boolean);
-      return json({
-        ok: result.ok,
-        environment: "production",
-        baseUrl: VIATOR_BASE,
-        status: result.status,
-        destinationId: 799,
-        products,
-        totalCount: result.data?.totalCount ?? products.length,
-        requestId: result.requestId,
-        rateLimitRemaining: result.rateLimitRemaining,
-        retryAfter: result.retryAfter,
-        error: result.ok ? null : result.data,
-      }, result.ok ? 200 : result.status);
+      return json(
+        {
+          ok: result.ok,
+          environment: "production",
+          baseUrl: VIATOR_BASE,
+          status: result.status,
+          destinationId: 799,
+          products,
+          totalCount: result.data?.totalCount ?? products.length,
+          requestId: result.requestId,
+          rateLimitRemaining: result.rateLimitRemaining,
+          retryAfter: result.retryAfter,
+          error: result.ok ? null : result.data,
+        },
+        result.ok ? 200 : result.status,
+      );
     }
 
     if (mode === "get_product") {
@@ -277,25 +314,31 @@ Deno.serve(async (req: Request) => {
         `/products/${encodeURIComponent(code)}?campaign-value=${campaign}`,
       );
       const normalized = result.ok ? normalizeProduct(result.data, true) : null;
-      return json({
-        ok: Boolean(result.ok && normalized),
-        environment: "production",
-        baseUrl: VIATOR_BASE,
-        status: result.status,
-        normalized,
-        requestId: result.requestId,
-        rateLimitRemaining: result.rateLimitRemaining,
-        error: result.ok && normalized ? null : result.data,
-      }, result.ok && normalized ? 200 : result.status || 502);
+      return json(
+        {
+          ok: Boolean(result.ok && normalized),
+          environment: "production",
+          baseUrl: VIATOR_BASE,
+          status: result.status,
+          normalized,
+          requestId: result.requestId,
+          rateLimitRemaining: result.rateLimitRemaining,
+          error: result.ok && normalized ? null : result.data,
+        },
+        result.ok && normalized ? 200 : result.status || 502,
+      );
     }
 
     return json({ ok: false, error: `Unsupported mode: ${mode}` }, 400);
   } catch (error) {
-    return json({
-      ok: false,
-      environment: "production",
-      baseUrl: VIATOR_BASE,
-      error: error instanceof Error ? error.message : String(error),
-    }, 500);
+    return json(
+      {
+        ok: false,
+        environment: "production",
+        baseUrl: VIATOR_BASE,
+        error: error instanceof Error ? error.message : String(error),
+      },
+      500,
+    );
   }
 });
