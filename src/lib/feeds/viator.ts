@@ -10,9 +10,7 @@
  * Security:
  * - Never call Viator directly from browser code.
  * - Never put a Viator key in Vercel or NEXT_PUBLIC_*.
- * - VIATOR_PRODUCTION_API_KEY lives in Supabase project secrets and is used by
- *   `viator-live`; the existing VIATOR_API_KEY can remain the sandbox key used
- *   by the ingestion pipeline.
+ * - Viator credentials live in Supabase project secrets.
  * - Nashville destination id is 799.
  */
 
@@ -58,6 +56,12 @@ export interface ViatorProductDetail extends ViatorProductSummary {
   exclusions?: string[];
   additionalInfo?: string[];
   itineraryOverview?: string;
+  pricingType?: 'PER_PERSON' | 'UNIT' | string;
+  unitType?: string;
+  minTravelers?: number;
+  maxTravelers?: number;
+  privateTour?: boolean;
+  itineraryType?: string;
 }
 
 export interface ViatorSearchParams {
@@ -76,6 +80,7 @@ export interface ViatorSearchParams {
 
 export interface ViatorSearchResult {
   configured: boolean;
+  /** True when the live provider request succeeded, even when it returned zero matches. */
   live: boolean;
   products: ViatorProductSummary[];
   totalCount?: number;
@@ -111,6 +116,61 @@ type EdgeEnvelope = {
 };
 
 const inFlight = new Map<string, Promise<ViatorSearchResult>>();
+
+/**
+ * Viator product search is taxonomy-first. These aliases bias the six high-intent
+ * NashRoam tour formats into a relevant Viator tag before we rank by the user's
+ * words. The tags are sourced from the Viator tag taxonomy cached in Supabase.
+ */
+function tagsForQuery(query?: string): number[] | undefined {
+  const q = query?.trim().toLowerCase();
+  if (!q) return undefined;
+  if (q.includes('party bus')) return [11930]; // Bus Tours
+  if (q.includes('pedal') || q.includes('bike')) return [21702]; // Bike Tours
+  if (q.includes('crawl') || q.includes('honky')) return [12046]; // Walking Tours
+  if (q.includes('whiskey') || q.includes('distill')) return [21911]; // Food & Drink
+  if (q.includes('sightseeing') || q.includes('city tour')) return [12075]; // City Tours
+  if (q.includes('music')) return [21515]; // Music Tours
+  return undefined;
+}
+
+function queryTokens(query: string): string[] {
+  const stop = new Set(['nashville', 'tour', 'tours', 'the', 'and', 'with']);
+  return query
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .split(/\s+/)
+    .filter((token) => token.length > 2 && !stop.has(token));
+}
+
+function rankForQuery(products: ViatorProductSummary[], query: string): ViatorProductSummary[] {
+  const q = query.trim().toLowerCase();
+  const tokens = queryTokens(query);
+  if (!q || !tokens.length) return products;
+
+  return products
+    .map((product) => {
+      const title = product.title.toLowerCase();
+      const description = product.description?.toLowerCase() ?? '';
+      const categories = (product.categories ?? []).join(' ').toLowerCase();
+      const haystack = `${title} ${categories} ${description}`;
+      let score = title.includes(q) ? 20 : haystack.includes(q) ? 12 : 0;
+      for (const token of tokens) {
+        if (title.includes(token)) score += 5;
+        else if (categories.includes(token)) score += 3;
+        else if (description.includes(token)) score += 1;
+      }
+      return { product, score };
+    })
+    .filter(({ score }) => score > 0)
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        (b.product.rating ?? 0) - (a.product.rating ?? 0) ||
+        (b.product.reviewCount ?? 0) - (a.product.reviewCount ?? 0),
+    )
+    .map(({ product }) => product);
+}
 
 function formatMoney(amount: number | undefined, currency = 'USD'): ViatorMoney | undefined {
   if (amount == null || Number.isNaN(amount)) return undefined;
@@ -167,16 +227,24 @@ export async function searchNashvilleProducts(
     };
   }
 
+  const requestedCount = Math.min(params.count ?? 24, 50);
+  const queryTags = params.tags?.length ? params.tags : tagsForQuery(params.query);
+  // When a user selected a tour format, retrieve a wider candidate set from the
+  // relevant Viator taxonomy and rank it locally. This avoids the old bug where
+  // NashRoam searched only the first 24 generic top-rated Nashville products.
+  const providerCount = params.query ? 50 : requestedCount;
+
   const key = JSON.stringify({
     mode: 'search_products',
+    query: params.query ?? null,
     start: params.start ?? 1,
-    count: params.count ?? 24,
+    count: providerCount,
     sort: params.sort ?? 'TRAVELER_RATING',
     startDate: params.startDate ?? null,
     endDate: params.endDate ?? null,
     campaign: params.campaign ?? 'tours-marketplace',
     flags: params.flags ?? null,
-    tags: params.tags ?? null,
+    tags: queryTags ?? null,
   });
 
   const existing = inFlight.get(key);
@@ -186,14 +254,14 @@ export async function searchNashvilleProducts(
     const result = await invokeEdgeFunction<EdgeEnvelope>('viator-live', {
       mode: 'search_products',
       start: params.start ?? 1,
-      count: Math.min(params.count ?? 24, 50),
+      count: providerCount,
       sort: params.sort ?? 'TRAVELER_RATING',
       order: params.order ?? 'DESCENDING',
       startDate: params.startDate,
       endDate: params.endDate,
       currency: params.currency ?? 'USD',
       flags: params.flags,
-      tags: params.tags,
+      tags: queryTags,
       campaign: params.campaign ?? 'tours-marketplace',
     });
 
@@ -218,20 +286,14 @@ export async function searchNashvilleProducts(
       .map((product) => mapNormalized(product))
       .filter(Boolean) as ViatorProductSummary[];
 
-    const q = params.query?.trim().toLowerCase();
-    const filtered = q
-      ? products.filter(
-          (product) =>
-            product.title.toLowerCase().includes(q) ||
-            (product.description?.toLowerCase().includes(q) ?? false),
-        )
-      : products;
+    const ranked = params.query ? rankForQuery(products, params.query) : products;
 
     return {
       configured: true,
-      live: filtered.length > 0,
-      products: filtered,
-      totalCount: data.totalCount,
+      // A successful provider request is live even if a narrow search has zero matches.
+      live: true,
+      products: ranked.slice(0, requestedCount),
+      totalCount: params.query ? ranked.length : data.totalCount,
       fetchedAt,
       httpStatus: 200,
       environment: data.environment,
@@ -317,6 +379,12 @@ export async function getViatorProduct(productCode: string): Promise<{
       additionalInfo: Array.isArray(raw.additionalInfo) ? raw.additionalInfo.map(String) : undefined,
       itineraryOverview:
         typeof raw.itineraryOverview === 'string' ? raw.itineraryOverview : undefined,
+      pricingType: typeof raw.pricingType === 'string' ? raw.pricingType : undefined,
+      unitType: typeof raw.unitType === 'string' ? raw.unitType : undefined,
+      minTravelers: typeof raw.minTravelers === 'number' ? raw.minTravelers : undefined,
+      maxTravelers: typeof raw.maxTravelers === 'number' ? raw.maxTravelers : undefined,
+      privateTour: typeof raw.privateTour === 'boolean' ? raw.privateTour : undefined,
+      itineraryType: typeof raw.itineraryType === 'string' ? raw.itineraryType : undefined,
     },
   };
 }
@@ -418,10 +486,10 @@ export async function probeViatorAccess(): Promise<{
       endpoint: 'edge:viator-live/search_products→POST production /products/search',
       method: 'POST',
       httpStatus: search.httpStatus ?? null,
-      ok: search.live,
+      ok: search.live && search.products.length > 0,
       clue:
         search.error ||
-        (search.live ? `OK · dest ${VIATOR_NASHVILLE_DESTINATION_ID}` : 'No products'),
+        (search.products.length ? `OK · dest ${VIATOR_NASHVILLE_DESTINATION_ID}` : 'No products'),
     });
     sampleProductCode = search.products[0]?.productCode;
 
