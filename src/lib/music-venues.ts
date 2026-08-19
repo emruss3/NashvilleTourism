@@ -411,8 +411,26 @@ export function eventBelongsToMusicVenue(
   return aliasSet(venue).has(normalized);
 }
 
+function normalizeEventTitle(value: string): string {
+  return value
+    .normalize('NFKD')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function eventKey(event: LiveEvent): string {
-  return `${event.source}:${event.id}`;
+  const semanticKey = [
+    normalizeTicketmasterVenue(event.venue),
+    event.date,
+    event.time || '',
+    normalizeEventTitle(event.name),
+  ].join('|');
+
+  return semanticKey.replace(/\|/g, '')
+    ? semanticKey
+    : `${event.source}:${event.id}`;
 }
 
 export function sortLiveEvents(events: LiveEvent[]): LiveEvent[] {
