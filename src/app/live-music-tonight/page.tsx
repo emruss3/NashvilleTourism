@@ -26,13 +26,55 @@ export default async function LiveMusicPage() {
       <Breadcrumbs trail={[{ name: 'Live music tonight', href: '/live-music-tonight/' }]} />
       <PageHeader
         eyebrow="Show calendar"
-        title="Who's playing in Nashville"
-        intro="Music events at Nashville venues only. Filter by tonight, this weekend, venue, or genre."
+        title="Live music in Nashville tonight"
+        intro="Concerts and live music at Nashville venues only. Filter by tonight, this weekend, venue, or genre—then book tickets or plan Broadway around a ticketed show."
       />
       <HubLead imageKey="music/ascend-amphitheater" />
 
+      <section className="max-w-3xl space-y-4 py-8 text-[15px] leading-relaxed text-ink-soft">
+        <p>
+          Use this calendar when you need a specific answer: who is playing live music in Nashville
+          tonight, which venues still have tickets, and what else is on this weekend. Ticketed halls
+          and amphitheaters sit beside club and theater dates; free honky-tonk stages on Broadway are
+          covered separately in the{' '}
+          <Link
+            href="/honky-tonk-highway/"
+            className="text-clay underline underline-offset-2 hover:text-clay-deep"
+          >
+            honky-tonk highway guide
+          </Link>
+          .
+        </p>
+        <p>
+          If a show is the reason for the trip, lock tickets first, then place lodging with the{' '}
+          <Link href="/where-to-stay/" className="text-clay underline underline-offset-2 hover:text-clay-deep">
+            where to stay
+          </Link>{' '}
+          hub or the{' '}
+          <Link href="/plan/" className="text-clay underline underline-offset-2 hover:text-clay-deep">
+            trip planner
+          </Link>
+          . For the full ticketed calendar beyond music, open{' '}
+          <Link href="/events/" className="text-clay underline underline-offset-2 hover:text-clay-deep">
+            Nashville events
+          </Link>{' '}
+          or{' '}
+          <Link
+            href="/events/this-weekend/"
+            className="text-clay underline underline-offset-2 hover:text-clay-deep"
+          >
+            this weekend
+          </Link>
+          . Venue primers live under{' '}
+          <Link href="/music/" className="text-clay underline underline-offset-2 hover:text-clay-deep">
+            music venues
+          </Link>
+          .
+        </p>
+      </section>
+
       {!live && (
-        <div className="mt-6 rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep">
+        <div className="mt-2 rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep">
           <strong className="font-semibold">Sample listings.</strong>{' '}
           {configured
             ? 'The live Ticketmaster-backed calendar did not return fresh Nashville results. Showing clearly labeled fallback records instead.'
@@ -81,8 +123,15 @@ export default async function LiveMusicPage() {
           </li>
         </ul>
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link href="/music/" className="btn-secondary">All venues</Link>
-          <Link href="/plan/" className="btn-primary">Build a music itinerary</Link>
+          <Link href="/music/" className="btn-secondary">
+            All venues
+          </Link>
+          <Link href="/plan/" className="btn-primary">
+            Build a music itinerary
+          </Link>
+          <Link href="/neighborhoods/downtown-broadway/" className="btn-tertiary">
+            Downtown guide
+          </Link>
         </div>
       </section>
     </div>

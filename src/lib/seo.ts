@@ -186,20 +186,30 @@ export function organizationSchema() {
 export function itemListSchema(
   items: { name: string; url: string; description?: string }[],
   listName: string,
-) {
+): Record<string, unknown> | null {
+  // Empty ItemList is invalid structured data (Semrush / rich-result validators).
+  if (items.length === 0) return null;
+
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: listName,
     numberOfItems: items.length,
     itemListOrder: 'https://schema.org/ItemListUnordered',
-    itemListElement: items.map((item, i) => ({
-      '@type': 'ListItem',
-      position: i + 1,
-      name: item.name,
-      url: canonical(item.url),
-      ...(item.description ? { description: item.description } : {}),
-    })),
+    itemListElement: items.map((item, i) => {
+      const url = canonical(item.url);
+      return {
+        '@type': 'ListItem',
+        position: i + 1,
+        item: {
+          '@type': 'Thing',
+          '@id': url,
+          name: item.name,
+          url,
+          ...(item.description ? { description: item.description } : {}),
+        },
+      };
+    }),
   };
 }
 

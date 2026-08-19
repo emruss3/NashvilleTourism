@@ -82,6 +82,7 @@ export default function Header() {
             aria-label="Search the site"
           >
             <SearchIcon />
+            <span className="sr-only">Search the site</span>
           </Link>
           <Link href="/plan/" className="btn-primary hidden px-4 py-2 font-sans sm:inline-flex">
             Plan Your Trip

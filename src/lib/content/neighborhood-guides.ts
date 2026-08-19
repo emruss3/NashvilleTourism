@@ -71,7 +71,7 @@ export interface NeighborhoodEditorialGuide {
 export const neighborhoodGuides: NeighborhoodEditorialGuide[] = [
   {
     slug: 'downtown-broadway',
-    pageTitle: 'Downtown Nashville & Broadway Guide: Bars, Hotels & Things to Do',
+    pageTitle: 'Downtown Nashville & Broadway Guide',
     h1: 'Downtown Nashville & Lower Broadway',
     intro:
       "The easiest part of Nashville to experience without a car: honky-tonks on Lower Broadway, the Ryman and major music museums within a few blocks, plus the city's biggest arenas and hotels. It's also the loudest, busiest part of town after dark.",

@@ -8,7 +8,6 @@ export const metadata = buildMetadata({
   description:
     'The terms that apply when you use this site: acceptable use, accuracy, third-party bookings, intellectual property, and liability.',
   path: '/terms/',
-  noindex: true,
 });
 
 export default function TermsPage() {

@@ -56,8 +56,23 @@ const EVENT_PATHS: {
   },
 ];
 
-export default async function EventsIndex() {
+const CATEGORY_INTRO: Record<string, string> = {
+  Sports:
+    'Sports listings cover ticketed games and major sporting events at Nashville arenas and stadiums. Pair a game night with a Downtown hotel or a short ride from Midtown, and leave Broadway for after the final whistle when the strip is busiest.',
+  Music:
+    'Music events here are ticketed concerts and theater dates. For a tonight-first view with filters, use the live music calendar; for free Broadway stages, see the honky-tonk highway guide.',
+  Arts:
+    'Arts and theater dates sit alongside concerts on the Ticketmaster feed. Confirm venue and start time before you lock dinner nearby.',
+};
+
+export default async function EventsIndex({
+  searchParams,
+}: {
+  searchParams?: { category?: string };
+}) {
   const { events, live, configured } = await getCalendar();
+  const category = searchParams?.category?.trim() || null;
+  const categoryIntro = category ? CATEGORY_INTRO[category] : null;
 
   return (
     <>
@@ -69,9 +84,12 @@ export default async function EventsIndex() {
         <div className="shell">
           <div className="mx-auto max-w-2xl text-center">
             <p className="eyebrow text-dogwood">What&apos;s on</p>
-            <h1 className="mt-2 text-4xl font-bold text-paper-card sm:text-5xl">Nashville Events</h1>
-            <p className="mt-3 text-[16px] leading-relaxed text-paper-card/80">
-              Current ticketed events at Nashville venues—concerts, sports, theater, and more.
+            <h1 className="mt-2 text-4xl font-bold text-paper-card sm:text-5xl">
+              {category ? `Nashville ${category} Events` : 'Nashville Events'}
+            </h1>
+            <p className="mt-3 text-body leading-relaxed text-paper-card/80">
+              {categoryIntro ||
+                'Current ticketed events at Nashville venues—concerts, sports, theater, and more.'}
             </p>
           </div>
 
@@ -110,6 +128,69 @@ export default async function EventsIndex() {
       </section>
 
       <div className="shell pb-16 pt-8">
+        <section className="max-w-3xl space-y-4 pb-8 text-[15px] leading-relaxed text-ink-soft">
+          <p>
+            This hub lists ticketed Nashville events from the live feed. Jump to{' '}
+            <Link
+              href="/live-music-tonight/"
+              className="text-clay underline underline-offset-2 hover:text-clay-deep"
+            >
+              live music tonight
+            </Link>
+            ,{' '}
+            <Link
+              href="/events/this-weekend/"
+              className="text-clay underline underline-offset-2 hover:text-clay-deep"
+            >
+              this weekend
+            </Link>
+            , or{' '}
+            <Link
+              href="/events/?category=Sports#upcoming"
+              className="text-clay underline underline-offset-2 hover:text-clay-deep"
+            >
+              sports
+            </Link>
+            . For free Broadway stages, read the{' '}
+            <Link
+              href="/honky-tonk-highway/"
+              className="text-clay underline underline-offset-2 hover:text-clay-deep"
+            >
+              honky-tonk highway
+            </Link>{' '}
+            guide. When you are ready to place the rest of the trip, open the{' '}
+            <Link href="/plan/" className="text-clay underline underline-offset-2 hover:text-clay-deep">
+              trip planner
+            </Link>{' '}
+            or{' '}
+            <Link
+              href="/where-to-stay/"
+              className="text-clay underline underline-offset-2 hover:text-clay-deep"
+            >
+              where to stay
+            </Link>
+            .
+          </p>
+          <p>
+            Venue context lives under{' '}
+            <Link href="/music/" className="text-clay underline underline-offset-2 hover:text-clay-deep">
+              music venues
+            </Link>{' '}
+            and{' '}
+            <Link
+              href="/neighborhoods/downtown-broadway/"
+              className="text-clay underline underline-offset-2 hover:text-clay-deep"
+            >
+              Downtown &amp; Broadway
+            </Link>
+            . Tours and experiences that are not calendar tickets are listed separately on{' '}
+            <Link href="/tours/" className="text-clay underline underline-offset-2 hover:text-clay-deep">
+              tours
+            </Link>
+            .
+          </p>
+        </section>
+
         {!live && (
           <div className="rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep">
             <strong className="font-semibold">Ticketmaster feed is not live.</strong>{' '}

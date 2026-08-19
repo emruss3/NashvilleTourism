@@ -31,6 +31,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/how-we-choose/', priority: 0.6, freq: 'yearly' },
     { path: '/editorial-standards/', priority: 0.5, freq: 'yearly' },
     { path: '/corrections/', priority: 0.3, freq: 'yearly' },
+    { path: '/about/', priority: 0.4, freq: 'yearly' },
+    { path: '/contact/', priority: 0.4, freq: 'yearly' },
+    { path: '/advertising/', priority: 0.4, freq: 'yearly' },
+    { path: '/privacy/', priority: 0.2, freq: 'yearly' },
+    { path: '/terms/', priority: 0.2, freq: 'yearly' },
+    { path: '/photo-credits/', priority: 0.2, freq: 'yearly' },
   ];
 
   const entries: MetadataRoute.Sitemap = staticPaths.map((p) => ({

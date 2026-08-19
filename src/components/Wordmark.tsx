@@ -45,6 +45,7 @@ export default function Wordmark({
       aria-label={`${site.name} home`}
     >
       {mark}
+      <span className="sr-only">{site.name} home</span>
     </Link>
   );
 }

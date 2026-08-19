@@ -47,6 +47,44 @@ type Credit = {
   changes: string;
 };
 
+/** Semrush treats hrefs ending in image extensions as “resources as page links.” */
+function attributionHref(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (!parsed.hostname.includes('wikimedia.org') && !parsed.hostname.includes('wikipedia.org')) {
+      return url;
+    }
+    const fileMatch =
+      parsed.pathname.match(/\/wiki\/File:(.+)$/i) ||
+      parsed.pathname.match(/\/wiki\/File%3A(.+)$/i);
+    if (!fileMatch) return url;
+    const title = `File:${decodeURIComponent(fileMatch[1].replace(/\+/g, ' '))}`;
+    return `https://commons.wikimedia.org/w/index.php?title=${encodeURIComponent(title)}`;
+  } catch {
+    return url;
+  }
+}
+
+function attributionLabel(url: string): string {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, '');
+    const fileMatch =
+      parsed.pathname.match(/\/wiki\/File:(.+)$/i) ||
+      parsed.pathname.match(/\/wiki\/File%3A(.+)$/i) ||
+      parsed.searchParams.get('title')?.match(/^File:(.+)$/i);
+    if (fileMatch) {
+      const name = decodeURIComponent(String(fileMatch[1]).replace(/\+/g, ' ')).replace(/_/g, ' ');
+      return `Wikimedia Commons: ${name}`;
+    }
+    if (host.includes('pexels.com')) return 'Pexels source page';
+    if (host.includes('flickr.com')) return 'Flickr source page';
+    return `${host} source page`;
+  } catch {
+    return 'Source page';
+  }
+}
+
 type PendingLibraryCredit = {
   owner: string;
   sourceSite: string;
@@ -180,24 +218,24 @@ export default function PhotoCreditsPage() {
                 </span>{' '}
                 {credit.sourcePages.length === 1 ? (
                   <a
-                    href={credit.sourcePages[0]}
+                    href={attributionHref(credit.sourcePages[0])}
                     className="text-clay underline hover:text-clay-deep"
                     rel="noopener noreferrer"
                     target="_blank"
                   >
-                    {credit.sourcePages[0]}
+                    {attributionLabel(credit.sourcePages[0])}
                   </a>
                 ) : (
                   <ul className="mt-1 list-disc space-y-1 pl-5">
                     {credit.sourcePages.map((url) => (
                       <li key={url}>
                         <a
-                          href={url}
+                          href={attributionHref(url)}
                           className="text-clay underline hover:text-clay-deep"
                           rel="noopener noreferrer"
                           target="_blank"
                         >
-                          {url}
+                          {attributionLabel(url)}
                         </a>
                       </li>
                     ))}

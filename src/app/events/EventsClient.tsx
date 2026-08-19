@@ -33,8 +33,8 @@ export default function EventsClient({ events }: { events: LiveEvent[] }) {
         <Link href="/events/this-weekend/" className="btn-primary">
           This weekend
         </Link>
-        <button
-          type="button"
+        <Link
+          href="/events/#upcoming"
           onClick={() => setActive('all')}
           className={`rounded border px-4 py-1.5 text-sm font-medium transition-colors ${
             active === 'all'
@@ -42,12 +42,12 @@ export default function EventsClient({ events }: { events: LiveEvent[] }) {
               : 'border-paper-edge bg-paper-card text-ink-soft hover:border-ink/30 hover:text-ink'
           }`}
         >
-          All
-        </button>
+          All events
+        </Link>
         {categories.map((category) => (
-          <button
-            type="button"
+          <Link
             key={category}
+            href={`/events/?category=${encodeURIComponent(category)}#upcoming`}
             onClick={() => setActive(category)}
             className={`rounded border px-4 py-1.5 text-sm font-medium transition-colors ${
               active === category
@@ -56,8 +56,20 @@ export default function EventsClient({ events }: { events: LiveEvent[] }) {
             }`}
           >
             {category}
-          </button>
+          </Link>
         ))}
+        <Link
+          href="/live-music-tonight/"
+          className="rounded border border-paper-edge bg-paper-card px-4 py-1.5 text-sm font-medium text-ink-soft transition-colors hover:border-ink/30 hover:text-ink"
+        >
+          Live music tonight
+        </Link>
+        <Link
+          href="/plan/"
+          className="rounded border border-paper-edge bg-paper-card px-4 py-1.5 text-sm font-medium text-ink-soft transition-colors hover:border-ink/30 hover:text-ink"
+        >
+          Trip planner
+        </Link>
       </div>
 
       <section id="upcoming" className="scroll-mt-24 py-4">

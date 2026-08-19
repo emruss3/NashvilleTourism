@@ -2,8 +2,12 @@ import Link from 'next/link';
 import { asset, breadcrumbSchema } from '@/lib/seo';
 
 /** Renders a JSON-LD block. Kept as a component so schema is easy to audit. */
-export function JsonLd({ data }: { data: object | object[] }) {
-  const payload = Array.isArray(data) ? data : [data];
+export function JsonLd({ data }: { data: object | object[] | null | undefined }) {
+  if (!data) return null;
+  const payload = (Array.isArray(data) ? data : [data]).filter(
+    (d): d is object => Boolean(d) && typeof d === 'object',
+  );
+  if (payload.length === 0) return null;
   return (
     <>
       {payload.map((d, i) => (

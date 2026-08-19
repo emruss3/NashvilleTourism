@@ -8,7 +8,6 @@ export const metadata = buildMetadata({
   description:
     'Who publishes this Nashville guide, how it stays independent, what it covers, and how to reach the people responsible for it.',
   path: '/about/',
-  noindex: true,
 });
 
 export default function AboutPage() {
