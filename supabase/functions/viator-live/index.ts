@@ -6,6 +6,22 @@ const VIATOR_API_KEY =
 const VIATOR_BASE = "https://api.viator.com/partner";
 const NASHVILLE_DESTINATION_ID = "799";
 
+const TAG_LABELS: Record<number, string> = {
+  11930: "Bus Tours",
+  12033: "Pub Tours",
+  12046: "Walking Tours",
+  12075: "City Tours",
+  12691: "Boat Tours",
+  13018: "Bike Tours",
+  13279: "Bar & Pub Tours",
+  13284: "Distillery Tours",
+  21515: "Music Tours",
+  21702: "Bike Tours",
+  21729: "Sightseeing Cruises",
+  21911: "Food & Drink",
+  22189: "Boat Tours",
+};
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -18,14 +34,9 @@ async function hasServiceAccess(req: Request): Promise<boolean> {
   if (!apiKey) return false;
 
   const headers = new Headers({ apikey: apiKey, Accept: "application/json" });
-  if (apiKey.startsWith("eyJ")) {
-    headers.set("Authorization", `Bearer ${apiKey}`);
-  }
+  if (apiKey.startsWith("eyJ")) headers.set("Authorization", `Bearer ${apiKey}`);
 
   try {
-    // data_sources has RLS enabled with no public policies. Supabase therefore
-    // becomes the source of truth for deciding whether this is a privileged
-    // server key instead of duplicating key-format logic inside the function.
     const res = await fetch(`${SUPABASE_URL}/rest/v1/data_sources?select=id&limit=1`, {
       method: "GET",
       headers,
@@ -141,14 +152,24 @@ function textList(value: any): string[] | undefined {
         ? item
         : typeof item?.description === "string"
           ? item.description
-          : typeof item?.text === "string"
-            ? item.text
-            : typeof item?.name === "string"
-              ? item.name
-              : null,
+          : typeof item?.otherDescription === "string"
+            ? item.otherDescription
+            : typeof item?.text === "string"
+              ? item.text
+              : typeof item?.name === "string"
+                ? item.name
+                : null,
     )
     .filter((item: string | null): item is string => Boolean(item));
   return items.length ? items : undefined;
+}
+
+function categoryLabels(tags: any): string[] {
+  if (!Array.isArray(tags)) return [];
+  const labels = tags
+    .map((tag: any) => TAG_LABELS[Number(tag)])
+    .filter((label: string | undefined): label is string => Boolean(label));
+  return [...new Set(labels)].slice(0, 3);
 }
 
 function normalizeProduct(product: any, detail = false) {
@@ -159,7 +180,12 @@ function normalizeProduct(product: any, detail = false) {
 
   const flags = Array.isArray(product?.flags) ? product.flags.map(String) : [];
   const price = Number(product?.pricing?.summary?.fromPrice ?? product?.pricingInfo?.fromPrice);
-  const currency = typeof product?.pricing?.currency === "string" ? product.pricing.currency : "USD";
+  const currency =
+    typeof product?.pricing?.currency === "string"
+      ? product.pricing.currency
+      : typeof product?.currency === "string"
+        ? product.currency
+        : "USD";
   const rating = Number(product?.reviews?.combinedAverageRating);
   const reviewCount = Number(product?.reviews?.totalReviews);
 
@@ -176,7 +202,7 @@ function normalizeProduct(product: any, detail = false) {
     durationLabel: durationLabel(product?.duration ?? product?.itinerary?.duration) ?? undefined,
     freeCancellation: flags.includes("FREE_CANCELLATION"),
     flags,
-    categories: [],
+    categories: categoryLabels(product?.tags),
   };
 
   if (detail) {
@@ -190,11 +216,33 @@ function normalizeProduct(product: any, detail = false) {
     normalized.inclusions = textList(product?.inclusions);
     normalized.exclusions = textList(product?.exclusions);
     normalized.additionalInfo = textList(product?.additionalInfo);
+    normalized.itineraryOverview =
+      typeof product?.itinerary?.unstructuredDescription === "string"
+        ? product.itinerary.unstructuredDescription
+        : undefined;
+    normalized.pricingType =
+      typeof product?.pricingInfo?.type === "string" ? product.pricingInfo.type : undefined;
+    normalized.unitType =
+      typeof product?.pricingInfo?.unitType === "string" ? product.pricingInfo.unitType : undefined;
+    normalized.minTravelers =
+      typeof product?.bookingRequirements?.minTravelersPerBooking === "number"
+        ? product.bookingRequirements.minTravelersPerBooking
+        : undefined;
+    normalized.maxTravelers =
+      typeof product?.bookingRequirements?.maxTravelersPerBooking === "number"
+        ? product.bookingRequirements.maxTravelersPerBooking
+        : undefined;
+    normalized.privateTour =
+      typeof product?.itinerary?.privateTour === "boolean" ? product.itinerary.privateTour : undefined;
+    normalized.itineraryType =
+      typeof product?.itinerary?.itineraryType === "string"
+        ? product.itinerary.itineraryType
+        : undefined;
   }
   return normalized;
 }
 
-function buildSearchBody(input: any) {
+function buildProductSearchBody(input: any) {
   const filtering: Record<string, unknown> = { destination: NASHVILLE_DESTINATION_ID };
   if (input?.startDate) filtering.startDate = String(input.startDate);
   if (input?.endDate) filtering.endDate = String(input.endDate);
@@ -215,10 +263,58 @@ function buildSearchBody(input: any) {
   };
 }
 
-Deno.serve(async (req: Request) => {
-  if (!(await hasServiceAccess(req))) {
-    return json({ ok: false, error: "Unauthorized" }, 401);
+function buildFreetextBody(input: any) {
+  const productFiltering: Record<string, unknown> = { destination: NASHVILLE_DESTINATION_ID };
+  if (input?.startDate || input?.endDate) {
+    productFiltering.dateRange = {
+      from: String(input?.startDate ?? input?.endDate),
+      to: String(input?.endDate ?? input?.startDate),
+    };
   }
+  if (Array.isArray(input?.tags) && input.tags.length) productFiltering.tags = input.tags;
+  if (Array.isArray(input?.flags) && input.flags.length) productFiltering.flags = input.flags;
+
+  return {
+    searchTerm: String(input?.query ?? "").trim(),
+    productFiltering,
+    productSorting: {
+      sort: input?.freetextSort ?? "REVIEW_AVG_RATING",
+      order: input?.order === "ASCENDING" ? "ASCENDING" : "DESCENDING",
+    },
+    searchTypes: [
+      {
+        searchType: "PRODUCTS",
+        pagination: {
+          start: Math.max(Number(input?.start) || 1, 1),
+          count: Math.min(Math.max(Number(input?.count) || 24, 1), 50),
+        },
+      },
+    ],
+    currency: input?.currency ?? "USD",
+  };
+}
+
+function freetextProducts(data: any): any[] {
+  if (Array.isArray(data?.products)) return data.products;
+  if (Array.isArray(data?.products?.results)) return data.products.results;
+  if (Array.isArray(data?.results?.products)) return data.results.products;
+  if (Array.isArray(data?.searchResults?.products)) return data.searchResults.products;
+  return [];
+}
+
+function freetextTotal(data: any, fallback: number): number {
+  const candidates = [
+    data?.totalCount,
+    data?.products?.totalCount,
+    data?.results?.totalCount,
+    data?.searchResults?.totalCount,
+  ];
+  const found = candidates.find((value) => typeof value === "number");
+  return typeof found === "number" ? found : fallback;
+}
+
+Deno.serve(async (req: Request) => {
+  if (!(await hasServiceAccess(req))) return json({ ok: false, error: "Unauthorized" }, 401);
   if (req.method !== "POST") return json({ ok: false, error: "POST required" }, 405);
 
   let body: any = {};
@@ -260,7 +356,7 @@ Deno.serve(async (req: Request) => {
       const campaign = encodeURIComponent(String(body?.campaign ?? "tours-marketplace"));
       const result = await viatorFetch(`/products/search?campaign-value=${campaign}`, {
         method: "POST",
-        body: JSON.stringify(buildSearchBody(body)),
+        body: JSON.stringify(buildProductSearchBody(body)),
       });
       const rawProducts =
         result.ok && Array.isArray(result.data?.products) ? result.data.products : [];
@@ -274,6 +370,34 @@ Deno.serve(async (req: Request) => {
           destinationId: 799,
           products,
           totalCount: result.data?.totalCount ?? products.length,
+          requestId: result.requestId,
+          rateLimitRemaining: result.rateLimitRemaining,
+          retryAfter: result.retryAfter,
+          error: result.ok ? null : result.data,
+        },
+        result.ok ? 200 : result.status,
+      );
+    }
+
+    if (mode === "search_freetext") {
+      const query = String(body?.query ?? "").trim();
+      if (!query) return json({ ok: false, error: "query required" }, 400);
+      const campaign = encodeURIComponent(String(body?.campaign ?? "tours-search"));
+      const result = await viatorFetch(`/search/freetext?campaign-value=${campaign}`, {
+        method: "POST",
+        body: JSON.stringify(buildFreetextBody(body)),
+      });
+      const rawProducts = result.ok ? freetextProducts(result.data) : [];
+      const products = rawProducts.map((product: any) => normalizeProduct(product)).filter(Boolean);
+      return json(
+        {
+          ok: result.ok,
+          environment: "production",
+          baseUrl: VIATOR_BASE,
+          status: result.status,
+          destinationId: 799,
+          products,
+          totalCount: freetextTotal(result.data, products.length),
           requestId: result.requestId,
           rateLimitRemaining: result.rateLimitRemaining,
           retryAfter: result.retryAfter,
@@ -306,7 +430,10 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    return json({ ok: false, error: `Unsupported mode: ${mode}` }, 400);
+    return json(
+      { ok: false, error: `Unsupported mode: ${mode}`, supported: ["health", "search_products", "search_freetext", "get_product"] },
+      400,
+    );
   } catch (error) {
     return json(
       {
