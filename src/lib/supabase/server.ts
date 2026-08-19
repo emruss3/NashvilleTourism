@@ -22,11 +22,15 @@ function serviceRoleKey(): string | undefined {
   return process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || undefined;
 }
 
+function isLegacyJwtKey(key: string): boolean {
+  return key.startsWith('eyJ');
+}
+
 export function isSupabaseConfigured(): boolean {
   return Boolean(serviceRoleKey());
 }
 
-/** Service-role client — bypasses RLS. Server routes / Server Components only. */
+/** Service-role/secret-key client — bypasses RLS. Server routes / Server Components only. */
 export function getSupabaseServiceClient(): SupabaseClient | null {
   const key = serviceRoleKey();
   if (!key) return null;
@@ -42,8 +46,13 @@ export type EdgeFunctionResult<T> = {
 };
 
 /**
- * Invoke a Supabase Edge Function with the service role.
- * Viator credentials stay inside the function — never in Vercel.
+ * Invoke a Supabase Edge Function using the server credential stored in Vercel.
+ *
+ * Supabase's current sb_secret_* keys are API keys, not JWTs. They belong on the
+ * `apikey` header only. Legacy service_role JWTs may also be sent as Bearer
+ * tokens. The Edge Function itself validates either form.
+ *
+ * Viator credentials stay inside Supabase — never in Vercel.
  */
 export async function invokeEdgeFunction<T = unknown>(
   name: string,
@@ -63,13 +72,17 @@ export async function invokeEdgeFunction<T = unknown>(
   const timer = setTimeout(() => controller.abort(), init.timeoutMs ?? 45_000);
 
   try {
+    const headers: Record<string, string> = {
+      apikey: key,
+      'Content-Type': 'application/json',
+    };
+    if (isLegacyJwtKey(key)) {
+      headers.Authorization = `Bearer ${key}`;
+    }
+
     const res = await fetch(`${supabaseUrl()}/functions/v1/${name}`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${key}`,
-        apikey: key,
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(body),
       signal: controller.signal,
       cache: 'no-store',
