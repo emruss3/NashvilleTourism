@@ -42,7 +42,7 @@ export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<
   const [provider, approved] = await Promise.all([
     searchNashvilleProducts({
       ...params,
-      campaign: params.campaign ?? 'tours-marketplace',
+      campaign: params.campaign ?? (params.query ? 'tours-search' : 'tours-marketplace'),
     }),
     getExperienceCatalog({
       query: params.query,
