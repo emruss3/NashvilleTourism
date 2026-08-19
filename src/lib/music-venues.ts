@@ -6,8 +6,7 @@ import { getVenue } from '@/lib/content/listings';
 export type MusicVenueGroupId =
   | 'nashville-icons'
   | 'major-stages'
-  | 'listening-rooms'
-  | 'coming-soon';
+  | 'listening-rooms';
 
 export interface MusicVenueGroup {
   id: MusicVenueGroupId;
@@ -69,7 +68,7 @@ type MusicVenueSeed = Omit<
 export const musicVenueGroups: MusicVenueGroup[] = [
   {
     id: 'nashville-icons',
-    title: 'Historic halls',
+    title: 'Nashville icons',
     description:
       'The two rooms most visitors build a music trip around: one downtown and one at the Opry campus.',
   },
@@ -84,12 +83,6 @@ export const musicVenueGroups: MusicVenueGroup[] = [
     title: 'Listening rooms & clubs',
     description:
       'Smaller rooms where the songwriter, band, and sound matter more than production scale.',
-  },
-  {
-    id: 'coming-soon',
-    title: 'Coming soon',
-    description:
-      'A new room worth tracking as Nashville’s live-music map continues to expand.',
   },
 ];
 
@@ -236,6 +229,33 @@ const seeds: MusicVenueSeed[] = [
     active: true,
   },
   {
+    editorialSlug: 'the-truth',
+    slug: 'the-truth',
+    name: 'The Truth',
+    area: 'Wedgewood-Houston',
+    format: 'Concert hall',
+    group: 'major-stages',
+    summary:
+      'Opening fall 2026, The Truth is a three-level Wedgewood-Houston concert hall with flexible seated and standing-room configurations.',
+    whyWeRecommend:
+      'The Truth brings a major touring room to Wedgewood-Houston while keeping the audience closer to the stage than an arena. Its announced opening calendar makes it useful to plan now, even before the doors open.',
+    capacityNote: 'Up to 4,400 across three levels',
+    coverNote: 'Advance ticket required; opening fall 2026',
+    address: '440 Chestnut Street, Nashville, TN 37203',
+    mapQuery: 'The Truth Nashville, 440 Chestnut Street, Nashville, TN',
+    genres: ['Rock', 'Country', 'Pop', 'Hip-hop', 'Electronic', 'Comedy'],
+    ticketmasterAliases: [
+      'The Truth',
+      'The Truth Nashville',
+      'The Truth - Nashville',
+    ],
+    relatedSlugs: ['the-pinnacle', 'ascend-amphitheater', 'bridgestone-arena'],
+    dateChecked: '2026-08-19',
+    dataStatus: 'verified',
+    active: true,
+    openingNote: 'Opening fall 2026',
+  },
+  {
     editorialSlug: 'bluebird-cafe',
     slug: 'bluebird-cafe',
     name: 'The Bluebird Cafe',
@@ -252,7 +272,32 @@ const seeds: MusicVenueSeed[] = [
     mapQuery: 'The Bluebird Cafe, Nashville, TN',
     genres: ['Songwriters', 'Country', 'Americana'],
     ticketmasterAliases: ['The Bluebird Cafe', 'Bluebird Cafe'],
-    relatedSlugs: ['station-inn', 'ryman-auditorium', '3rd-and-lindsley'],
+    relatedSlugs: ['the-listening-room-cafe', 'station-inn', 'ryman-auditorium'],
+    dateChecked: '2026-08-19',
+    dataStatus: 'verified',
+    active: true,
+  },
+  {
+    slug: 'the-listening-room-cafe',
+    name: 'The Listening Room Cafe',
+    area: 'SoBro',
+    format: 'Songwriter listening room & restaurant',
+    group: 'listening-rooms',
+    summary:
+      'A songwriter-focused listening room and full-service restaurant where hit writers perform the songs—and tell the stories—behind them.',
+    whyWeRecommend:
+      'The Listening Room delivers the behind-the-song format in a larger, easier-to-book setting than the smallest songwriter rooms. It is a strong choice for dinner, groups, and visitors who still want the room to stay focused on the music.',
+    capacityNote: 'About 255 seated; up to 450 standing for select configurations',
+    coverNote: 'Most shows ticket through the venue; a food and beverage minimum may apply',
+    address: '618 4th Ave S, Nashville, TN 37210',
+    mapQuery: 'The Listening Room Cafe, 618 4th Ave S, Nashville, TN',
+    genres: ['Songwriters', 'Country', 'Americana', 'Acoustic'],
+    ticketmasterAliases: [
+      'The Listening Room Cafe',
+      'The Listening Room',
+      'Listening Room Cafe',
+    ],
+    relatedSlugs: ['bluebird-cafe', '3rd-and-lindsley', 'station-inn'],
     dateChecked: '2026-08-19',
     dataStatus: 'verified',
     active: true,
@@ -274,7 +319,7 @@ const seeds: MusicVenueSeed[] = [
     mapQuery: 'The Station Inn, Nashville, TN',
     genres: ['Bluegrass', 'Americana', 'Roots'],
     ticketmasterAliases: ['The Station Inn', 'Station Inn'],
-    relatedSlugs: ['bluebird-cafe', '3rd-and-lindsley', 'ryman-auditorium'],
+    relatedSlugs: ['bluebird-cafe', 'the-listening-room-cafe', '3rd-and-lindsley'],
     dateChecked: '2026-08-19',
     dataStatus: 'verified',
     active: true,
@@ -300,7 +345,7 @@ const seeds: MusicVenueSeed[] = [
       '3rd & Lindsley Bar & Grill',
       '3rd and Lindsley Bar and Grill',
     ],
-    relatedSlugs: ['station-inn', 'the-basement-east', 'bluebird-cafe'],
+    relatedSlugs: ['the-listening-room-cafe', 'station-inn', 'the-basement-east'],
     dateChecked: '2026-08-19',
     dataStatus: 'verified',
     active: true,
@@ -346,29 +391,6 @@ const seeds: MusicVenueSeed[] = [
     dateChecked: '2026-08-19',
     dataStatus: 'verified',
     active: true,
-  },
-  {
-    editorialSlug: 'the-truth',
-    slug: 'the-truth',
-    name: 'The Truth',
-    area: 'Wedgewood-Houston',
-    format: 'Music venue',
-    group: 'coming-soon',
-    summary:
-      'A new Wedgewood-Houston music venue planned as part of the neighborhood’s expanding entertainment district.',
-    whyWeRecommend:
-      'The Truth is worth watching because it adds another purpose-built room south of downtown, close to the neighborhood’s restaurants, galleries, and hospitality projects.',
-    capacityNote: 'Opening configuration to be confirmed',
-    coverNote: 'Ticketing details to be announced',
-    address: 'Wedgewood-Houston, Nashville, TN',
-    mapQuery: 'Wedgewood-Houston, Nashville, TN',
-    genres: ['Live music'],
-    ticketmasterAliases: ['The Truth Nashville', 'The Truth'],
-    relatedSlugs: ['3rd-and-lindsley', 'the-basement-east', 'ascend-amphitheater'],
-    dateChecked: '2026-08-19',
-    dataStatus: 'needs-recheck',
-    active: false,
-    openingNote: 'Planned opening: fall 2026',
   },
 ];
 

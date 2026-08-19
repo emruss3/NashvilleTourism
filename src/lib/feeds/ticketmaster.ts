@@ -39,6 +39,8 @@ const API = 'https://app.ticketmaster.com/discovery/v2/events.json';
 const NASHVILLE_CITY = 'nashville';
 const NASHVILLE_STATE = 'TN';
 const UNITED_STATES = 'US';
+const TICKETMASTER_PAGE_SIZE = 200;
+const TICKETMASTER_MAX_DEPTH = 1000;
 
 interface TmImage {
   url: string;
@@ -68,6 +70,11 @@ interface TmEvent {
   }[];
   priceRanges?: { min?: number; currency?: string }[];
   _embedded?: { venues?: TmVenue[] };
+}
+
+interface TmResponse {
+  _embedded?: { events?: TmEvent[] };
+  page?: { totalPages?: number; totalElements?: number; number?: number; size?: number };
 }
 
 interface ChosenImage {
@@ -147,13 +154,63 @@ export interface FetchOptions {
   startDate?: string;
   /** ISO date, inclusive. Defaults to 60 days out. */
   endDate?: string;
+  /** Maximum records requested. Ticketmaster permits up to 1,000 through paging. */
   size?: number;
   /** Ticketmaster classification name, e.g. `music`. */
   classificationName?: string;
 }
 
+function buildTicketmasterUrl({
+  key,
+  start,
+  end,
+  pageSize,
+  page,
+  classificationName,
+}: {
+  key: string;
+  start: string;
+  end: string;
+  pageSize: number;
+  page: number;
+  classificationName?: string;
+}): URL {
+  const url = new URL(API);
+  url.searchParams.set('apikey', key);
+  url.searchParams.set('city', 'Nashville');
+  url.searchParams.set('stateCode', NASHVILLE_STATE);
+  url.searchParams.set('countryCode', UNITED_STATES);
+  url.searchParams.set('startDateTime', `${start}T00:00:00Z`);
+  url.searchParams.set('endDateTime', `${end}T23:59:59Z`);
+  url.searchParams.set('size', String(pageSize));
+  url.searchParams.set('page', String(page));
+  url.searchParams.set('sort', 'date,asc');
+  if (classificationName) url.searchParams.set('classificationName', classificationName);
+  return url;
+}
+
+async function fetchTicketmasterPage(url: URL): Promise<TmResponse | null> {
+  try {
+    const res = await fetch(url, {
+      headers: { Accept: 'application/json' },
+      next: { revalidate: 1800 },
+    });
+    if (!res.ok) {
+      console.warn(`[ticketmaster] ${res.status} ${res.statusText}.`);
+      return null;
+    }
+    return (await res.json()) as TmResponse;
+  } catch (err) {
+    console.warn('[ticketmaster] request failed.', err);
+    return null;
+  }
+}
+
 /**
  * Fetches upcoming events whose embedded venue is explicitly Nashville, TN.
+ * Ticketmaster caps each Discovery response at 200 records, so larger requests
+ * are paged up to the API's 1,000-record depth. This matters for venue pages:
+ * otherwise a busy citywide calendar can hide later-announced dates at newer rooms.
  * Returns an empty array rather than throwing so the UI can label its fallback.
  */
 export async function fetchLiveEvents(opts: FetchOptions = {}): Promise<LiveEvent[]> {
@@ -163,38 +220,51 @@ export async function fetchLiveEvents(opts: FetchOptions = {}): Promise<LiveEven
   const start = opts.startDate ?? new Date().toISOString().slice(0, 10);
   const end =
     opts.endDate ?? new Date(Date.now() + 60 * 86_400_000).toISOString().slice(0, 10);
+  const requestedSize = Math.max(1, Math.min(opts.size ?? TICKETMASTER_PAGE_SIZE, TICKETMASTER_MAX_DEPTH));
+  const pageSize = Math.min(requestedSize, TICKETMASTER_PAGE_SIZE);
 
-  const url = new URL(API);
-  url.searchParams.set('apikey', key);
-  url.searchParams.set('city', 'Nashville');
-  url.searchParams.set('stateCode', NASHVILLE_STATE);
-  url.searchParams.set('countryCode', UNITED_STATES);
-  url.searchParams.set('startDateTime', `${start}T00:00:00Z`);
-  url.searchParams.set('endDateTime', `${end}T23:59:59Z`);
-  url.searchParams.set('size', String(Math.min(opts.size ?? 200, 200)));
-  url.searchParams.set('sort', 'date,asc');
-  if (opts.classificationName) {
-    url.searchParams.set('classificationName', opts.classificationName);
-  }
+  const firstUrl = buildTicketmasterUrl({
+    key,
+    start,
+    end,
+    pageSize,
+    page: 0,
+    classificationName: opts.classificationName,
+  });
+  const first = await fetchTicketmasterPage(firstUrl);
+  if (!first) return [];
 
-  try {
-    const res = await fetch(url, {
-      headers: { Accept: 'application/json' },
-      next: { revalidate: 1800 },
+  const totalPages = Math.max(1, first.page?.totalPages ?? 1);
+  const requestedPages = Math.min(totalPages, Math.ceil(requestedSize / pageSize));
+  const additionalPages = await Promise.all(
+    Array.from({ length: Math.max(0, requestedPages - 1) }, (_, index) => {
+      const page = index + 1;
+      return fetchTicketmasterPage(
+        buildTicketmasterUrl({
+          key,
+          start,
+          end,
+          pageSize,
+          page,
+          classificationName: opts.classificationName,
+        }),
+      );
+    }),
+  );
+
+  const rawEvents = [first, ...additionalPages]
+    .flatMap((response) => response?._embedded?.events ?? [])
+    .slice(0, requestedSize);
+  const seen = new Set<string>();
+
+  return rawEvents
+    .map(normalise)
+    .filter((event): event is LiveEvent => event !== null)
+    .filter((event) => {
+      if (seen.has(event.id)) return false;
+      seen.add(event.id);
+      return true;
     });
-    if (!res.ok) {
-      console.warn(`[ticketmaster] ${res.status} ${res.statusText}. Falling back to seed data.`);
-      return [];
-    }
-
-    const json = (await res.json()) as { _embedded?: { events?: TmEvent[] } };
-    return (json._embedded?.events ?? [])
-      .map(normalise)
-      .filter((event): event is LiveEvent => event !== null);
-  } catch (err) {
-    console.warn('[ticketmaster] request failed. Falling back to seed data.', err);
-    return [];
-  }
 }
 
 export const TICKETMASTER_CONFIGURED = Boolean(process.env.TICKETMASTER_API_KEY);
