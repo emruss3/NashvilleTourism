@@ -55,7 +55,7 @@ export async function POST(
       currency: body.currency,
       paxMix: body.paxMix,
     },
-    { timeoutMs: 45_000 },
+    { timeoutMs: 120_000 },
   );
 
   const live = Boolean(result.ok && result.data?.ok && result.data?.availability);
