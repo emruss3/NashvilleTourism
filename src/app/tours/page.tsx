@@ -19,7 +19,9 @@ export const metadata = buildMetadata({
   noindex: true,
 });
 
-const PAGE_SIZE = 24;
+// Viator permits no more than 50 search results per request. We use exactly 50
+// so user-driven pagination advances 1 -> 51 -> 101 without overlapping calls.
+const PAGE_SIZE = 50;
 
 const QUICK_SEARCHES = [
   'Party bus',
