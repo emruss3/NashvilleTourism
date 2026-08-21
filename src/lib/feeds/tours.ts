@@ -1,19 +1,13 @@
 /**
  * Tours facade.
  *
- * Two lanes intentionally stay separate:
- * 1. Marketplace: live Viator production inventory can be displayed/booked as
- *    provider inventory without implying NashRoam editorial endorsement.
- * 2. Editorial/planner: only approved + published experiences from Supabase are
- *    allowed into NashRoam recommendations and itinerary logic.
+ * Viator marketplace inventory follows one certified model only: real-time
+ * search. We do not fall back to an ingested Viator catalog when the provider
+ * is unavailable. NashRoam editorial/planner content remains separately gated.
  */
 
 import { TOUR_EDITORIAL, type TourEditorialRecommendation } from '@/lib/content/tour-editorial';
-import {
-  experienceToProductSummary,
-  getExperienceCatalog,
-  type ExperienceCard,
-} from '@/lib/feeds/experiences';
+import { getExperienceCatalog, type ExperienceCard } from '@/lib/feeds/experiences';
 import { rankMarketplaceBrowse } from '@/lib/feeds/tour-marketplace-rank';
 import { filterKnownTourIntent } from '@/lib/feeds/tour-intent-filter';
 import {
@@ -28,14 +22,14 @@ export interface ToursCatalog {
   configured: boolean;
   live: boolean;
   products: ViatorProductSummary[];
-  /** Approved catalog only; retained for editorial/planner consumers. */
+  /** Approved NashRoam catalog only; never used as Viator marketplace fallback. */
   experiences: ExperienceCard[];
   totalCount?: number;
   fetchedAt: string;
   error?: string;
   httpStatus?: number;
   environment?: string;
-  source: 'viator' | 'supabase' | 'none';
+  source: 'viator' | 'none';
   editorial: TourEditorialRecommendation[];
   attribution: string;
 }
@@ -49,7 +43,7 @@ export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<
   const [provider, approved] = await Promise.all([
     searchNashvilleProducts({
       ...params,
-      count: isGenericBrowse ? 50 : requestedCount,
+      count: requestedCount,
       sort: params.sort ?? (usesProductBrowse ? 'DEFAULT' : undefined),
       campaign: params.campaign ?? (params.query ? 'tours-search' : 'tours-marketplace'),
     }),
@@ -61,7 +55,7 @@ export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<
     }),
   ]);
 
-  // A successful live provider request remains live when a narrow filter has no
+  // A successful provider request remains live when a narrow filter has zero
   // matches. Zero results must not be mistaken for an integration outage.
   if (provider.live) {
     const intent = filterKnownTourIntent(provider.products, params.query);
@@ -83,50 +77,31 @@ export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<
       source: 'viator',
       editorial: TOUR_EDITORIAL,
       attribution: isGenericBrowse
-        ? 'Live product details, ratings, prices, photos, and booking links supplied by Viator. Browse order starts with Viator’s featured results, then NashRoam applies local-relevance and variety safeguards. Marketplace listings are provider inventory, not NashRoam editorial endorsements.'
-        : 'Live product details, ratings, prices, photos, and booking links supplied by Viator. Marketplace listings are provider inventory, not NashRoam editorial endorsements.',
-    };
-  }
-
-  if (approved.live && approved.experiences.length > 0) {
-    return {
-      configured: approved.configured || provider.configured,
-      live: true,
-      products: approved.experiences.map(experienceToProductSummary).slice(0, requestedCount),
-      experiences: approved.experiences,
-      totalCount: approved.experiences.length,
-      fetchedAt: approved.fetchedAt,
-      error: provider.error,
-      httpStatus: provider.httpStatus,
-      environment: provider.environment,
-      source: 'supabase',
-      editorial: TOUR_EDITORIAL,
-      attribution:
-        'Showing NashRoam-approved cached Viator inventory because the live provider request is unavailable. Booking links remain Viator-attributed.',
+        ? 'Live product details, aggregate ratings, prices, photos, and booking links supplied by Viator. Browse order starts with Viator results, then NashRoam applies local-relevance and variety safeguards. Marketplace listings are provider inventory, not NashRoam editorial endorsements.'
+        : 'Live product details, aggregate ratings, prices, photos, and booking links supplied by Viator. Marketplace listings are provider inventory, not NashRoam editorial endorsements.',
     };
   }
 
   return {
-    configured: provider.configured || approved.configured,
+    configured: provider.configured,
     live: false,
     products: [],
-    experiences: [],
+    experiences: approved.experiences,
     totalCount: 0,
     fetchedAt: provider.fetchedAt || approved.fetchedAt,
-    error: provider.error || approved.error,
+    error: provider.error,
     httpStatus: provider.httpStatus,
     environment: provider.environment,
     source: 'none',
     editorial: TOUR_EDITORIAL,
     attribution:
-      'Viator marketplace inventory is unavailable. NashRoam does not substitute sample tours for live provider inventory.',
+      'Viator marketplace inventory is unavailable. NashRoam does not substitute cached or sample Viator products for the real-time provider response.',
   };
 }
 
 /**
- * Public product detail is live provider inventory. This does not imply a
- * NashRoam recommendation; editorial/planner inclusion remains separately gated
- * in experiences.ts.
+ * Public product detail is retrieved in real time for one product selected from
+ * search. It does not imply a NashRoam editorial recommendation.
  */
 export async function getTourProduct(productCode: string): Promise<{
   configured: boolean;
@@ -140,7 +115,7 @@ export async function getTourProduct(productCode: string): Promise<{
   return {
     ...result,
     attribution:
-      'Product details, ratings, prices, photos, and booking supplied by Viator. This marketplace listing is not, by itself, a NashRoam editorial recommendation.',
+      'Product details, aggregate ratings, prices, photos, and booking are supplied by Viator. This marketplace listing is not, by itself, a NashRoam editorial recommendation.',
   };
 }
 

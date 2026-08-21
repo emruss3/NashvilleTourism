@@ -9,6 +9,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 const PROJECT_REF = 'aeomrsutkhwmnscvvfur';
 const DEFAULT_URL = `https://${PROJECT_REF}.supabase.co`;
+const DEFAULT_EDGE_TIMEOUT_MS = 120_000;
 
 function supabaseUrl(): string {
   return (
@@ -52,7 +53,8 @@ export type EdgeFunctionResult<T> = {
  * `apikey` header only. Legacy service_role JWTs may also be sent as Bearer
  * tokens. The Edge Function itself validates either form.
  *
- * Viator credentials stay inside Supabase — never in Vercel.
+ * Viator credentials stay inside Supabase — never in Vercel. The default
+ * timeout is 120 seconds to match Viator's API-service certification guidance.
  */
 export async function invokeEdgeFunction<T = unknown>(
   name: string,
@@ -69,7 +71,7 @@ export async function invokeEdgeFunction<T = unknown>(
   }
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), init.timeoutMs ?? 45_000);
+  const timer = setTimeout(() => controller.abort(), init.timeoutMs ?? DEFAULT_EDGE_TIMEOUT_MS);
 
   try {
     const headers: Record<string, string> = {

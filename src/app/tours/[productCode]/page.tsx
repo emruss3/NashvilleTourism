@@ -129,9 +129,8 @@ export default async function TourProductPage({ params }: { params: { productCod
                   {product.reviewCount.toLocaleString()} reviews
                 </a>
               </>
-            ) : (
-              ' · Viator rating'
-            )}
+            ) : null}
+            <span className="ml-1 text-ink-faint">· Viator + Tripadvisor</span>
           </p>
         ) : null}
         {product.durationLabel ? <p>{product.durationLabel}</p> : null}
@@ -252,9 +251,7 @@ export default async function TourProductPage({ params }: { params: { productCod
                   <ul className="mt-3 space-y-2 text-small text-ink-soft">
                     {product.inclusions.map((item) => (
                       <li key={item} className="flex gap-2">
-                        <span aria-hidden="true" className="mt-1 text-moss">
-                          ✓
-                        </span>
+                        <span aria-hidden="true" className="mt-1 text-moss">✓</span>
                         <span>{item}</span>
                       </li>
                     ))}
@@ -269,9 +266,7 @@ export default async function TourProductPage({ params }: { params: { productCod
                   <ul className="mt-3 space-y-2 text-small text-ink-soft">
                     {product.exclusions.map((item) => (
                       <li key={item} className="flex gap-2">
-                        <span aria-hidden="true" className="mt-1 text-ink-faint">
-                          ×
-                        </span>
+                        <span aria-hidden="true" className="mt-1 text-ink-faint">×</span>
                         <span>{item}</span>
                       </li>
                     ))}
@@ -285,9 +280,7 @@ export default async function TourProductPage({ params }: { params: { productCod
         {(product.meetingPoints?.length || product.endPoints?.length || product.pickupLabel) && (
           <section id="meeting" className="scroll-mt-24 border-t border-paper-edge py-8">
             <h2 className="font-sans text-xl font-bold text-navy">Meeting and pickup</h2>
-            {product.pickupLabel ? (
-              <p className="mt-3 text-small text-ink-soft">{product.pickupLabel}</p>
-            ) : null}
+            {product.pickupLabel ? <p className="mt-3 text-small text-ink-soft">{product.pickupLabel}</p> : null}
             {product.meetingPoints?.length ? (
               <div className="mt-5">
                 <h3 className="font-sans text-base font-bold text-navy">Meeting point</h3>
@@ -327,9 +320,7 @@ export default async function TourProductPage({ params }: { params: { productCod
           <section id="additional" className="scroll-mt-24 border-t border-paper-edge py-8">
             <h2 className="font-sans text-xl font-bold text-navy">Additional info</h2>
             <ul className="mt-3 list-disc space-y-2 pl-5 text-small text-ink-soft">
-              {product.additionalInfo.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
+              {product.additionalInfo.map((item) => <li key={item}>{item}</li>)}
             </ul>
           </section>
         ) : null}
@@ -341,12 +332,8 @@ export default async function TourProductPage({ params }: { params: { productCod
               {viatorParagraphs(product.cancellationPolicy.description).map((paragraph) => (
                 <p key={paragraph}>{paragraph}</p>
               ))}
-              {product.cancellationPolicy.cancelIfBadWeather ? (
-                <p>This activity may be canceled due to bad weather.</p>
-              ) : null}
-              {product.cancellationPolicy.cancelIfInsufficientTravelers ? (
-                <p>This activity may be canceled if there are not enough travelers.</p>
-              ) : null}
+              {product.cancellationPolicy.cancelIfBadWeather ? <p>This activity may be canceled due to bad weather.</p> : null}
+              {product.cancellationPolicy.cancelIfInsufficientTravelers ? <p>This activity may be canceled if there are not enough travelers.</p> : null}
             </div>
           </section>
         ) : null}
@@ -359,9 +346,7 @@ export default async function TourProductPage({ params }: { params: { productCod
                 <li key={option.code || option.title} className="rounded-card border border-paper-edge bg-paper-card p-4">
                   <h3 className="font-sans text-base font-bold text-navy">{option.title}</h3>
                   {option.description ? (
-                    <p className="mt-1 text-small text-ink-soft">
-                      {viatorParagraphs(option.description).join(' ')}
-                    </p>
+                    <p className="mt-1 text-small text-ink-soft">{viatorParagraphs(option.description).join(' ')}</p>
                   ) : null}
                 </li>
               ))}
@@ -372,15 +357,17 @@ export default async function TourProductPage({ params }: { params: { productCod
         <section id="reviews" className="scroll-mt-24 border-t border-paper-edge py-8">
           <h2 className="font-sans text-xl font-bold text-navy">Reviews</h2>
           {product.rating != null ? (
-            <p className="mt-3 text-small text-ink-soft">
-              <span className="font-semibold text-navy">{product.rating.toFixed(1)} / 5</span>
-              {product.reviewCount != null
-                ? ` from ${product.reviewCount.toLocaleString()} Viator traveler reviews.`
-                : ' on Viator.'}{' '}
-              Individual review text is shown on the Viator booking page.
-            </p>
+            <div className="mt-3 max-w-prose text-small leading-relaxed text-ink-soft">
+              <p>
+                <span className="font-semibold text-navy">{product.rating.toFixed(1)} / 5</span>
+                {product.reviewCount != null ? ` · ${product.reviewCount.toLocaleString()} total reviews.` : '.'}
+              </p>
+              <p className="mt-2">
+                Total review count and overall rating based on Viator and Tripadvisor reviews. NashRoam does not display individual review text; use the Viator booking page to read reviews.
+              </p>
+            </div>
           ) : (
-            <p className="mt-3 text-small text-ink-soft">Reviews for this experience live on Viator.</p>
+            <p className="mt-3 text-small text-ink-soft">Reviews for this experience are available on Viator.</p>
           )}
           <div className="mt-4">
             <BookingLink
@@ -410,17 +397,14 @@ export default async function TourProductPage({ params }: { params: { productCod
 function buildGallery(product: ViatorProductDetail): ViatorImage[] {
   const seen = new Set<string>();
   const images: ViatorImage[] = [];
-
   for (const image of product.images ?? []) {
     if (!image.url || seen.has(image.url)) continue;
     seen.add(image.url);
     images.push(image);
   }
-
   if (!images.length && product.imageUrl && !seen.has(product.imageUrl)) {
     images.push({ url: product.imageUrl, isCover: true });
   }
-
   return images;
 }
 
@@ -465,18 +449,12 @@ function ItineraryStopRow({ stop, index }: { stop: ViatorItineraryStop; index: n
         aria-hidden="true"
         className="absolute left-0 top-1.5 h-3 w-3 rounded-full border-2 border-clay bg-paper-card"
       />
-      {stop.dayLabel ? (
-        <p className="text-2xs font-bold uppercase tracking-wider text-ink-faint">{stop.dayLabel}</p>
-      ) : null}
+      {stop.dayLabel ? <p className="text-2xs font-bold uppercase tracking-wider text-ink-faint">{stop.dayLabel}</p> : null}
       <h3 className="font-sans text-base font-bold text-navy">{title}</h3>
-      <p className="mt-0.5 text-sm text-ink-faint">
-        {[stop.durationLabel, admission].filter(Boolean).join(' · ')}
-      </p>
+      <p className="mt-0.5 text-sm text-ink-faint">{[stop.durationLabel, admission].filter(Boolean).join(' · ')}</p>
       {stop.description ? (
         <div className="mt-2 max-w-prose space-y-2 text-small text-ink-soft">
-          {viatorParagraphs(stop.description).map((paragraph) => (
-            <p key={paragraph.slice(0, 40)}>{paragraph}</p>
-          ))}
+          {viatorParagraphs(stop.description).map((paragraph) => <p key={paragraph.slice(0, 40)}>{paragraph}</p>)}
         </div>
       ) : null}
     </li>

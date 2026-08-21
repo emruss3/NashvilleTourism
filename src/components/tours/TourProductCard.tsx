@@ -55,6 +55,7 @@ export function TourProductCard({
               {product.reviewCount != null ? (
                 <span className="text-ink-faint"> ({product.reviewCount.toLocaleString()} reviews)</span>
               ) : null}
+              <span className="ml-1 text-ink-faint">· Viator + Tripadvisor</span>
             </p>
           ) : (
             <p className="text-ink-faint">New on Viator</p>
