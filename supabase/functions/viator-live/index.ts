@@ -1,10 +1,27 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "https://aeomrsutkhwmnscvvfur.supabase.co";
-const VIATOR_API_KEY =
-  Deno.env.get("VIATOR_PRODUCTION_API_KEY") ?? Deno.env.get("VIATOR_API_KEY") ?? "";
+/**
+ * NashRoam -> Viator production boundary for the REAL-TIME SEARCH MODEL.
+ *
+ * Allowed provider calls from this function:
+ * - POST /products/search: user-initiated Nashville browse, <= 50 results/call
+ * - POST /search/freetext: user-initiated text search, <= 50 results/call
+ * - GET  /products/{product-code}: one product selected from search
+ *
+ * Explicitly NOT used here:
+ * - /products/modified-since or other catalog ingestion endpoints
+ * - /products/bulk
+ * - /locations/bulk or other auxiliary-data lookups
+ *
+ * Availability for one selected product lives in viator-availability.
+ */
+
+const SUPABASE_URL =
+  Deno.env.get("SUPABASE_URL") ?? "https://aeomrsutkhwmnscvvfur.supabase.co";
+const VIATOR_API_KEY = Deno.env.get("VIATOR_PRODUCTION_API_KEY") ?? "";
 const VIATOR_BASE = "https://api.viator.com/partner";
 const NASHVILLE_DESTINATION_ID = "799";
+const API_TIMEOUT_MS = 120_000;
 
 const TAG_LABELS: Record<number, string> = {
   11930: "Bus Tours",
@@ -81,7 +98,19 @@ async function viatorFetch(path: string, init: RequestInit = {}): Promise<Viator
     headers.set("Accept-Language", "en-US");
     if (init.body) headers.set("Content-Type", "application/json;version=2.0");
 
-    const res = await fetch(`${VIATOR_BASE}${path}`, { ...init, headers });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+    let res: Response;
+    try {
+      res = await fetch(`${VIATOR_BASE}${path}`, {
+        ...init,
+        headers,
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+
     const text = await res.text();
     let data: any = null;
     try {
@@ -111,6 +140,14 @@ async function viatorFetch(path: string, init: RequestInit = {}): Promise<Viator
   return last!;
 }
 
+function clampCount(value: unknown): number {
+  return Math.min(Math.max(Math.trunc(Number(value) || 24), 1), 50);
+}
+
+function clampStart(value: unknown): number {
+  return Math.max(Math.trunc(Number(value) || 1), 1);
+}
+
 function pickVariantUrl(image: any, targetWidth = 960): string | null {
   const variants = Array.isArray(image?.variants)
     ? image.variants.filter((variant: any) => typeof variant?.url === "string")
@@ -118,15 +155,10 @@ function pickVariantUrl(image: any, targetWidth = 960): string | null {
   if (!variants.length) return typeof image?.url === "string" ? image.url : null;
   variants.sort(
     (a: any, b: any) =>
-      Math.abs(Number(a.width ?? 0) - targetWidth) - Math.abs(Number(b.width ?? 0) - targetWidth),
+      Math.abs(Number(a.width ?? 0) - targetWidth) -
+      Math.abs(Number(b.width ?? 0) - targetWidth),
   );
   return variants[0]?.url ?? null;
-}
-
-function pickImageUrl(images: any): string | null {
-  if (!Array.isArray(images) || !images.length) return null;
-  const image = images.find((item: any) => item?.isCover) ?? images[0];
-  return pickVariantUrl(image);
 }
 
 function pickImages(images: any) {
@@ -140,12 +172,19 @@ function pickImages(images: any) {
       return {
         url,
         thumbUrl: pickVariantUrl(image, 240) ?? url,
-        caption: typeof image?.caption === "string" && image.caption.trim() ? image.caption.trim() : undefined,
+        caption:
+          typeof image?.caption === "string" && image.caption.trim()
+            ? image.caption.trim()
+            : undefined,
         isCover: Boolean(image?.isCover),
       };
     })
-    .filter(Boolean) as Array<{ url: string; thumbUrl: string; caption?: string; isCover: boolean }>;
-
+    .filter(Boolean) as Array<{
+      url: string;
+      thumbUrl: string;
+      caption?: string;
+      isCover: boolean;
+    }>;
   mapped.sort((a, b) => Number(b.isCover) - Number(a.isCover));
   return mapped.length ? mapped : undefined;
 }
@@ -164,7 +203,7 @@ function durationLabel(duration: any): string | null {
   const from = Number(duration.variableDurationFromMinutes);
   const to = Number(duration.variableDurationToMinutes);
   if (Number.isFinite(from) && Number.isFinite(to) && from > 0 && to > 0) {
-    return from === to ? minutesLabel(from) : `${minutesLabel(from)}–${minutesLabel(to)}`;
+    return from === to ? minutesLabel(from) : `${minutesLabel(from)}-${minutesLabel(to)}`;
   }
   if (Number.isFinite(from) && from > 0) return `From ${minutesLabel(from)}`;
   return null;
@@ -172,25 +211,13 @@ function durationLabel(duration: any): string | null {
 
 function textList(value: any): string[] | undefined {
   if (!Array.isArray(value)) return undefined;
-  const counts = new Map<string, number>();
-  for (const item of value) {
-    const text =
-      typeof item === "string"
-        ? item
-        : typeof item?.description === "string"
-          ? item.description
-          : typeof item?.otherDescription === "string"
-            ? item.otherDescription
-            : typeof item?.text === "string"
-              ? item.text
-              : typeof item?.name === "string"
-                ? item.name
-                : null;
-    if (!text) continue;
-    counts.set(text, (counts.get(text) ?? 0) + 1);
-  }
-  const items = [...counts.entries()].map(([text, count]) => (count > 1 ? `${text} (${count})` : text));
-  return items.length ? items : undefined;
+  const items = value
+    .map((item: any) => {
+      if (typeof item === "string") return item;
+      return item?.description ?? item?.otherDescription ?? item?.text ?? item?.name ?? null;
+    })
+    .filter((item: unknown): item is string => typeof item === "string" && Boolean(item.trim()));
+  return items.length ? [...new Set(items)] : undefined;
 }
 
 function uniqueStrings(values: string[]) {
@@ -209,17 +236,16 @@ function languageName(code: string) {
     ja: "Japanese",
     zh: "Chinese",
     ko: "Korean",
-    nl: "Dutch",
-    da: "Danish",
-    sv: "Swedish",
-    no: "Norwegian",
   };
   return names[code.toLowerCase()] ?? code;
 }
 
 function languageGuideLabel(guide: any): string | null {
-  const code = typeof guide?.language === "string" ? guide.language : null;
-  const codes = Array.isArray(guide?.languages) ? guide.languages.map(String) : code ? [code] : [];
+  const codes = Array.isArray(guide?.languages)
+    ? guide.languages.map(String)
+    : typeof guide?.language === "string"
+      ? [guide.language]
+      : [];
   if (!codes.length) return null;
   const names = uniqueStrings(codes.map(languageName)).join(", ");
   const type = String(guide?.type ?? "").toUpperCase();
@@ -228,61 +254,45 @@ function languageGuideLabel(guide: any): string | null {
   return `Live guide: ${names}`;
 }
 
-function collectLocationRefs(product: any): string[] {
-  const refs: string[] = [];
-  const push = (ref: unknown) => {
-    if (typeof ref === "string" && ref.startsWith("LOC-")) refs.push(ref);
-  };
-  for (const point of product?.logistics?.start ?? []) push(point?.location?.ref);
-  for (const point of product?.logistics?.end ?? []) push(point?.location?.ref);
-  for (const item of product?.itinerary?.itineraryItems ?? []) {
-    push(item?.pointOfInterestLocation?.location?.ref);
-  }
-  for (const poi of product?.itinerary?.pointsOfInterest ?? []) push(poi?.ref ?? poi?.location?.ref);
-  push(product?.itinerary?.activityInfo?.location?.ref);
-  for (const day of product?.itinerary?.days ?? []) {
-    for (const item of day?.items ?? []) push(item?.pointOfInterestLocation?.location?.ref);
-  }
-  for (const route of product?.itinerary?.routes ?? []) {
-    for (const stop of route?.stops ?? []) push(stop?.stopLocation?.ref ?? stop?.location?.ref);
-  }
-  return uniqueStrings(refs);
+function categoryLabels(tags: any): string[] {
+  if (!Array.isArray(tags)) return [];
+  return [...new Set(
+    tags
+      .map((tag: any) => TAG_LABELS[Number(tag)])
+      .filter((label: string | undefined): label is string => Boolean(label)),
+  )].slice(0, 3);
 }
 
-function locationLookup(locations: any[]) {
-  const map = new Map<string, { name?: string; address?: string }>();
-  for (const location of locations) {
-    const ref = typeof location?.reference === "string" ? location.reference : "";
-    if (!ref) continue;
-    const addressParts = [
-      location?.address?.street,
-      location?.address?.administrativeArea,
-      location?.address?.state,
-      location?.address?.postcode,
-      location?.address?.country,
-    ].filter((part) => typeof part === "string" && part.trim());
-    map.set(ref, {
-      name: typeof location?.name === "string" ? location.name : undefined,
-      address: addressParts.length ? addressParts.join(", ") : undefined,
-    });
-  }
-  return map;
+function addressText(value: any): string | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const parts = [
+    value.street,
+    value.city,
+    value.administrativeArea,
+    value.state,
+    value.postcode,
+    value.country,
+  ].filter((part) => typeof part === "string" && part.trim());
+  return parts.length ? parts.join(", ") : undefined;
 }
 
-function logisticsPoints(points: any, locations: Map<string, { name?: string; address?: string }>) {
-  if (!Array.isArray(points) || !points.length) return undefined;
+function logisticsPoints(points: any) {
+  if (!Array.isArray(points)) return undefined;
   const mapped = points
     .map((point: any) => {
-      const ref = typeof point?.location?.ref === "string" ? point.location.ref : "";
-      const resolved = locations.get(ref);
-      const description = typeof point?.description === "string" ? point.description : undefined;
-      return {
-        name: resolved?.name,
-        description,
-        address: resolved?.address,
-      };
+      const location = point?.location ?? {};
+      const name =
+        typeof point?.name === "string"
+          ? point.name
+          : typeof location?.name === "string"
+            ? location.name
+            : undefined;
+      const description =
+        typeof point?.description === "string" ? point.description : undefined;
+      const address = addressText(point?.address ?? location?.address);
+      return name || description || address ? { name, description, address } : null;
     })
-    .filter((point: any) => point.name || point.description || point.address);
+    .filter(Boolean);
   return mapped.length ? mapped : undefined;
 }
 
@@ -299,67 +309,62 @@ function pickupLabel(type: unknown): string | undefined {
   }
 }
 
-function itineraryStop(
-  item: any,
-  locations: Map<string, { name?: string; address?: string }>,
-  dayLabel?: string,
-) {
-  const ref = item?.pointOfInterestLocation?.location?.ref ?? item?.stopLocation?.ref ?? item?.location?.ref;
-  const resolved = typeof ref === "string" ? locations.get(ref) : undefined;
+function itineraryName(item: any): string | undefined {
+  const candidates = [
+    item?.name,
+    item?.pointOfInterestLocation?.location?.name,
+    item?.stopLocation?.name,
+    item?.location?.name,
+  ];
+  return candidates.find((value) => typeof value === "string" && value.trim()) as
+    | string
+    | undefined;
+}
+
+function itineraryStop(item: any, dayLabel?: string) {
+  const name = itineraryName(item);
   const description = typeof item?.description === "string" ? item.description : undefined;
-  const name = resolved?.name;
   if (!name && !description) return null;
   return {
     name,
     description,
     durationLabel: durationLabel(item?.duration) ?? undefined,
     passByWithoutStopping: Boolean(item?.passByWithoutStopping),
-    admissionIncluded: typeof item?.admissionIncluded === "string" ? item.admissionIncluded : undefined,
+    admissionIncluded:
+      typeof item?.admissionIncluded === "string" ? item.admissionIncluded : undefined,
     dayLabel,
   };
 }
 
-function normalizeItinerary(itinerary: any, locations: Map<string, { name?: string; address?: string }>) {
+function normalizeItinerary(itinerary: any) {
   if (!itinerary || typeof itinerary !== "object") return {};
   const stops: any[] = [];
-  if (Array.isArray(itinerary.itineraryItems)) {
-    for (const item of itinerary.itineraryItems) {
-      const stop = itineraryStop(item, locations);
+  for (const item of itinerary.itineraryItems ?? []) {
+    const stop = itineraryStop(item);
+    if (stop) stops.push(stop);
+  }
+  (itinerary.days ?? []).forEach((day: any, index: number) => {
+    const dayLabel = typeof day?.title === "string" ? day.title : `Day ${index + 1}`;
+    for (const item of day?.items ?? []) {
+      const stop = itineraryStop(item, dayLabel);
+      if (stop) stops.push(stop);
+    }
+  });
+  for (const route of itinerary.routes ?? []) {
+    for (const item of route?.stops ?? []) {
+      const stop = itineraryStop(
+        item,
+        typeof route?.title === "string" ? route.title : undefined,
+      );
       if (stop) stops.push(stop);
     }
   }
-  if (Array.isArray(itinerary.days)) {
-    itinerary.days.forEach((day: any, index: number) => {
-      const dayLabel = typeof day?.title === "string" ? day.title : `Day ${index + 1}`;
-      for (const item of day?.items ?? []) {
-        const stop = itineraryStop(item, locations, dayLabel);
-        if (stop) stops.push(stop);
-      }
-    });
-  }
-  if (Array.isArray(itinerary.routes)) {
-    for (const route of itinerary.routes) {
-      for (const item of route?.stops ?? []) {
-        const stop = itineraryStop(item, locations, typeof route?.title === "string" ? route.title : undefined);
-        if (stop) stops.push(stop);
-      }
-    }
-  }
   if (itinerary.activityInfo) {
-    const ref = itinerary.activityInfo?.location?.ref;
-    const resolved = typeof ref === "string" ? locations.get(ref) : undefined;
-    const description = typeof itinerary.activityInfo?.description === "string"
-      ? itinerary.activityInfo.description
-      : undefined;
-    if (resolved?.name || description) {
-      stops.unshift({
-        name: resolved?.name,
-        description,
-      });
-    }
+    const stop = itineraryStop(itinerary.activityInfo);
+    if (stop) stops.unshift(stop);
   }
 
-  const unstructured =
+  const overview =
     typeof itinerary.unstructuredDescription === "string"
       ? itinerary.unstructuredDescription
       : typeof itinerary.unstructuredItinerary === "string"
@@ -367,26 +372,21 @@ function normalizeItinerary(itinerary: any, locations: Map<string, { name?: stri
         : undefined;
 
   return {
-    itineraryType: typeof itinerary.itineraryType === "string" ? itinerary.itineraryType : undefined,
-    skipTheLine: typeof itinerary.skipTheLine === "boolean" ? itinerary.skipTheLine : undefined,
-    privateTour: typeof itinerary.privateTour === "boolean" ? itinerary.privateTour : undefined,
+    itineraryType:
+      typeof itinerary.itineraryType === "string" ? itinerary.itineraryType : undefined,
+    skipTheLine:
+      typeof itinerary.skipTheLine === "boolean" ? itinerary.skipTheLine : undefined,
+    privateTour:
+      typeof itinerary.privateTour === "boolean" ? itinerary.privateTour : undefined,
     maxTravelersInSharedTour: Number.isFinite(Number(itinerary.maxTravelersInSharedTour))
       ? Number(itinerary.maxTravelersInSharedTour)
       : undefined,
-    itineraryOverview: unstructured,
+    itineraryOverview: overview,
     itineraryStops: stops.length ? stops : undefined,
   };
 }
 
-function categoryLabels(tags: any): string[] {
-  if (!Array.isArray(tags)) return [];
-  const labels = tags
-    .map((tag: any) => TAG_LABELS[Number(tag)])
-    .filter((label: string | undefined): label is string => Boolean(label));
-  return [...new Set(labels)].slice(0, 3);
-}
-
-function normalizeProduct(product: any, detail = false, locations = new Map<string, { name?: string; address?: string }>()) {
+function normalizeProduct(product: any, detail = false) {
   const productCode = String(product?.productCode ?? "").trim();
   const title = String(product?.title ?? "").trim();
   const productUrl = typeof product?.productUrl === "string" ? product.productUrl : "";
@@ -409,7 +409,7 @@ function normalizeProduct(product: any, detail = false, locations = new Map<stri
     title,
     description: typeof product?.description === "string" ? product.description : undefined,
     productUrl,
-    imageUrl: pickImageUrl(product?.images) ?? images?.[0]?.url ?? undefined,
+    imageUrl: images?.[0]?.url ?? undefined,
     rating: Number.isFinite(rating) ? rating : undefined,
     reviewCount: Number.isFinite(reviewCount) ? reviewCount : undefined,
     fromPrice: Number.isFinite(price) ? price : undefined,
@@ -425,29 +425,36 @@ function normalizeProduct(product: any, detail = false, locations = new Map<stri
       ? uniqueStrings(
           product.languageGuides.flatMap((guide: any) => {
             if (typeof guide?.language === "string") return [languageName(guide.language)];
-            if (Array.isArray(guide?.languages)) return guide.languages.map((code: string) => languageName(String(code)));
+            if (Array.isArray(guide?.languages)) {
+              return guide.languages.map((code: string) => languageName(String(code)));
+            }
             return [];
           }),
         )
       : [];
-    const languageGuideLabels = Array.isArray(product?.languageGuides)
-      ? uniqueStrings(product.languageGuides.map(languageGuideLabel).filter(Boolean) as string[])
+    const guideLabels = Array.isArray(product?.languageGuides)
+      ? uniqueStrings(
+          product.languageGuides.map(languageGuideLabel).filter(Boolean) as string[],
+        )
       : [];
     const productOptions = Array.isArray(product?.productOptions)
       ? product.productOptions
           .map((option: any) => ({
             code: String(option?.productOptionCode ?? "").trim(),
             title: String(option?.title ?? "").trim(),
-            description: typeof option?.description === "string" ? option.description : undefined,
+            description:
+              typeof option?.description === "string" ? option.description : undefined,
           }))
           .filter((option: { title: string }) => option.title)
       : [];
 
     Object.assign(normalized, {
       confirmationType:
-        product?.bookingConfirmationSettings?.confirmationType ?? product?.confirmationType ?? undefined,
+        product?.bookingConfirmationSettings?.confirmationType ??
+        product?.confirmationType ??
+        undefined,
       languages: languages.length ? languages : undefined,
-      languageGuideLabels: languageGuideLabels.length ? languageGuideLabels : undefined,
+      languageGuideLabels: guideLabels.length ? guideLabels : undefined,
       inclusions: textList(product?.inclusions),
       exclusions: textList(product?.exclusions),
       additionalInfo: textList(product?.additionalInfo),
@@ -455,24 +462,29 @@ function normalizeProduct(product: any, detail = false, locations = new Map<stri
         typeof product?.ticketInfo?.ticketTypeDescription === "string"
           ? product.ticketInfo.ticketTypeDescription
           : undefined,
-      supplierName: typeof product?.supplier?.name === "string" ? product.supplier.name : undefined,
+      supplierName:
+        typeof product?.supplier?.name === "string" ? product.supplier.name : undefined,
       cancellationPolicy: product?.cancellationPolicy
         ? {
             type: product.cancellationPolicy.type,
             description: product.cancellationPolicy.description,
             cancelIfBadWeather: Boolean(product.cancellationPolicy.cancelIfBadWeather),
-            cancelIfInsufficientTravelers: Boolean(product.cancellationPolicy.cancelIfInsufficientTravelers),
+            cancelIfInsufficientTravelers: Boolean(
+              product.cancellationPolicy.cancelIfInsufficientTravelers,
+            ),
           }
         : undefined,
-      meetingPoints: logisticsPoints(product?.logistics?.start, locations),
-      endPoints: logisticsPoints(product?.logistics?.end, locations),
+      meetingPoints: logisticsPoints(product?.logistics?.start),
+      endPoints: logisticsPoints(product?.logistics?.end),
       pickupLabel: pickupLabel(product?.logistics?.travelerPickup?.pickupOptionType),
       productOptions: productOptions.length ? productOptions : undefined,
       images,
       pricingType:
         typeof product?.pricingInfo?.type === "string" ? product.pricingInfo.type : undefined,
       unitType:
-        typeof product?.pricingInfo?.unitType === "string" ? product.pricingInfo.unitType : undefined,
+        typeof product?.pricingInfo?.unitType === "string"
+          ? product.pricingInfo.unitType
+          : undefined,
       minTravelers:
         typeof product?.bookingRequirements?.minTravelersPerBooking === "number"
           ? product.bookingRequirements.minTravelersPerBooking
@@ -481,9 +493,10 @@ function normalizeProduct(product: any, detail = false, locations = new Map<stri
         typeof product?.bookingRequirements?.maxTravelersPerBooking === "number"
           ? product.bookingRequirements.maxTravelersPerBooking
           : undefined,
-      ...normalizeItinerary(product?.itinerary, locations),
+      ...normalizeItinerary(product?.itinerary),
     });
   }
+
   return normalized;
 }
 
@@ -500,10 +513,7 @@ function buildProductSearchBody(input: any) {
       sort: input?.sort ?? "TRAVELER_RATING",
       order: input?.order === "ASCENDING" ? "ASCENDING" : "DESCENDING",
     },
-    pagination: {
-      start: Math.max(Number(input?.start) || 1, 1),
-      count: Math.min(Math.max(Number(input?.count) || 24, 1), 50),
-    },
+    pagination: { start: clampStart(input?.start), count: clampCount(input?.count) },
     currency: input?.currency ?? "USD",
   };
 }
@@ -529,10 +539,7 @@ function buildFreetextBody(input: any) {
     searchTypes: [
       {
         searchType: "PRODUCTS",
-        pagination: {
-          start: Math.max(Number(input?.start) || 1, 1),
-          count: Math.min(Math.max(Number(input?.count) || 24, 1), 50),
-        },
+        pagination: { start: clampStart(input?.start), count: clampCount(input?.count) },
       },
     ],
     currency: input?.currency ?? "USD",
@@ -572,28 +579,17 @@ Deno.serve(async (req: Request) => {
 
   try {
     if (mode === "health") {
-      const result = await viatorFetch("/destinations");
-      const destinations = Array.isArray(result.data?.destinations)
-        ? result.data.destinations
-        : Array.isArray(result.data)
-          ? result.data
-          : [];
       return json(
         {
-          ok: result.ok,
+          ok: Boolean(VIATOR_API_KEY),
+          configured: Boolean(VIATOR_API_KEY),
           environment: "production",
           baseUrl: VIATOR_BASE,
-          status: result.status,
-          authenticated: result.ok,
-          destinationCount: destinations.length,
-          nashvilleMatches: destinations.filter(
-            (destination: any) => Number(destination?.destinationId) === 799,
-          ),
-          requestId: result.requestId,
-          rateLimitRemaining: result.rateLimitRemaining,
-          error: result.ok ? null : result.data,
+          endpointModel: "real-time-search",
+          providerRequestMade: false,
+          supported: ["search_products", "search_freetext", "get_product"],
         },
-        result.ok ? 200 : result.status,
+        VIATOR_API_KEY ? 200 : 503,
       );
     }
 
@@ -605,12 +601,15 @@ Deno.serve(async (req: Request) => {
       });
       const rawProducts =
         result.ok && Array.isArray(result.data?.products) ? result.data.products : [];
-      const products = rawProducts.map((product: any) => normalizeProduct(product)).filter(Boolean);
+      const products = rawProducts
+        .map((product: any) => normalizeProduct(product))
+        .filter(Boolean);
       return json(
         {
           ok: result.ok,
           environment: "production",
           baseUrl: VIATOR_BASE,
+          endpointModel: "real-time-search",
           status: result.status,
           destinationId: 799,
           products,
@@ -633,12 +632,15 @@ Deno.serve(async (req: Request) => {
         body: JSON.stringify(buildFreetextBody(body)),
       });
       const rawProducts = result.ok ? freetextProducts(result.data) : [];
-      const products = rawProducts.map((product: any) => normalizeProduct(product)).filter(Boolean);
+      const products = rawProducts
+        .map((product: any) => normalizeProduct(product))
+        .filter(Boolean);
       return json(
         {
           ok: result.ok,
           environment: "production",
           baseUrl: VIATOR_BASE,
+          endpointModel: "real-time-search",
           status: result.status,
           destinationId: 799,
           products,
@@ -659,57 +661,47 @@ Deno.serve(async (req: Request) => {
       const result = await viatorFetch(
         `/products/${encodeURIComponent(code)}?campaign-value=${campaign}`,
       );
-      if (!result.ok) {
-        return json({
-          ok: false,
+      const normalized = result.ok ? normalizeProduct(result.data, true) : null;
+      return json(
+        {
+          ok: Boolean(result.ok && normalized),
           environment: "production",
           baseUrl: VIATOR_BASE,
+          endpointModel: "real-time-search",
           status: result.status,
-          normalized: null,
+          normalized,
           requestId: result.requestId,
           rateLimitRemaining: result.rateLimitRemaining,
-          error: result.data,
-        }, result.status || 502);
-      }
-
-      const refs = collectLocationRefs(result.data);
-      let locations = new Map<string, { name?: string; address?: string }>();
-      if (refs.length) {
-        const locationResult = await viatorFetch("/locations/bulk", {
-          method: "POST",
-          body: JSON.stringify({ locations: refs.slice(0, 500) }),
-        });
-        if (locationResult.ok && Array.isArray(locationResult.data?.locations)) {
-          locations = locationLookup(locationResult.data.locations);
-        }
-      }
-
-      const normalized = normalizeProduct(result.data, true, locations);
-      return json({
-        ok: Boolean(normalized),
-        environment: "production",
-        baseUrl: VIATOR_BASE,
-        status: result.status,
-        normalized,
-        requestId: result.requestId,
-        rateLimitRemaining: result.rateLimitRemaining,
-        error: normalized ? null : result.data,
-      }, normalized ? 200 : 502);
+          retryAfter: result.retryAfter,
+          error: result.ok && normalized ? null : result.data,
+        },
+        result.ok && normalized ? 200 : result.status || 502,
+      );
     }
 
     return json(
-      { ok: false, error: `Unsupported mode: ${mode}`, supported: ["health", "search_products", "search_freetext", "get_product"] },
+      {
+        ok: false,
+        error: `Unsupported mode: ${mode}`,
+        supported: ["health", "search_products", "search_freetext", "get_product"],
+      },
       400,
     );
   } catch (error) {
+    const isTimeout = error instanceof DOMException && error.name === "AbortError";
     return json(
       {
         ok: false,
         environment: "production",
         baseUrl: VIATOR_BASE,
-        error: error instanceof Error ? error.message : String(error),
+        endpointModel: "real-time-search",
+        error: isTimeout
+          ? "Viator API request timed out after 120 seconds"
+          : error instanceof Error
+            ? error.message
+            : String(error),
       },
-      500,
+      isTimeout ? 504 : 500,
     );
   }
 });
