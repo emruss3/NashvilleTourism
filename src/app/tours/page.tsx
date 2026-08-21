@@ -14,7 +14,12 @@ export const metadata = buildMetadata({
   description:
     'Browse live Nashville tours and experiences — party buses, food tours, whiskey tastings, sightseeing, music tours, and more — with ratings, starting prices, and booking through Viator.',
   path: '/tours/',
+  // Viator marketplace content/review scoring is intentionally not indexed.
+  // NashRoam editorial guide pages remain the SEO surface.
+  noindex: true,
 });
+
+const PAGE_SIZE = 24;
 
 const QUICK_SEARCHES = [
   'Party bus',
@@ -27,22 +32,49 @@ const QUICK_SEARCHES = [
   'Boat tour',
 ] as const;
 
+function pageHref({
+  q,
+  date,
+  start,
+}: {
+  q?: string;
+  date?: string;
+  start: number;
+}): string {
+  const params = new URLSearchParams();
+  if (q) params.set('q', q);
+  if (date) params.set('date', date);
+  if (start > 1) params.set('start', String(start));
+  const query = params.toString();
+  return query ? `/tours/?${query}` : '/tours/';
+}
+
 export default async function ToursHub({
   searchParams,
 }: {
-  searchParams?: { q?: string; date?: string };
+  searchParams?: { q?: string; date?: string; start?: string };
 }) {
   const q = searchParams?.q?.trim() || undefined;
   const date = searchParams?.date?.trim() || undefined;
+  const parsedStart = Number.parseInt(searchParams?.start || '1', 10);
+  const start = Number.isFinite(parsedStart) && parsedStart > 0 ? parsedStart : 1;
+
   const catalog = await getToursCatalog({
     query: q,
     startDate: date,
     endDate: date,
-    count: 24,
+    start,
+    count: PAGE_SIZE,
     sort: 'DEFAULT',
   });
   const hasResults = catalog.live && catalog.products.length > 0;
   const liveNoResults = catalog.live && catalog.products.length === 0;
+  const end = start + catalog.products.length - 1;
+  const hasPrevious = start > 1;
+  const hasNext =
+    catalog.live &&
+    catalog.products.length === PAGE_SIZE &&
+    (catalog.totalCount == null || end < catalog.totalCount);
 
   return (
     <div className="shell pb-16">
@@ -70,7 +102,7 @@ export default async function ToursHub({
             {label}
           </Link>
         ))}
-        {(q || date) && (
+        {(q || date || start > 1) && (
           <Link
             href="/tours/"
             className="rounded-full border border-paper-edge px-3.5 py-2 text-sm font-semibold text-clay hover:bg-paper-card"
@@ -104,13 +136,47 @@ export default async function ToursHub({
         />
 
         {hasResults ? (
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {catalog.products.map((product) => (
-              <li key={product.productCode}>
-                <TourProductCard product={product} category={product.categories?.[0]} />
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {catalog.products.map((product) => (
+                <li key={product.productCode}>
+                  <TourProductCard product={product} category={product.categories?.[0]} />
+                </li>
+              ))}
+            </ul>
+
+            {(hasPrevious || hasNext) && (
+              <nav
+                aria-label="Tour search result pages"
+                className="mt-8 flex items-center justify-between gap-4 border-t border-paper-edge pt-5"
+              >
+                <div>
+                  {hasPrevious ? (
+                    <Link
+                      href={pageHref({ q, date, start: Math.max(1, start - PAGE_SIZE) })}
+                      className="btn-secondary min-h-[44px]"
+                    >
+                      Previous results
+                    </Link>
+                  ) : null}
+                </div>
+                <p className="text-sm text-ink-faint">
+                  Showing {start}-{end}
+                  {catalog.totalCount != null ? ` of ${catalog.totalCount}` : ''}
+                </p>
+                <div>
+                  {hasNext ? (
+                    <Link
+                      href={pageHref({ q, date, start: start + PAGE_SIZE })}
+                      className="btn-secondary min-h-[44px]"
+                    >
+                      More results
+                    </Link>
+                  ) : null}
+                </div>
+              </nav>
+            )}
+          </>
         ) : liveNoResults ? (
           <div className="rounded-card border border-paper-edge bg-paper-card p-6 text-sm leading-relaxed text-ink-soft">
             <p className="font-semibold text-ink">No matching live experiences found.</p>
@@ -178,7 +244,7 @@ export default async function ToursHub({
         <ul className="mt-4 max-w-prose space-y-3">
           {[
             'The price shown on NashRoam is Viator’s starting price. Some products price by person, while private boats, vehicles, or charters may price by the unit or group.',
-            'A date filter narrows Viator’s product search. Exact start times, party-size pricing, and final availability are confirmed on Viator before checkout.',
+            'A date filter narrows Viator’s product search. Exact start times, party-size pricing, and final availability are confirmed in the selected-product flow before checkout on Viator.',
             'Read the cancellation terms on the product page before you pay. Free cancellation is common but not universal.',
             'For private tours and charters, compare the total vehicle or group price rather than assuming the displayed starting price is a per-person rate.',
           ].map((note) => (
