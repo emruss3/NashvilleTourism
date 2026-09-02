@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { safeExternalHref } from '@/lib/safe-href';
 import { redirect } from 'next/navigation';
 import { hasAdminSession, isAdminAuthConfigured } from '@/lib/admin-auth';
 import { getSupabaseServiceClient } from '@/lib/supabase/server';
@@ -263,7 +264,7 @@ export default async function PlaceDiscoveryPage({
                     </p>
                   </div>
                   {item.website_url ? (
-                    <a href={item.website_url} target="_blank" rel="noreferrer" className="text-sm font-semibold text-navy underline-offset-4 hover:text-clay hover:underline">Website ↗</a>
+                    <a href={safeExternalHref(item.website_url)} target="_blank" rel="noreferrer" className="text-sm font-semibold text-navy underline-offset-4 hover:text-clay hover:underline">Website ↗</a>
                   ) : null}
                 </div>
 

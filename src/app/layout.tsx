@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     description: site.description,
     images: [
       {
-        url: canonical('/media/hero/nashroam-skyline-hero.jpg'),
+        url: canonical('/media/hero/nashville-hero-drone-poster.jpg'),
         width: 2400,
         height: 1350,
         alt: 'Downtown Nashville at sunset above the Cumberland River and Korean Veterans Memorial Bridge.',
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    images: [canonical('/media/hero/nashroam-skyline-hero.jpg')],
+    images: [canonical('/media/hero/nashville-hero-drone-poster.jpg')],
   },
   // Omit robots when indexable (browser/crawler default is index,follow).
   // Preview/staging builds still emit an explicit noindex.

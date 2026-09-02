@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { safeExternalHref } from '@/lib/safe-href';
 import { redirect } from 'next/navigation';
 import { hasAdminSession, isAdminAuthConfigured } from '@/lib/admin-auth';
 import { getSupabaseServiceClient } from '@/lib/supabase/server';
@@ -109,8 +110,8 @@ export default async function CanonicalPlaceReview({ searchParams }: { searchPar
                 <p className="mt-1 text-xs text-ink-faint">Official state: {item.official_business_status || '—'}</p>
               </div>
               <div className="flex gap-3 text-sm font-semibold">
-                {item.website_url ? <a href={item.website_url} target="_blank" rel="noreferrer" className="text-navy hover:text-clay">Website ↗</a> : null}
-                {item.official_source_url ? <a href={item.official_source_url} target="_blank" rel="noreferrer" className="text-navy hover:text-clay">Verification ↗</a> : null}
+                {item.website_url ? <a href={safeExternalHref(item.website_url)} target="_blank" rel="noreferrer" className="text-navy hover:text-clay">Website ↗</a> : null}
+                {item.official_source_url ? <a href={safeExternalHref(item.official_source_url)} target="_blank" rel="noreferrer" className="text-navy hover:text-clay">Verification ↗</a> : null}
               </div>
             </div>
 

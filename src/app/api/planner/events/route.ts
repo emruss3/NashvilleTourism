@@ -37,15 +37,20 @@ function nashvilleDate(iso: string): { date: string; time?: string } {
 
 /** Date-relevant canonical events for Plan Your Trip. Never invents events. */
 export async function GET(req: Request) {
-  const client = getSupabaseServiceClient();
-  if (!client) return Response.json({ events: [], configured: false });
-
   const url = new URL(req.url);
   const startDate = url.searchParams.get('startDate') || new Date().toISOString().slice(0, 10);
   const endDate =
     url.searchParams.get('endDate') ||
     new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10);
   const limit = Math.min(Math.max(Number(url.searchParams.get('limit')) || 40, 1), 100);
+
+  const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+  if (!ISO_DAY.test(startDate) || !ISO_DAY.test(endDate) || Number.isNaN(Date.parse(startDate)) || Number.isNaN(Date.parse(endDate))) {
+    return Response.json({ error: 'startDate and endDate must be YYYY-MM-DD' }, { status: 400 });
+  }
+
+  const client = getSupabaseServiceClient();
+  if (!client) return Response.json({ events: [], configured: false });
 
   const queryStart = new Date(`${startDate}T00:00:00Z`);
   queryStart.setUTCDate(queryStart.getUTCDate() - 1);

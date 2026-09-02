@@ -79,7 +79,7 @@ export function buildMetadata({
   const url = canonical(path);
   const fullTitle = title.includes(site.name) ? title : `${title} | ${site.name}`;
   const ogImage = {
-    url: canonical('/media/hero/nashroam-skyline-hero.jpg'),
+    url: canonical('/media/hero/nashville-hero-drone-poster.jpg'),
     width: 2400,
     height: 1350,
     alt: 'Downtown Nashville at sunset above the Cumberland River and Korean Veterans Memorial Bridge.',
@@ -283,7 +283,7 @@ export function articleSchema(guide: Guide, author: Author | undefined, path: st
     description: guide.summary,
     datePublished: guide.datePublished,
     dateModified: guide.dateUpdated || guide.datePublished,
-    image: canonical('/media/hero/nashroam-skyline-hero.jpg'),
+    image: canonical('/media/hero/nashville-hero-drone-poster.jpg'),
     mainEntityOfPage: { '@type': 'WebPage', '@id': canonical(path) },
     author: author
       ? { '@type': 'Person', name: author.name, url: canonical(`/authors/${author.slug}/`) }
@@ -364,7 +364,7 @@ export function eventSchema(e: NashvilleEvent, path: string) {
     ...(e.endDate ? { endDate: e.endDate } : {}),
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-    image: canonical('/media/hero/nashroam-skyline-hero.jpg'),
+    image: canonical('/media/hero/nashville-hero-drone-poster.jpg'),
     organizer: { '@id': canonical('/#organization') },
     url: canonical(path),
     location: {

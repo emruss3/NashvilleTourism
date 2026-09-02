@@ -29,7 +29,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Intent hubs. These are the primary organic landing pages.
     { path: '/where-to-stay/', priority: 1.0, freq: 'weekly' },
     { path: '/live-music-tonight/', priority: 1.0, freq: 'daily' },
-    { path: '/tours/', priority: 0.9, freq: 'weekly' },
+    // /tours/ is noindex while the marketplace is uncurated; do not list it.
     { path: '/honky-tonk-highway/', priority: 0.9, freq: 'monthly' },
     { path: '/weekend/', priority: 0.9, freq: 'monthly' },
     { path: '/restaurants/', priority: 0.9, freq: 'weekly' },

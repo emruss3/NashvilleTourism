@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { safeExternalHref } from '@/lib/safe-href';
 import { redirect } from 'next/navigation';
 import { hasAdminSession, isAdminAuthConfigured } from '@/lib/admin-auth';
 import { getSupabaseServiceClient } from '@/lib/supabase/server';
@@ -158,7 +159,7 @@ export default async function LegacyFsqPlaceStagingPage({
                     <p className="mt-1 text-xs text-ink-faint">FSQ refreshed {date(item.date_refreshed)}</p>
                   </div>
                   {item.website ? (
-                    <a href={item.website} target="_blank" rel="noreferrer" className="text-sm font-semibold text-navy underline-offset-4 hover:text-clay hover:underline">Official/site URL ↗</a>
+                    <a href={safeExternalHref(item.website)} target="_blank" rel="noreferrer" className="text-sm font-semibold text-navy underline-offset-4 hover:text-clay hover:underline">Official/site URL ↗</a>
                   ) : null}
                 </div>
 

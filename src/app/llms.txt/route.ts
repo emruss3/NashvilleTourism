@@ -89,14 +89,16 @@ ${neighborhoods.map((n) => `- [${n.name}](${u(`/neighborhoods/${n.slug}/`)}): ${
 Data maturity varies by section. Treat each accordingly:
 
 - **Tours and experiences** (/tours/): real, bookable Viator inventory,
-  refreshed automatically. Only editorially approved products are published.
+  searched live from the Viator marketplace. Listings are provider results,
+  not yet editorially curated; prices and availability are confirmed on Viator.
 - **Hotels** (/hotels/, /where-to-stay/): real Nashville hotels. Practical
   details are marked "needs re-check" until a person re-verifies them; confirm
   with the property before relying on specifics.
 - **Events** (/events/, /live-music-tonight/): live feed where connected;
   records labelled [Sample] are placeholders and not real events.
-- **Restaurants** (/restaurants/): still sample records with bracketed
-  [Sample] names. Do not present them as real businesses.
+- **Restaurants** (/restaurants/): a mix. Records marked verified are real
+  places; records with bracketed [Sample] names are placeholders and must not
+  be presented as real businesses.
 - **Neighborhoods and guides**: editorial content based on general local
   knowledge, with check dates shown.
 `;

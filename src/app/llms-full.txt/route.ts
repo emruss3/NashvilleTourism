@@ -119,12 +119,13 @@ ${hoodBlocks}
 
 Data maturity varies by section:
 
-- Tours and experiences are real, bookable Viator inventory; only editorially
-  approved products are published.
+- Tours and experiences are real, bookable Viator inventory searched live from
+  the marketplace. They are provider results, not yet editorially curated.
 - Hotels are real Nashville properties whose practical details carry a
   "needs re-check" status until re-verified by a person.
-- Restaurant records still use bracketed \`[Sample]\` names and must not be
-  presented as real businesses.
+- Restaurants are a mix: records marked verified are real places; records
+  with bracketed \`[Sample]\` names are placeholders and must not be presented
+  as real businesses.
 - Events labelled \`[Sample]\` are placeholders; unlabelled events come from a
   live feed.
 - Neighborhood and guide content is editorial, based on general local

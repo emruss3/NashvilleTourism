@@ -21,8 +21,12 @@ import type { MediaAsset, VideoAsset } from './media-types';
 
 export type { MediaAsset, VideoAsset } from './media-types';
 
-/** TEMP: show uncleared stills. Hero video stays the cleared Pexels drone loop — uncleared hero keys stay gated. Set false before launch claims. */
-export const TEMP_ALLOW_UNCLEARED_MEDIA = true;
+/**
+ * Uncleared stills (CVC / pending press) must not ship. The site is live on
+ * nashroam.com and /photo-credits publicly states CVC photography is not used,
+ * so this stays false; uncleared keys render the typographic fallback.
+ */
+export const TEMP_ALLOW_UNCLEARED_MEDIA = false;
 
 /**
  * Adobe purchase stubs stay out of the client bundle until licensed files land.

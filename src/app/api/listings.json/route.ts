@@ -49,7 +49,7 @@ export function GET() {
     licence: {
       terms: canonical('/terms/'),
       attribution: `Cite as "${site.name}" with a link to the specific page.`,
-      note: 'Verification status is per record. "unverified" records (including all restaurants, which carry [Sample] names) are demonstration data and must not be presented as facts about real businesses. "needs-recheck" records describe real places whose practical details await re-verification. Live tour inventory is not included in this export; see /tours/.',
+      note: 'Verification status is per record. "unverified" records (those with bracketed [Sample] names) are demonstration data and must not be presented as facts about real businesses. "needs-recheck" records describe real places whose practical details await re-verification. Live tour inventory is not included in this export; see /tours/.',
     },
     generatedAt: new Date().toISOString(),
     counts: {

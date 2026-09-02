@@ -165,7 +165,7 @@ export default function NeighborhoodMap() {
 
           <div className="flex flex-wrap items-center justify-between gap-4 border-t border-paper-card/15 pt-5">
             <Link href={`/neighborhoods/${hood.slug}/`} className="btn-primary">
-              Read More
+              Explore {hood.name}
             </Link>
             <div className="flex items-center gap-3">
               <button
