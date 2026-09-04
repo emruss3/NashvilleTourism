@@ -1,11 +1,13 @@
 import fs from 'node:fs/promises';
 
 const targets = [
-  {name:'Memoir Wedgewood Houston',url:'https://www.memoir-wedgewoodhouston.com/scheduletour'},
-  {name:'Memoir May Hosiery',url:'https://www.memoir-mayhosiery.com/scheduletour'}
+  {name:'Memoir Wedgewood Houston branded',url:'https://www.memoir-wedgewoodhouston.com/scheduletour'},
+  {name:'Memoir May Hosiery branded',url:'https://www.memoir-mayhosiery.com/scheduletour'},
+  {name:'Memoir Wedgewood Houston RentCafe',url:'https://www.rentcafe.com/apartments/tn/nashville/memoir-wedgewood-houston/default.aspx'},
+  {name:'Memoir May Hosiery RentCafe',url:'https://www.rentcafe.com/apartments/tn/nashville/memoir-may-hosiery/default.aspx'}
 ];
 const fn = `async ({ page }) => {
-  await page.waitForTimeout(20000);
+  await page.waitForTimeout(12000);
   return await page.evaluate(() => ({
     url: location.href,
     title: document.title,
@@ -20,11 +22,9 @@ for(const target of targets){
   const api=new URL('https://api.microlink.io/');
   api.searchParams.set('url',target.url);
   api.searchParams.set('function',fn);
-  api.searchParams.set('ttl','0');
-  api.searchParams.set('timeout','45000');
   const response=await fetch(api,{headers:{accept:'application/json'}});
   const body=await response.text();
-  console.log(target.name,response.status,body.slice(0,200).replace(/\s+/g,' '));
+  console.log(target.name,response.status,body.slice(0,240).replace(/\s+/g,' '));
   results.push({target,status:response.status,contentType:response.headers.get('content-type'),apiUrl:api.toString(),body});
 }
 await fs.mkdir('tour-audit-memoir-microlink-output',{recursive:true});
