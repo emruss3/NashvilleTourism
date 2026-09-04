@@ -1,0 +1,51 @@
+name: Temporary Nestio live availability audit
+
+on:
+  push:
+    branches:
+      - tmp-tour-audit-links
+    paths:
+      - .github/workflows/nestio-ui-audit.yml
+      - scripts/nestio-ui-audit.mjs
+
+permissions:
+  contents: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser runtime
+        shell: bash
+        run: |
+          mkdir -p /tmp/tour-audit-nestio
+          cp scripts/nestio-ui-audit.mjs /tmp/tour-audit-nestio/audit.mjs
+          cd /tmp/tour-audit-nestio
+          npm init -y
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run live Nestio browser audit
+        shell: bash
+        run: node /tmp/tour-audit-nestio/audit.mjs
+      - name: Upload Nestio evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-audit-nestio-output
+          path: tour-audit-nestio-output
+          retention-days: 1
+          if-no-files-found: warn
+      - name: Save results to temporary branch
+        if: success()
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f tour-audit-nestio-output/nestio.json
+          git commit -m "Temporary Nestio live availability results" || exit 0
+          git push origin HEAD:tmp-tour-audit-links
