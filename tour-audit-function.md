@@ -1,0 +1,3 @@
+# Temporary Microlink function test
+
+- [Microlink Emblem function](https://api.microlink.io/?url=https%3A%2F%2Femblemparknashville.com%2Fschedule-a-tour%2F&function=async+%28%7B+page+%7D%29+%3D%3E+%7B%0A++await+page.waitForTimeout%288000%29%3B%0A++return+await+page.evaluate%28%28%29+%3D%3E+%28%7B%0A++++url%3A+location.href%2C%0A++++title%3A+document.title%2C%0A++++text%3A+document.body.innerText.slice%280%2C20000%29%2C%0A++++frames%3A+Array.from%28document.querySelectorAll%28%27iframe%27%29%29.map%28f+%3D%3E+%28%7Bsrc%3Af.src%2Ctitle%3Af.title%2Cname%3Af.name%7D%29%29%0A++%7D%29%29%3B%0A%7D&ttl=0)
