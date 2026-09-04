@@ -1,0 +1,119 @@
+name: Tour availability parallel discovery
+
+on:
+  push:
+    branches:
+      - audit/tour-availability-2026-09-04
+    paths:
+      - .github/workflows/tour-availability-parallel.yml
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium
+        run: |
+          mkdir -p /tmp/parallel-audit && cd /tmp/parallel-audit
+          npm init -y >/dev/null
+          npm install playwright@1.55.0 >/dev/null
+          npx playwright install chromium
+      - name: Parallel discover
+        working-directory: /tmp/parallel-audit
+        run: |
+          cat > parallel.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs/promises';
+          import path from 'node:path';
+
+          const sites = [
+            ['Emblem Park','https://emblemparknashville.com/schedule-a-tour/'],
+            ['Westerly House','https://livewesterlyhouse.com/schedule-a-tour/'],
+            ['445 Park Commons','https://445parkcommons.com/schedule-a-tour/'],
+            ['Residences at The Finery','https://www.livethefinery.com/'],
+            ['Memoir Wedgewood Houston','https://www.memoir-wedgewoodhouston.com/scheduletour'],
+            ['Memoir May Hosiery','https://www.memoir-mayhosiery.com/scheduletour'],
+            ['Standard Assembly','https://www.greystar.com/properties/nashville-tn/standard-assembly-apartments/p_19399'],
+            ['Queens Wedgewood Houston','https://queensweho.com/schedule-a-tour/'],
+            ['Luna','https://lunanashvilleliving.com/schedule-a-tour/'],
+            ['Delux WeHo','https://deluxweho.com/schedule-a-tour/'],
+            ['CODA','https://thecodanashville.com/']
+          ];
+          const outDir = process.env.GITHUB_WORKSPACE + '/parallel-output';
+          await fs.mkdir(outDir,{recursive:true});
+          const browser = await chromium.launch({headless:true,args:['--disable-dev-shm-usage','--disable-blink-features=AutomationControlled']});
+          const rx = /tour|schedule|appoint|avail|calendar|slot|time|knock|funnel|hyly|rentcafe|entrata|realpage|rently|elise|tour24|anyonehome|crm/i;
+          const trunc=(s,n=250000)=>(s||'').slice(0,n);
+          const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+
+          async function acceptCookies(page){
+            for(const label of [/accept all/i,/accept cookies/i,/allow all/i,/i agree/i]){
+              const b=page.getByRole('button',{name:label}).first();
+              if(await b.isVisible({timeout:300}).catch(()=>false)){await b.click().catch(()=>{});break;}
+            }
+          }
+          async function clickTour(page){
+            const patterns=[/schedule\s*(a|your)?\s*tour/i,/book\s*(a|your)?\s*tour/i,/schedule\s*(a|your)?\s*visit/i,/tour\s*now/i];
+            for(const p of patterns){
+              const loc=page.locator('a,button,[role=button]').filter({hasText:p});
+              const n=Math.min(await loc.count(),10);
+              for(let i=0;i<n;i++){
+                const e=loc.nth(i);
+                if(!await e.isVisible({timeout:200}).catch(()=>false))continue;
+                const popupPromise=page.context().waitForEvent('page',{timeout:3000}).catch(()=>null);
+                await e.click({timeout:4000}).catch(()=>{});
+                const pop=await popupPromise;
+                if(pop){await pop.waitForLoadState('domcontentloaded',{timeout:30000}).catch(()=>{});return pop;}
+                await page.waitForTimeout(2000);
+                return page;
+              }
+            }
+            return page;
+          }
+          async function inspect(name,url){
+            const context=await browser.newContext({viewport:{width:1365,height:900},locale:'en-US',timezoneId:'America/Chicago',userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'});
+            await context.addInitScript(()=>Object.defineProperty(navigator,'webdriver',{get:()=>undefined}));
+            let page=await context.newPage();
+            const responses=[]; const requests=[]; const errors=[];
+            context.on('request',req=>{const u=req.url();if(rx.test(u)||['xhr','fetch','document'].includes(req.resourceType()))requests.push({method:req.method(),type:req.resourceType(),url:u,post:trunc(req.postData()||'',50000)});});
+            context.on('response',async res=>{try{const req=res.request(),u=res.url(),ct=(res.headers()['content-type']||'').toLowerCase();if(!rx.test(u)&&!['xhr','fetch','document'].includes(req.resourceType()))return;let body='';if(ct.includes('json')||ct.includes('text')||ct.includes('javascript')||rx.test(u))body=trunc(await res.text().catch(()=>''));responses.push({status:res.status(),method:req.method(),type:req.resourceType(),url:u,contentType:ct,body});}catch(e){}});
+            const result={name,url,started:new Date().toISOString(),errors};
+            try{
+              const nav=await page.goto(url,{waitUntil:'domcontentloaded',timeout:45000}); result.status=nav?.status();
+              await page.waitForTimeout(7000); await acceptCookies(page); await page.waitForTimeout(1000);
+              if(!/schedule|tour/i.test(page.url()) || !/select a date|choose a tour|desired time|available time|tour type|guided tour|self-guided|live video/i.test(await page.locator('body').innerText().catch(()=>''))){page=await clickTour(page);}
+              await page.waitForTimeout(10000);
+              result.finalUrl=page.url(); result.title=await page.title();
+              result.pages=[];
+              for(const p of context.pages()){
+                const pr={url:p.url(),title:await p.title().catch(()=>''),body:trunc(await p.locator('body').innerText().catch(()=>''),100000),html:trunc(await p.content().catch(()=>''),500000),frames:[]};
+                for(const f of p.frames())pr.frames.push({url:f.url(),name:f.name(),body:trunc(await f.locator('body').innerText().catch(()=>''),100000),html:trunc(await f.content().catch(()=>''),500000)});
+                pr.controls=await p.locator('a,button,input,select,option,[role=button],[role=radio],[role=tab]').evaluateAll(els=>els.map(e=>({tag:e.tagName,text:(e.innerText||e.value||e.getAttribute('aria-label')||e.getAttribute('placeholder')||'').trim().replace(/\s+/g,' '),href:e.href||'',id:e.id||'',name:e.name||'',type:e.type||'',cls:typeof e.className==='string'?e.className:'',disabled:!!e.disabled,aria:e.getAttribute('aria-label')||'',title:e.title||''})).filter(x=>/tour|schedule|book|visit|appointment|date|time|guided|virtual|video|self|next|month|week|sep|11|12|13|14|15|16|17|18/i.test(JSON.stringify(x))).slice(0,2000)).catch(()=>[]);
+                result.pages.push(pr);
+              }
+            }catch(e){errors.push(String(e?.stack||e));}
+            result.requests=requests;result.responses=responses;result.finished=new Date().toISOString();
+            const file=path.join(outDir,slug(name)+'.json');await fs.writeFile(file,JSON.stringify(result,null,2));
+            console.log(`PROPERTY_START ${name}`);
+            console.log(JSON.stringify({name,url:result.finalUrl,pages:(result.pages||[]).map(p=>({url:p.url,body:p.body.slice(0,12000),frameUrls:p.frames.map(f=>f.url),frameBodies:p.frames.map(f=>f.body.slice(0,8000)),controls:p.controls.slice(0,300)})),network:[...responses,...requests].filter(x=>rx.test(x.url)||rx.test(x.body||'')).slice(0,150),errors},null,2));
+            console.log(`PROPERTY_END ${name}`);
+            await context.close();
+          }
+          const queue=[...sites]; const workers=Array.from({length:6},async()=>{while(queue.length){const item=queue.shift();if(item)await inspect(...item);}});
+          await Promise.all(workers); await browser.close();
+          JS
+          node parallel.mjs
+      - name: Upload parallel discovery
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-availability-parallel
+          path: parallel-output
+          retention-days: 7
