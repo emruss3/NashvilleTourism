@@ -1,0 +1,58 @@
+name: Temporary targeted tour scheduler audit
+
+on:
+  push:
+    branches:
+      - tmp-tour-audit-links
+    paths:
+      - .github/workflows/tour-audit-targeted.yml
+      - scripts/tour-audit-targeted.mjs
+
+permissions:
+  contents: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out temporary branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install browser runtime
+        shell: bash
+        run: |
+          mkdir -p /tmp/tour-audit-targeted
+          cp scripts/tour-audit-targeted.mjs /tmp/tour-audit-targeted/audit.mjs
+          cd /tmp/tour-audit-targeted
+          npm init -y
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Run targeted live browser inspection
+        shell: bash
+        run: node /tmp/tour-audit-targeted/audit.mjs
+
+      - name: Upload targeted evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-audit-targeted-output
+          path: tour-audit-targeted-output
+          retention-days: 1
+          if-no-files-found: warn
+
+      - name: Save compact results to temporary branch
+        if: success()
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f tour-audit-targeted-output/targeted.json
+          git commit -m "Temporary targeted tour scheduler inspection results" || exit 0
+          git push origin HEAD:tmp-tour-audit-links
