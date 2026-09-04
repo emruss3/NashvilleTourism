@@ -1,0 +1,86 @@
+name: Finery Hyly scheduler audit
+
+on:
+  push:
+    branches:
+      - audit/tour-availability-2026-09-04
+    paths:
+      - .github/workflows/tour-availability-hyly.yml
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser
+        run: |
+          mkdir -p /tmp/hyly-audit && cd /tmp/hyly-audit
+          npm init -y >/dev/null
+          npm install playwright@1.55.0 >/dev/null
+          npx playwright install chromium
+      - name: Inspect and exercise Hyly scheduler
+        working-directory: /tmp/hyly-audit
+        run: |
+          cat > hyly.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs/promises';
+          const outDir=process.env.GITHUB_WORKSPACE+'/hyly-output';await fs.mkdir(outDir,{recursive:true});
+          const browser=await chromium.launch({headless:true,args:['--disable-dev-shm-usage','--disable-blink-features=AutomationControlled','--no-sandbox']});
+          const context=await browser.newContext({viewport:{width:1440,height:1000},locale:'en-US',timezoneId:'America/Chicago',userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'});
+          await context.addInitScript(()=>Object.defineProperty(navigator,'webdriver',{get:()=>undefined}));
+          const page=await context.newPage();
+          const result={name:'Residences at The Finery',url:'https://my.hy.ly/tours/livethefinery/site?dd=0&popup=1',steps:[],network:[],errors:[]};
+          const rx=/tour|appoint|avail|calendar|slot|schedule|hy\.ly|crm|event/i;
+          page.on('response',async res=>{try{const u=res.url(),type=res.request().resourceType(),ct=(res.headers()['content-type']||'').toLowerCase();if(!rx.test(u)&&!['xhr','fetch','document'].includes(type))return;let body='';if(ct.includes('json')||ct.includes('text')||ct.includes('javascript')||rx.test(u))body=(await res.text().catch(()=>''))?.slice(0,300000)||'';result.network.push({status:res.status(),method:res.request().method(),type,url:u,post:(res.request().postData()||'').slice(0,50000),contentType:ct,body});}catch{}});
+          const snap=async(label)=>{await page.waitForTimeout(1200);const s={label,url:page.url(),title:await page.title().catch(()=>''),body:(await page.locator('body').innerText().catch(()=>''))?.slice(0,100000)||'',html:(await page.content().catch(()=>''))?.slice(0,600000)||'',controls:[],frames:[]};s.controls=await page.locator('a,button,input,select,option,[role="button"],[role="radio"],[role="option"],[role="tab"],[aria-label]').evaluateAll(els=>els.map(e=>({tag:e.tagName,text:(e.innerText||e.value||e.getAttribute('aria-label')||e.getAttribute('placeholder')||'').replace(/\s+/g,' ').trim(),href:e.href||'',type:e.type||'',id:e.id||'',name:e.name||'',cls:typeof e.className==='string'?e.className:'',disabled:!!e.disabled,aria:e.getAttribute('aria-label')||'',checked:!!e.checked})).filter(x=>x.text||x.href).slice(0,5000)).catch(()=>[]);for(const f of page.frames())s.frames.push({url:f.url(),body:(await f.locator('body').innerText().catch(()=>''))?.slice(0,100000)||'',html:(await f.content().catch(()=>''))?.slice(0,500000)||''});result.steps.push(s);};
+          try{
+            await page.goto(result.url,{waitUntil:'domcontentloaded',timeout:75000});await page.waitForTimeout(7000);await snap('initial');
+            // Click through visible non-submit controls conservatively; stop before contact submission.
+            const candidatePatterns=[/in.?person/i,/guided/i,/live video/i,/self.?guided/i,/schedule.*tour/i,/start/i,/continue/i,/next/i];
+            for(let pass=0;pass<5;pass++){
+              let clicked=false;
+              for(const pat of candidatePatterns){
+                const loc=page.locator('button,a,[role="button"],[role="radio"],label').filter({hasText:pat});
+                const n=Math.min(await loc.count(),20);
+                for(let i=0;i<n;i++){
+                  const e=loc.nth(i);if(!await e.isVisible().catch(()=>false))continue;
+                  const txt=((await e.innerText().catch(()=>''))||'').replace(/\s+/g,' ').trim();
+                  if(/submit|send|confirm appointment|book now/i.test(txt))continue;
+                  await e.click({timeout:5000}).catch(()=>{});await page.waitForTimeout(1800);await snap(`pass-${pass}-${txt||pat}`);clicked=true;break;
+                }
+                if(clicked)break;
+              }
+              if(!clicked)break;
+            }
+            // Directly test requested dates where a datepicker/calendar is present.
+            for(const day of ['11','12','13','14','15','16','17','18']){
+              try{
+                const dateInputs=page.locator('input[type="date"],input[placeholder*="date" i],input[aria-label*="date" i]');
+                if(await dateInputs.count()){
+                  const inp=dateInputs.first();await inp.fill(`2026-09-${day}`).catch(async()=>{await inp.fill(`09/${day}/2026`).catch(()=>{});});await inp.dispatchEvent('change').catch(()=>{});await page.waitForTimeout(1200);await snap(`date-input-${day}`);
+                }
+                const dayLoc=page.locator('[aria-label*="September '+day+'"], [data-date="2026-09-'+day+'"], [data-day="'+day+'"], .day, .date').filter({hasText:new RegExp('^\\s*'+day+'\\s*$')});
+                const n=Math.min(await dayLoc.count(),20);
+                for(let i=0;i<n;i++){const e=dayLoc.nth(i);if(await e.isVisible().catch(()=>false)){await e.click().catch(()=>{});await page.waitForTimeout(1500);await snap(`calendar-day-${day}`);break;}}
+              }catch(e){result.errors.push(`day ${day}: ${String(e)}`);}
+            }
+          }catch(e){result.errors.push(String(e?.stack||e));}
+          await fs.writeFile(outDir+'/finery-hyly.json',JSON.stringify(result,null,2));
+          console.log(JSON.stringify({errors:result.errors,steps:result.steps.map(s=>({label:s.label,url:s.url,body:s.body.slice(0,20000),controls:s.controls.slice(0,600),frames:s.frames.map(f=>({url:f.url,body:f.body.slice(0,12000)}))})),network:result.network.slice(0,300)},null,2));
+          await context.close();await browser.close();
+          JS
+          node hyly.mjs
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: finery-hyly-audit
+          path: hyly-output
+          retention-days: 7
