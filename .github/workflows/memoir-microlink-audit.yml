@@ -1,0 +1,32 @@
+name: Temporary Memoir managed-browser probe
+
+on:
+  push:
+    branches:
+      - tmp-tour-audit-links
+    paths:
+      - .github/workflows/memoir-microlink-audit.yml
+      - scripts/memoir-microlink-audit.mjs
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run managed-browser probe
+        run: node scripts/memoir-microlink-audit.mjs
+      - name: Upload managed-browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-audit-memoir-microlink-output
+          path: tour-audit-memoir-microlink-output
+          retention-days: 1
+          if-no-files-found: warn
