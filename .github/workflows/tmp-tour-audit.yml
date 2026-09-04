@@ -1,0 +1,41 @@
+name: Temporary Tour Scheduler Audit
+
+on:
+  push:
+    branches:
+      - tmp-tour-audit-links-20260904
+    paths:
+      - tools/tmp_tour_audit_probe.py
+      - .github/workflows/tmp-tour-audit.yml
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out audit branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install browser tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Run live browser probe
+        run: python tools/tmp_tour_audit_probe.py
+
+      - name: Upload audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-audit-probe
+          path: tour_audit_output
+          if-no-files-found: warn
+          retention-days: 1
