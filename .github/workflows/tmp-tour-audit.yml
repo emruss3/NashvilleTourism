@@ -5,14 +5,14 @@ on:
     branches:
       - tmp-tour-audit-links-20260904
     paths:
-      - tools/tmp_tour_audit_probe.py
+      - tools/tmp_tour_audit_phase3.py
       - .github/workflows/tmp-tour-audit.yml
   workflow_dispatch:
 
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 35
     steps:
       - name: Check out audit branch
         uses: actions/checkout@v4
@@ -29,7 +29,7 @@ jobs:
           python -m playwright install --with-deps chromium
 
       - name: Run live browser probe
-        run: python tools/tmp_tour_audit_probe.py
+        run: xvfb-run -a python tools/tmp_tour_audit_phase3.py
 
       - name: Upload audit evidence
         if: always()
