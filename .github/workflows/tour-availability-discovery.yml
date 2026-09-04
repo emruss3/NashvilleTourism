@@ -1,0 +1,211 @@
+name: Tour availability discovery
+
+on:
+  push:
+    branches:
+      - audit/tour-availability-2026-09-04
+    paths:
+      - .github/workflows/tour-availability-discovery.yml
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          mkdir -p /tmp/tour-audit
+          cd /tmp/tour-audit
+          npm init -y >/dev/null
+          npm install playwright@1.55.0 >/dev/null
+          npx playwright install chromium
+      - name: Discover scheduler implementations
+        working-directory: /tmp/tour-audit
+        run: |
+          cat > discover.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs/promises';
+          import path from 'node:path';
+
+          const properties = [
+            ['Emblem Park', 'https://emblemparknashville.com/schedule-a-tour/'],
+            ['Westerly House', 'https://livewesterlyhouse.com/schedule-a-tour/'],
+            ['445 Park Commons', 'https://445parkcommons.com/schedule-a-tour/'],
+            ['Residences at The Finery', 'https://www.livethefinery.com/'],
+            ['Memoir Wedgewood Houston', 'https://memoirresidential.com/properties/wedgewoodhouston'],
+            ['Memoir May Hosiery', 'https://memoirresidential.com/properties/may-hosiery'],
+            ['Standard Assembly', 'https://www.greystar.com/properties/nashville-tn/standard-assembly-apartments/p_19399'],
+            ['Queens Wedgewood Houston', 'https://queensweho.com/'],
+            ['Luna', 'https://lunanashvilleliving.com/'],
+            ['Delux WeHo', 'https://deluxweho.com/'],
+            ['CODA', 'https://thecodanashville.com/']
+          ];
+
+          const outRoot = process.env.GITHUB_WORKSPACE + '/audit-output';
+          await fs.mkdir(outRoot, { recursive: true });
+          const browser = await chromium.launch({
+            headless: true,
+            args: ['--disable-dev-shm-usage', '--disable-blink-features=AutomationControlled']
+          });
+
+          const safe = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+          const trim = (s, n=30000) => (s || '').replace(/\u0000/g, '').slice(0, n);
+          const keyword = /tour|schedule|appointment|calendar|availability|timeslot|time-slot|book|leasing|knock|funnel|hyly|rentcafe|entrata|realpage|rently|elise|tour24|anyonehome/i;
+
+          async function clickTour(page) {
+            const patterns = [
+              /schedule\s*(a|your)?\s*tour/i,
+              /book\s*(a|your)?\s*tour/i,
+              /tour\s*now/i,
+              /schedule\s*(a|your)?\s*visit/i,
+              /book\s*(a|your)?\s*visit/i
+            ];
+            const candidates = page.locator('a,button,[role="button"],input[type="button"],input[type="submit"]');
+            const count = Math.min(await candidates.count(), 500);
+            for (const rx of patterns) {
+              for (let i=0; i<count; i++) {
+                const el = candidates.nth(i);
+                try {
+                  if (!(await el.isVisible({ timeout: 300 }))) continue;
+                  const text = ((await el.innerText({ timeout: 300 }).catch(()=>'')) || (await el.getAttribute('aria-label')) || (await el.getAttribute('value')) || '').trim();
+                  if (!rx.test(text)) continue;
+                  const before = page.url();
+                  await el.scrollIntoViewIfNeeded().catch(()=>{});
+                  await el.click({ timeout: 5000 }).catch(async()=>{ await el.click({ timeout: 5000, force: true }); });
+                  await page.waitForTimeout(5000);
+                  return { clicked: text, before, after: page.url() };
+                } catch {}
+              }
+            }
+            return null;
+          }
+
+          async function frameSnapshot(frame) {
+            let text='', html='', title='';
+            try { text = await frame.locator('body').innerText({ timeout: 5000 }); } catch {}
+            try { html = await frame.content(); } catch {}
+            try { title = await frame.title(); } catch {}
+            return { url: frame.url(), title, text: trim(text), html: trim(html, 120000) };
+          }
+
+          for (const [name, url] of properties) {
+            const slug = safe(name);
+            const dir = path.join(outRoot, slug);
+            await fs.mkdir(dir, { recursive: true });
+            const context = await browser.newContext({
+              viewport: { width: 1440, height: 1100 },
+              locale: 'en-US',
+              timezoneId: 'America/Chicago',
+              userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'
+            });
+            await context.addInitScript(() => {
+              Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+            });
+            const page = await context.newPage();
+            const responses = [];
+            const consoleMessages = [];
+            page.on('console', msg => consoleMessages.push({ type: msg.type(), text: trim(msg.text(), 2000) }));
+            page.on('response', async res => {
+              try {
+                const req = res.request();
+                const u = res.url();
+                const type = req.resourceType();
+                const ct = (res.headers()['content-type'] || '').toLowerCase();
+                if (!['xhr','fetch','document'].includes(type) && !keyword.test(u)) return;
+                let body = '';
+                if (ct.includes('json') || ct.includes('text') || ct.includes('javascript') || keyword.test(u)) {
+                  body = trim(await res.text().catch(()=>''), 150000);
+                }
+                responses.push({ status: res.status(), type, method: req.method(), url: u, contentType: ct, requestPostData: trim(req.postData() || '', 30000), body });
+              } catch {}
+            });
+
+            const result = { name, requestedUrl: url, startedAt: new Date().toISOString(), errors: [] };
+            try {
+              const nav = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 75000 });
+              result.initialStatus = nav?.status() ?? null;
+              await page.waitForTimeout(8000);
+              for (const label of [/accept all/i,/accept cookies/i,/allow all/i,/i agree/i]) {
+                const btn = page.getByRole('button', { name: label }).first();
+                if (await btn.isVisible({ timeout: 300 }).catch(()=>false)) { await btn.click().catch(()=>{}); await page.waitForTimeout(1000); break; }
+              }
+              result.initialUrl = page.url();
+              result.initialTitle = await page.title();
+              result.initialBody = trim(await page.locator('body').innerText().catch(()=>''));
+              result.tourElementsBefore = await page.locator('a,button,[role="button"],input').evaluateAll(els => els.map(e => ({
+                tag: e.tagName,
+                text: (e.innerText || e.value || e.getAttribute('aria-label') || '').trim().replace(/\s+/g,' '),
+                href: e.href || '',
+                type: e.type || '',
+                id: e.id || '',
+                cls: typeof e.className === 'string' ? e.className : ''
+              })).filter(x => /tour|schedule|book|visit|appointment/i.test(`${x.text} ${x.href} ${x.id} ${x.cls}`)).slice(0,300));
+              result.iframesBefore = await page.locator('iframe').evaluateAll(els => els.map(e => ({ src:e.src, title:e.title, id:e.id, name:e.name, cls:e.className })));
+
+              if (!/schedule-a-tour|book-a-tour|tour-scheduler|schedule-tour/i.test(page.url())) {
+                result.click = await clickTour(page);
+              } else {
+                const body = result.initialBody || '';
+                if (!/select a date|appointment type|select.*tour|available time|tour type|guided tour|self.?guided|live video/i.test(body)) {
+                  result.click = await clickTour(page);
+                }
+              }
+              await page.waitForTimeout(8000);
+              result.finalUrl = page.url();
+              result.finalTitle = await page.title();
+              result.finalBody = trim(await page.locator('body').innerText().catch(()=>''), 50000);
+              result.tourElementsAfter = await page.locator('a,button,[role="button"],input,select,option').evaluateAll(els => els.map(e => ({
+                tag: e.tagName,
+                text: (e.innerText || e.value || e.getAttribute('aria-label') || e.getAttribute('placeholder') || '').trim().replace(/\s+/g,' '),
+                href: e.href || '',
+                type: e.type || '',
+                id: e.id || '',
+                name: e.name || '',
+                cls: typeof e.className === 'string' ? e.className : '',
+                disabled: !!e.disabled
+              })).filter(x => /tour|schedule|book|visit|appointment|date|time|guided|virtual|video|self/i.test(`${x.text} ${x.href} ${x.id} ${x.name} ${x.cls}`)).slice(0,500));
+              result.iframesAfter = await page.locator('iframe').evaluateAll(els => els.map(e => ({ src:e.src, title:e.title, id:e.id, name:e.name, cls:e.className })));
+              result.frames = [];
+              for (const frame of page.frames()) result.frames.push(await frameSnapshot(frame));
+              await page.screenshot({ path: path.join(dir, 'final.png'), fullPage: true }).catch(()=>{});
+              await fs.writeFile(path.join(dir, 'page.html'), await page.content().catch(()=>''));
+            } catch (e) {
+              result.errors.push(String(e?.stack || e));
+              await page.screenshot({ path: path.join(dir, 'error.png'), fullPage: true }).catch(()=>{});
+            }
+            result.responses = responses;
+            result.console = consoleMessages;
+            result.finishedAt = new Date().toISOString();
+            await fs.writeFile(path.join(dir, 'discovery.json'), JSON.stringify(result, null, 2));
+            console.log(`\n===== PROPERTY ${name} =====`);
+            console.log(JSON.stringify({
+              name,
+              requestedUrl: result.requestedUrl,
+              initialStatus: result.initialStatus,
+              finalUrl: result.finalUrl,
+              click: result.click,
+              iframes: result.iframesAfter,
+              frameUrls: (result.frames || []).map(f=>f.url),
+              bodyPreview: trim(result.finalBody, 10000),
+              relevantResponses: responses.filter(r=>keyword.test(r.url) || keyword.test(r.body)).map(r=>({status:r.status,type:r.type,method:r.method,url:r.url,body:trim(r.body,3000)})).slice(0,80),
+              errors: result.errors
+            }, null, 2));
+            await context.close();
+          }
+          await browser.close();
+          JS
+          node discover.mjs
+      - name: Upload discovery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-availability-discovery
+          path: audit-output
+          retention-days: 7
