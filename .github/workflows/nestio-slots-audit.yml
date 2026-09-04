@@ -1,0 +1,42 @@
+name: Temporary Nestio slot extraction
+
+on:
+  push:
+    branches:
+      - tmp-tour-audit-links
+    paths:
+      - .github/workflows/nestio-slots-audit.yml
+      - scripts/nestio-slots-audit.mjs
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser runtime
+        shell: bash
+        run: |
+          mkdir -p /tmp/tour-audit-nestio-slots
+          cp scripts/nestio-slots-audit.mjs /tmp/tour-audit-nestio-slots/audit.mjs
+          cd /tmp/tour-audit-nestio-slots
+          npm init -y
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run live Nestio slot extraction
+        shell: bash
+        run: node /tmp/tour-audit-nestio-slots/audit.mjs
+      - name: Upload slot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-audit-nestio-slots-output
+          path: tour-audit-nestio-slots-output
+          retention-days: 1
+          if-no-files-found: warn
