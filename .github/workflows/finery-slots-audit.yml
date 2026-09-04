@@ -1,0 +1,42 @@
+name: Temporary Finery slot extraction
+
+on:
+  push:
+    branches:
+      - tmp-tour-audit-links
+    paths:
+      - .github/workflows/finery-slots-audit.yml
+      - scripts/finery-slots-audit.mjs
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser runtime
+        shell: bash
+        run: |
+          mkdir -p /tmp/tour-audit-finery
+          cp scripts/finery-slots-audit.mjs /tmp/tour-audit-finery/audit.mjs
+          cd /tmp/tour-audit-finery
+          npm init -y
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run Finery live slot extraction
+        shell: bash
+        run: node /tmp/tour-audit-finery/audit.mjs
+      - name: Upload Finery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-audit-finery-output
+          path: tour-audit-finery-output
+          retention-days: 1
+          if-no-files-found: warn
