@@ -1,0 +1,40 @@
+name: Temporary Remaining Tour Scheduler Resolution
+
+on:
+  push:
+    branches:
+      - temp-tour-audit-2026-09-04
+    paths:
+      - 'scripts/temp-tour-audit-resolve.mjs'
+      - '.github/workflows/temp-tour-audit-resolve.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CI: true
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Resolve remaining calendars
+        run: node scripts/temp-tour-audit-resolve.mjs
+      - name: Upload resolved evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-audit-resolved
+          path: resolved-audit-output
+          if-no-files-found: warn
+          retention-days: 1
