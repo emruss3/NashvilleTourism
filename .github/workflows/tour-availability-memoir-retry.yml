@@ -1,0 +1,107 @@
+name: Memoir tour calendar retry
+
+on:
+  push:
+    branches:
+      - audit/tour-availability-2026-09-04
+    paths:
+      - .github/workflows/tour-availability-memoir-retry.yml
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser
+        run: |
+          mkdir -p /tmp/memoir-${{ matrix.browser }} && cd /tmp/memoir-${{ matrix.browser }}
+          npm init -y >/dev/null
+          npm install playwright@1.55.0 >/dev/null
+          npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Audit exact slots
+        working-directory: /tmp/memoir-${{ matrix.browser }}
+        env:
+          BROWSER: ${{ matrix.browser }}
+        run: |
+          cat > audit.mjs <<'JS'
+          import { chromium, firefox, webkit } from 'playwright';
+          import fs from 'node:fs/promises';
+          const engine={chromium,firefox,webkit}[process.env.BROWSER];
+          const out=process.env.GITHUB_WORKSPACE+'/memoir-'+process.env.BROWSER;
+          await fs.mkdir(out,{recursive:true});
+          const dates=['09/11/2026','09/12/2026','09/13/2026','09/14/2026','09/15/2026','09/16/2026','09/17/2026','09/18/2026'];
+          const targets=[
+            ['Memoir May Hosiery','https://www.memoir-mayhosiery.com/','https://www.memoir-mayhosiery.com/scheduletour'],
+            ['Memoir Wedgewood Houston','https://www.memoirresidential.com/properties/wedgewoodhouston','https://www.memoir-wedgewoodhouston.com/scheduletour']
+          ];
+          const userAgents={
+            chromium:'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+            firefox:'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0',
+            webkit:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15'
+          };
+          const browser=await engine.launch({headless:true});
+          const result={browser:process.env.BROWSER,targets:[]};
+          for(const [name,startUrl,directUrl] of targets){
+            const context=await browser.newContext({viewport:{width:1440,height:1000},locale:'en-US',timezoneId:'America/Chicago',userAgent:userAgents[process.env.BROWSER]});
+            if(process.env.BROWSER==='chromium')await context.addInitScript(()=>Object.defineProperty(navigator,'webdriver',{get:()=>undefined}));
+            const page=await context.newPage();
+            const r={name,startUrl,directUrl,attempts:[],days:{},errors:[],network:[]};
+            page.on('response',async res=>{try{if(!/scheduletour|GetAvailableSlots|GetWeeklyCalendar/i.test(res.url()))return;r.network.push({status:res.status(),method:res.request().method(),url:res.url(),post:res.request().postData()||'',body:(await res.text().catch(()=>''))?.slice(0,120000)||''});}catch{}});
+            for(const url of [startUrl,directUrl,directUrl+'?audit=1']){
+              try{
+                const nav=await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
+                await page.waitForTimeout(9000);
+                let body=(await page.locator('body').innerText().catch(()=>''))||'';
+                if(/performing security verification|just a moment|sorry, you have been blocked/i.test(body)){
+                  await page.waitForTimeout(20000);body=(await page.locator('body').innerText().catch(()=>''))||'';
+                }
+                r.attempts.push({url,status:nav?.status(),finalUrl:page.url(),title:await page.title(),body:body.slice(0,3000)});
+                if(/when would you like to visit|schedule your personal tour/i.test(body))break;
+                if(url===startUrl){
+                  const tour=page.locator('a,button,[role=button]').filter({hasText:/schedule a tour|book a tour/i}).first();
+                  if(await tour.isVisible().catch(()=>false)){await tour.click();await page.waitForTimeout(10000);body=(await page.locator('body').innerText().catch(()=>''))||'';r.attempts.push({url:'clicked tour',finalUrl:page.url(),title:await page.title(),body:body.slice(0,3000)});if(/when would you like to visit|schedule your personal tour/i.test(body))break;}
+                }
+              }catch(e){r.errors.push(String(e));}
+            }
+            try{
+              const fetched=await page.evaluate(async dates=>{
+                const token=document.querySelector('#scheduletour-request-verification-token')?.value;
+                const calendarToken=document.querySelector('#calendar-request-verification-token')?.value;
+                const out={tokenFound:!!token,calendarTokenFound:!!calendarToken,days:{},tourText:document.body.innerText.slice(0,5000)};
+                if(!token)return out;
+                for(const date of dates){
+                  const body=new URLSearchParams({dtSchedule:date,tourType:'0',txtBedroom:'',units:''}).toString();
+                  const res=await fetch('/scheduletour?handler=GetAvailableSlots',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','RequestVerificationToken':token,'Cache-Control':'no-cache','X-Requested-With':'XMLHttpRequest'},body});
+                  const html=await res.text();
+                  const div=document.createElement('div');div.innerHTML=html;
+                  const times=[...div.querySelectorAll('.availableslots_button')].map(e=>(e.innerText||e.textContent||'').replace(/\s+/g,' ').trim()).filter(Boolean);
+                  out.days[date]={status:res.status,times:[...new Set(times)],text:(div.innerText||'').replace(/\s+/g,' ').trim().slice(0,1000),html:html.slice(0,3000)};
+                }
+                return out;
+              },dates);
+              Object.assign(r,fetched);r.days=fetched.days||{};
+            }catch(e){r.errors.push(String(e));}
+            await fs.writeFile(out+'/'+name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.json',JSON.stringify(r,null,2));
+            console.log(JSON.stringify(r));result.targets.push(r);await context.close();
+          }
+          await fs.writeFile(out+'/all.json',JSON.stringify(result,null,2));await browser.close();
+          JS
+          node audit.mjs
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: memoir-${{ matrix.browser }}
+          path: memoir-${{ matrix.browser }}
+          retention-days: 7
