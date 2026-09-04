@@ -1,0 +1,115 @@
+name: Final scheduler extraction
+
+on:
+  push:
+    branches:
+      - audit/tour-availability-2026-09-04
+    paths:
+      - .github/workflows/tour-availability-final-schedulers.yml
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser
+        run: |
+          mkdir -p /tmp/final-schedulers && cd /tmp/final-schedulers
+          npm init -y >/dev/null
+          npm install playwright@1.55.0 >/dev/null
+          npx playwright install chromium
+      - name: Extract exact dates
+        working-directory: /tmp/final-schedulers
+        run: |
+          cat > audit.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs/promises';
+          const out=process.env.GITHUB_WORKSPACE+'/final-scheduler-output'; await fs.mkdir(out,{recursive:true});
+          const browser=await chromium.launch({headless:true,args:['--disable-dev-shm-usage','--disable-blink-features=AutomationControlled','--no-sandbox']});
+          const dates=[['2026-09-11','11'],['2026-09-12','12'],['2026-09-13','13'],['2026-09-14','14'],['2026-09-15','15'],['2026-09-16','16'],['2026-09-17','17'],['2026-09-18','18']];
+          const opts={viewport:{width:1440,height:1000},locale:'en-US',timezoneId:'America/Chicago',userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'};
+          const clean=s=>(s||'').replace(/\s+/g,' ').trim();
+          async function ctx(){const c=await browser.newContext(opts);await c.addInitScript(()=>Object.defineProperty(navigator,'webdriver',{get:()=>undefined}));return c;}
+
+          async function finery(){
+            const c=await ctx(), p=await c.newPage();
+            const r={name:'Residences at The Finery',platform:'Hyly',url:'https://my.hy.ly/tours/schedules/1769511060134303458?dd=0&frame=1&popup=1&site=1&type=in_person',tourTypes:[],days:{},network:[],errors:[]};
+            p.on('response',async x=>{if(/time_select|disabled_dates/.test(x.url()))r.network.push({status:x.status(),url:x.url(),body:(await x.text().catch(()=>''))?.slice(0,100000)||''});});
+            try{
+              await p.goto(r.url,{waitUntil:'domcontentloaded',timeout:75000});await p.waitForTimeout(3500);
+              r.tourTypes=await p.locator('.types li, .types a, [data-type]').evaluateAll(es=>[...new Set(es.map(e=>(e.innerText||e.textContent||'').replace(/\s+/g,' ').trim()).filter(Boolean))]).catch(()=>[]);
+              r.initialBody=(await p.locator('body').innerText()).slice(0,30000);
+              for(const [iso,day] of dates){
+                const row={times:[]};r.days[iso]=row;
+                const cells=p.locator('.main .col-left .date-select td.day:not(.old):not(.new)');
+                let cell=null;
+                for(let i=0;i<await cells.count();i++){const x=cells.nth(i);if(clean(await x.innerText())===day){cell=x;break;}}
+                if(!cell){row.missing=true;continue;}
+                row.class=await cell.getAttribute('class')||'';
+                row.disabled=/disabled/.test(row.class);
+                if(row.disabled)continue;
+                const responsePromise=p.waitForResponse(x=>x.url().includes('/time_select?')&&x.url().includes('date=2026%2F09%2F'+day),{timeout:15000}).catch(()=>null);
+                await cell.click();
+                await responsePromise; await p.waitForTimeout(800);
+                row.times=[...new Set(await p.locator('.main .col-center .time-select a[data-time]').evaluateAll(es=>es.map(e=>(e.innerText||e.textContent||'').replace(/\s+/g,' ').trim()).filter(Boolean)))];
+                row.raw=await p.locator('.main .col-center .time-select').innerText().catch(()=>null);
+              }
+              r.formAction=await p.locator('form.entry-form').getAttribute('action');
+              r.submitLabels=await p.locator('button, input[type=submit]').evaluateAll(es=>es.map(e=>(e.innerText||e.value||'').replace(/\s+/g,' ').trim()).filter(Boolean));
+              r.contactFields=await p.locator('form.entry-form input, form.entry-form select').evaluateAll(es=>es.map(e=>({name:e.name,type:e.type,placeholder:e.placeholder,required:e.required})).filter(x=>x.name));
+            }catch(e){r.errors.push(String(e?.stack||e));}
+            await fs.writeFile(out+'/finery.json',JSON.stringify(r,null,2));console.log('FINERY',JSON.stringify(r));await c.close();
+          }
+
+          async function standard(){
+            const c=await ctx();
+            const widget='https://integrations.nestio.com/contact-widget/v1/iframe-widget.html?type=lead_capture_appointment&key=03f5fe3982bf41a380739512238020a1&group=6708&color=322f31';
+            const r={name:'Standard Assembly',platform:'Funnel/Nestio',url:widget,types:[],errors:[]};
+            try{
+              const probe=await c.newPage();await probe.goto(widget,{waitUntil:'domcontentloaded',timeout:60000});await probe.waitForTimeout(2500);
+              const typeButton=probe.locator('.cheryl__select-tour-type [role=button]').first();await typeButton.click();await probe.waitForTimeout(300);
+              const allOptions=await probe.locator('[role=option], [role=listbox] li, [class*=SingleSelectOption], [class*=SelectOption]').evaluateAll(es=>es.filter(e=>{const s=getComputedStyle(e);return s.display!=='none'&&s.visibility!=='hidden';}).map(e=>({text:(e.innerText||e.textContent||'').replace(/\s+/g,' ').trim(),value:e.getAttribute('data-value')||e.getAttribute('value')||'',html:e.outerHTML.slice(0,2000)})).filter(x=>x.text));
+              r.optionProbe=allOptions;
+              const unique=[];for(const x of allOptions){const t=x.text.split(/Tour this|Tour the/i)[0].trim()||x.text;if(!unique.some(y=>y.text===x.text))unique.push(x);}r.optionCount=Math.max(1,Math.min(3,unique.length/2||unique.length));
+              await probe.close();
+              // Try three keyboard positions and dedupe by the resulting hidden value.
+              const seen=new Set();
+              for(let idx=0;idx<3;idx++){
+                const tr={index:idx,label:null,value:null,days:{},postContinue:null,errors:[]};
+                for(const [iso,day] of dates){
+                  const p=await c.newPage();
+                  try{
+                    await p.goto(widget,{waitUntil:'domcontentloaded',timeout:60000});await p.waitForTimeout(1800);
+                    const b=p.locator('.cheryl__select-tour-type [role=button]').first();await b.click();for(let k=0;k<=idx;k++)await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(650);
+                    tr.label=clean(await b.innerText());tr.value=await p.locator('.cheryl__select-tour-type input[type=hidden]').inputValue().catch(()=>null);
+                    const date=p.locator('.cheryl__select-date input[type=text]').first();await date.click();
+                    const cells=p.locator('.react-datepicker__day:not(.react-datepicker__day--outside-month)');let cell=null;
+                    for(let i=0;i<await cells.count();i++){const x=cells.nth(i);if(clean(await x.innerText())===day){cell=x;break;}}
+                    const row={times:[]};tr.days[iso]=row;if(!cell){row.missing=true;await p.close();continue;}
+                    row.class=await cell.getAttribute('class')||'';row.disabled=/disabled/.test(row.class)||(await cell.getAttribute('aria-disabled'))==='true';
+                    if(!row.disabled){await cell.click();await p.waitForTimeout(1200);const tb=p.locator('.cheryl__select-time [role=button]').first();const cls=await tb.getAttribute('class')||'';if(!/disabled/.test(cls)){await tb.click();await p.waitForTimeout(250);const vals=await p.locator('[role=option], [role=listbox] li, [class*=SingleSelectOption], [class*=SelectOption]').evaluateAll(es=>es.filter(e=>{const s=getComputedStyle(e);return s.display!=='none'&&s.visibility!=='hidden';}).map(e=>(e.innerText||e.textContent||'').replace(/\s+/g,' ').trim()).filter(Boolean));row.times=[...new Set(vals)].filter(x=>/\d/.test(x));}}
+                    if(iso==='2026-09-11'&&row.times.length){await p.keyboard.press('ArrowDown').catch(()=>{});await p.keyboard.press('Enter').catch(()=>{});await p.waitForTimeout(200);const cont=p.getByText(/^Continue$/).first();if(await cont.isVisible().catch(()=>false)){await cont.click();await p.waitForTimeout(500);tr.postContinue={body:(await p.locator('body').innerText()).slice(0,30000),buttons:await p.locator('button,input[type=submit]').evaluateAll(es=>es.map(e=>(e.innerText||e.value||'').replace(/\s+/g,' ').trim()).filter(Boolean)),fields:await p.locator('input,select,textarea').evaluateAll(es=>es.map(e=>({name:e.name,type:e.type,placeholder:e.placeholder,required:e.required})).filter(x=>x.name||x.placeholder))};}}
+                  }catch(e){tr.errors.push({iso,error:String(e)});}await p.close();
+                }
+                if(tr.value&&!seen.has(tr.value)){seen.add(tr.value);r.types.push(tr);}
+              }
+            }catch(e){r.errors.push(String(e?.stack||e));}
+            await fs.writeFile(out+'/standard.json',JSON.stringify(r,null,2));console.log('STANDARD',JSON.stringify(r));await c.close();
+          }
+          await Promise.all([finery(),standard()]);await browser.close();
+          JS
+          node audit.mjs
+      - name: Upload output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-scheduler-output
+          path: final-scheduler-output
+          retention-days: 7
