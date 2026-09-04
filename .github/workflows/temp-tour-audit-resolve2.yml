@@ -1,0 +1,36 @@
+name: Temporary Corrected Tour Calendar Resolution
+
+on:
+  push:
+    branches:
+      - temp-tour-audit-2026-09-04
+    paths:
+      - 'scripts/temp-tour-audit-resolve2.mjs'
+      - '.github/workflows/temp-tour-audit-resolve2.yml'
+
+permissions:
+  contents: read
+
+env:
+  CI: true
+
+jobs:
+  resolve2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - run: node scripts/temp-tour-audit-resolve2.mjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-audit-resolved2
+          path: resolved2-audit-output
+          if-no-files-found: warn
+          retention-days: 1
