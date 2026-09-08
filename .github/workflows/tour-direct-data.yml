@@ -1,0 +1,30 @@
+name: Temporary direct tour data
+
+on:
+  push:
+    branches:
+      - ai/tour-scheduler-audit-20260908
+    paths:
+      - '.github/workflows/tour-direct-data.yml'
+      - 'scripts/tour-direct-data.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/tour-direct-data.mjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-direct-data
+          path: tour-direct-output
+          retention-days: 3
