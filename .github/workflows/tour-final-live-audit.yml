@@ -1,0 +1,62 @@
+name: Final live tour availability audit
+
+on:
+  push:
+    branches:
+      - ai/tour-scheduler-audit-20260908
+    paths:
+      - '.github/workflows/tour-final-live-audit.yml'
+      - 'scripts/tour-final-live-audit.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout audit branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Run final audit
+        run: node scripts/tour-final-live-audit.mjs
+
+      - name: Print result summary
+        if: always()
+        run: |
+          if [ -f tour-final-live-output/results.json ]; then
+            python - <<'PY'
+          import json
+          d=json.load(open('tour-final-live-output/results.json'))
+          print(json.dumps({
+            'capturedAt': d.get('capturedAt'),
+            'luna': d.get('luna'),
+            'memoirWedgewood': d.get('memoirWedgewood'),
+            'memoirMay': d.get('memoirMay'),
+            'coda': d.get('coda'),
+          }, indent=2))
+          PY
+          else
+            echo 'No results.json produced.'
+          fi
+
+      - name: Upload final audit output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-final-live-output
+          path: tour-final-live-output
+          retention-days: 3
+          if-no-files-found: warn
