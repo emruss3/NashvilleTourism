@@ -1,0 +1,52 @@
+name: Temporary tour scheduler audit
+
+on:
+  push:
+    branches:
+      - ai/tour-scheduler-audit-20260908
+    paths:
+      - '.github/workflows/tour-scheduler-audit.yml'
+      - 'scripts/tour-scheduler-diagnostic.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout audit branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Run browser diagnostic
+        run: node scripts/tour-scheduler-diagnostic.mjs
+
+      - name: Print compact provider and frame report
+        if: always()
+        run: |
+          if [ -f tour-audit-output/summary.json ]; then
+            cat tour-audit-output/summary.json
+          fi
+          echo '--- provider-related URLs ---'
+          grep -RhoE 'https?://[^" ]+' tour-audit-output/*/network.json 2>/dev/null | grep -Ei 'tour|schedule|appointment|calendar|availab|knock|hyly|rentcafe|securecafe|realpage|funnel|elise|tour24|rently|engrain|betterbot|perq|leasehawk' | sort -u | head -500 || true
+
+      - name: Upload diagnostic output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-scheduler-diagnostic
+          path: tour-audit-output
+          retention-days: 3
+          if-no-files-found: warn
