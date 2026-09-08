@@ -1,0 +1,48 @@
+name: Temporary tour availability audit
+
+on:
+  push:
+    branches:
+      - audit/tour-availability-2026-09-08
+    paths:
+      - '.github/scripts/tour-audit-recon.mjs'
+      - '.github/workflows/tour-availability-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CI: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Check out temporary audit branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save --ignore-scripts playwright
+          npx playwright install --with-deps chromium
+
+      - name: Audit live tour schedulers
+        run: node .github/scripts/tour-audit-recon.mjs
+        env:
+          AUDIT_OUT: tour-audit-artifacts
+
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-audit-recon
+          path: tour-audit-artifacts
+          if-no-files-found: warn
+          retention-days: 2
