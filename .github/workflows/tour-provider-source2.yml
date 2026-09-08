@@ -1,0 +1,59 @@
+name: Temporary remaining provider source probe
+
+on:
+  push:
+    branches:
+      - ai/tour-scheduler-audit-20260908
+    paths:
+      - '.github/workflows/tour-provider-source2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Fetch remaining scheduler sources
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p provider-source2
+          cat > /tmp/urls.tsv <<'EOF'
+          finery-schedule	https://schedule.tours/hines-development/livethefinery/schedule
+          memoir-weho-direct	https://memoir-wedgewoodhouston.securecafe.com/scheduletour
+          memoir-weho-direct-net	https://memoir-wedgewoodhouston.securecafenet.com/scheduletour
+          memoir-may-direct	https://memoir-mayhosiery.securecafe.com/scheduletour
+          memoir-may-direct-net	https://memoir-mayhosiery.securecafenet.com/scheduletour
+          standard	https://thestandardassembly.com/
+          limestone	https://liveatlimestone.com/scheduletour
+          knock-js	https://doorway.knck.io/latest/doorway.min.js
+          EOF
+          while IFS=$'\t' read -r name url; do
+            echo "===== $name $url ====="
+            curl -sS -L --compressed --max-time 60 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36' -D "provider-source2/$name.headers" -o "provider-source2/$name.body" "$url" || true
+            wc -c "provider-source2/$name.body" || true
+            echo '-- status/final --'
+            grep -E '^HTTP/|^location:' "provider-source2/$name.headers" || true
+            echo '-- provider/API clues --'
+            grep -aoE '.{0,180}(appointment|availability|available.?time|time.?slot|tour.?type|guided.?tour|self.?guided|video.?tour|schedule|calendar|api/|graphql|knock|knck|rentcafe|securecafe|hyly|hy\.ly|funnel|entrata|realpage|prospectportal).{0,260}' "provider-source2/$name.body" | head -400 || true
+            echo '-- URLs --'
+            grep -aoE 'https?://[^"'"'"' )<>]+' "provider-source2/$name.body" | grep -Ei 'tour|schedule|appointment|availab|calendar|slot|api|knock|knck|rentcafe|securecafe|hyly|hy\.ly|funnel|entrata|realpage|prospectportal' | sort -u | head -400 || true
+          done < /tmp/urls.tsv | tee provider-source2/report.txt
+
+          echo '===== DNS =====' | tee -a provider-source2/report.txt
+          for d in www.memoir-wedgewoodhouston.com memoir-wedgewoodhouston.securecafe.com www.memoir-mayhosiery.com memoir-mayhosiery.securecafe.com liveatlimestone.com thestandardassembly.com; do
+            echo "--- $d" | tee -a provider-source2/report.txt
+            dig +short CNAME "$d" | tee -a provider-source2/report.txt || true
+            dig +short A "$d" | tee -a provider-source2/report.txt || true
+          done
+
+      - name: Upload source probe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-provider-source2
+          path: provider-source2
+          retention-days: 3
