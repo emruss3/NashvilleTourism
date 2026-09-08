@@ -1,0 +1,30 @@
+name: Temporary fast tour data
+
+on:
+  push:
+    branches:
+      - ai/tour-scheduler-audit-20260908
+    paths:
+      - '.github/workflows/tour-fast-data.yml'
+      - 'scripts/tour-fast-data.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/tour-fast-data.mjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-fast-data
+          path: tour-fast-output
+          retention-days: 3
