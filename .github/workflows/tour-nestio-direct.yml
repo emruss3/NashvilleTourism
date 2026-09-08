@@ -1,0 +1,30 @@
+name: Temporary Funnel direct availability
+
+on:
+  push:
+    branches:
+      - ai/tour-scheduler-audit-20260908
+    paths:
+      - '.github/workflows/tour-nestio-direct.yml'
+      - 'scripts/nestio-direct-probe.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/nestio-direct-probe.mjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-nestio-direct
+          path: nestio-direct-output
+          retention-days: 3
