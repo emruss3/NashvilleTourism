@@ -1,0 +1,54 @@
+name: Temporary tour source scan
+
+on:
+  push:
+    branches:
+      - ai/tour-scheduler-audit-20260908
+    paths:
+      - '.github/workflows/tour-source-scan.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Fetch pages and extract scheduler fingerprints
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p source-scan
+          cat > /tmp/sites.tsv <<'EOF'
+          emblem	https://emblemparknashville.com/schedule-a-tour/
+          westerly	https://livewesterlyhouse.com/schedule-a-tour/
+          park445	https://445parkcommons.com/schedule-a-tour/
+          finery	https://livethefinery.com/
+          memoir-weho	https://memoirresidential.com/properties/wedgewoodhouston
+          memoir-may	https://memoirresidential.com/properties/may-hosiery
+          standard	https://www.greystar.com/properties/nashville-tn/standard-assembly-apartments-nashville-tn/p_19399
+          queens	https://queensweho.com/
+          luna	https://www.apartments.com/luna-nashville-tn/
+          delux	https://deluxweho.com/
+          coda	https://thecodanashville.com/
+          EOF
+          while IFS=$'\t' read -r name url; do
+            echo "===== $name | $url ====="
+            curl -sS -L --compressed --max-time 45 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36' -D "source-scan/$name.headers" -o "source-scan/$name.html" "$url" || true
+            printf 'Final/status: '
+            tail -n 1 "source-scan/$name.headers" 2>/dev/null || true
+            echo '-- provider keywords --'
+            grep -ioE '.{0,100}(schedule|tour|appointment|calendar|availability|knock|hyly|rentcafe|securecafe|realpage|funnel|elise|tour24|rently|engrain|betterbot|perq|leasehawk|rentdynamics|prospectportal).{0,200}' "source-scan/$name.html" 2>/dev/null | head -100 || true
+            echo '-- relevant URLs --'
+            grep -oE 'https?://[^"'"'"' <>]+' "source-scan/$name.html" 2>/dev/null | sed 's/&amp;/\&/g' | grep -Ei 'tour|schedule|appointment|calendar|knock|hyly|rentcafe|securecafe|realpage|funnel|elise|tour24|rently|engrain|betterbot|perq|leasehawk|rentdynamics|prospectportal' | sort -u | head -200 || true
+          done < /tmp/sites.tsv | tee source-scan/report.txt
+
+      - name: Upload source scan
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-source-scan
+          path: source-scan
+          retention-days: 3
