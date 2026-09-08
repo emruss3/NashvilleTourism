@@ -1,0 +1,50 @@
+name: Temporary scheduler provider probe
+
+on:
+  push:
+    branches:
+      - ai/tour-scheduler-audit-20260908
+    paths:
+      - '.github/workflows/tour-provider-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Fetch scheduling provider assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p provider-probe
+          urls=(
+            'https://integrations.nestio.com/contact-widget/v1/index.js'
+            'https://www.livethefinery.com/'
+            'https://liveatlimestone.com/scheduletour'
+            'https://www.memoir-wedgewoodhouston.com/scheduletour'
+            'https://www.memoir-mayhosiery.com/scheduletour'
+            'https://doorway.knck.io/latest/?community=CiWEM0dnDdUiV187&account=179&auth=5da43e8d-06db-499b-9837-4340a822e538'
+          )
+          i=0
+          for url in "${urls[@]}"; do
+            i=$((i+1))
+            echo "===== $i $url ====="
+            curl -sS -L --compressed --max-time 60 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36' -D "provider-probe/$i.headers" -o "provider-probe/$i.body" "$url" || true
+            wc -c "provider-probe/$i.body" || true
+            echo '-- URLs / endpoint-like strings --'
+            grep -aoE 'https?://[^"'"'"' )]+' "provider-probe/$i.body" | grep -Ei 'tour|schedule|appointment|availab|calendar|slot|nestio|funnel|hy\.ly|hyly|knock|knck|rentcafe|securecafe|realpage|entrata|resman' | sort -u | head -300 || true
+            echo '-- API keywords --'
+            grep -aoE '.{0,160}(appointment|availability|available-times|time.?slot|tour.?type|guided.?tour|video.?tour|self.?guided|calendar|schedule).{0,220}' "provider-probe/$i.body" | head -300 || true
+          done | tee provider-probe/report.txt
+
+      - name: Upload provider probe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tour-provider-probe
+          path: provider-probe
+          retention-days: 3
