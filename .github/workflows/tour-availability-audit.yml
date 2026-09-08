@@ -34,7 +34,19 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Audit live tour schedulers
-        run: node .github/scripts/tour-audit-recon.mjs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('.github/scripts/tour-audit-recon.mjs')
+          s = p.read_text()
+          old = ".catch(()=>[]));\n  return{label"
+          new = ".catch(()=>[])});\n  return{label"
+          if old not in s:
+              raise SystemExit('Expected syntax-fix target not found')
+          p.write_text(s.replace(old, new, 1))
+          PY
+          node --check .github/scripts/tour-audit-recon.mjs
+          node .github/scripts/tour-audit-recon.mjs
         env:
           AUDIT_OUT: tour-audit-artifacts
 
