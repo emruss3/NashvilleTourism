@@ -188,7 +188,8 @@ export function generateStaticParams() {
   return HUBS.map((h) => ({ slug: h.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const hub = getHub(params.slug);
   if (!hub) {
     return buildMetadata({
@@ -205,7 +206,8 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
   });
 }
 
-export default function StaySubHub({ params }: { params: { slug: string } }) {
+export default async function StaySubHub(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const hub = getHub(params.slug);
   if (!hub) notFound();
 

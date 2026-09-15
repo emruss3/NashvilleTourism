@@ -23,7 +23,8 @@ function nextIdParam(form: FormData): string | undefined {
   return nextId || undefined;
 }
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!hasAdminSession()) {
     return NextResponse.redirect(new URL('/admin/login', req.url), { status: 303 });
   }

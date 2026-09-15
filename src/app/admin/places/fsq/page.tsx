@@ -53,13 +53,14 @@ const CATEGORY_OPTIONS = [
 ];
 
 /** Legacy FSQ OS staging UI. Prefer /admin/places (generic discovery) going forward. */
-export default async function LegacyFsqPlaceStagingPage({
-  searchParams,
-}: {
-  searchParams?: { promoted?: string; ignored?: string; error?: string; id?: string };
-}) {
+export default async function LegacyFsqPlaceStagingPage(
+  props: {
+    searchParams?: Promise<{ promoted?: string; ignored?: string; error?: string; id?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   if (!isAdminAuthConfigured()) redirect('/admin/login?error=not-configured');
-  if (!hasAdminSession()) redirect('/admin/login');
+  if (!(await hasAdminSession())) redirect('/admin/login');
 
   const client = getSupabaseServiceClient();
   if (!client) redirect('/admin/login?error=not-configured');

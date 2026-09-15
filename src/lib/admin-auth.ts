@@ -43,8 +43,8 @@ export function adminSessionMaxAge(): number {
   return SESSION_MAX_AGE_SECONDS;
 }
 
-export function hasAdminSession(): boolean {
-  const actual = cookies().get(ADMIN_SESSION_COOKIE)?.value || '';
+export async function hasAdminSession(): Promise<boolean> {
+  const actual = (await cookies()).get(ADMIN_SESSION_COOKIE)?.value || '';
   const [version, rawExpiry, actualSig] = actual.split('.');
   if (version !== 'v1' || !rawExpiry || !actualSig) return false;
 

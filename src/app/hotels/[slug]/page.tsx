@@ -14,7 +14,8 @@ export function generateStaticParams() {
   return hotels.map((h) => ({ slug: h.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const h = getHotel(params.slug);
   if (!h) return buildMetadata({ title: 'Not found', description: '', path: '/hotels/', noindex: true });
   return buildMetadata({
@@ -27,7 +28,8 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
   });
 }
 
-export default function HotelPage({ params }: { params: { slug: string } }) {
+export default async function HotelPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const h = getHotel(params.slug);
   if (!h) notFound();
 

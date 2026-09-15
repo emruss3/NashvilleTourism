@@ -47,11 +47,12 @@ const RELATED_LINKS = [
   { href: '/honky-tonk-highway/', label: 'Honky-tonk highway' },
 ];
 
-export default function PlanPage({
-  searchParams,
-}: {
-  searchParams?: { type?: string };
-}) {
+export default async function PlanPage(
+  props: {
+    searchParams?: Promise<{ type?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const rawType = searchParams?.type;
   const tripType =
     rawType && rawType in TRIP_TYPE_LABELS ? (rawType as TripType) : undefined;

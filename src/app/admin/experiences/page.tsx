@@ -171,22 +171,23 @@ function hrefFor(params: {
   return `/admin/experiences?${q.toString()}`;
 }
 
-export default async function ExperienceCurationPage({
-  searchParams,
-}: {
-  searchParams?: {
-    approved?: string;
-    rejected?: string;
-    error?: string;
-    id?: string;
-    view?: string;
-    sort?: string;
-    filter?: string;
-    bucket?: string;
-  };
-}) {
+export default async function ExperienceCurationPage(
+  props: {
+    searchParams?: Promise<{
+      approved?: string;
+      rejected?: string;
+      error?: string;
+      id?: string;
+      view?: string;
+      sort?: string;
+      filter?: string;
+      bucket?: string;
+    }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   if (!isAdminAuthConfigured()) redirect('/admin/login?error=not-configured');
-  if (!hasAdminSession()) redirect('/admin/login');
+  if (!(await hasAdminSession())) redirect('/admin/login');
 
   const client = getSupabaseServiceClient();
   if (!client) redirect('/admin/login?error=not-configured');

@@ -38,9 +38,12 @@ function defaultLocalNote(item: Row) {
   return `Worth considering for travelers exploring ${item.neighborhood_name || 'Nashville'}. Verify current hours and booking needs on the official site — conditions change.`;
 }
 
-export default async function CanonicalPlaceReview({ searchParams }: { searchParams?: { category?: string; approved?: string; rejected?: string; error?: string; id?: string } }) {
+export default async function CanonicalPlaceReview(
+  props: { searchParams?: Promise<{ category?: string; approved?: string; rejected?: string; error?: string; id?: string }> }
+) {
+  const searchParams = await props.searchParams;
   if (!isAdminAuthConfigured()) redirect('/admin/login?error=not-configured');
-  if (!hasAdminSession()) redirect('/admin/login');
+  if (!(await hasAdminSession())) redirect('/admin/login');
   const client = getSupabaseServiceClient();
   if (!client) redirect('/admin/login?error=not-configured');
 

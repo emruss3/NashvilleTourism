@@ -51,11 +51,12 @@ function pageHref({
   return query ? `/tours/?${query}` : '/tours/';
 }
 
-export default async function ToursHub({
-  searchParams,
-}: {
-  searchParams?: { q?: string; date?: string; start?: string };
-}) {
+export default async function ToursHub(
+  props: {
+    searchParams?: Promise<{ q?: string; date?: string; start?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const q = searchParams?.q?.trim() || undefined;
   const date = searchParams?.date?.trim() || undefined;
   const parsedStart = Number.parseInt(searchParams?.start || '1', 10);

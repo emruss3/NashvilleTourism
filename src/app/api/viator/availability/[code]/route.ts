@@ -13,9 +13,9 @@ type ScheduleEnvelope = {
 
 export async function GET(
   _request: Request,
-  context: { params: { code: string } },
+  context: { params: Promise<{ code: string }> },
 ) {
-  const code = decodeURIComponent(context.params.code || '').trim();
+  const code = decodeURIComponent((await context.params).code || '').trim();
   if (!code) {
     return Response.json(
       { configured: false, live: false, error: 'product code required' },

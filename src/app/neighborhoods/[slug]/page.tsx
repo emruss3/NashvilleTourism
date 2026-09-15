@@ -22,7 +22,8 @@ export function generateStaticParams() {
   return neighborhoods.map((n) => ({ slug: n.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const n = getNeighborhood(params.slug);
   if (!n) return buildMetadata({ title: 'Not found', description: '', path: '/neighborhoods/', noindex: true });
 
@@ -48,7 +49,8 @@ function isSampleListing(title: string, slug: string) {
   return title.startsWith('[Sample]') || slug.startsWith('sample-');
 }
 
-export default async function NeighborhoodPage({ params }: { params: { slug: string } }) {
+export default async function NeighborhoodPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const n = getNeighborhood(params.slug);
   if (!n) notFound();
 

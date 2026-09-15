@@ -10,7 +10,8 @@ function redirectTo(req: Request, params: Record<string, string>) {
   return NextResponse.redirect(url, { status: 303 });
 }
 
-export async function POST(req: Request, { params }: { params: { fsqId: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ fsqId: string }> }) {
+  const params = await props.params;
   if (!hasAdminSession()) {
     return NextResponse.redirect(new URL('/admin/login', req.url), { status: 303 });
   }

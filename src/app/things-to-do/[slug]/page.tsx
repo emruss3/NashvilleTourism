@@ -12,7 +12,8 @@ export function generateStaticParams() {
   return attractions.map((a) => ({ slug: a.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const a = getAttraction(params.slug);
   if (!a) return buildMetadata({ title: 'Not found', description: '', path: '/things-to-do/', noindex: true });
   return buildMetadata({
@@ -25,7 +26,8 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
   });
 }
 
-export default function AttractionPage({ params }: { params: { slug: string } }) {
+export default async function AttractionPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const a = getAttraction(params.slug);
   if (!a) notFound();
 

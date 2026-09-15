@@ -74,19 +74,20 @@ function qs(params: {
   return s ? `?${s}` : '';
 }
 
-export default async function PlaceDiscoveryPage({
-  searchParams,
-}: {
-  searchParams?: {
-    provider?: string;
-    category?: string;
-    status?: string;
-    minScore?: string;
-    minConfidence?: string;
-  };
-}) {
+export default async function PlaceDiscoveryPage(
+  props: {
+    searchParams?: Promise<{
+      provider?: string;
+      category?: string;
+      status?: string;
+      minScore?: string;
+      minConfidence?: string;
+    }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   if (!isAdminAuthConfigured()) redirect('/admin/login?error=not-configured');
-  if (!hasAdminSession()) redirect('/admin/login');
+  if (!(await hasAdminSession())) redirect('/admin/login');
 
   const client = getSupabaseServiceClient();
   if (!client) redirect('/admin/login?error=not-configured');

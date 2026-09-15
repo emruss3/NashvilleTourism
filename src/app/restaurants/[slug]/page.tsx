@@ -12,7 +12,8 @@ export function generateStaticParams() {
   return restaurants.map((r) => ({ slug: r.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const r = getRestaurant(params.slug);
   if (!r) return buildMetadata({ title: 'Not found', description: '', path: '/restaurants/', noindex: true });
   return buildMetadata({
@@ -25,7 +26,8 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
   });
 }
 
-export default function RestaurantPage({ params }: { params: { slug: string } }) {
+export default async function RestaurantPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const r = getRestaurant(params.slug);
   if (!r) notFound();
 

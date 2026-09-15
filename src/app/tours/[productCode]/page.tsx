@@ -31,7 +31,8 @@ function unitLabel(unitType?: string): string | undefined {
   return labels[unitType] ?? `per ${unitType.toLowerCase().replaceAll('_', ' ')}`;
 }
 
-export async function generateMetadata({ params }: { params: { productCode: string } }) {
+export async function generateMetadata(props: { params: Promise<{ productCode: string }> }) {
+  const params = await props.params;
   const code = decodeURIComponent(params.productCode);
   const { product } = await getTourProduct(code);
   if (!product) {
@@ -50,7 +51,8 @@ export async function generateMetadata({ params }: { params: { productCode: stri
   });
 }
 
-export default async function TourProductPage({ params }: { params: { productCode: string } }) {
+export default async function TourProductPage(props: { params: Promise<{ productCode: string }> }) {
+  const params = await props.params;
   const code = decodeURIComponent(params.productCode);
   const { product, live, error, attribution } = await getTourProduct(code);
 

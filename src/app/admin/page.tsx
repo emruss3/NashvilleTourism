@@ -22,7 +22,7 @@ function dateTime(value: string | null) {
 
 export default async function AdminHomePage() {
   if (!isAdminAuthConfigured()) redirect('/admin/login?error=not-configured');
-  if (!hasAdminSession()) redirect('/admin/login');
+  if (!(await hasAdminSession())) redirect('/admin/login');
   const client = getSupabaseServiceClient();
   if (!client) redirect('/admin/login?error=not-configured');
 

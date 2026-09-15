@@ -65,11 +65,12 @@ const CATEGORY_INTRO: Record<string, string> = {
     'Arts and theater dates sit alongside concerts on the Ticketmaster feed. Confirm venue and start time before you lock dinner nearby.',
 };
 
-export default async function EventsIndex({
-  searchParams,
-}: {
-  searchParams?: { category?: string };
-}) {
+export default async function EventsIndex(
+  props: {
+    searchParams?: Promise<{ category?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const { events, live } = await getCalendar();
   const category = searchParams?.category?.trim() || null;
   const categoryIntro = category ? CATEGORY_INTRO[category] : null;

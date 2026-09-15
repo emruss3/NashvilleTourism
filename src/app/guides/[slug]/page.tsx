@@ -12,7 +12,8 @@ export function generateStaticParams() {
   return guides.map((g) => ({ slug: g.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const g = getGuide(params.slug);
   if (!g) return buildMetadata({ title: 'Not found', description: '', path: '/guides/', noindex: true });
   const author = isPublicAuthor(getAuthor(g.authorSlug));
@@ -35,7 +36,8 @@ function isPublicAuthor(author: ReturnType<typeof getAuthor>) {
   return author && !author.name.startsWith('[') ? author : undefined;
 }
 
-export default function GuidePage({ params }: { params: { slug: string } }) {
+export default async function GuidePage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const g = getGuide(params.slug);
   if (!g) notFound();
 

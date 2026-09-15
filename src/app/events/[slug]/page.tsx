@@ -13,7 +13,8 @@ export function generateStaticParams() {
   return events.map((e) => ({ slug: e.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const e = getEvent(params.slug);
   if (!e) return buildMetadata({ title: 'Not found', description: '', path: '/events/', noindex: true });
   return buildMetadata({
@@ -26,7 +27,8 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
   });
 }
 
-export default function EventPage({ params }: { params: { slug: string } }) {
+export default async function EventPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const e = getEvent(params.slug);
   if (!e) notFound();
 

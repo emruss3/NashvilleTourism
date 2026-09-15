@@ -5,9 +5,9 @@ export const revalidate = 3600;
 
 export async function GET(
   _request: Request,
-  context: { params: { code: string } },
+  context: { params: Promise<{ code: string }> },
 ) {
-  const code = decodeURIComponent(context.params.code || '');
+  const code = decodeURIComponent((await context.params).code || '');
   const result = await getViatorProduct(code);
   const fetchedAt = new Date().toISOString();
 
