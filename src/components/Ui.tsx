@@ -238,7 +238,15 @@ export function EmptyState({
     <div className="rounded-card border border-dashed border-paper-edge bg-paper-card px-6 py-14 text-center">
       <div className="mb-4 flex justify-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={asset('/brand/star.png')} alt="" className="h-7 w-7 object-contain" aria-hidden="true" />
+        <img
+          src={asset('/brand/star-96.webp')}
+          alt=""
+          width={96}
+          height={92}
+          className="h-7 w-7 object-contain"
+          aria-hidden="true"
+          loading="lazy"
+        />
       </div>
       <h2 className="font-display text-xl">{title}</h2>
       <p className="mx-auto mt-2 max-w-md text-[15px] text-ink-soft">{description}</p>

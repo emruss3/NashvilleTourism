@@ -14,16 +14,20 @@ export default function StarMark({
   title?: string;
 }) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={asset('/brand/star.png')}
-      alt={title ?? ''}
-      width={176}
-      height={168}
-      className={`star-mark shrink-0 object-contain ${className}`}
-      style={{ width: size, height: size }}
-      aria-hidden={title ? undefined : true}
-      decoding="async"
-    />
+    <picture>
+      <source type="image/webp" srcSet={asset('/brand/star-96.webp')} />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={asset('/brand/star.png')}
+        alt={title ?? ''}
+        width={176}
+        height={168}
+        className={`star-mark shrink-0 object-contain ${className}`}
+        style={{ width: size, height: size }}
+        aria-hidden={title ? undefined : true}
+        decoding="async"
+        loading="lazy"
+      />
+    </picture>
   );
 }

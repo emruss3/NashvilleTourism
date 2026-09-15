@@ -181,6 +181,27 @@ export function HeroMedia({ children }: { children: React.ReactNode }) {
 
   return (
     <div className={`relative isolate overflow-hidden bg-navy ${heightClass}`}>
+      {/* Browsers do not preload <picture> sources on their own; these links
+          are hoisted into <head> so the LCP image starts before CSS resolves. */}
+      {poster ? (
+        <>
+          <link
+            rel="preload"
+            as="image"
+            media="(max-width: 767px)"
+            href={assetUrl('/media/hero/nashville-hero-drone-poster-mobile-900.webp')}
+            fetchPriority="high"
+          />
+          <link
+            rel="preload"
+            as="image"
+            media="(min-width: 768px)"
+            imageSrcSet={`${assetUrl('/media/hero/nashville-hero-drone-poster-960.webp')} 960w, ${assetUrl('/media/hero/nashville-hero-drone-poster-1600.webp')} 1600w, ${assetUrl(poster)} 2400w`}
+            imageSizes="100vw"
+            fetchPriority="high"
+          />
+        </>
+      ) : null}
       <div className="absolute inset-0" aria-hidden="true">
         {poster ? (
           <picture>
@@ -208,8 +229,9 @@ export function HeroMedia({ children }: { children: React.ReactNode }) {
         ) : (
           <div className="h-full w-full bg-[radial-gradient(1100px_480px_at_80%_-10%,#3A6A94_0%,transparent_55%),radial-gradient(900px_420px_at_5%_110%,#8FC4AD_0%,transparent_50%),linear-gradient(165deg,#214A72_0%,#102A43_100%)]" />
         )}
-        <HeroVideo />
       </div>
+      {/* Outside the aria-hidden poster plane: the pause control must stay reachable. */}
+      <HeroVideo />
 
       {/* Readability wash: bottom and left, where the copy sits. */}
       <div

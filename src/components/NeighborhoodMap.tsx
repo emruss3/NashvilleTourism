@@ -82,11 +82,15 @@ export default function NeighborhoodMap() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={assetUrl('/media/maps/nashville-illustrated-map.png')}
+              srcSet={`${assetUrl('/media/maps/nashville-illustrated-map-640.webp')} 640w, ${assetUrl('/media/maps/nashville-illustrated-map-1024.webp')} 1024w`}
+              sizes="(max-width: 1023px) 100vw, 640px"
               alt="Illustrated map of Nashville neighborhoods including Germantown, East Nashville, Downtown, The Gulch, 12 South, and more."
               width={1024}
               height={1024}
               className="h-full w-full object-cover"
               draggable={false}
+              loading="lazy"
+              decoding="async"
             />
 
             <div className="absolute inset-0" role="group" aria-label="Neighborhood map hotspots">

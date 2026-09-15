@@ -24,16 +24,26 @@ export default function Wordmark({
   /** Kept for call-site compatibility; unused with plain img. */
   priority?: boolean;
 }) {
+  // The header renders the mark at roughly 110–130 CSS px wide. Lossless webp
+  // downsizes of the same PNG keep pixels exact while cutting ~90KB per page
+  // load; the original PNG stays as the fallback and on the style guide.
   const mark = (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={assetUrl('/brand/wordmark.png')}
-      alt={site.name}
-      width={710}
-      height={322}
-      className={`${SIZES[size].className} object-contain object-left`}
-      decoding="async"
-    />
+    <picture>
+      <source
+        type="image/webp"
+        srcSet={`${assetUrl('/brand/wordmark-320.webp')} 320w, ${assetUrl('/brand/wordmark-710.webp')} 710w`}
+        sizes="130px"
+      />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={assetUrl('/brand/wordmark.png')}
+        alt={site.name}
+        width={710}
+        height={322}
+        className={`${SIZES[size].className} object-contain object-left`}
+        decoding="async"
+      />
+    </picture>
   );
 
   if (!href) return mark;

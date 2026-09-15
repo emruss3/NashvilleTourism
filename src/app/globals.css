@@ -1,3 +1,15 @@
+/* Self-hosted brand faces (brand guide §5). Same-origin woff2 served from
+   /_next/static removes the third-party CSS round trip that blocked first
+   paint on phones. Imported here so they ship in the single global stylesheet.
+   Weights match what the design system actually uses. */
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/playfair-display/400.css';
+@import '@fontsource/playfair-display/600.css';
+@import '@fontsource/playfair-display/700.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

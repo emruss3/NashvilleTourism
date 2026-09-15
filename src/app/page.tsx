@@ -17,6 +17,9 @@ import { assertHomepageMediaIntegrity } from '@/lib/assert-homepage-media';
 
 assertHomepageMediaIntegrity();
 
+/** Live event and tour rows refresh on the same cadence as the calendar pages. */
+export const revalidate = 1800;
+
 /** Intent hubs that cover most arriving traffic. Order follows booking value. */
 const INTENT_HUBS: {
   title: string;
