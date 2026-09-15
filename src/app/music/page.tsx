@@ -49,9 +49,7 @@ export default async function MusicIndex() {
   const musicGuides = guides.filter((guide) => guide.cluster === 'Music');
   const feedMessage = calendar.live
     ? 'Upcoming dates are supplied by Ticketmaster and refresh throughout the day.'
-    : calendar.configured
-      ? 'Ticketmaster dates are temporarily unavailable. Venue guides are still available.'
-      : 'Live ticket inventory is not configured in this environment. Venue guides remain available.';
+    : 'Upcoming show dates are on their way. Venue guides are complete in the meantime.';
 
   return (
     <div className="shell pb-16">

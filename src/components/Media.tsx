@@ -169,38 +169,59 @@ export function ContentImage({
 }
 
 /**
- * Full-bleed hero. Daylight Nashville drone loop with poster fallback for
- * reduced-motion and before the first frame paints.
+ * Full-bleed hero. Daylight Nashville drone loop on desktop; on phones only the
+ * poster loads (see HeroVideo), art-directed as a taller crop.
+ *
+ * Height is deliberately shorter on phones (`svh`, not `vh`, so the browser
+ * chrome does not push the booking widget below the fold).
  */
 export function HeroMedia({ children }: { children: React.ReactNode }) {
   const poster = heroVideo.poster ? assetUrl(heroVideo.poster) : undefined;
+  const heightClass = 'min-h-[min(58svh,520px)] sm:min-h-[min(70vh,640px)] lg:min-h-[min(78vh,720px)]';
 
   return (
-    <div className="relative isolate min-h-[min(86vh,760px)] overflow-hidden bg-navy">
+    <div className={`relative isolate overflow-hidden bg-navy ${heightClass}`}>
       <div className="absolute inset-0" aria-hidden="true">
         {poster ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={poster}
-            alt=""
-            width={1920}
-            height={1012}
-            className="absolute inset-0 h-full w-full object-cover object-center"
-            fetchPriority="high"
-            decoding="sync"
-          />
+          <picture>
+            <source
+              media="(max-width: 767px)"
+              srcSet={assetUrl('/media/hero/nashville-hero-drone-poster-mobile-900.webp')}
+              type="image/webp"
+            />
+            <source
+              srcSet={`${assetUrl('/media/hero/nashville-hero-drone-poster-960.webp')} 960w, ${assetUrl('/media/hero/nashville-hero-drone-poster-1600.webp')} 1600w, ${assetUrl(poster)} 2400w`}
+              sizes="100vw"
+              type="image/webp"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={poster}
+              alt=""
+              width={2400}
+              height={1350}
+              className="absolute inset-0 h-full w-full object-cover object-center"
+              fetchPriority="high"
+              decoding="sync"
+            />
+          </picture>
         ) : (
           <div className="h-full w-full bg-[radial-gradient(1100px_480px_at_80%_-10%,#3A6A94_0%,transparent_55%),radial-gradient(900px_420px_at_5%_110%,#8FC4AD_0%,transparent_50%),linear-gradient(165deg,#214A72_0%,#102A43_100%)]" />
         )}
         <HeroVideo />
       </div>
 
+      {/* Readability wash: bottom and left, where the copy sits. */}
       <div
-        className="absolute inset-0 bg-gradient-to-t from-navy/35 via-navy/10 to-transparent"
+        className="absolute inset-0 bg-gradient-to-t from-navy/85 via-navy/40 to-navy/10"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-0 hidden bg-gradient-to-r from-navy/50 via-transparent to-transparent lg:block"
         aria-hidden="true"
       />
 
-      <div className="relative flex min-h-[min(86vh,760px)] flex-col justify-end pb-20 pt-24 sm:pb-24 sm:pt-28">
+      <div className={`relative flex flex-col justify-end pb-12 pt-20 sm:pb-16 sm:pt-24 lg:pb-24 ${heightClass}`}>
         {children}
       </div>
     </div>

@@ -66,9 +66,16 @@ export default function PlanPage({
         title={typeLabel ? `Plan a ${typeLabel.toLowerCase()} in Nashville` : 'Plan your Nashville trip'}
         intro="Answer a few questions and we will assemble a day-by-day plan from our published listings, with travel time between stops and how far ahead to book."
       />
+      {/* The form is the page. Context copy follows it rather than delaying it. */}
+      <div className="py-6">
+        <Suspense fallback={<LoadingState label="Loading the planner" />}>
+          <PlannerClient />
+        </Suspense>
+      </div>
+
       <HubLead imageKey="hub/plan-lead" />
 
-      <section className="max-w-3xl space-y-4 py-8 text-[15px] leading-relaxed text-ink-soft">
+      <section className="max-w-3xl space-y-4 pb-8 text-[15px] leading-relaxed text-ink-soft">
         {typeBlurb ? (
           <p>{typeBlurb}</p>
         ) : (
@@ -118,12 +125,6 @@ export default function PlanPage({
           .
         </p>
       </section>
-
-      <div className="py-6">
-        <Suspense fallback={<LoadingState label="Loading the planner" />}>
-          <PlannerClient />
-        </Suspense>
-      </div>
 
       <section className="border-t border-paper-edge py-10">
         <SectionHeader

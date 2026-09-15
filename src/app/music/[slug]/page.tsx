@@ -92,9 +92,7 @@ export default async function VenueDetail({
   const firstEvent = venueEvents[0];
   const feedMessage = calendar.live
     ? 'Ticketmaster event data is refreshed throughout the day.'
-    : calendar.configured
-      ? 'Ticketmaster dates are temporarily unavailable.'
-      : 'Live ticket inventory is not configured in this environment.';
+    : 'Upcoming show dates are on their way. Check the venue site for this week.';
 
   return (
     <div className="shell pb-16">

@@ -132,8 +132,8 @@ export default async function ToursHub({
             hasResults
               ? `${catalog.products.length} live matches shown. ${catalog.attribution}`
               : liveNoResults
-                ? 'Viator is connected, but no current Nashville products matched these filters. Try a broader search or clear the date.'
-                : 'Live Viator inventory is temporarily unavailable. Please try again shortly.'
+                ? 'No current Nashville products matched these filters. Try a broader search or clear the date.'
+                : 'Live search across Nashville tours is on its way. The format guide below covers what to book and what to watch for in the meantime.'
           }
         />
 
@@ -183,7 +183,7 @@ export default async function ToursHub({
           <div className="rounded-card border border-paper-edge bg-paper-card p-6 text-sm leading-relaxed text-ink-soft">
             <p className="font-semibold text-ink">No matching live experiences found.</p>
             <p className="mt-2">
-              Viator is online. Try a shorter phrase such as “party bus,” “food tour,” “whiskey,” or “sightseeing,” or remove the date filter.
+              Try a shorter phrase such as “party bus,” “food tour,” “whiskey,” or “sightseeing,” or remove the date filter.
             </p>
             <Link href="/tours/" className="btn-secondary mt-5 inline-flex min-h-[44px]">
               Show all Nashville experiences
@@ -191,8 +191,11 @@ export default async function ToursHub({
           </div>
         ) : (
           <div className="rounded-card border border-paper-edge bg-paper-card p-6 text-sm leading-relaxed text-ink-soft">
-            <p className="font-semibold text-ink">Live tour inventory is temporarily unavailable.</p>
-            <p className="mt-2">Please try again in a few minutes. We do not substitute sample products when the provider feed is offline.</p>
+            <p className="font-semibold text-ink">Live tour search is coming soon.</p>
+            <p className="mt-2">
+              We only list real, bookable products, so nothing is shown until the live inventory is
+              connected. Use the format guide below to decide what to book, then check back.
+            </p>
           </div>
         )}
       </section>

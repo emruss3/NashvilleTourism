@@ -9,7 +9,7 @@ import type {
   Restaurant,
   Venue,
 } from '@/lib/types';
-import type { ImageKey } from '@/lib/media';
+import { hasMedia, type ImageKey } from '@/lib/media';
 import { guideImageKey, neighborhoodImageKey } from '@/lib/media-placements';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
 import { ContentImage, SmartImage } from './Media';
@@ -221,17 +221,27 @@ export function AttractionCard({ item }: { item: Attraction }) {
 /* ----------------------------------- Guide ----------------------------------- */
 
 export function GuideCard({ item, featured = false }: { item: Guide; featured?: boolean }) {
+  const cover = guideImageKey(item);
+  // A guide whose cover is not yet cleared renders as a text card rather than
+  // reserving an empty photo slot; a blank block reads as broken, not pending.
+  const hasCover = hasMedia(cover);
   return (
     <article
-      className={`group relative flex overflow-hidden bg-transparent ${featured ? 'flex-col sm:flex-row sm:gap-5' : 'flex-col'}`}
+      className={`group relative flex overflow-hidden bg-transparent ${featured ? 'flex-col sm:flex-row sm:gap-5' : 'flex-col'} ${
+        hasCover ? '' : 'rounded-card border border-paper-edge bg-paper-card p-4'
+      }`}
     >
-      <SmartImage
-        imageKey={guideImageKey(item)}
-        ratio={featured ? 'aspect-[3/2] sm:aspect-square sm:w-52 sm:shrink-0' : 'aspect-[3/2]'}
-        sizes={featured ? '(max-width: 640px) 100vw, 208px' : '(max-width: 640px) 100vw, 33vw'}
-        className={featured ? 'sm:rounded-none' : ''}
-      />
-      <div className={`flex flex-1 flex-col ${featured ? 'gap-2 py-1 sm:py-0' : 'gap-2 pt-4'}`}>
+      {hasCover ? (
+        <SmartImage
+          imageKey={cover}
+          ratio={featured ? 'aspect-[3/2] sm:aspect-square sm:w-52 sm:shrink-0' : 'aspect-[3/2]'}
+          sizes={featured ? '(max-width: 640px) 100vw, 208px' : '(max-width: 640px) 100vw, 33vw'}
+          className={featured ? 'sm:rounded-none' : 'rounded-card'}
+        />
+      ) : null}
+      <div
+        className={`flex flex-1 flex-col ${featured ? 'gap-2 py-1 sm:py-0' : hasCover ? 'gap-2 pt-4' : 'gap-2'}`}
+      >
         <p className="text-2xs font-semibold uppercase tracking-wider text-clay">
           {[item.cluster, `${item.readingTimeMinutes} min read`].filter(Boolean).join(' · ')}
         </p>

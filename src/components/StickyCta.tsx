@@ -29,22 +29,37 @@ export default function StickyCta() {
   }, [pathname]);
 
   useEffect(() => {
-    setDismissed(sessionStorage.getItem('cta-dismissed') === '1');
+    try {
+      setDismissed(sessionStorage.getItem('cta-dismissed') === '1');
+    } catch {
+      // Storage can be blocked; the bar simply stays available.
+    }
   }, []);
 
   // The planner already is the conversion surface; a bar would just cover it.
-  if (pathname.startsWith('/plan')) return null;
-  if (dismissed || !visible) return null;
+  const shown = !pathname.startsWith('/plan') && !dismissed && visible;
+
+  // Body padding only while the bar is on screen, so pages never carry a
+  // permanent dead strip at the bottom on phones.
+  useEffect(() => {
+    if (shown) document.body.dataset.stickyCta = '1';
+    else delete document.body.dataset.stickyCta;
+    return () => {
+      delete document.body.dataset.stickyCta;
+    };
+  }, [shown]);
+
+  if (!shown) return null;
 
   const offer = pickOffer(pathname);
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-paper-edge bg-paper-card px-3 py-2.5 backdrop-blur lg:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-paper-edge bg-paper-card/95 px-3 pt-2 backdrop-blur lg:hidden [padding-bottom:calc(0.5rem+env(safe-area-inset-bottom,0px))]">
       <div className="flex items-center gap-2">
         <Link
           href={offer.href}
           onClick={() => track(ANALYTICS_EVENTS.SPONSOR_CLICKED, { item_id: offer.id, placement: 'editorial' })}
-          className="btn-primary flex-1 py-3 text-[15px]"
+          className="btn-primary min-h-12 flex-1 text-[15px]"
         >
           {offer.label}
         </Link>
@@ -53,9 +68,13 @@ export default function StickyCta() {
           aria-label="Dismiss this bar"
           onClick={() => {
             setDismissed(true);
-            sessionStorage.setItem('cta-dismissed', '1');
+            try {
+              sessionStorage.setItem('cta-dismissed', '1');
+            } catch {
+              // Ignore blocked storage.
+            }
           }}
-          className="shrink-0 rounded border border-paper-edge px-3 py-3 text-ink-faint hover:text-ink"
+          className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded border border-paper-edge text-ink-faint hover:text-ink"
         >
           <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />

@@ -31,8 +31,9 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
+  /* Reserve room for the sticky conversion bar only while it is on screen. */
   @media (max-width: 1023px) {
-    body {
+    body[data-sticky-cta='1'] {
       padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
     }
   }

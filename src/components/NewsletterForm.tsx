@@ -9,7 +9,14 @@ type State = 'idle' | 'submitting' | 'done' | 'error';
  * Newsletter capture. No subscriber counts are shown because we do not have
  * real ones, and inventing social proof would undermine the whole site.
  */
-export default function NewsletterForm({ location }: { location: string }) {
+export default function NewsletterForm({
+  location,
+  tone = 'light',
+}: {
+  location: string;
+  /** `dark` renders the small print for navy backgrounds. */
+  tone?: 'light' | 'dark';
+}) {
   const [state, setState] = useState<State>('idle');
   const [email, setEmail] = useState('');
 
@@ -31,11 +38,14 @@ export default function NewsletterForm({ location }: { location: string }) {
         role="status"
         className="rounded border border-moss/20 bg-moss-wash p-4 text-sm text-moss"
       >
-        <strong className="font-semibold">Almost there.</strong> This demo build does not send email
-        yet. Connect an email provider to complete signup.
+        <strong className="font-semibold">Thanks for your interest.</strong> The newsletter has not
+        launched yet, so we did not keep your address. Check back soon.
       </div>
     );
   }
+
+  const smallPrint = tone === 'dark' ? 'text-paper-card/75' : 'text-ink-soft';
+  const errorText = tone === 'dark' ? 'text-clay-wash' : 'text-clay-deep';
 
   return (
     <form onSubmit={onSubmit} className="w-full">
@@ -49,6 +59,7 @@ export default function NewsletterForm({ location }: { location: string }) {
             type="email"
             required
             autoComplete="email"
+            inputMode="email"
             placeholder="you@example.com"
             value={email}
             onChange={(e) => {
@@ -57,21 +68,25 @@ export default function NewsletterForm({ location }: { location: string }) {
             }}
             aria-invalid={state === 'error'}
             aria-describedby={state === 'error' ? `newsletter-error-${location}` : undefined}
-            className="field-input"
+            className="field-input min-h-11"
           />
         </div>
-        <button type="submit" className="btn-primary shrink-0" disabled={state === 'submitting'}>
+        <button
+          type="submit"
+          className="btn-primary min-h-11 shrink-0"
+          disabled={state === 'submitting'}
+        >
           {state === 'submitting' ? 'Signing up…' : 'Sign up'}
         </button>
       </div>
       {state === 'error' && (
-        <p id={`newsletter-error-${location}`} role="alert" className="mt-2 text-sm text-clay-deep">
+        <p id={`newsletter-error-${location}`} role="alert" className={`mt-2 text-sm ${errorText}`}>
           Enter a valid email address.
         </p>
       )}
       {/* ink-soft, not ink-faint: this renders on tinted section backgrounds
           where ink-faint measures 4.31:1 at this size and fails WCAG AA. */}
-      <p className="mt-2 text-2xs text-ink-soft">
+      <p className={`mt-2 text-2xs ${smallPrint}`}>
         One email a week. Unsubscribe anytime. We do not sell reader data.
       </p>
     </form>

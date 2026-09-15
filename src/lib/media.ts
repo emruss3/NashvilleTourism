@@ -273,6 +273,7 @@ const baseImages = {
   },
   'hub/hotels': {
     src: '/media/hubs/hotels.jpg',
+    srcSet: '/media/hubs/hotels-640.webp 640w, /media/hubs/hotels-960.webp 960w, /media/hubs/hotels-1600.webp 1600w',
     alt: 'The Cascades Atrium inside Gaylord Opryland Resort in Nashville.',
     credit: 'Antony-22 / Wikimedia Commons',
     licence: 'CC BY-SA 4.0',
@@ -281,6 +282,7 @@ const baseImages = {
   },
   'hub/live-music': {
     src: '/media/hubs/live-music.jpg',
+    srcSet: '/media/hubs/live-music-640.webp 640w, /media/hubs/live-music-960.webp 960w, /media/hubs/live-music-1600.webp 1600w',
     alt: 'People gathered in front of a Nashville building for live music.',
     credit: 'Rachel Claire / Pexels',
     licence: 'Pexels License',
@@ -311,6 +313,7 @@ const baseImages = {
   },
   'hub/restaurants': {
     src: '/media/hubs/restaurants.jpg',
+    srcSet: '/media/hubs/restaurants-640.webp 640w, /media/hubs/restaurants-960.webp 960w, /media/hubs/restaurants-1600.webp 1600w',
     alt: 'A table of plated food at a Nashville restaurant.',
     licence: 'BPH-owned media — user-authorized reuse on 2026-08-04',
     width: 1600,
@@ -318,6 +321,7 @@ const baseImages = {
   },
   'hub/tickets': {
     src: '/media/hubs/tickets.jpg',
+    srcSet: '/media/hubs/tickets-640.webp 640w, /media/hubs/tickets-960.webp 960w, /media/hubs/tickets-1600.webp 1600w',
     alt: 'Vibrant evening scene in downtown Nashville.',
     credit: 'Mark Direen / Pexels',
     licence: 'Pexels License',
@@ -326,6 +330,7 @@ const baseImages = {
   },
   'hub/tours': {
     src: '/media/hubs/tours.jpg',
+    srcSet: '/media/hubs/tours-640.webp 640w, /media/hubs/tours-960.webp 960w, /media/hubs/tours-1600.webp 1600w',
     alt: "Bird's-eye view of Nashville during daytime.",
     credit: 'Kelly / Pexels',
     licence: 'Pexels License',
@@ -334,6 +339,7 @@ const baseImages = {
   },
   'hub/weekend': {
     src: '/media/hubs/weekend.jpg',
+    srcSet: '/media/hubs/weekend-640.webp 640w, /media/hubs/weekend-960.webp 960w, /media/hubs/weekend-1600.webp 1600w',
     alt: 'Nashville skyline with pedestrian bridge at sunrise.',
     credit: 'gapeppy1 / Pexels',
     licence: 'Pexels License',

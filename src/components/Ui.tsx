@@ -247,6 +247,29 @@ export function EmptyState({
   );
 }
 
+/**
+ * Shown on event surfaces until the live ticket calendar is connected.
+ * Reader-facing copy only: no provider names, keys, or deployment steps.
+ */
+export function CalendarComingSoon({ label = 'events' }: { label?: string }) {
+  return (
+    <EmptyState
+      title="The live calendar is on its way"
+      description={`We are connecting current ticketed ${label} at Nashville venues. Until then, the venue guides and the honky-tonk highway cover what is on most nights.`}
+      action={
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link href="/music/" className="btn-secondary min-h-11">
+            Browse venues
+          </Link>
+          <Link href="/honky-tonk-highway/" className="btn-tertiary min-h-11">
+            Honky-tonk highway
+          </Link>
+        </div>
+      }
+    />
+  );
+}
+
 export function LoadingState({ label = 'Loading' }: { label?: string }) {
   return (
     <div role="status" aria-live="polite" className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

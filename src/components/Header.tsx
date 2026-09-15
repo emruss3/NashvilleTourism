@@ -78,7 +78,7 @@ export default function Header() {
           </Link>
           <Link
             href="/search/"
-            className="inline-flex items-center justify-center rounded p-2.5 text-ink transition-colors hover:bg-sky/60 hover:text-clay"
+            className="inline-flex h-11 w-11 items-center justify-center rounded text-ink transition-colors hover:bg-sky/60 hover:text-clay"
             aria-label="Search the site"
           >
             <SearchIcon />
@@ -90,7 +90,7 @@ export default function Header() {
           <button
             ref={toggleRef}
             type="button"
-            className="inline-flex items-center justify-center rounded border border-ink/15 bg-paper-card p-2.5 text-ink transition-colors hover:border-clay hover:text-clay lg:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded border border-ink/15 bg-paper-card text-ink transition-colors hover:border-clay hover:text-clay lg:hidden"
             aria-expanded={open}
             aria-controls="mobile-nav"
             onClick={() => setOpen((v) => !v)}

@@ -1,10 +1,9 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { JsonLd } from '@/components/Ui';
-import { DemoDataNotice } from '@/components/Trust';
 import StickyCta from '@/components/StickyCta';
 import { allowIndexing, asset, organizationSchema, websiteSchema, canonical } from '@/lib/seo';
 import { site } from '@/lib/site';
@@ -50,6 +49,15 @@ export const metadata: Metadata = {
   category: 'travel',
 };
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  // Lets the sticky bottom bar and the body padding extend under the home
+  // indicator on notched phones; safe-area insets handle the offset.
+  viewportFit: 'cover',
+  themeColor: '#F8F3E9',
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -75,7 +83,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <link rel="icon" href={asset('/brand/star.png')} type="image/png" />
         <link rel="apple-touch-icon" href={asset('/brand/nsh.png')} />
-        <meta name="theme-color" content="#F8F3E9" />
         {/* Impact requires its non-standard `value` attribute for site verification. */}
         <meta
           name="impact-site-verification"
@@ -87,7 +94,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to main content
         </a>
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
-        <DemoDataNotice />
         <Header />
         <main id="main">{children}</main>
         <Footer />

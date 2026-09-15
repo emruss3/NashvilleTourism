@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Breadcrumbs, EmptyState, PageHeader, SectionHeader } from '@/components/Ui';
+import { Breadcrumbs, CalendarComingSoon, EmptyState, PageHeader, SectionHeader } from '@/components/Ui';
 import HubLead from '@/components/HubLead';
 import LiveEventCard from '@/components/LiveEventCard';
 import { getCalendar } from '@/lib/feeds/calendar';
@@ -42,7 +42,7 @@ function weekendWindow(today: string): { friday: string; sunday: string } {
 export default async function ThisWeekendPage() {
   const today = nashvilleToday();
   const { friday, sunday } = weekendWindow(today);
-  const { events, live, configured } = await getCalendar({
+  const { events, live } = await getCalendar({
     startDate: friday,
     endDate: sunday,
   });
@@ -62,18 +62,11 @@ export default async function ThisWeekendPage() {
       />
       <HubLead imageKey="hub/events-this-weekend" />
 
-      {!live && (
-        <div className="mt-6 rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep">
-          <strong className="font-semibold">Ticketmaster feed is not live for this weekend.</strong>{' '}
-          {configured
-            ? 'No verified Nashville-city events came back for this window, so fallback records are shown when available.'
-            : 'Add TICKETMASTER_API_KEY in Vercel to activate current event listings.'}
-        </div>
-      )}
-
       <section className="py-8">
         <SectionHeader title={`${friday} through ${sunday}`} />
-        {events.length === 0 ? (
+        {!live ? (
+          <CalendarComingSoon label="weekend events" />
+        ) : events.length === 0 ? (
           <EmptyState
             title="Nothing in the Ticketmaster feed for this weekend"
             description="Check the full Nashville events calendar or come back closer to the weekend."

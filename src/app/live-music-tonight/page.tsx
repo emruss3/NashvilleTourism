@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Breadcrumbs, PageHeader } from '@/components/Ui';
+import { Breadcrumbs, CalendarComingSoon, PageHeader } from '@/components/Ui';
 import HubLead from '@/components/HubLead';
 import LiveMusicCalendar from '@/components/LiveMusicCalendar';
 import { getCalendar, genresOf, venuesOf } from '@/lib/feeds/calendar';
@@ -17,7 +17,7 @@ export const metadata = buildMetadata({
 
 /** Ticketmaster-backed Nashville-only music calendar. */
 export default async function LiveMusicPage() {
-  const { events, live, fetchedAt, configured } = await getCalendar({
+  const { events, live, fetchedAt } = await getCalendar({
     classificationName: 'music',
   });
 
@@ -73,35 +73,32 @@ export default async function LiveMusicPage() {
         </p>
       </section>
 
-      {!live && (
-        <div className="mt-2 rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep">
-          <strong className="font-semibold">Sample listings.</strong>{' '}
-          {configured
-            ? 'The live Ticketmaster-backed calendar did not return fresh Nashville results. Showing clearly labeled fallback records instead.'
-            : 'No canonical events feed is active yet. Configure TICKETMASTER_API_KEY in Supabase, run the first verified sync, and then enable the scheduled event refresh.'}
-        </div>
-      )}
-
       <div className="mt-6">
-        <LiveMusicCalendar
-          events={events}
-          genres={genresOf(events)}
-          venues={venuesOf(events)}
-          live={live}
-        />
+        {live ? (
+          <LiveMusicCalendar
+            events={events}
+            genres={genresOf(events)}
+            venues={venuesOf(events)}
+            live={live}
+          />
+        ) : (
+          <CalendarComingSoon label="concerts and shows" />
+        )}
       </div>
 
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-4 text-sm text-ink-faint">
-        <p>
-          Calendar refreshed <time dateTime={fetchedAt}>{formatDate(fetchedAt.slice(0, 10))}</time>.
-          {live ? ' Listings supplied by Ticketmaster through Nashroam’s canonical event feed.' : ''}
-        </p>
-        <p>
-          <Link href="/music/" className="text-clay underline underline-offset-2">
-            Browse venues instead
-          </Link>
-        </p>
-      </div>
+      {live ? (
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-4 text-sm text-ink-faint">
+          <p>
+            Calendar refreshed <time dateTime={fetchedAt}>{formatDate(fetchedAt.slice(0, 10))}</time>.
+            Listings supplied by Ticketmaster.
+          </p>
+          <p>
+            <Link href="/music/" className="text-clay underline underline-offset-2">
+              Browse venues instead
+            </Link>
+          </p>
+        </div>
+      ) : null}
 
       <section className="mt-12 rounded-card border border-paper-edge bg-white p-6">
         <h2 className="font-display text-xl">How to see live music here</h2>

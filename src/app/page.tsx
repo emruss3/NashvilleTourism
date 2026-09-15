@@ -17,7 +17,7 @@ import { assertHomepageMediaIntegrity } from '@/lib/assert-homepage-media';
 
 assertHomepageMediaIntegrity();
 
-/** Intent hubs that cover most arriving traffic. */
+/** Intent hubs that cover most arriving traffic. Order follows booking value. */
 const INTENT_HUBS: {
   title: string;
   blurb: string;
@@ -31,16 +31,16 @@ const INTENT_HUBS: {
     image: 'hub/hotels',
   },
   {
-    title: 'Restaurants',
-    blurb: 'Where to eat tonight — by neighborhood, price, and reservation difficulty.',
-    href: '/restaurants/',
-    image: 'hub/restaurants',
-  },
-  {
     title: 'Live Music',
     blurb: 'Shows tonight and this weekend, by venue, genre, and price.',
     href: '/live-music-tonight/',
     image: 'hub/live-music',
+  },
+  {
+    title: 'Restaurants',
+    blurb: 'Where to eat tonight, by neighborhood, price, and how hard the table is.',
+    href: '/restaurants/',
+    image: 'hub/restaurants',
   },
   {
     title: 'Things to Do',
@@ -63,134 +63,119 @@ const INTENT_HUBS: {
 ];
 
 const TRIP_TYPES = [
+  ['First visit', '/plan/?type=first-visit'],
   ['Bachelorette', '/plan/?type=bachelorette'],
   ['Bachelor party', '/plan/?type=bachelor'],
   ['Couples', '/plan/?type=couples'],
   ['Family', '/plan/?type=family'],
-  ['First visit', '/plan/?type=first-visit'],
   ['Business', '/plan/?type=business'],
 ] as const;
 
-const TRENDING_NOW: {
-  title: string;
-  href: string;
-  image: ImageKey;
-}[] = [
-  {
-    title: "Who's Playing in Nashville Tonight",
-    href: '/live-music-tonight/',
-    image: 'editorial/live-music-crowd',
-  },
-  {
-    title: 'The Nashville Weekender: Friday to Sunday',
-    href: '/weekend/',
-    image: 'editorial/skyline',
-  },
-];
+/** Guides with cleared cover photography only, so the row never shows a blank slot. */
+const START_HERE_SLUGS = [
+  'nashville-first-time-visitors',
+  'nashville-neighborhood-guide',
+  'best-live-music-venues-nashville',
+] as const;
 
 export default async function HomePage() {
-  const [{ events, live, configured }, tours] = await Promise.all([
+  const [{ events, live }, tours] = await Promise.all([
     getCalendar(),
     getToursCatalog({ count: 6 }),
   ]);
-  const soon = events.slice(0, 4);
+  const soon = live ? events.slice(0, 4) : [];
   const featuredExperiences = tours.live ? tours.experiences.slice(0, 6) : [];
-  const startHere = [
-    'nashville-first-time-visitors',
-    'where-to-stay-nashville',
-    'nashville-weekend-itinerary',
-  ]
-    .map((slug) => guides.find((guide) => guide.slug === slug))
-    .filter((guide): guide is NonNullable<typeof guide> => Boolean(guide));
+  const startHere = START_HERE_SLUGS.map((slug) => guides.find((guide) => guide.slug === slug)).filter(
+    (guide): guide is NonNullable<typeof guide> => Boolean(guide),
+  );
 
   return (
     <>
       <HeroMedia>
-        <div className="shell animate-hero-in text-center">
-          <h1 className="mx-auto max-w-3xl font-display text-3xl font-bold tracking-tight text-paper-card sm:text-4xl lg:text-5xl">
-            {site.headline}
-          </h1>
-          <p className="mx-auto mt-3 max-w-xl text-base text-paper-card/90 sm:text-lg">
-            {site.description}
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link href="/plan/" className="btn-primary px-5">
-              Plan Your Trip
-            </Link>
-            <Link
-              href="#explore"
-              className="btn border-paper-card/50 bg-paper-card/10 px-5 text-paper-card backdrop-blur-sm hover:bg-paper-card/20"
-            >
-              Explore Nashville
-            </Link>
+        <div className="shell animate-hero-in">
+          <div className="max-w-2xl">
+            <h1 className="font-display text-[2rem] font-bold leading-[1.08] tracking-tight text-paper-card sm:text-5xl lg:text-hero">
+              {site.headline}
+            </h1>
+            <p className="mt-3 max-w-lg text-base leading-relaxed text-paper-card/90 sm:text-lg">
+              {site.description}
+            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <Link href="/plan/" className="btn-primary min-h-11 px-5">
+                Plan Your Trip
+              </Link>
+              <Link
+                href="#explore"
+                className="btn min-h-11 border-paper-card/60 bg-navy/30 px-5 text-paper-card backdrop-blur-sm hover:bg-navy/50"
+              >
+                Explore Nashville
+              </Link>
+            </div>
           </div>
         </div>
       </HeroMedia>
 
-      <div className="shell relative z-10 -mt-8 sm:-mt-10">
+      {/* Phones: stack under the hero so the widget is never clipped. Desktop: overlap the hero edge. */}
+      <div className="shell relative z-10 mt-4 lg:-mt-10">
         <div className="mx-auto max-w-4xl animate-hero-in [animation-delay:60ms]">
           <BookingWidget />
         </div>
       </div>
 
-      <section id="explore" className="shell scroll-mt-24 pb-14 pt-12 lg:pb-16 lg:pt-14">
-        <div className="mb-8">
-          <p className="eyebrow text-clay">Choose your path</p>
-          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-navy sm:text-[28px] lg:text-3xl">
-            What are you here to do?
-          </h2>
-          <div className="mt-3 h-px w-12 bg-clay" aria-hidden="true" />
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {INTENT_HUBS.map((hub, index) => {
-            // Checkerboard: even tiles lead with copy; odd tiles lead with photo.
-            const imageFirst = index % 2 === 1;
-            const copy = (
-              <div className="flex flex-1 flex-col justify-center p-5 sm:p-6">
-                <h3 className="font-sans text-lg font-bold uppercase tracking-wide text-navy group-hover:text-clay">
-                  {hub.title}
-                </h3>
-                <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">{hub.blurb}</p>
-              </div>
-            );
-            const photo = (
+      <section id="explore" className="shell scroll-mt-24 pb-12 pt-10 lg:pb-16 lg:pt-14">
+        <h2 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-[28px] lg:text-3xl">
+          What are you here to do?
+        </h2>
+        <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-3 lg:gap-4">
+          {INTENT_HUBS.map((hub, index) => (
+            <Link
+              key={hub.href}
+              href={hub.href}
+              className="group flex flex-col overflow-hidden rounded-card border border-paper-edge bg-paper-card transition-colors hover:border-clay focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay"
+            >
               <SmartImage
                 imageKey={hub.image}
-                ratio="aspect-[16/10]"
-                className="shrink-0"
-                sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                ratio="aspect-[4/3] sm:aspect-[16/10]"
+                priority={index < 2}
+                sizes="(max-width: 639px) 50vw, (max-width: 1023px) 50vw, 33vw"
               />
-            );
-            return (
-              <Link
-                key={hub.href}
-                href={hub.href}
-                className="group flex min-h-[280px] flex-col overflow-hidden border border-navy/80 bg-paper-card transition-colors hover:border-clay focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay"
-              >
-                {imageFirst ? (
-                  <>
-                    {photo}
-                    {copy}
-                  </>
-                ) : (
-                  <>
-                    {copy}
-                    {photo}
-                  </>
-                )}
-              </Link>
-            );
-          })}
+              <div className="flex flex-1 flex-col p-3 sm:p-5">
+                <h3 className="font-sans text-[15px] font-bold leading-tight text-ink group-hover:text-clay sm:text-lg">
+                  {hub.title}
+                </h3>
+                <p className="mt-1.5 hidden text-[15px] leading-relaxed text-ink-soft sm:block">
+                  {hub.blurb}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-8 flex flex-col gap-3 border-t border-paper-edge pt-6 sm:flex-row sm:items-center sm:gap-5">
+          <p className="shrink-0 text-sm font-semibold text-ink">Planning a specific kind of trip?</p>
+          <nav aria-label="Trip types" className="-mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
+            <ul className="flex gap-2 whitespace-nowrap sm:flex-wrap">
+              {TRIP_TYPES.map(([label, href]) => (
+                <li key={href} className="shrink-0">
+                  <Link
+                    href={href}
+                    className="inline-flex min-h-11 items-center rounded-full border border-paper-edge bg-paper-card px-4 text-sm font-medium text-ink transition-colors hover:border-clay hover:text-clay"
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
       </section>
 
       {featuredExperiences.length > 0 ? (
-        <section className="border-y border-paper-edge bg-paper-card py-14 lg:py-16">
+        <section className="border-y border-paper-edge bg-paper-card py-12 lg:py-16">
           <div className="shell">
             <SectionHeader
-              eyebrow="Bookable now"
               title="Book a Nashville Experience"
-              description="Approved Nashroam picks from the live Viator catalog. Outbound booking uses the exact Viator product URL."
+              description="Live products and starting prices from Viator. Final availability and checkout are confirmed on Viator."
               href="/tours/"
               linkLabel="All tours"
             />
@@ -207,22 +192,31 @@ export default async function HomePage() {
         </section>
       ) : null}
 
-      <section className="border-y border-paper-edge bg-paper-card py-14 lg:py-16">
-        <div className="shell">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="eyebrow text-clay">Start here</p>
-              <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-navy sm:text-[28px] lg:text-3xl">
-                Plan the shape of your trip
-              </h2>
+      {soon.length > 0 ? (
+        <section className="border-y border-paper-edge bg-paper-card py-12 lg:py-16">
+          <div className="shell">
+            <SectionHeader
+              title="Live events coming up"
+              href="/live-music-tonight/"
+              linkLabel="Full live calendar"
+            />
+            <div className="grid gap-3 lg:grid-cols-2">
+              {soon.map((event) => (
+                <LiveEventCard key={`${event.source}-${event.id}`} item={event} />
+              ))}
             </div>
-            <Link
-              href="/guides/"
-              className="shrink-0 text-sm font-semibold uppercase tracking-wide text-clay underline-offset-4 hover:text-clay-deep hover:underline"
-            >
-              All guides →
-            </Link>
           </div>
+        </section>
+      ) : null}
+
+      <section className="border-y border-paper-edge bg-paper-card py-12 lg:py-16">
+        <div className="shell">
+          <SectionHeader
+            title="Start here"
+            description="Three reads that settle the shape of a first trip."
+            href="/guides/"
+            linkLabel="All guides"
+          />
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-10">
             {startHere.map((guide) => (
               <GuideCard key={guide.slug} item={guide} />
@@ -231,104 +225,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="overflow-hidden bg-paper-card py-14 lg:py-20">
-        <div className="shell">
-          <div className="relative isolate mx-auto max-w-6xl px-3 py-10 sm:px-8 sm:py-12 lg:px-12">
-            <div
-              className="absolute inset-y-0 left-[10%] right-[10%] -z-30 bg-sky/45"
-              aria-hidden="true"
-            />
-            <div
-              className="absolute -inset-y-5 left-[5%] right-[5%] -z-20 bg-sky/30"
-              aria-hidden="true"
-            />
-            <div
-              className="absolute inset-y-5 left-0 right-0 -z-10 border border-paper-card/70 bg-sky/75"
-              aria-hidden="true"
-            />
-
-            <div className="text-center">
-              <p className="eyebrow text-clay">What people are planning</p>
-              <h2 className="mt-2 font-display text-3xl font-semibold text-ink sm:text-4xl">
-                Trending now
-              </h2>
-              <div className="mx-auto mt-4 flex w-28 items-center justify-center gap-1" aria-hidden="true">
-                <span className="h-px flex-1 bg-ink/65" />
-                <span className="h-1.5 w-1.5 rotate-45 border border-ink/65" />
-                <span className="h-px flex-1 bg-ink/65" />
-              </div>
-            </div>
-
-            <div className="mt-8 grid gap-4 md:grid-cols-2">
-              {TRENDING_NOW.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="group relative min-h-64 overflow-hidden rounded-card border border-paper-card/70 bg-navy shadow-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay sm:min-h-72"
-                >
-                  <SmartImage
-                    imageKey={item.image}
-                    ratio="absolute inset-0"
-                    className="transition-transform duration-500 group-hover:scale-[1.03]"
-                    sizes="(max-width: 767px) 100vw, 50vw"
-                  />
-                  <div
-                    className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/20 to-transparent"
-                    aria-hidden="true"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 p-6 text-center sm:p-8">
-                    <h3 className="mx-auto max-w-md text-xl font-bold leading-tight text-paper-card sm:text-2xl">
-                      {item.title}
-                    </h3>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-sky py-12">
-        <div className="shell">
-          <h2 className="text-center font-display text-xl text-ink">Planning a group trip?</h2>
-          <div className="mt-5 flex flex-wrap justify-center gap-2">
-            {TRIP_TYPES.map(([label, href]) => (
-              <Link
-                key={href}
-                href={href}
-                className="rounded border border-ink/15 bg-paper-card px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:border-clay hover:text-clay"
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-paper-card py-14 lg:py-16">
-        <div className="shell">
-          <SectionHeader
-            title={live ? 'Live events coming up' : 'Upcoming events'}
-            href="/live-music-tonight/"
-            linkLabel="Full live calendar"
-          />
-          {!live && (
-            <div className="mb-4 rounded border border-clay/20 bg-paper px-4 py-3 text-sm text-clay-deep">
-              <strong className="font-semibold">Ticketmaster feed is not active in this build.</strong>{' '}
-              {configured
-                ? 'The API returned no Nashville events, so the site is showing clearly labeled fallback records.'
-                : 'Add TICKETMASTER_API_KEY in Vercel and redeploy to replace the fallback records.'}
-            </div>
-          )}
-          <div className="grid gap-3 lg:grid-cols-2">
-            {soon.map((event) => (
-              <LiveEventCard key={`${event.source}-${event.id}`} item={event} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-dogwood/35 py-14 lg:py-16">
+      <section className="py-12 lg:py-16">
         <div className="shell">
           <SectionHeader
             title="Pick your neighborhood"
@@ -340,39 +237,36 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="bg-cumberland py-14 lg:py-16 text-paper-card">
-        <div className="shell">
-          <div className="mx-auto max-w-2xl text-center">
+      <section className="bg-cumberland py-12 text-paper-card lg:py-16">
+        <div className="shell grid gap-10 lg:grid-cols-2 lg:gap-16">
+          <div className="max-w-md">
             <h2 className="text-2xl text-paper-card">How we choose</h2>
             <p className="mt-3 text-[16px] leading-relaxed text-paper-card/85">
               Recommendations come from local knowledge, editorial research, and continued review.
               Sponsored placements are labeled and never decide the ranking.
             </p>
-            <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <div className="mt-5 flex flex-wrap gap-3">
               <Link
                 href="/how-we-choose/"
-                className="btn border-paper-card/40 bg-transparent text-paper-card hover:bg-paper-card/10"
+                className="btn min-h-11 border-paper-card/40 bg-transparent text-paper-card hover:bg-paper-card/10"
               >
                 Our methodology
               </Link>
               <Link
                 href="/editorial-standards/"
-                className="btn border-paper-card/40 bg-transparent text-paper-card hover:bg-paper-card/10"
+                className="btn min-h-11 border-paper-card/40 bg-transparent text-paper-card hover:bg-paper-card/10"
               >
                 Editorial standards
               </Link>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section className="bg-mint/25 pb-16 pt-14">
-        <div className="shell">
-          <div className="mx-auto max-w-xl text-center">
-            <p className="eyebrow mb-2 text-ink">{site.newsletter.name}</p>
-            <h2 className="text-2xl">{site.newsletter.promise}</h2>
-            <div className="mt-5 text-left">
-              <NewsletterForm location="homepage" />
+          <div className="max-w-md lg:justify-self-end">
+            <p className="text-2xs font-bold uppercase tracking-[0.14em] text-paper-card/70">
+              {site.newsletter.name}
+            </p>
+            <h2 className="mt-2 text-2xl text-paper-card">{site.newsletter.promise}</h2>
+            <div className="mt-5">
+              <NewsletterForm location="homepage" tone="dark" />
             </div>
           </div>
         </div>

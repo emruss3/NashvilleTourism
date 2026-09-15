@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { SmartImage } from '@/components/Media';
-import { Breadcrumbs, LoadingState } from '@/components/Ui';
+import { Breadcrumbs, CalendarComingSoon, LoadingState } from '@/components/Ui';
 import type { ImageKey } from '@/lib/media';
 import { getCalendar } from '@/lib/feeds/calendar';
 import { buildMetadata } from '@/lib/seo';
@@ -70,7 +70,7 @@ export default async function EventsIndex({
 }: {
   searchParams?: { category?: string };
 }) {
-  const { events, live, configured } = await getCalendar();
+  const { events, live } = await getCalendar();
   const category = searchParams?.category?.trim() || null;
   const categoryIntro = category ? CATEGORY_INTRO[category] : null;
 
@@ -191,17 +191,13 @@ export default async function EventsIndex({
           </p>
         </section>
 
-        {!live && (
-          <div className="rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep">
-            <strong className="font-semibold">Ticketmaster feed is not live.</strong>{' '}
-            {configured
-              ? 'Ticketmaster returned no verified Nashville-city events, so clearly labeled fallback records are being used.'
-              : 'Add TICKETMASTER_API_KEY in Vercel to replace fallback records.'}
-          </div>
+        {live ? (
+          <Suspense fallback={<LoadingState label="Loading events" />}>
+            <EventsClient events={events} />
+          </Suspense>
+        ) : (
+          <CalendarComingSoon />
         )}
-        <Suspense fallback={<LoadingState label="Loading events" />}>
-          <EventsClient events={events} />
-        </Suspense>
       </div>
     </>
   );
