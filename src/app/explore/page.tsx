@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import DiscoveryForm from '@/components/home/DiscoveryForm';
-import { ContentImage } from '@/components/Media';
+import CategoryLinks from '@/components/home/CategoryLinks';
+import { ContentImage, SmartImage } from '@/components/Media';
+import PageIntro from '@/components/hub/PageIntro';
 import { Breadcrumbs } from '@/components/Ui';
 import { getCalendar } from '@/lib/feeds/calendar';
 import {
@@ -22,17 +24,6 @@ export const revalidate = 1800;
 
 type Params = Record<string, string | string[] | undefined>;
 
-/** Every requested page family is reachable from Explore (PAGE-LAYOUTS.md §Shared frame). */
-const CATEGORIES = [
-  { label: 'Restaurants', href: '/restaurants/' },
-  { label: 'Tours', href: '/tours/' },
-  { label: 'Neighborhoods', href: '/neighborhoods/' },
-  { label: 'Things to do', href: '/things-to-do/' },
-  { label: 'Events', href: '/events/' },
-  { label: 'Hotels', href: '/hotels/' },
-  { label: 'Shop', href: '/shop/' },
-  { label: 'Plan your trip', href: '/plan/' },
-] as const;
 
 export async function generateMetadata(props: { searchParams?: Promise<Params> }) {
   const query = parseExploreQuery((await props.searchParams) ?? {});
@@ -77,32 +68,31 @@ export default async function ExplorePage(props: { searchParams?: Promise<Params
     .join(' · ');
 
   return (
-    <div className="shell pb-16">
-      <Breadcrumbs trail={[{ name: 'Explore', href: '/explore/' }]} />
-      <header className="pb-6">
-        <p className="eyebrow">Explore</p>
-        <h1 className="mt-2 max-w-3xl text-display sm:text-[3rem]">Find your plans.</h1>
-        <p className="mt-3 max-w-prose text-lead text-ink-soft">
-          Events and places across Nashville, filtered by neighborhood, interest, and date.
-        </p>
-      </header>
-
-      <div className="rounded-card border border-paper-edge bg-paper-sunk p-4 sm:p-6">
-        <DiscoveryForm variant="explore" initial={query} />
+    <>
+      <div className="shell">
+        <Breadcrumbs trail={[{ name: 'Explore', href: '/explore/' }]} />
       </div>
 
-      <nav aria-label="Explore by category" className="mt-4">
-        <ul className="flex flex-wrap gap-2">
-          {CATEGORIES.map((c) => (
-            <li key={c.href}>
-              <Link href={c.href} className="inline-flex min-h-11 items-center rounded border border-paper-edge px-4 text-[15px] font-semibold text-ink hover:border-ink">
-                {c.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <PageIntro
+        eyebrow="Explore"
+        title="Find your plans."
+        support="Events and places across Nashville, filtered by neighborhood, interest and date."
+        media={
+          <div className="overflow-hidden rounded-card bg-ink">
+            <SmartImage imageKey="concept/home-social" ratio="aspect-[16/9] lg:aspect-auto lg:h-[360px]" sizes="(max-width: 1023px) 100vw, 58vw" priority />
+          </div>
+        }
+      />
 
+      <div className="border-y border-paper-edge bg-paper-sunk">
+        <div className="shell py-5 md:py-6">
+          <DiscoveryForm variant="explore" initial={query} />
+        </div>
+      </div>
+
+      <CategoryLinks />
+
+    <div className="shell pb-16">
       <div className="mt-8 flex flex-wrap items-baseline justify-between gap-3 border-b border-paper-edge pb-3">
         <p className="text-[15px] text-ink" aria-live="polite">
           <strong className="font-semibold">{total}</strong> {total === 1 ? 'result' : 'results'}
@@ -161,6 +151,7 @@ export default async function ExplorePage(props: { searchParams?: Promise<Params
         </nav>
       ) : null}
     </div>
+    </>
   );
 }
 

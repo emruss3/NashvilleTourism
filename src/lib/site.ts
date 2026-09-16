@@ -106,24 +106,31 @@ export function isVerifiedSocial(url: string): boolean {
   return !url.includes('[');
 }
 
-/** Top-level navigation (SITE-LAYOUT.md §Header). */
+/**
+ * Top-level navigation (HOMEPAGE.md §1): Explore, Events, Shop, Plan your
+ * trip. Explore opens the five discovery families so every category page is
+ * one click from the header on desktop and in the phone menu.
+ */
+export const exploreNav = [
+  { label: 'Restaurants', href: '/restaurants/' },
+  { label: 'Tours', href: '/tours/' },
+  { label: 'Neighborhoods', href: '/neighborhoods/' },
+  { label: 'Things to do', href: '/things-to-do/' },
+  { label: 'Hotels', href: '/hotels/' },
+] as const;
+
 export const primaryNav = [
   { label: 'Explore', href: '/explore/' },
-  { label: 'Music', href: '/music/' },
-  { label: 'Neighborhoods', href: '/neighborhoods/' },
-  { label: 'Eat & Drink', href: '/restaurants/' },
+  { label: 'Events', href: '/events/' },
   { label: 'Shop', href: '/shop/' },
-  { label: 'Plan', href: '/plan/' },
-  { label: 'Journal', href: '/guides/' },
+  { label: 'Plan your trip', href: '/plan/' },
 ] as const;
 
 export const secondaryNav = [
-  { label: 'Events', href: '/events/' },
+  { label: 'Music venues', href: '/music/' },
   { label: 'Live music tonight', href: '/live-music-tonight/' },
-  { label: 'Hotels', href: '/hotels/' },
+  { label: 'Journal', href: '/guides/' },
   { label: 'Where to stay', href: '/where-to-stay/' },
-  { label: 'Things to do', href: '/things-to-do/' },
-  { label: 'Tours', href: '/tours/' },
   { label: 'The weekend', href: '/weekend/' },
   { label: 'Honky Tonk Highway', href: '/honky-tonk-highway/' },
 ] as const;

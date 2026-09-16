@@ -3,32 +3,38 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { primaryNav, secondaryNav, site } from '@/lib/site';
+import { exploreNav, primaryNav, secondaryNav, site } from '@/lib/site';
 import Wordmark, { NsvlMark } from './Wordmark';
 
 /**
- * Site header.
+ * Site header (HOMEPAGE.md §1).
+ *
+ * Desktop: an editorial masthead with the centered lockup, search on the
+ * right, and one row of top-level navigation: Explore, Events, Shop, Plan
+ * your trip. Explore is a link to the discovery page and also opens a
+ * disclosure listing Restaurants, Tours, Neighborhoods, Things to do and
+ * Hotels, so every category is one click from any page. The masthead
+ * scrolls away and a slim sticky bar takes over.
  *
  * Under 768px (MOBILE-FIRST.md): one compact 64px sticky row with the menu
- * and the standalone NSVL mark linked home. Search is a visible field on the
- * page, not a header icon, and there is no bag because the shop has no cart
- * yet; a decorative bag would misrepresent a working action.
- *
- * Desktop (SITE-LAYOUT.md): an editorial masthead with the centered lockup,
- * search on the right, and a second row of top-level navigation. It scrolls
- * away; a slim sticky bar takes over once the masthead is off screen.
+ * and the standalone NSVL mark. The menu lists the Explore categories first,
+ * then Events, Shop and Plan, then the secondary links. Search is a visible
+ * field on the page, not a header icon, and there is no bag because the
+ * shop has no cart yet.
  */
 export default function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [exploreOpen, setExploreOpen] = useState(false);
   const [condensed, setCondensed] = useState(false);
   const mastheadRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
+  const exploreRef = useRef<HTMLLIElement>(null);
 
+  const exploreActive = pathname.startsWith('/explore') || exploreNav.some((c) => pathname.startsWith(c.href.replace(/\/$/, '')));
   const isActive = (href: string) => {
-    if (href === '/explore/') return pathname.startsWith('/explore') || pathname.startsWith('/events');
-    if (href === '/music/') return pathname.startsWith('/music') || pathname.startsWith('/live-music');
+    if (href === '/explore/') return exploreActive;
     return pathname === href || pathname.startsWith(href);
   };
 
@@ -42,6 +48,26 @@ export default function Header() {
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  // Explore disclosure: Escape and outside clicks close it.
+  useEffect(() => {
+    if (!exploreOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setExploreOpen(false);
+        exploreRef.current?.querySelector<HTMLButtonElement>('button')?.focus();
+      }
+    }
+    function onClick(e: MouseEvent) {
+      if (exploreRef.current && !exploreRef.current.contains(e.target as Node)) setExploreOpen(false);
+    }
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onClick);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onClick);
+    };
+  }, [exploreOpen]);
 
   useEffect(() => {
     if (!open) return;
@@ -81,22 +107,73 @@ export default function Header() {
 
   useEffect(() => {
     setOpen(false);
+    setExploreOpen(false);
   }, [pathname]);
 
-  const navLink = (href: string, label: string, compact = false) => {
-    const active = isActive(href);
-    return (
-      <Link
-        href={href}
-        aria-current={active ? 'page' : undefined}
-        className={`inline-flex min-h-11 items-center border-b-2 px-3.5 font-sans font-semibold text-ink transition-colors ${
-          compact ? 'text-[14px]' : 'text-[17px]'
-        } ${active ? 'border-ink' : 'border-transparent hover:border-ink/40'}`}
-      >
-        {label}
-      </Link>
-    );
-  };
+  const linkClass = (active: boolean, compact: boolean) =>
+    `inline-flex min-h-11 items-center border-b-2 px-3.5 font-sans font-semibold text-ink transition-colors ${
+      compact ? 'text-[14px]' : 'text-[17px]'
+    } ${active ? 'border-ink' : 'border-transparent hover:border-ink/40'}`;
+
+  const navRow = (compact: boolean, tabbable: boolean) => (
+    <ul className={`flex items-center ${compact ? 'gap-0.5' : 'justify-center gap-1'}`}>
+      {primaryNav.map((item) => {
+        const active = isActive(item.href);
+        if (item.href === '/explore/') {
+          return (
+            <li key={item.href} className="relative" ref={compact ? undefined : exploreRef}>
+              <div className="flex items-center">
+                <Link href={item.href} aria-current={active ? 'page' : undefined} className={linkClass(active, compact)} tabIndex={tabbable ? 0 : -1}>
+                  {item.label}
+                </Link>
+                {!compact ? (
+                  <button
+                    type="button"
+                    aria-expanded={exploreOpen}
+                    aria-controls="explore-menu"
+                    aria-label="Explore categories"
+                    onClick={() => setExploreOpen((v) => !v)}
+                    className="-ml-2 inline-flex h-11 w-9 items-center justify-center rounded text-ink hover:bg-paper-sunk"
+                  >
+                    <Chevron open={exploreOpen} />
+                  </button>
+                ) : null}
+              </div>
+              {!compact && exploreOpen ? (
+                <div id="explore-menu" className="absolute left-0 top-full z-50 mt-1 w-56 rounded-card border border-paper-edge bg-paper py-2 shadow-none">
+                  <ul>
+                    {exploreNav.map((c) => (
+                      <li key={c.href}>
+                        <Link
+                          href={c.href}
+                          aria-current={pathname.startsWith(c.href.replace(/\/$/, '')) ? 'page' : undefined}
+                          className="flex min-h-11 items-center px-4 text-[15px] font-semibold text-ink hover:bg-paper-sunk"
+                        >
+                          {c.label}
+                        </Link>
+                      </li>
+                    ))}
+                    <li className="mt-1 border-t border-paper-edge pt-1">
+                      <Link href="/explore/" className="flex min-h-11 items-center px-4 text-[15px] text-ink-soft hover:bg-paper-sunk hover:text-ink">
+                        All of Explore
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+              ) : null}
+            </li>
+          );
+        }
+        return (
+          <li key={item.href}>
+            <Link href={item.href} aria-current={active ? 'page' : undefined} className={linkClass(active, compact)} tabIndex={tabbable ? 0 : -1}>
+              {item.label}
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
 
   return (
     <header>
@@ -114,11 +191,7 @@ export default function Header() {
             </Link>
           </div>
           <nav aria-label="Primary" className="mt-3">
-            <ul className="flex items-center justify-center gap-1">
-              {primaryNav.map((item) => (
-                <li key={item.href}>{navLink(item.href, item.label)}</li>
-              ))}
-            </ul>
+            {navRow(false, true)}
           </nav>
         </div>
       </div>
@@ -135,18 +208,17 @@ export default function Header() {
             <NsvlMark width={96} decorative />
           </Link>
           <nav aria-label="Primary, condensed" className="min-w-0 flex-1">
-            <ul className="flex items-center gap-0.5">
-              {primaryNav.map((item) => (
-                <li key={item.href}>
-                  {condensed ? (
-                    navLink(item.href, item.label, true)
-                  ) : (
-                    <span className="inline-flex min-h-11 items-center px-3 text-[14px] font-semibold text-ink">{item.label}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
+            {navRow(true, condensed)}
           </nav>
+          <ul className="hidden items-center gap-0.5 xl:flex" aria-label="Explore categories, condensed">
+            {exploreNav.map((c) => (
+              <li key={c.href}>
+                <Link href={c.href} className="inline-flex min-h-11 items-center px-2.5 text-[13px] font-medium text-ink-soft hover:text-ink" tabIndex={condensed ? 0 : -1}>
+                  {c.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
           <Link
             href="/search/"
             className="inline-flex h-11 w-11 items-center justify-center rounded text-ink hover:bg-paper-sunk"
@@ -191,17 +263,16 @@ export default function Header() {
               className="fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-paper-edge bg-paper"
             >
               <nav aria-label="Menu" className="shell py-3">
-                <ul className="divide-y divide-paper-edge">
-                  {primaryNav.map((item) => {
-                    const active = isActive(item.href);
+                <p className="eyebrow">Explore</p>
+                <ul className="mt-1 divide-y divide-paper-edge">
+                  {exploreNav.map((item) => {
+                    const active = pathname.startsWith(item.href.replace(/\/$/, ''));
                     return (
                       <li key={item.href}>
                         <Link
                           href={item.href}
                           aria-current={active ? 'page' : undefined}
-                          className={`flex min-h-12 items-center py-3 font-sans text-[17px] font-semibold text-ink ${
-                            active ? 'underline underline-offset-[0.2em]' : ''
-                          }`}
+                          className={`flex min-h-12 items-center py-3 font-sans text-[17px] font-semibold text-ink ${active ? 'underline underline-offset-[0.2em]' : ''}`}
                           onClick={() => setOpen(false)}
                         >
                           {item.label}
@@ -209,6 +280,23 @@ export default function Header() {
                       </li>
                     );
                   })}
+                  {primaryNav
+                    .filter((item) => item.href !== '/explore/')
+                    .map((item) => {
+                      const active = isActive(item.href);
+                      return (
+                        <li key={item.href}>
+                          <Link
+                            href={item.href}
+                            aria-current={active ? 'page' : undefined}
+                            className={`flex min-h-12 items-center py-3 font-sans text-[17px] font-semibold text-ink ${active ? 'underline underline-offset-[0.2em]' : ''}`}
+                            onClick={() => setOpen(false)}
+                          >
+                            {item.label}
+                          </Link>
+                        </li>
+                      );
+                    })}
                 </ul>
                 <p className="eyebrow mt-5">More</p>
                 <ul className="mt-1 divide-y divide-paper-edge">
@@ -235,6 +323,14 @@ export default function Header() {
         )}
       </div>
     </header>
+  );
+}
+
+function Chevron({ open }: { open: boolean }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true" className={`transition-transform ${open ? 'rotate-180' : ''}`}>
+      <path d="m5 7.5 5 5 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 

@@ -13,8 +13,12 @@ import Wordmark from './Wordmark';
 const LINKS = [
   { label: 'About', href: '/about/' },
   { label: 'Contact', href: '/contact/' },
+  { label: 'Restaurants', href: '/restaurants/' },
+  { label: 'Tours', href: '/tours/' },
   { label: 'Neighborhoods', href: '/neighborhoods/' },
+  { label: 'Things to do', href: '/things-to-do/' },
   { label: 'Events', href: '/events/' },
+  { label: 'Hotels', href: '/hotels/' },
   { label: 'Shop', href: '/shop/' },
   { label: 'Plan', href: '/plan/' },
   { label: 'Journal', href: '/guides/' },
