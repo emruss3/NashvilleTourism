@@ -38,7 +38,7 @@ const AI_ANSWER_AGENTS = [
 ];
 
 export default function robots(): MetadataRoute.Robots {
-  const disallow = ['/search/', '/404/'];
+  const disallow = ['/search/', '/bag/', '/404/'];
 
   return {
     rules: [

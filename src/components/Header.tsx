@@ -23,9 +23,9 @@ import Wordmark, { NsvlMark } from './Wordmark';
  * then Events, Shop and Plan, then the secondary links. Search is a visible
  * field on the page, not a header icon.
  *
- * The bag sits top right in every variant (HOMEPAGE.md §1). No commerce
- * provider is connected yet, so it opens the shop rather than a cart and
- * shows no count; when a cart exists it becomes the cart control.
+ * The bag sits top right in every variant (HOMEPAGE.md §1) and opens the
+ * bag page. No commerce provider is connected yet, so it shows no count;
+ * the bag page says the store is not taking orders and lists saved places.
  */
 export default function Header() {
   const pathname = usePathname();
@@ -335,13 +335,13 @@ function PlanBox({ active, compact = false, tabbable = true }: { active: boolean
   );
 }
 
-/** Shopping bag, top right on every header variant. Opens the shop until a cart exists. */
+/** Shopping bag, top right on every header variant. Opens the bag page. */
 function BagLink({ tabbable = true }: { tabbable?: boolean }) {
   return (
     <Link
-      href="/shop/"
+      href="/bag/"
       className="inline-flex h-11 w-11 items-center justify-center rounded text-ink transition-colors hover:bg-paper-sunk"
-      aria-label="Shopping bag: opens the NSVL shop"
+      aria-label="Your bag"
       tabIndex={tabbable ? 0 : -1}
     >
       <BagIcon size={22} />

@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react';
 const ITEMS = [
   { label: 'Explore', href: '/explore/', match: ['/explore', '/neighborhoods', '/restaurants', '/things-to-do', '/music', '/where-to-stay', '/hotels', '/tours', '/guides'], icon: CompassIcon },
   { label: 'Events', href: '/events/', match: ['/events', '/live-music-tonight'], icon: CalendarIcon },
-  { label: 'Shop', href: '/shop/', match: ['/shop'], icon: BagIcon },
+  { label: 'Shop', href: '/shop/', match: ['/shop', '/bag'], icon: BagIcon },
   { label: 'Plan', href: '/plan/', match: ['/plan', '/weekend'], icon: PlanIcon },
 ] as const;
 
