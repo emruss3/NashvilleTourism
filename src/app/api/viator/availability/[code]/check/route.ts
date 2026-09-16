@@ -1,3 +1,4 @@
+import { checkRateLimit, rateLimitResponse } from '@/lib/rate-limit';
 import { invokeEdgeFunction, isSupabaseConfigured } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -16,6 +17,10 @@ export async function POST(
   request: Request,
   context: { params: Promise<{ code: string }> },
 ) {
+  // Real-time availability is the most expensive Viator call; keep it tight.
+  const limited = checkRateLimit(request, { bucket: 'viator-check', limit: 20, windowMs: 60_000 });
+  if (!limited.ok) return rateLimitResponse(limited);
+
   const code = decodeURIComponent((await context.params).code || '').trim();
   if (!code) {
     return Response.json(

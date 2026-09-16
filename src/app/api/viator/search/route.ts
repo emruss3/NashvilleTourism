@@ -1,4 +1,5 @@
 import { searchNashvilleProducts } from '@/lib/feeds/viator';
+import { checkRateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +14,9 @@ const SORTS = new Set(['DEFAULT', 'TRAVELER_RATING', 'PRICE', 'ITINERARY_DURATIO
 const CAMPAIGN = 'tours-marketplace';
 
 export async function GET(req: Request) {
+  const limited = checkRateLimit(req, { bucket: 'viator-search', limit: 30, windowMs: 60_000 });
+  if (!limited.ok) return rateLimitResponse(limited);
+
   const url = new URL(req.url);
   const query = url.searchParams.get('q') || undefined;
 
