@@ -4,7 +4,7 @@ import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { JsonLd } from '@/components/Ui';
-import StickyCta from '@/components/StickyCta';
+import BottomNav from '@/components/BottomNav';
 import { allowIndexing, asset, organizationSchema, websiteSchema, canonical } from '@/lib/seo';
 import { site } from '@/lib/site';
 
@@ -14,8 +14,8 @@ const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-X1YXCSYL9B';
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} | ${site.tagline}`,
-    template: `%s | ${site.name}`,
+    default: `${site.name} | ${site.tagline} | ${site.titleSuffix}`,
+    template: `%s | ${site.titleSuffix}`,
   },
   description: site.description,
   applicationName: site.name,
@@ -28,20 +28,20 @@ export const metadata: Metadata = {
     siteName: site.name,
     locale: site.locale,
     url: canonical('/'),
-    title: `${site.name} | ${site.tagline}`,
+    title: `${site.name} | ${site.tagline} | ${site.titleSuffix}`,
     description: site.description,
     images: [
       {
-        url: canonical('/media/hero/nashville-hero-drone-poster.jpg'),
-        width: 2400,
-        height: 1350,
-        alt: 'Downtown Nashville at sunset above the Cumberland River and Korean Veterans Memorial Bridge.',
+        url: canonical('/media/social/og-default.jpg'),
+        width: 1200,
+        height: 630,
+        alt: 'A crowd at a downtown Nashville rooftop show at night.',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    images: [canonical('/media/hero/nashville-hero-drone-poster.jpg')],
+    images: [canonical('/media/social/og-default.jpg')],
   },
   // Omit robots when indexable (browser/crawler default is index,follow).
   // Preview/staging builds still emit an explicit noindex.
@@ -55,7 +55,7 @@ export const viewport: Viewport = {
   // Lets the sticky bottom bar and the body padding extend under the home
   // indicator on notched phones; safe-area insets handle the offset.
   viewportFit: 'cover',
-  themeColor: '#F8F3E9',
+  themeColor: '#F5F3ED',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -75,8 +75,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             gtag('config', '${GA_MEASUREMENT_ID}');
           `}
         </Script>
-        <link rel="icon" href={asset('/brand/star.png')} type="image/png" />
-        <link rel="apple-touch-icon" href={asset('/brand/nsh.png')} />
+        {/* Placeholder: no small-size NSVL derivative is approved yet (brand guide §3). */}
+        <link rel="icon" href={asset('/brand/nsvl/favicon-placeholder.svg')} type="image/svg+xml" />
         {/* Impact requires its non-standard `value` attribute for site verification. */}
         <meta
           name="impact-site-verification"
@@ -91,7 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
         <main id="main">{children}</main>
         <Footer />
-        <StickyCta />
+        <BottomNav />
       </body>
     </html>
   );

@@ -27,7 +27,7 @@ export function GET() {
       <guid isPermaLink="true">${url}</guid>
       <pubDate>${pub}</pubDate>
       <category>${esc(g.cluster)}</category>
-      <dc:creator>${esc(author?.name ?? 'NASHVILLE Editorial Desk')}</dc:creator>
+      <dc:creator>${esc(author?.name ?? 'NSVL Editorial Desk')}</dc:creator>
       <description>${esc(g.shortAnswer)}</description>
     </item>`;
     })

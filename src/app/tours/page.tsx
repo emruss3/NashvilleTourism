@@ -86,7 +86,7 @@ export default async function ToursHub(
       <PageHeader
         eyebrow="Book an activity"
         title="Nashville Tours & Experiences"
-        intro="Search live Viator inventory from NashRoam, compare ratings and starting prices, then confirm the exact date, party size, price, and checkout on Viator."
+        intro="Search live Viator inventory from NSVL, compare ratings and starting prices, then confirm the exact date, party size, price, and checkout on Viator."
       />
       <HubLead imageKey="hub/tours-lead" />
 
@@ -203,9 +203,9 @@ export default async function ToursHub(
 
       <section className="py-6">
         <SectionHeader
-          eyebrow="NashRoam guide"
+          eyebrow="NSVL guide"
           title="Choose the right tour format"
-          description="These planning notes are NashRoam editorial guidance. Use each link to run a fresh search against live Viator inventory rather than forcing an unrelated product match."
+          description="These planning notes are NSVL editorial guidance. Use each link to run a fresh search against live Viator inventory rather than forcing an unrelated product match."
         />
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {catalog.editorial.map((tour) => (
@@ -249,7 +249,7 @@ export default async function ToursHub(
         <h2 className="text-2xl sm:text-[28px]">Before you book</h2>
         <ul className="mt-4 max-w-prose space-y-3">
           {[
-            'The price shown on NashRoam is Viator’s starting price. Some products price by person, while private boats, vehicles, or charters may price by the unit or group.',
+            'The price shown on Nashville.com is Viator’s starting price. Some products price by person, while private boats, vehicles, or charters may price by the unit or group.',
             'A date filter narrows Viator’s product search. Exact start times, party-size pricing, and final availability are confirmed in the selected-product flow before checkout on Viator.',
             'Read the cancellation terms on the product page before you pay. Free cancellation is common but not universal.',
             'For private tours and charters, compare the total vehicle or group price rather than assuming the displayed starting price is a per-person rate.',

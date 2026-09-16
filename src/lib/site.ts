@@ -1,8 +1,13 @@
 /**
  * Single source of truth for brand-level strings.
- * Consumer brand is NASHVILLE on nashroam.com. The legal entity and business
- * address remain placeholders until launch; change them here and they
- * propagate through metadata, schema, and UI.
+ *
+ * Brand: NSVL (main visual identity), with NASHVILLE as the supporting logo
+ * descriptor and Nashville.com as the destination and attribution name.
+ * NSVL and Nashville.com are one identity. See design/nsvl-brand-handoff.
+ *
+ * The site is still served from nashroam.com until the domain migration is
+ * authorised separately; canonical URLs follow the live host, not the brand.
+ * The legal entity and business address remain placeholders until launch.
  */
 
 /**
@@ -15,10 +20,6 @@
  *   2. Vercel's production domain    stable across deploys
  *   3. Vercel's per-deployment URL   preview builds
  *   4. A clearly fake placeholder    local work before a domain exists
- *
- * Steps 2 and 3 matter: without them a Vercel deployment ships canonical tags
- * pointing at a domain that does not exist, which tells crawlers the live page
- * is not the authoritative copy and keeps it out of the index.
  */
 function resolveSiteUrl(): string {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL;
@@ -39,23 +40,32 @@ function resolveSiteUrl(): string {
 const SITE_URL = resolveSiteUrl();
 
 export const site = {
-  name: 'NASHVILLE',
-  shortName: 'NSH',
+  /** Main visual identity. */
+  name: 'NSVL',
+  /** Supporting logo descriptor. */
+  descriptor: 'NASHVILLE',
+  /** Destination and attribution name; used in titles and the footer. */
+  destination: 'Nashville.com',
+  shortName: 'NSVL',
+  /** Live host. The Nashville.com move is a separate, explicitly authorised migration. */
   domain: 'nashroam.com',
   url: SITE_URL,
-  /** Public descriptor — contextual, not a permanent under-logo tagline. */
-  tagline: 'Trusted recommendations for Nashville.',
+  /** Descriptive topic followed by Nashville.com (brand guide §2). */
+  titleSuffix: 'Nashville.com',
+  tagline: 'Get into Nashville.',
   description:
-    'Trusted recommendations for where to stay, eat, drink, listen, shop, and spend your time.',
-  positioning:
-    'The most useful way to plan, book, and experience Nashville.',
-  headline: 'Make the most of Nashville.',
+    'A guide to Nashville and the things that make it worth coming back: music, neighborhoods, places to eat, and plans worth keeping.',
+  positioning: 'NSVL is Nashville.com: a guide to the city and the things that make it worth coming back.',
+  headline: 'Get into Nashville.',
+  headlineSupport: 'Great music. Good food. Better company.',
+  heroEyebrow: 'Music. People. Places.',
+  brandIdea: 'One good plan changes everything.',
   trustLine: 'Regularly checked. Clearly labeled. Locally informed.',
-  /** Campaign copy only — not part of the core logo lockup until counsel clears. */
-  campaignLine: 'Your Guide. Your Nashville.',
   newsletter: {
-    name: 'NASHVILLE Weekender',
-    promise: 'Nashville plans, once a week.',
+    name: 'The weekly edit',
+    heading: 'Your next good plan.',
+    promise: 'A weekly edit of Nashville shows, places and new releases.',
+    cta: 'Send me the edit',
   },
   locale: 'en_US',
   org: {
@@ -73,6 +83,7 @@ export const site = {
     advertisingEmail: 'advertise@nashroam.com',
     phone: '[Phone]',
   },
+  /** Only verified accounts are rendered; placeholders stay hidden (no dead icons). */
   social: {
     instagram: 'https://instagram.com/[handle]',
     x: 'https://x.com/[handle]',
@@ -80,7 +91,7 @@ export const site = {
     newsletter: '/newsletter/',
   },
   affiliation:
-    'NASHVILLE is an independent city guide operated by [LEGAL ENTITY]. It is not affiliated with the Metropolitan Government of Nashville and Davidson County or the Nashville Convention & Visitors Corp.',
+    'NSVL is an independent city guide operated by [LEGAL ENTITY]. It is not affiliated with the Metropolitan Government of Nashville and Davidson County or the Nashville Convention & Visitors Corp.',
 } as const;
 
 /** True only after the public business identity has replaced launch placeholders. */
@@ -90,57 +101,62 @@ export const hasLaunchIdentity =
   !site.org.email.includes('[') &&
   !site.org.address.street.includes('[');
 
-/** Primary header navigation — brand guide §10. Tours promoted for Viator visibility. */
+/** True for a social URL that is a real account rather than a placeholder. */
+export function isVerifiedSocial(url: string): boolean {
+  return !url.includes('[');
+}
+
+/** Top-level navigation (SITE-LAYOUT.md §Header). */
 export const primaryNav = [
-  { label: 'Restaurants', href: '/restaurants/' },
-  { label: 'Hotels', href: '/where-to-stay/' },
-  { label: 'Things to Do', href: '/things-to-do/' },
-  { label: 'Events', href: '/events/' },
+  { label: 'Explore', href: '/explore/' },
   { label: 'Music', href: '/music/' },
   { label: 'Neighborhoods', href: '/neighborhoods/' },
-  { label: 'Tours', href: '/tours/' },
-  { label: 'Guides', href: '/guides/' },
+  { label: 'Eat & Drink', href: '/restaurants/' },
+  { label: 'Shop', href: '/shop/' },
+  { label: 'Plan', href: '/plan/' },
+  { label: 'Journal', href: '/guides/' },
 ] as const;
 
 export const secondaryNav = [
-  { label: 'Live Music Tonight', href: '/live-music-tonight/' },
+  { label: 'Events', href: '/events/' },
+  { label: 'Live music tonight', href: '/live-music-tonight/' },
+  { label: 'Where to stay', href: '/where-to-stay/' },
+  { label: 'Things to do', href: '/things-to-do/' },
+  { label: 'Tours', href: '/tours/' },
+  { label: 'The weekend', href: '/weekend/' },
   { label: 'Honky Tonk Highway', href: '/honky-tonk-highway/' },
-  { label: 'NASHVILLE Weekender', href: '/weekend/' },
-  { label: 'Hotels A–Z', href: '/hotels/' },
-  { label: 'Trip Planner', href: '/plan/' },
-  { label: 'Shop', href: '/shop/' },
 ] as const;
 
 export const footerNav = {
-  About: [
-    { label: 'About us', href: '/about/' },
+  NSVL: [
+    { label: 'About', href: '/about/' },
     { label: 'Contact', href: '/contact/' },
-    { label: 'Our editorial standards', href: '/editorial-standards/' },
+    { label: 'Accessibility', href: '/contact/#accessibility' },
+    { label: 'Editorial standards', href: '/editorial-standards/' },
     { label: 'How we choose', href: '/how-we-choose/' },
     { label: 'Corrections', href: '/corrections/' },
   ],
   Explore: [
-    { label: 'Restaurants', href: '/restaurants/' },
-    { label: 'Hotels', href: '/where-to-stay/' },
-    { label: 'Things to do', href: '/things-to-do/' },
-    { label: 'Events', href: '/events/' },
-    { label: 'Live Music Tonight', href: '/live-music-tonight/' },
-    { label: 'Music Venues', href: '/music/' },
-    { label: 'Tours', href: '/tours/' },
-    { label: 'Weekend Guide', href: '/weekend/' },
     { label: 'Neighborhoods', href: '/neighborhoods/' },
-    { label: 'Shop', href: '/shop/' },
-    { label: 'Guides', href: '/guides/' },
+    { label: 'Events', href: '/events/' },
+    { label: 'Music', href: '/music/' },
+    { label: 'Eat & Drink', href: '/restaurants/' },
+    { label: 'Things to do', href: '/things-to-do/' },
+    { label: 'Where to stay', href: '/where-to-stay/' },
+    { label: 'Tours', href: '/tours/' },
+    { label: 'Journal', href: '/guides/' },
   ],
-  Business: [
-    { label: 'Advertise with us', href: '/advertising/' },
-    { label: 'Partner with us', href: '/advertising/#partner' },
-    { label: 'Sponsorship disclosure', href: '/advertising/#disclosure' },
-    { label: 'Style guide', href: '/style-guide/' },
+  Plan: [
+    { label: 'Build a trip', href: '/plan/' },
+    { label: 'The weekend', href: '/weekend/' },
+    { label: 'Live music tonight', href: '/live-music-tonight/' },
+    { label: 'Shop NSVL', href: '/shop/' },
+    { label: 'The weekly edit', href: '/newsletter/' },
   ],
   Legal: [
-    { label: 'Privacy policy', href: '/privacy/' },
-    { label: 'Terms of use', href: '/terms/' },
+    { label: 'Privacy', href: '/privacy/' },
+    { label: 'Terms', href: '/terms/' },
+    { label: 'Advertising', href: '/advertising/' },
     { label: 'Photo credits', href: '/photo-credits/' },
   ],
 } as const;

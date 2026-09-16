@@ -33,10 +33,23 @@ const DEFAULTS: TripInput = {
   hasChildren: false,
 };
 
-export default function TripPlanner({ initialType }: { initialType?: string }) {
+export default function TripPlanner({
+  initialType,
+  initialStart,
+  initialEnd,
+  initialTravelers,
+}: {
+  initialType?: string;
+  initialStart?: string;
+  initialEnd?: string;
+  initialTravelers?: number;
+}) {
   const seed: TripInput = {
     ...DEFAULTS,
     tripType: (initialType && initialType in TRIP_TYPE_LABELS ? initialType : 'first-visit') as TripType,
+    startDate: initialStart ?? DEFAULTS.startDate,
+    endDate: initialEnd ?? DEFAULTS.endDate,
+    travelers: initialTravelers ?? DEFAULTS.travelers,
   };
   const [input, setInput] = useState<TripInput>(seed);
   const [submitted, setSubmitted] = useState(false);
@@ -152,7 +165,7 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
 
   return (
     <div>
-      <form onSubmit={onSubmit} className="rounded-card border border-paper-edge bg-white p-5 lg:p-7">
+      <form onSubmit={onSubmit} className="rounded-card border border-paper-edge bg-paper-sunk p-5 lg:p-7">
         <div className="grid gap-6 sm:grid-cols-2">
           <div>
             <label htmlFor="start" className="field-label">Arriving</label>
@@ -185,7 +198,7 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
             {INTEREST_OPTIONS.map((opt) => {
               const on = input.interests.includes(opt);
               return (
-                <label key={opt} className={`cursor-pointer rounded-full border px-3.5 py-1.5 text-sm transition-colors ${on ? 'border-clay bg-clay text-white' : 'border-paper-edge bg-white text-ink-soft hover:border-clay'}`}>
+                <label key={opt} className={`inline-flex min-h-11 cursor-pointer items-center rounded border px-3.5 text-sm transition-colors ${on ? 'border-ink bg-ink text-paper' : 'border-ink-soft bg-paper text-ink hover:border-ink'}`}>
                   <input type="checkbox" className="sr-only" checked={on} onChange={() => toggleArray('interests', opt)} />
                   {opt}
                 </label>
@@ -201,7 +214,7 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
             {neighborhoods.map((n) => {
               const on = input.neighborhoods.includes(n.slug);
               return (
-                <label key={n.slug} className={`cursor-pointer rounded-full border px-3.5 py-1.5 text-sm transition-colors ${on ? 'border-clay bg-clay text-white' : 'border-paper-edge bg-white text-ink-soft hover:border-clay'}`}>
+                <label key={n.slug} className={`inline-flex min-h-11 cursor-pointer items-center rounded border px-3.5 text-sm transition-colors ${on ? 'border-ink bg-ink text-paper' : 'border-ink-soft bg-paper text-ink hover:border-ink'}`}>
                   <input type="checkbox" className="sr-only" checked={on} onChange={() => toggleArray('neighborhoods', n.slug as NeighborhoodSlug)} />
                   {n.name}
                 </label>
@@ -246,7 +259,7 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
         </fieldset>
 
         <button type="submit" className="btn-primary mt-8 w-full sm:w-auto">{submitted ? 'Rebuild itinerary' : 'Build my itinerary'}</button>
-        <p className="mt-3 text-2xs text-ink-faint">Plans are assembled from published records and Nashroam context rules, not generated prose.</p>
+        <p className="mt-3 text-2xs text-ink-faint">Plans are assembled from published records and NSVL planning rules, not generated prose.</p>
       </form>
 
       {submitted && (
@@ -306,7 +319,7 @@ export default function TripPlanner({ initialType }: { initialType?: string }) {
 
                 {day.guidance.length > 0 && (
                   <div className="mb-4 rounded-card border border-clay/20 bg-paper-card p-4">
-                    <p className="eyebrow text-clay">Nashroam context</p>
+                    <p className="eyebrow text-clay">NSVL context</p>
                     <div className="mt-2 space-y-2">
                       {day.guidance.map((item) => (
                         <div key={item.title}>

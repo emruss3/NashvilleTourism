@@ -57,15 +57,12 @@ export default function StyleGuidePage() {
       <section className="border-t border-paper-edge py-10">
         <SectionHeader
           title="Logo system"
-          description="Actual cropped assets from the brand sheet in /public/brand/. Never recreate with web fonts."
+          description="Provisional raster reconstructions from design/nsvl-brand-handoff/logos, rendered through a CSS mask for each color direction. Vector master and favicon outstanding. Never recreate with web fonts."
         />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            ['Primary wordmark', '/brand/wordmark.png', 'Header, footer'],
-            ['Campaign horizontal', '/brand/lockup-horizontal.png', 'Promo / campaign'],
-            ['Campaign stacked', '/brand/lockup-stacked.png', 'Hero, vertical spaces'],
-            ['NSH mark', '/brand/nsh.png', 'Shop, compact chrome'],
-            ['Star mark', '/brand/star.png', 'Favicon, accents'],
+            ['NSVL lockup', '/brand/nsvl/nsvl-lockup-640.png', 'Desktop header, footer (140px minimum)'],
+            ['NSVL mark', '/brand/nsvl/nsvl-mark-480.png', 'Mobile header, compact chrome (88px minimum)'],
           ].map(([label, src, use]) => (
             <div key={src} className="rounded-card border border-paper-edge bg-paper-card p-5">
               <div className="flex h-28 items-center justify-center rounded bg-paper p-3">

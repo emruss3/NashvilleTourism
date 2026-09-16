@@ -9,7 +9,7 @@ import { ANALYTICS_EVENTS, type AnalyticsEvent } from '@/lib/analytics';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'NASHVILLE Weekender: Friday to Sunday',
+  title: 'The Nashville weekend: Friday to Sunday',
   description:
     'A tight Friday-to-Sunday Nashville plan, three slots a day, each one linked to what to book and where to stay. Built to be followed, not read.',
   path: '/weekend/',
@@ -157,7 +157,7 @@ export default function WeekendHub() {
 
       <PageHeader
         eyebrow="Friday to Sunday"
-        title="NASHVILLE Weekender"
+        title="The weekend, Friday to Sunday"
         intro="Three slots a day, three days. Book the room, one show, and one dinner, and leave the rest loose."
       />
       <HubLead imageKey="hub/weekend-lead" />

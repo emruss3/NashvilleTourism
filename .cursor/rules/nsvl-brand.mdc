@@ -1,0 +1,48 @@
+---
+description: NSVL / Nashville.com brand identity — source of truth for design and copy
+alwaysApply: true
+---
+
+# NSVL Brand
+
+Full handoff: `design/nsvl-brand-handoff/` (BRAND-GUIDE.md, SITE-LAYOUT.md, CONTENT-AND-DATA.md, design-tokens.css). This file is the short version.
+
+Brand idea: **One good plan changes everything.** NSVL is Nashville.com: a guide to the city and the things that make it worth coming back. Confident, social, useful, independent, welcoming. No cowboy clichés, tourism-board graphics, souvenir slogans, or fake sports monograms.
+
+## Naming
+- Main visual identity and apparel: **NSVL**. Supporting descriptor: **NASHVILLE**. Destination and attribution: **Nashville.com**. Editorial city name: Nashville. Store CTA: Shop NSVL.
+- Titles: descriptive topic followed by Nashville.com. The `.com` lives in URLs, metadata and the footer, not the logo.
+- The live host is still nashroam.com; the domain move is a separate, explicitly authorised migration.
+
+## Logo
+- The exact NSVL mark only. Artwork: the supplied charcoal silhouette PNGs (`design/nsvl-brand-handoff/logos`, cropped copies in `/public/brand/nsvl/`), rendered through a CSS mask so Charcoal Ink and Paper White come from one file (`NsvlLogo` in `src/components/Wordmark.tsx`). **Never type NSVL in a font**, and do not skew, round, outline, stretch, or recreate it. Never ship the paper-white review PNGs.
+- Asset gap: the PNGs are provisional reconstructions; a vector master and an approved small favicon are outstanding. The favicon is a plain charcoal square placeholder.
+- Desktop header and footer: full lockup, 140px minimum. Mobile header: standalone mark, 88px minimum. Light backgrounds charcoal, dark backgrounds paper.
+
+## Color (tokens in tailwind.config.ts)
+| Role | Hex | Token |
+|---|---|---|
+| Paper White — page, cards | `#F5F3ED` | `paper`, `paper-card` |
+| Soft Paper — panels, forms | `#EAE7DE` | `paper-sunk`, `sky`, `mint`, `dogwood` |
+| Border | `#D5D7CE` | `paper-edge` |
+| Charcoal Ink — text, dark bands, primary buttons | `#1F2421` | `ink`, `navy`, `cumberland` |
+| Muted Ink — supporting text | `#59605A` | `ink-soft`, `ink-faint` |
+| Legacy accent tokens now resolve to ink | `#1F2421` | `clay`, `clay-bright` |
+
+Two brand colors only (v1.3): no third accent. Links use contextual ink with underlines; selected, error and availability states use borders, underlines, labels and icons, never color alone. Primary buttons are charcoal with paper text. No brown or sepia grading, no beige gradients, no pill cards, no glass panels, no shadows. Card radius 2px, controls 4px.
+
+## Type
+- Display and headings: **Manrope** 700–800, tracking -0.045em (hero) to -0.035em (H2), line-height 1.02–1.08.
+- Body and UI: **Inter** 400–700. Body 16–18px. Labels 12px, letter-spacing 0.14em, uppercase sparingly. Buttons 15–16px semibold.
+- Both self-hosted via fontsource in `globals.css`. Do not introduce other faces or logo-substitute fonts.
+
+## Approved lines
+Hero: *Get into Nashville.* · Support: *Great music. Good food. Better company.* · Trip planning: *One good plan changes everything.* · Neighborhoods: *Find your corner.* · Events: *On the calendar.* · Shop: *Good here. Good anywhere.* · Newsletter: *Your next good plan.*
+
+CTAs describe the result: Explore the city, Find your plans, Find events, Shop NSVL, Build a trip, Save to my plan. Never “Book now” for a link that only opens a guide. Never claim a plan was saved or shared until the action succeeded.
+
+## Voice and trust
+Short, specific, useful; a well-connected local. Avoid “ultimate”, “unforgettable”, “hidden gem”, unsupported “best”, exaggerated exclusivity. Label Sponsored / Paid partnership / Affiliate link. Real data or honest empty states; never fabricated events, prices, ratings, or social proof.
+
+## Layout
+Mobile first (MOBILE-FIRST.md governs): 60% of traffic is expected on phones. Homepage DOM order is the mobile order: 64px header (menu + mark), introduction, search field with Tonight / This weekend / Choose dates, one photograph about 220px tall, calendar, shop, neighborhoods, trip starter, newsletter, footer. Under 768px a bottom navigation bar carries Explore, Events, Shop, Plan with icons and labels (`src/components/BottomNav.tsx`); it hides while a text field has focus or the menu dialog is open. Content max 1280px, gutter `clamp(20px, 4vw, 64px)`, section spacing 40–88px, 8px spacing base. Hover is a subtle underline or 2px translate, transitions 150–200ms, reduced motion honored, 44px targets, 48px primary buttons, visible focus, one H1 per page. Verify at 320, 360, 390, 430, 768 and 1440.

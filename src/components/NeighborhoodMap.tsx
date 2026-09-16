@@ -6,7 +6,6 @@ import { neighborhoods } from '@/lib/content';
 import { asset as assetUrl } from '@/lib/seo';
 import type { Neighborhood } from '@/lib/types';
 import { SmartImage } from './Media';
-import StarMark from './StarMark';
 import { neighborhoodImageKey } from '@/lib/media-placements';
 
 /**
@@ -106,10 +105,10 @@ export default function NeighborhoodMap() {
                     onClick={() => selectHotspot(spot.id)}
                     className={`absolute rounded-md transition-[box-shadow,background-color] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay ${
                       isActive
-                        ? 'bg-clay/15 shadow-[inset_0_0_0_3px_#D95D45]'
+                        ? 'bg-clay/15 shadow-[inset_0_0_0_3px_#1F2421]'
                         : relatedSelected
-                          ? 'bg-clay/10 shadow-[inset_0_0_0_2px_rgba(217,93,69,0.55)]'
-                          : 'bg-transparent hover:bg-clay/10 hover:shadow-[inset_0_0_0_2px_rgba(217,93,69,0.45)]'
+                          ? 'bg-clay/10 shadow-[inset_0_0_0_2px_rgba(31,36,33,0.55)]'
+                          : 'bg-transparent hover:bg-clay/10 hover:shadow-[inset_0_0_0_2px_rgba(31,36,33,0.45)]'
                     }`}
                     style={{
                       left: `${spot.left}%`,
@@ -144,7 +143,6 @@ export default function NeighborhoodMap() {
                 sizes="(max-width: 1024px) 100vw, 40vw"
               />
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-t from-navy/70 via-transparent to-transparent p-4">
-                <StarMark size={18} />
                 <p className="font-sans text-2xl font-bold uppercase tracking-[0.08em] text-paper-card sm:text-3xl">
                   {active.label}
                 </p>

@@ -85,7 +85,7 @@ function PickRow({ pick }: { pick: NeighborhoodPick }) {
         <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold">
           {pick.href ? (
             <Link href={pick.href} className="text-navy underline-offset-4 hover:text-clay hover:underline">
-              {pick.href.startsWith('#') ? 'See related pick' : 'NashRoam guide'}
+              {pick.href.startsWith('#') ? 'See related pick' : 'NSVL guide'}
             </Link>
           ) : null}
           {pick.externalHref ? (
@@ -225,7 +225,7 @@ export function NeighborhoodGuide({
             <div className="mt-16">
               <h2 className="font-display text-3xl font-bold text-navy md:text-4xl">Downtown isn&apos;t just Broadway</h2>
               <p className="mt-3 max-w-2xl text-base text-ink-soft">
-                These are NashRoam trip-planning zones, not official municipal boundaries.
+                These are NSVL trip-planning zones, not official municipal boundaries.
               </p>
               <div className="mt-8 grid gap-8 md:grid-cols-2">
                 {guide.areas.map((area) => (

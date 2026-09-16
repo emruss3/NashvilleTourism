@@ -251,7 +251,7 @@ export async function getExperienceCatalog(opts: {
 } = {}): Promise<ExperienceCatalogResult> {
   const fetchedAt = new Date().toISOString();
   const attribution =
-    'Experiences powered by Viator via Nashroam. Provider ratings/prices remain attributed to Viator; Nashroam publishes only editorially approved experiences.';
+    'Experiences powered by Viator via NSVL. Provider ratings/prices remain attributed to Viator; NSVL publishes only editorially approved experiences.';
 
   if (!isSupabaseConfigured()) {
     return {
@@ -294,7 +294,7 @@ export async function getExperienceCatalog(opts: {
     source: 'none',
     experiences: [],
     attribution,
-    error: 'No Nashroam-approved experiences are published yet',
+    error: 'No NSVL-approved experiences are published yet',
     fetchedAt,
   };
 }

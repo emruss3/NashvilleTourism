@@ -67,7 +67,7 @@ export default async function GuidePage(props: { params: Promise<{ slug: string 
 
       <div className="mt-5 max-w-prose">
         <Byline
-          authorName={author?.name ?? 'NASHVILLE Editorial Desk'}
+          authorName={author?.name ?? 'NSVL Editorial Desk'}
           authorSlug={author?.slug}
           editorName={editor?.name}
           published={g.datePublished}

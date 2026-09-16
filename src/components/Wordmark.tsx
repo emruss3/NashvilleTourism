@@ -1,114 +1,100 @@
 import Link from 'next/link';
+import type { CSSProperties } from 'react';
 import { site } from '@/lib/site';
 import { asset as assetUrl } from '@/lib/seo';
 
-type WordmarkSize = 'header' | 'footer' | 'compact';
+/**
+ * NSVL identity (design/nsvl-brand-handoff/logos).
+ *
+ * ASSET STATUS: the artwork is the supplied charcoal silhouette PNG, a
+ * provisional raster reconstruction of the approved mark. It is rendered
+ * through a CSS mask so every color direction (Charcoal Ink on Paper White,
+ * Paper White on Charcoal Ink) comes from one file, as logo-preview.html
+ * prescribes. The paper-white review PNGs are never shipped. A vector master
+ * and an approved small-size favicon remain outstanding.
+ *
+ * Never recreate the mark with typed letters.
+ */
 
-/** Intrinsic PNG size (2× extract). CSS height controls display size. */
-const SIZES: Record<WordmarkSize, { className: string }> = {
-  header: { className: 'h-11 w-auto sm:h-12' },
-  footer: { className: 'h-12 w-auto sm:h-14' },
-  compact: { className: 'h-9 w-auto' },
+type Tone = 'ink' | 'paper';
+type Variant = 'mark' | 'lockup';
+
+/** Cropped artwork proportions (width / height). */
+const RATIO: Record<Variant, number> = { mark: 2.1483, lockup: 3.0248 };
+
+const ART: Record<Variant, { small: string; large: string }> = {
+  mark: { small: '/brand/nsvl/nsvl-mark-480.png', large: '/brand/nsvl/nsvl-mark-960.png' },
+  lockup: { small: '/brand/nsvl/nsvl-lockup-640.png', large: '/brand/nsvl/nsvl-lockup-1280.png' },
 };
 
+export function NsvlLogo({
+  variant = 'mark',
+  tone = 'ink',
+  width,
+  className = '',
+  decorative = false,
+}: {
+  variant?: Variant;
+  tone?: Tone;
+  /** CSS width of the artwork, e.g. 112 or '240px'. Minimums: mark 88px, lockup 140px. */
+  width: number | string;
+  className?: string;
+  /** True when a parent already carries the accessible name. */
+  decorative?: boolean;
+}) {
+  const art = ART[variant];
+  const w = typeof width === 'number' ? `${width}px` : width;
+  const style: CSSProperties & Record<string, string> = {
+    width: w,
+    aspectRatio: String(RATIO[variant]),
+    WebkitMaskImage: `url(${assetUrl(art.large)})`,
+    maskImage: `url(${assetUrl(art.large)})`,
+    WebkitMaskSize: 'contain',
+    maskSize: 'contain',
+    WebkitMaskRepeat: 'no-repeat',
+    maskRepeat: 'no-repeat',
+    WebkitMaskPosition: 'center',
+    maskPosition: 'center',
+  };
+  const label = variant === 'lockup' ? `${site.name} ${site.descriptor}` : site.name;
+  return (
+    <span
+      role={decorative ? undefined : 'img'}
+      aria-label={decorative ? undefined : label}
+      aria-hidden={decorative ? true : undefined}
+      className={`block shrink-0 ${tone === 'paper' ? 'bg-paper' : 'bg-ink'} ${className}`}
+      style={style}
+    />
+  );
+}
+
+/** Standalone mark, for compact headers and small chrome. */
+export function NsvlMark(props: Omit<Parameters<typeof NsvlLogo>[0], 'variant'>) {
+  return <NsvlLogo variant="mark" {...props} />;
+}
+
 /**
- * Primary masthead — exact PNG from the brand sheet (star + NASHVILLE).
- * Plain <img> so nothing remasters the asset.
+ * Primary lockup (NSVL with the NASHVILLE descriptor), linked home unless
+ * `href` is null. Desktop header and footer use this; phones use the mark.
  */
 export default function Wordmark({
   href = '/',
-  size = 'header',
+  tone = 'ink',
+  width = 240,
+  className = '',
 }: {
   href?: string | null;
-  size?: WordmarkSize;
-  /** Kept for call-site compatibility; unused with plain img. */
+  tone?: Tone;
+  width?: number | string;
+  className?: string;
+  /** Kept for call-site compatibility. */
   priority?: boolean;
+  size?: string;
 }) {
-  // The header renders the mark at roughly 110–130 CSS px wide. Lossless webp
-  // downsizes of the same PNG keep pixels exact while cutting ~90KB per page
-  // load; the original PNG stays as the fallback and on the style guide.
-  const mark = (
-    <picture>
-      <source
-        type="image/webp"
-        srcSet={`${assetUrl('/brand/wordmark-320.webp')} 320w, ${assetUrl('/brand/wordmark-710.webp')} 710w`}
-        sizes="130px"
-      />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={assetUrl('/brand/wordmark.png')}
-        alt={site.name}
-        width={710}
-        height={322}
-        className={`${SIZES[size].className} object-contain object-left`}
-        decoding="async"
-      />
-    </picture>
-  );
-
-  if (!href) return mark;
-
+  if (!href) return <NsvlLogo variant="lockup" tone={tone} width={width} className={className} />;
   return (
-    <Link
-      href={href}
-      className="inline-flex shrink-0 items-center"
-      aria-label={`${site.name} home`}
-    >
-      {mark}
-      <span className="sr-only">{site.name} home</span>
+    <Link href={href} className={`inline-flex shrink-0 ${className}`} aria-label={`${site.name} home`}>
+      <NsvlLogo variant="lockup" tone={tone} width={width} decorative />
     </Link>
-  );
-}
-
-type CampaignVariant = 'horizontal' | 'stacked';
-
-const CAMPAIGN: Record<CampaignVariant, { src: string; width: number; height: number }> = {
-  horizontal: { src: '/brand/lockup-horizontal.png', width: 760, height: 410 },
-  stacked: { src: '/brand/lockup-stacked.png', width: 468, height: 404 },
-};
-
-/** Campaign lockup with tagline — promo / shop surfaces only, never the hero. */
-export function WordmarkCampaign({
-  variant = 'horizontal',
-  className = '',
-}: {
-  variant?: CampaignVariant;
-  className?: string;
-  priority?: boolean;
-}) {
-  const asset = CAMPAIGN[variant];
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={assetUrl(asset.src)}
-      alt={`${site.name} — Make the most of Nashville.`}
-      width={asset.width}
-      height={asset.height}
-      className={`h-auto w-full max-w-sm object-contain ${className}`}
-      decoding="async"
-    />
-  );
-}
-
-/** Compact NSH mark — merchandise / small-format only. */
-export function NshMark({
-  className = '',
-  size = 48,
-}: {
-  className?: string;
-  size?: number;
-}) {
-  const height = Math.round(size * (340 / 362));
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={assetUrl('/brand/nsh.png')}
-      alt={site.shortName}
-      width={362}
-      height={340}
-      className={`object-contain ${className}`}
-      style={{ width: size, height }}
-      decoding="async"
-    />
   );
 }

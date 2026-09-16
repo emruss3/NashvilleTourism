@@ -25,7 +25,7 @@ export function GET() {
       return `### ${g.title}
 
 - URL: ${u(`/guides/${g.slug}/`)}
-- Author: ${author?.name ?? 'NASHVILLE Editorial Desk'}${author?.role ? ` (${author.role})` : ''}
+- Author: ${author?.name ?? 'NSVL Editorial Desk'}${author?.role ? ` (${author.role})` : ''}
 - Published: ${g.datePublished}
 - Last updated: ${g.dateUpdated ?? g.datePublished}
 - Verification: ${g.dataStatus}

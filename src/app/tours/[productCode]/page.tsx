@@ -38,7 +38,7 @@ export async function generateMetadata(props: { params: Promise<{ productCode: s
   if (!product) {
     return buildMetadata({
       title: 'Tour not found',
-      description: 'This Nashville experience is not currently available on NashRoam.',
+      description: 'This Nashville experience is not currently available on Nashville.com.',
       path: `/tours/${encodeURIComponent(code)}/`,
       noindex: true,
     });
@@ -365,7 +365,7 @@ export default async function TourProductPage(props: { params: Promise<{ product
                 {product.reviewCount != null ? ` · ${product.reviewCount.toLocaleString()} total reviews.` : '.'}
               </p>
               <p className="mt-2">
-                Total review count and overall rating based on Viator and Tripadvisor reviews. NashRoam does not display individual review text; use the Viator booking page to read reviews.
+                Total review count and overall rating based on Viator and Tripadvisor reviews. NSVL does not display individual review text; use the Viator booking page to read reviews.
               </p>
             </div>
           ) : (

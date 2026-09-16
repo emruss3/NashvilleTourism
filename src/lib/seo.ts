@@ -77,12 +77,12 @@ export function buildMetadata({
   noindex,
 }: MetaArgs): Metadata {
   const url = canonical(path);
-  const fullTitle = title.includes(site.name) ? title : `${title} | ${site.name}`;
+  const fullTitle = title.includes(site.titleSuffix) ? title : `${title} | ${site.titleSuffix}`;
   const ogImage = {
-    url: canonical('/media/hero/nashville-hero-drone-poster.jpg'),
-    width: 2400,
-    height: 1350,
-    alt: 'Downtown Nashville at sunset above the Cumberland River and Korean Veterans Memorial Bridge.',
+    url: canonical('/media/social/og-default.jpg'),
+    width: 1200,
+    height: 630,
+    alt: 'A crowd at a downtown Nashville rooftop show at night.',
   };
   const blockIndexing = Boolean(noindex) || !allowIndexing;
   return {
@@ -137,6 +137,7 @@ export function organizationSchema() {
     '@type': ['Organization', 'NewsMediaOrganization'],
     '@id': canonical('/#organization'),
     name: site.name,
+    alternateName: [site.destination, `${site.name} ${site.descriptor}`],
     url: canonical('/'),
     description: site.description,
     slogan: site.tagline,
@@ -234,7 +235,8 @@ export function websiteSchema() {
     '@type': 'WebSite',
     '@id': canonical('/#website'),
     url: canonical('/'),
-    name: site.name,
+    name: site.destination,
+    alternateName: site.name,
     description: site.description,
     publisher: { '@id': canonical('/#organization') },
     potentialAction: {

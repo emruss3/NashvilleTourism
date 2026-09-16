@@ -8,6 +8,7 @@
  */
 
 export const ANALYTICS_EVENTS = {
+  DISCOVERY_SUBMITTED: 'discovery_submit',
   SEARCH_SUBMITTED: 'search_submitted',
   SEARCH_RESULT_CLICKED: 'search_result_clicked',
   TRIP_PLANNER_STARTED: 'trip_planner_started',

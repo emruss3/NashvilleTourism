@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { site } from '@/lib/site';
 import NewsletterForm from './NewsletterForm';
 
 /**
@@ -19,15 +20,13 @@ export default function FooterNewsletter() {
   if (suppressed) return null;
 
   return (
-    <div className="mt-12 border-t border-paper-edge pt-8">
+    <div className="mt-12 border-t border-paper/15 pt-8">
       <div className="grid gap-8 lg:grid-cols-2">
         <div>
-          <h2 className="font-display text-lg">NASHVILLE Weekender</h2>
-          <p className="mt-1 text-sm text-ink-soft">
-            The best events, openings, restaurants, and plans for the week ahead.
-          </p>
+          <h2 className="font-display text-xl text-paper">{site.newsletter.heading}</h2>
+          <p className="mt-1 text-sm text-paper/80">{site.newsletter.promise}</p>
         </div>
-        <NewsletterForm location="footer" />
+        <NewsletterForm location="footer" tone="dark" />
       </div>
     </div>
   );

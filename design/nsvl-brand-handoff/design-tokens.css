@@ -1,0 +1,44 @@
+/* NSVL v1 — proposed implementation foundation; logo is a separate approved asset. */
+:root {
+  --color-paper: #F5F3ED;
+  --color-ink: #1F2421;
+  --color-surface: #EAE7DE;
+  --color-muted: #59605A;
+  --color-border: #D5D7CE;
+  --font-display: "Manrope", Arial, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px;
+  --space-4: 16px; --space-5: 20px; --space-6: 24px;
+  --space-8: 32px; --space-10: 40px; --space-12: 48px;
+  --space-16: 64px; --space-22: 88px;
+  --radius-control: 4px;
+  --radius-card: 2px;
+  --content-max: 1280px;
+  --page-gutter: clamp(20px, 4vw, 64px);
+  --section-space: clamp(40px, 6vw, 88px);
+  --duration-fast: 160ms;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--color-paper); color: var(--color-ink); font: 400 1rem/1.6 var(--font-body); }
+img { max-width: 100%; height: auto; }
+button, input, select, textarea { font: inherit; }
+.nsvl-container { width: min(calc(100% - 2 * var(--page-gutter)), var(--content-max)); margin-inline: auto; }
+.nsvl-section { padding-block: var(--section-space); }
+.nsvl-display { font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 5.5rem); font-weight: 800; letter-spacing: -.045em; line-height: 1.02; text-wrap: balance; }
+.nsvl-heading { font-family: var(--font-display); font-size: clamp(1.75rem, 3.4vw, 3rem); font-weight: 750; letter-spacing: -.035em; line-height: 1.08; text-wrap: balance; }
+.nsvl-label { font-size: .75rem; font-weight: 650; letter-spacing: .14em; text-transform: uppercase; }
+.nsvl-button { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 48px; padding: 12px 24px; border: 1px solid var(--color-ink); border-radius: var(--radius-control); background: var(--color-ink); color: var(--color-paper); font-weight: 600; text-decoration: none; cursor: pointer; }
+.nsvl-button--reverse { background: var(--color-paper); color: var(--color-ink); }
+.nsvl-link { color: inherit; text-underline-offset: .2em; }
+.nsvl-input { width: 100%; min-height: 48px; padding: 12px; border: 1px solid var(--color-muted); border-radius: var(--radius-control); background: var(--color-paper); color: var(--color-ink); }
+:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+.nsvl-dark { background: var(--color-ink); color: var(--color-paper); }
+.nsvl-dark :focus-visible { outline-color: var(--color-paper); }
+.nsvl-grid-three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.nsvl-grid-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
+@media (max-width: 767px) {
+  .nsvl-grid-three, .nsvl-grid-two { grid-template-columns: 1fr; gap: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+}

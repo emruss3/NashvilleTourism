@@ -77,8 +77,8 @@ export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<
       source: 'viator',
       editorial: TOUR_EDITORIAL,
       attribution: isGenericBrowse
-        ? 'Live product details, aggregate ratings, prices, photos, and booking links supplied by Viator. Browse order starts with Viator results, then NashRoam applies local-relevance and variety safeguards. Marketplace listings are provider inventory, not NashRoam editorial endorsements.'
-        : 'Live product details, aggregate ratings, prices, photos, and booking links supplied by Viator. Marketplace listings are provider inventory, not NashRoam editorial endorsements.',
+        ? 'Live product details, aggregate ratings, prices, photos, and booking links supplied by Viator. Browse order starts with Viator results, then NSVL applies local-relevance and variety safeguards. Marketplace listings are provider inventory, not NSVL editorial endorsements.'
+        : 'Live product details, aggregate ratings, prices, photos, and booking links supplied by Viator. Marketplace listings are provider inventory, not NSVL editorial endorsements.',
     };
   }
 
@@ -95,13 +95,13 @@ export async function getToursCatalog(params: ViatorSearchParams = {}): Promise<
     source: 'none',
     editorial: TOUR_EDITORIAL,
     attribution:
-      'Viator marketplace inventory is unavailable. NashRoam does not substitute cached or sample Viator products for the real-time provider response.',
+      'Viator marketplace inventory is unavailable. NSVL does not substitute cached or sample Viator products for the real-time provider response.',
   };
 }
 
 /**
  * Public product detail is retrieved in real time for one product selected from
- * search. It does not imply a NashRoam editorial recommendation.
+ * search. It does not imply an NSVL editorial recommendation.
  */
 export async function getTourProduct(productCode: string): Promise<{
   configured: boolean;
@@ -115,7 +115,7 @@ export async function getTourProduct(productCode: string): Promise<{
   return {
     ...result,
     attribution:
-      'Product details, aggregate ratings, prices, photos, and booking are supplied by Viator. This marketplace listing is not, by itself, a NashRoam editorial recommendation.',
+      'Product details, aggregate ratings, prices, photos, and booking are supplied by Viator. This marketplace listing is not, by itself, an NSVL editorial recommendation.',
   };
 }
 

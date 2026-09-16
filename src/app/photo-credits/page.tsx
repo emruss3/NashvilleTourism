@@ -5,7 +5,7 @@ import rightsDoc from '../../../docs/media/ASSET-RIGHTS.json';
 export const metadata = buildMetadata({
   title: 'Photo credits',
   description:
-    'Attribution for openly licensed photographs used on NASHVILLE, including Creative Commons and Pexels sources. Cropping and resizing are noted; photographers do not endorse this site.',
+    'Attribution for openly licensed photographs used on Nashville.com, including Creative Commons and Pexels sources. Cropping and resizing are noted; photographers do not endorse this site.',
   path: '/photo-credits/',
 });
 
@@ -198,7 +198,7 @@ export default function PhotoCreditsPage() {
       <PageHeader
         eyebrow="Attribution"
         title="Photo credits"
-        intro="Openly licensed photographs used on this site are listed below. Creative Commons images require attribution; Pexels License images do not, but are listed for completeness. Visit Music City / Nashville CVC photography is not used and is not listed — NashRoam does not pursue those rights. Other property media awaiting commercial clearance is recorded separately and is not shown in production. Photographers and rights holders do not endorse NASHVILLE."
+        intro="Openly licensed photographs used on this site are listed below. Creative Commons images require attribution; Pexels License images do not, but are listed for completeness. Visit Music City / Nashville CVC photography is not used and is not listed — NSVL does not pursue those rights. Other property media awaiting commercial clearance is recorded separately and is not shown in production. Photographers and rights holders do not endorse NSVL."
       />
 
       <section className="max-w-3xl space-y-8 py-8">
@@ -269,7 +269,7 @@ export default function PhotoCreditsPage() {
           <p className="text-small leading-relaxed text-ink-soft">
             These sources are recorded for chain-of-custody only. They are not shown on the live site
             until each asset is marked cleared and approved for commercial digital editorial use on
-            NashRoam.com. Visit Music City / Nashville CVC assets are excluded from this list and
+            Nashville.com. Visit Music City / Nashville CVC assets are excluded from this list and
             from production permanently.
           </p>
           {pending.map((item) => (

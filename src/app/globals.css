@@ -1,14 +1,13 @@
-/* Self-hosted brand faces (brand guide §5). Same-origin woff2 served from
-   /_next/static removes the third-party CSS round trip that blocked first
-   paint on phones. Imported here so they ship in the single global stylesheet.
-   Weights match what the design system actually uses. */
+/* Self-hosted brand faces (NSVL brand guide §5): Manrope for display and
+   headings, Inter for body and interface. Same-origin woff2 served from
+   /_next/static; imported here so they ship in the global stylesheet.
+   Weights limited to those the type scale uses. */
+@import '@fontsource/manrope/700.css';
+@import '@fontsource/manrope/800.css';
 @import '@fontsource/inter/400.css';
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
 @import '@fontsource/inter/700.css';
-@import '@fontsource/playfair-display/400.css';
-@import '@fontsource/playfair-display/600.css';
-@import '@fontsource/playfair-display/700.css';
 
 @tailwind base;
 @tailwind components;
@@ -16,20 +15,17 @@
 
 @layer base {
   :root {
-    /* Brand guide §5: Playfair Display (editorial) + Inter (UI). Logo is an image asset. */
-    --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
-    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-display: 'Manrope', Arial, sans-serif;
+    --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-    --color-nashville-navy: #102a43;
-    --color-cumberland-blue: #214a72;
-    --color-clay-coral: #d95d45;
-    --color-dogwood-pink: #f2b7ae;
-    --color-sky-wash: #ddecef;
-    --color-park-mint: #8fc4ad;
-    --color-golden-hour: #e8b64a;
-    --color-porch-cream: #f8f3e9;
-    --color-soft-white: #fffdfc;
-    --color-charcoal: #232323;
+    /* NSVL v1 tokens (design/nsvl-brand-handoff/design-tokens.css) */
+    --color-paper: #f5f3ed;
+    --color-ink: #1f2421;
+    --color-surface: #eae7de;
+    --color-muted: #59605a;
+    --color-border: #d5d7ce;
+    --page-gutter: clamp(20px, 4vw, 64px);
+    --section-space: clamp(40px, 6vw, 88px);
   }
 
   html {
@@ -37,48 +33,53 @@
   }
 
   body {
-    @apply bg-paper font-sans antialiased text-ink-body;
+    @apply bg-paper font-sans antialiased text-ink;
     font-size: 17px;
-    line-height: 1.65;
+    line-height: 1.6;
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  /* Reserve room for the sticky conversion bar only while it is on screen. */
-  @media (max-width: 1023px) {
-    body[data-sticky-cta='1'] {
-      padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+  /* Under 768px the bottom navigation bar is always present (MOBILE-FIRST.md):
+     reserve its 64px plus the device safe area so footer links stay reachable. */
+  @media (max-width: 767px) {
+    html {
+      /* Keep focused and scrolled-to controls above the bar. */
+      scroll-padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+    }
+    body {
+      padding-bottom: calc(4rem + env(safe-area-inset-bottom));
     }
   }
 
-  /* H1: Playfair Bold · H2: Playfair Semibold · H3: Inter Bold */
+  /* Display: Manrope 800, tight tracking. Body and UI: Inter. */
   h1 {
     @apply font-display text-ink;
-    font-weight: 700;
-    letter-spacing: -0.015em;
-    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 1.02;
     text-wrap: balance;
   }
 
   h2 {
     @apply font-display text-ink;
-    font-weight: 600;
-    letter-spacing: -0.012em;
-    line-height: 1.18;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.08;
     text-wrap: balance;
   }
 
   h3,
   h4 {
-    @apply font-sans text-ink;
+    @apply font-display text-ink;
     font-weight: 700;
-    letter-spacing: -0.01em;
-    line-height: 1.25;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
     text-wrap: balance;
   }
 
   :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-    outline: 2px solid theme('colors.clay.DEFAULT');
-    outline-offset: 2px;
+    outline: 3px solid currentColor;
+    outline-offset: 3px;
     border-radius: 2px;
   }
 
@@ -100,48 +101,58 @@
 
 @layer components {
   .shell {
-    @apply mx-auto w-full max-w-shell px-5 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-shell;
+    padding-inline: var(--page-gutter);
+  }
+
+  .section {
+    padding-block: var(--section-space);
   }
 
   .skip-link {
-    @apply absolute left-4 z-[100] -translate-y-24 rounded bg-ink px-4 py-2 text-paper-card transition-transform focus:translate-y-4;
+    @apply absolute left-4 z-[100] -translate-y-24 rounded bg-ink px-4 py-2 text-paper transition-transform focus:translate-y-4;
   }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded border px-4 py-2.5 text-sm font-semibold transition-colors;
+    @apply inline-flex min-h-12 items-center justify-center gap-3 rounded border px-6 py-3 text-[15px] font-semibold transition-colors;
   }
 
-  /* Primary — Clay Coral commerce CTAs */
+  /* Primary — Charcoal Ink fill, Paper White text (brand guide §4) */
   .btn-primary {
-    @apply btn border-clay bg-clay text-paper-card hover:border-clay-deep hover:bg-clay-deep;
+    @apply btn border-ink bg-ink text-paper hover:border-navy-deep hover:bg-navy-deep;
   }
 
-  /* Secondary — Nashville Navy */
+  /* Secondary — Paper White fill, Charcoal Ink border and text */
   .btn-secondary {
-    @apply btn border-ink bg-ink text-paper-card hover:border-navy-deep hover:bg-navy-deep;
+    @apply btn border-ink bg-paper text-ink hover:bg-paper-sunk;
   }
 
-  /* Tertiary — cream / navy outline */
+  /* Tertiary — Soft Paper fill */
   .btn-tertiary {
-    @apply btn border-ink bg-paper-card text-ink hover:bg-paper;
+    @apply btn border-paper-sunk bg-paper-sunk text-ink hover:border-ink;
   }
 
   /* Quiet / ghost */
   .btn-quiet {
-    @apply btn border-transparent bg-transparent text-ink-soft hover:bg-sky hover:text-ink;
+    @apply btn border-transparent bg-transparent text-ink-soft hover:bg-paper-sunk hover:text-ink;
   }
 
-  /* Positive / local-experience */
+  /* Positive — kept for verified / selective actions */
   .btn-positive {
-    @apply btn border-mint bg-mint text-ink hover:brightness-95;
+    @apply btn border-ink bg-ink text-paper hover:bg-navy-deep;
+  }
+
+  /* Reverse — for charcoal bands */
+  .btn-reverse {
+    @apply btn border-paper bg-paper text-ink hover:bg-paper-sunk;
   }
 
   .eyebrow {
-    @apply text-2xs font-bold uppercase tracking-[0.14em] text-ink-faint;
+    @apply text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft;
   }
 
   .card {
-    @apply rounded-card border border-paper-edge bg-paper-card transition-[border-color,box-shadow] hover:border-ink/15 hover:shadow-card;
+    @apply rounded-card border border-paper-edge bg-paper transition-colors hover:border-ink;
   }
 
   .field-label {
@@ -149,11 +160,11 @@
   }
 
   .field-input {
-    @apply w-full rounded border border-paper-edge bg-paper-card px-3 py-2.5 text-[15px] text-ink-body placeholder:text-ink-faint focus:border-clay;
+    @apply min-h-12 w-full rounded border border-ink-soft bg-paper px-3 py-2.5 text-[15px] text-ink placeholder:text-ink-soft focus:border-ink;
   }
 
   .prose-editorial {
-    @apply max-w-prose text-[17px] leading-[1.75] text-ink-soft;
+    @apply max-w-prose text-[17px] leading-[1.7] text-ink;
   }
 
   .prose-editorial p + p {
@@ -161,19 +172,15 @@
   }
 
   .prose-editorial a {
-    @apply text-clay underline decoration-clay/30 underline-offset-2 hover:decoration-clay;
+    @apply text-ink underline decoration-ink/40 underline-offset-[0.2em] hover:decoration-ink;
   }
 
   .photo-slot {
-    @apply relative overflow-hidden bg-paper;
-    background-image:
-      linear-gradient(160deg, rgba(16, 42, 67, 0.04) 0%, transparent 50%),
-      linear-gradient(45deg, rgba(217, 93, 69, 0.08) 0%, transparent 55%),
-      linear-gradient(135deg, rgba(143, 196, 173, 0.12) 0%, transparent 60%);
+    @apply relative overflow-hidden bg-paper-sunk;
   }
 
   .star-mark {
-    color: theme('colors.clay.DEFAULT');
+    color: theme('colors.ink.DEFAULT');
   }
 }
 
@@ -188,7 +195,7 @@
   }
 
   .animate-hero-in {
-    animation: hero-in 0.4s ease-out both;
+    animation: hero-in 0.3s ease-out both;
   }
 
   @media (prefers-reduced-motion: reduce) {
