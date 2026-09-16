@@ -1,4 +1,5 @@
 import HeroVideo from '@/components/HeroVideo';
+import { getImage } from '@/lib/media';
 import { asset as assetUrl } from '@/lib/seo';
 import { site } from '@/lib/site';
 import DiscoveryForm from './DiscoveryForm';
@@ -8,8 +9,8 @@ import DiscoveryForm from './DiscoveryForm';
  * introduction, search module, photograph.
  *
  * Phones: dark copy on paper, the search field and quick links, then the
- * skyline poster frame as a landscape photograph about 220px tall. No
- * autoplay video on phones.
+ * candid social photograph from the homepage board (HOMEPAGE.md §2) as a
+ * landscape image. No autoplay video on phones.
  * Desktop (SITE-LAYOUT.md §Hero): the same frame is the full-bleed backdrop
  * with the daylight drone loop playing over it (poster first, pause control,
  * reduced-motion and data-saver respected). The copy sits on the left in
@@ -17,7 +18,8 @@ import DiscoveryForm from './DiscoveryForm';
  * charcoal discovery band beneath.
  */
 export default function Hero() {
-  const mobile = assetUrl('/media/hero/nashville-hero-drone-mobile-800.webp');
+  const social = getImage('concept/home-social');
+  const mobile = assetUrl(social?.src ?? '/media/hero/nashville-hero-drone-mobile-800.webp');
   const wide = `${assetUrl('/media/hero/nashville-hero-drone-poster-960.webp')} 960w, ${assetUrl('/media/hero/nashville-hero-drone-poster-1600.webp')} 1600w`;
 
   return (
@@ -58,7 +60,7 @@ export default function Hero() {
       <figure className="shell mt-6 md:absolute md:inset-x-0 md:top-0 md:z-0 md:m-0 md:h-[500px] md:max-w-none md:p-0 lg:h-[560px]">
         <div className="relative overflow-hidden rounded-card bg-ink md:absolute md:inset-0 md:rounded-none">
           <picture>
-            <source media="(max-width: 767px)" srcSet={mobile} type="image/webp" />
+            <source media="(max-width: 767px)" srcSet={mobile} type="image/jpeg" />
             <source srcSet={wide} sizes="100vw" type="image/webp" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -66,7 +68,7 @@ export default function Hero() {
               alt="Downtown Nashville at sunset above the Cumberland River and Korean Veterans Memorial Bridge."
               width={2400}
               height={1350}
-              className="aspect-[16/9] h-auto w-full object-cover md:absolute md:inset-0 md:h-full md:object-[center_40%]"
+              className="aspect-[16/7] h-auto w-full object-cover md:absolute md:inset-0 md:aspect-auto md:h-full md:object-[center_40%]"
               fetchPriority="high"
               decoding="sync"
             />

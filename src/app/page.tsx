@@ -1,8 +1,10 @@
 import Link from 'next/link';
+import CategoryLinks from '@/components/home/CategoryLinks';
 import EventList from '@/components/home/EventList';
 import Hero from '@/components/home/Hero';
 import NeighborhoodCards from '@/components/home/NeighborhoodCards';
 import ShopFeature from '@/components/home/ShopFeature';
+import ToursHotels from '@/components/home/ToursHotels';
 import TripStarter from '@/components/home/TripStarter';
 import NewsletterForm from '@/components/NewsletterForm';
 import { TourProductCard } from '@/components/tours/TourProductCard';
@@ -31,6 +33,7 @@ export default async function HomePage() {
   return (
     <>
       <Hero />
+      <CategoryLinks />
 
       {/*
         DOM order is the mobile order (calendar, shop, neighborhoods). On
@@ -40,7 +43,7 @@ export default async function HomePage() {
       <div className="flex flex-col">
         <NeighborhoodCards className="md:order-1 md:border-t-0" />
 
-        <section className="section border-t border-paper-edge md:order-2" aria-labelledby="calendar-title">
+        <section className="section md:order-2 md:border-t md:border-paper-edge" aria-labelledby="calendar-title">
           <div className="shell grid gap-8 md:grid-cols-2 md:gap-6 lg:gap-8">
             <div>
               <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
@@ -81,8 +84,9 @@ export default async function HomePage() {
           </div>
         </section>
       <TripStarter className="md:order-4" />
+      <ToursHotels className="md:order-4" />
 
-      <section className="py-10 md:order-5 lg:py-12" aria-labelledby="signup-title">
+      <section className="border-t border-paper-edge py-10 md:order-5 lg:py-12" aria-labelledby="signup-title">
         <div className="shell grid gap-6 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div>
             <h2 id="signup-title" className="text-[2rem] sm:text-[2.5rem] lg:text-[3rem]">

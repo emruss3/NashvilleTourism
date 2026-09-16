@@ -1,0 +1,74 @@
+[
+  {
+    "page": "00-homepage",
+    "source_board": "page-designs/00-homepage.png",
+    "board_included": true,
+    "individual_photo_exports": "not_yet_created",
+    "site_upload": "not_performed",
+    "claude_upload": "not_performed"
+  },
+  {
+    "page": "01-restaurants",
+    "source_board": "page-designs/01-restaurants.png",
+    "board_included": true,
+    "individual_photo_exports": "not_yet_created",
+    "site_upload": "not_performed",
+    "claude_upload": "not_performed"
+  },
+  {
+    "page": "02-tours",
+    "source_board": "page-designs/02-tours.png",
+    "board_included": true,
+    "individual_photo_exports": "not_yet_created",
+    "site_upload": "not_performed",
+    "claude_upload": "not_performed"
+  },
+  {
+    "page": "03-neighborhoods",
+    "source_board": "page-designs/03-neighborhoods.png",
+    "board_included": true,
+    "individual_photo_exports": "not_yet_created",
+    "site_upload": "not_performed",
+    "claude_upload": "not_performed"
+  },
+  {
+    "page": "04-things-to-do",
+    "source_board": "page-designs/04-things-to-do.png",
+    "board_included": true,
+    "individual_photo_exports": "not_yet_created",
+    "site_upload": "not_performed",
+    "claude_upload": "not_performed"
+  },
+  {
+    "page": "05-events",
+    "source_board": "page-designs/05-events.png",
+    "board_included": true,
+    "individual_photo_exports": "not_yet_created",
+    "site_upload": "not_performed",
+    "claude_upload": "not_performed"
+  },
+  {
+    "page": "06-hotels",
+    "source_board": "page-designs/06-hotels.png",
+    "board_included": true,
+    "individual_photo_exports": "not_yet_created",
+    "site_upload": "not_performed",
+    "claude_upload": "not_performed"
+  },
+  {
+    "page": "07-shop",
+    "source_board": "page-designs/07-shop.png",
+    "board_included": true,
+    "individual_photo_exports": "not_yet_created",
+    "site_upload": "not_performed",
+    "claude_upload": "not_performed"
+  },
+  {
+    "page": "08-plan-your-trip",
+    "source_board": "page-designs/08-plan-your-trip.png",
+    "board_included": true,
+    "individual_photo_exports": "not_yet_created",
+    "site_upload": "not_performed",
+    "claude_upload": "not_performed"
+  }
+]

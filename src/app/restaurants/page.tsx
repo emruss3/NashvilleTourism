@@ -255,21 +255,21 @@ export default async function RestaurantsIndex(props: { searchParams?: Promise<P
               title="Great dinner. A legendary night."
               body="Restaurants near Nashville's live music venues, timed for the set."
               href={href({ occasion: 'before-the-show' })}
-              imageKey="editorial/live-music-crowd"
+              imageKey="concept/live-music-night"
             />
             <CollectionCard
               eyebrow="Long lunches"
               title="Daytime dining, brighter days."
               body="Neighborhood rooms and patios worth lingering in."
               href={href({ occasion: 'long-lunch' })}
-              imageKey="neighborhood/12-south"
+              imageKey="concept/lunch-wine"
             />
             <CollectionCard
               eyebrow="A table for everyone"
               title="Rooms that seat the whole group."
               body="Places where six or more can eat together without a two-hour wait."
               href={href({ occasion: 'with-a-group' })}
-              imageKey="restaurants/assembly-food-hall"
+              imageKey="concept/dining-room-evening"
             />
           </ul>
           {foodGuides.length > 0 ? (
@@ -305,7 +305,7 @@ export default async function RestaurantsIndex(props: { searchParams?: Promise<P
       </section>
 
       <section className="bg-ink text-paper" aria-labelledby="evening-title">
-        <div className="shell section grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+        <div className="shell section grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,4fr)_auto] lg:items-center lg:gap-10">
           <div>
             <p className="eyebrow text-paper/75">Build the evening</p>
             <h2 id="evening-title" className="mt-1 text-[2rem] text-paper sm:text-[2.5rem] lg:text-[3rem]">
@@ -315,7 +315,10 @@ export default async function RestaurantsIndex(props: { searchParams?: Promise<P
               Save a restaurant, find what is on nearby that night, and put both in one plan. Saving is not a reservation; book on the restaurant&apos;s own site.
             </p>
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className="overflow-hidden rounded-card bg-paper/10">
+            <SmartImage imageKey="concept/dining-bar" ratio="aspect-[16/9]" sizes="(max-width: 1023px) 100vw, 33vw" />
+          </div>
+          <div className="flex flex-wrap gap-3 lg:flex-col">
             <Link href="/events/?when=tonight" className="btn-reverse">
               What&apos;s on tonight
             </Link>

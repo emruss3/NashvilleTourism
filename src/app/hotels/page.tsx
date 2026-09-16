@@ -181,8 +181,8 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
           </div>
           <ul className="grid gap-3 sm:grid-cols-2">
             {[
-              { eyebrow: 'Hotel situations', title: 'More than a stay.', body: 'Boutique downtown, group rentals, pools, value in Midtown: six routes to the right room.', href: '/where-to-stay/', image: 'concept/hotel-morning' as const },
-              { eyebrow: 'Plan from this stay', title: 'Build the trip around your hotel.', body: 'Tell the planner where you are sleeping and it keeps the days close to home.', href: '/plan/', image: 'concept/rooftop-lounge' as const },
+              { eyebrow: 'Hotel situations', title: 'More than a stay.', body: 'Boutique downtown, group rentals, pools, value in Midtown: six routes to the right room.', href: '/where-to-stay/', image: 'concept/hotel-room-lounge' as const },
+              { eyebrow: 'Plan from this stay', title: 'Build the trip around your hotel.', body: 'Tell the planner where you are sleeping and it keeps the days close to home.', href: '/plan/', image: 'concept/hotel-rooftop-terrace' as const },
             ].map((tile) => (
               <li key={tile.href}>
                 <Link href={tile.href} className="group relative block overflow-hidden rounded-card bg-ink text-paper">

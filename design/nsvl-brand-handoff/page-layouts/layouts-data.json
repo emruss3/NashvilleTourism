@@ -1,5 +1,53 @@
 [
   {
+    "key": "home",
+    "name": "Homepage",
+    "head": "Get into Nashville.",
+    "spec": "HOMEPAGE.md",
+    "sections": [
+      [
+        "Discovery",
+        "Get into Nashville.",
+        "Search shows, places and neighborhoods. Tonight / This weekend / Choose dates. A short social photograph follows search on mobile."
+      ],
+      [
+        "Category links",
+        "Find your way in.",
+        "Restaurants \u00b7 Tours \u00b7 Neighborhoods \u00b7 Things to do \u00b7 Events \u00b7 Hotels. Shop and Plan remain in primary navigation."
+      ],
+      [
+        "Events",
+        "On the calendar.",
+        "Three real event rows with date, title, venue, time and separate Save controls. See all events."
+      ],
+      [
+        "Apparel",
+        "Good here. Good anywhere.",
+        "One campaign image of actual NSVL merchandise and Shop NSVL. Pair with events on desktop; place after events on mobile."
+      ],
+      [
+        "Group planner",
+        "One good plan changes everything.",
+        "Occasion + people + Build our trip. Continue to tailored questions for bachelorette, corporate retreat, family and other groups. Before neighborhoods on mobile; after them on desktop."
+      ],
+      [
+        "Neighborhoods",
+        "Find your corner.",
+        "Three photo-backed neighborhood guides and an all-neighborhoods link."
+      ],
+      [
+        "Tours + hotels",
+        "More ways to make it yours.",
+        "Editorial photographs linking to Tours and Hotels, with clear route-specific actions."
+      ],
+      [
+        "Return visits",
+        "Your next good plan.",
+        "Weekly edit signup, then complete footer. Reserve bottom-navigation space on mobile."
+      ]
+    ]
+  },
+  {
     "key": "restaurants",
     "name": "Restaurants",
     "head": "A good table. A better night.",

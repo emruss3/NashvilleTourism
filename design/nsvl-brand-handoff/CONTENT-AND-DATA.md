@@ -68,3 +68,6 @@ Implement through the current consent-aware analytics system. Event names are pr
 - newsletter_submit; newsletter_success: never include the email address.
 
 Track total visits separately from unique users. Evaluate event-click conversion, product conversion, revenue per session, plan completion, signup conversion and repeat visits by landing page/device/channel. Establish a baseline before asserting uplift. Avoid rewarding page-view volume that produces no useful action.
+
+## AI image direction update
+AI-IMAGERY.md supersedes the earlier requirement to source replacement photography for every slot. Use the owner-approved AI pictures, producing individual assets from the supplied boards. Keep actual provider/entity facts separate from illustrative visual content.

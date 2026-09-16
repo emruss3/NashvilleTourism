@@ -1,0 +1,196 @@
+{
+  "version": "1.7",
+  "pages": 9,
+  "files": [
+    {
+      "path": "ACCEPTANCE-CHECKLIST.md",
+      "bytes": 3597,
+      "sha256": "69563b17b6953ab8b1151bfcc7fb5ce8e9cc46a2ec5e7f21ba0ef7d55b5d6a75"
+    },
+    {
+      "path": "AI-IMAGERY-STATUS.json",
+      "bytes": 2176,
+      "sha256": "89cc9ae9094fd2e18ce8559117200099a92314f6bb6060edcf1b6f16f46a1cc1"
+    },
+    {
+      "path": "AI-IMAGERY.md",
+      "bytes": 3142,
+      "sha256": "81893a239d202f603b0861cc31032f7fa2a7cb7a3ed5a1c97099f6726d77e63e"
+    },
+    {
+      "path": "BRAND-GUIDE.md",
+      "bytes": 7877,
+      "sha256": "5d79bab9cc5eb3154e5510a5e564ac2a1512ad5f9c1fa5c3b2b19ead09600a29"
+    },
+    {
+      "path": "CLAUDE-CODE-PROMPT.md",
+      "bytes": 5313,
+      "sha256": "3bc721e0613fd9750cf197408273da85aff6c166bbf1b40789b189346d3f26d2"
+    },
+    {
+      "path": "CONTENT-AND-DATA.md",
+      "bytes": 6127,
+      "sha256": "5aad21c6be2c49ca211363bedd1b388aa919445d3a26c04588cccb23fca0dd43"
+    },
+    {
+      "path": "GROUP-TRIP-PLANNER.md",
+      "bytes": 8279,
+      "sha256": "64ba72ed21a851fb620969c2036459e8bdbf5256a8d3c486c582266e0642b174"
+    },
+    {
+      "path": "HOMEPAGE.md",
+      "bytes": 5512,
+      "sha256": "c8c9326dec3f2559044e67650bd8d1e8163b55a5c7577695e967ab270042494d"
+    },
+    {
+      "path": "MOBILE-FIRST.md",
+      "bytes": 8809,
+      "sha256": "295822dd7e8277e7010836b61832a28265bd5f65424c6cbec3a2356ecae5382c"
+    },
+    {
+      "path": "PAGE-LAYOUTS.md",
+      "bytes": 20945,
+      "sha256": "96987d12c46124d765687a449aaf408f83356dfeb498f53ae542e74cc8f55e93"
+    },
+    {
+      "path": "PAGE-MAP.md",
+      "bytes": 1051,
+      "sha256": "08f66aef0dd790f896ab1559405d4a3dbb30079e5972a567e217ee37a10dca9b"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2195,
+      "sha256": "2aa5edcfb2e28b4599e9186a3c67b93504e7388731e3a955ef8790951c23b397"
+    },
+    {
+      "path": "SITE-LAYOUT.md",
+      "bytes": 10073,
+      "sha256": "6464b3782bc3c388006cddd3ce8ca80bd870967d91db8e9bc848fa740564610e"
+    },
+    {
+      "path": "START-HERE.md",
+      "bytes": 3070,
+      "sha256": "ee37f6b20a2b6e1a984338dfa33b58ad6bb639832b790f73710cf7a3d94e1ffa"
+    },
+    {
+      "path": "design-tokens.css",
+      "bytes": 2936,
+      "sha256": "f69bde7b6d535b9d4c59178b0366ec89af827fa6219bc495b0ac7f2e9cbb5d63"
+    },
+    {
+      "path": "logos/README.md",
+      "bytes": 2163,
+      "sha256": "cbc8768f037f7f36009d685e259621d69ef58d7a2c66f4cc7b28e01a6f95514c"
+    },
+    {
+      "path": "logos/logo-preview.html",
+      "bytes": 2609,
+      "sha256": "1a868dfe46c154c315c11e07ddb100a816dee29966b5815c9a1560faf2dbcadc"
+    },
+    {
+      "path": "logos/nsvl-lockup-charcoal.png",
+      "bytes": 478585,
+      "sha256": "fcb90c45a3f65131e19f5c8746b3f75358b619bd7368a95e243dac039112787f"
+    },
+    {
+      "path": "logos/nsvl-lockup-paper-white-review.png",
+      "bytes": 414524,
+      "sha256": "49390236d241d63f3db23bc59ec1766075e4d6d964e49b491cd54acd6181454d"
+    },
+    {
+      "path": "logos/nsvl-mark-charcoal.png",
+      "bytes": 206250,
+      "sha256": "d8f759e0bc0c5d4ce66c051ffd1ebbfdd5b8017f860e39a73711ef5eadb91984"
+    },
+    {
+      "path": "logos/nsvl-mark-paper-white-review.png",
+      "bytes": 352726,
+      "sha256": "d8509ab3ce6843c2851b027764b3b42e60fcbac2ade014065cd3d9425b5a0378"
+    },
+    {
+      "path": "page-designs/00-homepage.png",
+      "bytes": 2155866,
+      "sha256": "b55337aa4c7ac9bbd16f046820a292ad301b3243f47a4831e9fc91e2af4f96bc"
+    },
+    {
+      "path": "page-designs/01-restaurants.png",
+      "bytes": 2270303,
+      "sha256": "5b28cd575ea3497d508bbac1fafd1d01edcd0ecf6c0080e0ae1d9e52d7bceef6"
+    },
+    {
+      "path": "page-designs/02-tours.png",
+      "bytes": 2136513,
+      "sha256": "3edf8c643dbc4f5d16cd4846d6869dce9ee68f9e3c931d0e614d3e9a52b740a2"
+    },
+    {
+      "path": "page-designs/03-neighborhoods.png",
+      "bytes": 2440040,
+      "sha256": "346b96aa9d0bfd07424f0e2ad5ace1cd608e82e385c6e56b54032cebb5df653d"
+    },
+    {
+      "path": "page-designs/04-things-to-do.png",
+      "bytes": 2342969,
+      "sha256": "045d769996374a9a4754a70b09046f765b50b9b606bb529d9b2eebb9ee0201dc"
+    },
+    {
+      "path": "page-designs/05-events.png",
+      "bytes": 1883345,
+      "sha256": "b4adfd76578543d879e2f29e61f9929ccc64e809702ec0bd903459adc7b93499"
+    },
+    {
+      "path": "page-designs/06-hotels.png",
+      "bytes": 2111044,
+      "sha256": "e9d3187f21a84f072c22acf7d16a2edcc844625bf90de9c7750fd1640f87f6fc"
+    },
+    {
+      "path": "page-designs/07-shop.png",
+      "bytes": 2046133,
+      "sha256": "953f1d6a35e888e65dd7b83625a2488baf8e9106cfc8d0f0e864e7b0f6926d04"
+    },
+    {
+      "path": "page-designs/08-plan-your-trip.png",
+      "bytes": 2018358,
+      "sha256": "d17e3b93e04bcc7d0ba4a5c2ce8e5ffd7d4e114e59596b33fc7213692266966b"
+    },
+    {
+      "path": "page-designs/INDEX.html",
+      "bytes": 5011,
+      "sha256": "cb339c037423107a4c6b7d3e3b2086e7e6f65e018e9ed19dd998193e4bcffeae"
+    },
+    {
+      "path": "page-designs/README.md",
+      "bytes": 7573,
+      "sha256": "6e7a1d64ea78e1b50c80f34a83052789d2471467345b2f0a7ea61d08832a2657"
+    },
+    {
+      "path": "page-designs/VERIFICATION.md",
+      "bytes": 463,
+      "sha256": "b22731f4d1306e2b0968db37c8f5957ad3c6f1bab409bf810ba73d56f7e37d54"
+    },
+    {
+      "path": "page-layouts/PAGE-LAYOUTS.html",
+      "bytes": 47320,
+      "sha256": "bbf8e316e3b2d90c5078678bab796328d990d80b944db743a4053fa0c988ee8a"
+    },
+    {
+      "path": "page-layouts/VERIFICATION.md",
+      "bytes": 334,
+      "sha256": "e57f54a774a61e621332c83151a5a7644a88ad96e1c4d000e98d8385f88b4a2c"
+    },
+    {
+      "path": "page-layouts/layouts-data.json",
+      "bytes": 21546,
+      "sha256": "366886dc10cad4c9737e0eb3e60ae0cbcb7321ecd4afd6c571198767f56c45f9"
+    },
+    {
+      "path": "references/headline-edited.png",
+      "bytes": 2001499,
+      "sha256": "03ae91be27210079ac9eb6ff47085cc99c983d5c5da940b3090a9dd1ca7d9e8d"
+    },
+    {
+      "path": "references/selected-source.png",
+      "bytes": 1977424,
+      "sha256": "dd10dd7aa2e72e89bdd3ffd9bfb841e595099e6289f48837fee192a5d733bccb"
+    }
+  ]
+}

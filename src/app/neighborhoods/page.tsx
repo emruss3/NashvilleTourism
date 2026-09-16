@@ -238,7 +238,7 @@ export default async function NeighborhoodsIndex(props: { searchParams?: Promise
             </p>
           </div>
           <div className="overflow-hidden rounded-card bg-paper/10 lg:order-none">
-            <SmartImage imageKey="hotels/the-joseph" ratio="aspect-[16/9]" sizes="(max-width: 1023px) 100vw, 33vw" />
+            <SmartImage imageKey="concept/hotel-room-skyline" ratio="aspect-[16/9]" sizes="(max-width: 1023px) 100vw, 33vw" />
           </div>
           <Link href="/hotels/" className="btn-reverse justify-self-start lg:justify-self-end">
             Find hotels

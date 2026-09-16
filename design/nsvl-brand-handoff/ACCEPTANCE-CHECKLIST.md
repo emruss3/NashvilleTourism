@@ -29,7 +29,7 @@
 - [ ] Empty, loading, unavailable and failure states are covered.
 
 ## Phase 3 — production readiness
-- [ ] Licensed, verified photographs and final logo exports replace concepts.
+- [ ] Approved AI image assets exported and inspected; final logo exports supplied.
 - [ ] Keyboard focus, menu, filters, date inputs and error announcements verified.
 - [ ] Text contrast and photo overlays checked in actual rendering.
 - [ ] Reduced motion honored; controls meet touch-target intent.
@@ -48,4 +48,12 @@ Deliver a brief verification report identifying what was actually tested and wha
 - [ ] Mobile and desktop screenshots reviewed for each.
 - [ ] Relevant detail pages and conversion flows verified against real integrations.
 - [ ] Cross-page saved items and trip context persist correctly.
-- [ ] Photo placeholders replaced with verified licensed media.
+- [ ] Photo slots mapped to exported approved AI imagery; factual listing/product claims remain accurate.
+
+## Full nine-page handoff
+- [ ] Homepage implemented from HOMEPAGE.md and 00-homepage.png.
+- [ ] All nine photographic references inspected directly.
+- [ ] Group-profile inputs passed from homepage into the planner.
+- [ ] All eight category routes reachable from homepage/navigation.
+
+- [ ] All imagery slots inventoried and standalone exports verified under AI-IMAGERY.md.

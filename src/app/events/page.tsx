@@ -319,7 +319,11 @@ export default async function EventsIndex(props: { searchParams?: Promise<Params
         </div>
       </section>
 
-      <section className="bg-ink text-paper" aria-labelledby="night-title">
+      <section className="relative isolate overflow-hidden bg-ink text-paper" aria-labelledby="night-title">
+        <div className="absolute inset-0 -z-10 opacity-40 [&_figure]:h-full [&_figure]:w-full [&_img]:h-full" aria-hidden="true">
+          <SmartImage imageKey="concept/concert-hands" ratio="h-full" sizes="100vw" />
+        </div>
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/85 to-ink/40" aria-hidden="true" />
         <div className="shell section grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
           <div>
             <p className="eyebrow text-paper/75">Plan a night</p>

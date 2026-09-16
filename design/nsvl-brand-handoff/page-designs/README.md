@@ -1,11 +1,14 @@
 # NSVL page designs — visual redesign
 
-These eight desktop/mobile concept boards replace the previous generic wireframe atlas as the visual direction. Use PAGE-LAYOUTS.md for data requirements, failure states and interaction behavior, but follow these boards for composition, photography, hierarchy and overall design. Where they differ, the notes below govern placement. Do not copy illustrative listings into live data.
+These nine desktop/mobile concept boards replace the previous generic wireframe atlas as the visual direction. Use PAGE-LAYOUTS.md for data requirements, failure states and interaction behavior, but follow these boards for composition, photography, hierarchy and overall design. Where they differ, the notes below govern placement. Do not copy illustrative listings into live data.
 
 ## Shared system
 Paper White #F5F3ED and Charcoal Ink #1F2421, with neutral supporting tones only. Natural photographic colors are allowed. Use the authentic approved NSVL master in implementation; generated logos in boards are reference approximations. Mobile represents the primary audience (60% expected traffic), with compact header, visible search/task entry and Explore / Events / Shop / Plan navigation. Preserve actual existing routes and integrations. Rebuild as real HTML/components, not flattened page images.
 
 ## Page-by-page composition
+
+### 00 — Homepage: the shared city destination
+An asymmetric introduction combines search and social photography. Events and apparel share the first major desktop content row, followed by neighborhoods, the group planner, and tours/hotels. On mobile search comes first, events and apparel precede longer discovery, and the compact group-planner starter sits before neighborhoods. HOMEPAGE.md governs order and interactions. The full group questionnaire lives on Plan your trip.
 
 ### 01 — Restaurants: a dining editorial
 Lead with a compact typographic introduction and asymmetric dining photography: a shared-table food photograph paired with an intimate interior. Make cuisine, neighborhood, occasion and price filters immediately accessible. A featured restaurant receives an editorial image/text split; the broader directory uses compact rows. End with dinner-before-the-show pairings and long-lunch collections. Optional map is a secondary view, not the main layout. Mobile elevates search and occasion filters above the editorial spread, followed by readable restaurant rows.
@@ -42,3 +45,5 @@ Generation method: built-in image generation, with selected-source.png as the id
 
 ## Production corrections to illustrative boards
 Use the same approved primary navigation on every page and retain the mobile bottom navigation specified in MOBILE-FIRST.md even where a rendering omits or duplicates a label. The planner headline remains “One good plan changes everything.” on mobile too. Make dates dynamic; none of the June dates in these boards are production defaults. All venue names, locations, menus, prices, group suitability and photographs shown are illustrative and must be verified/replaced. The final planner must include Other group type, mixed-age groups and budget scope as specified in GROUP-TRIP-PLANNER.md, even where space in the concept only shows a shorter selection.
+
+Homepage board clarification: production mobile must include Things to do and Hotels in the six-link category navigation even where the concept condenses that row; use two rows. Keep the complete approved planner headline in the mobile module instead of the shorter illustrative “Plan together.” caption. Follow HOMEPAGE.md for exact written copy and mobile order.
