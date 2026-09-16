@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { exploreNav, primaryNav, secondaryNav, site } from '@/lib/site';
+import { BagIcon } from './Icons';
 import Wordmark, { NsvlMark } from './Wordmark';
 
 /**
@@ -19,8 +20,11 @@ import Wordmark, { NsvlMark } from './Wordmark';
  * Under 768px (MOBILE-FIRST.md): one compact 64px sticky row with the menu
  * and the standalone NSVL mark. The menu lists the Explore categories first,
  * then Events, Shop and Plan, then the secondary links. Search is a visible
- * field on the page, not a header icon, and there is no bag because the
- * shop has no cart yet.
+ * field on the page, not a header icon.
+ *
+ * The bag sits top right in every variant (HOMEPAGE.md §1). No commerce
+ * provider is connected yet, so it opens the shop rather than a cart and
+ * shows no count; when a cart exists it becomes the cart control.
  */
 export default function Header() {
   const pathname = usePathname();
@@ -181,7 +185,7 @@ export default function Header() {
       <div ref={mastheadRef} className="hidden border-b border-paper-edge bg-paper lg:block">
         <div className="shell relative flex flex-col items-center pb-3 pt-5">
           <Wordmark width={300} />
-          <div className="absolute right-[var(--page-gutter)] top-5">
+          <div className="absolute right-[var(--page-gutter)] top-5 flex items-center gap-1">
             <Link
               href="/search/"
               className="inline-flex h-11 w-11 items-center justify-center rounded text-ink transition-colors hover:bg-paper-sunk"
@@ -189,6 +193,7 @@ export default function Header() {
             >
               <SearchIcon />
             </Link>
+            <BagLink />
           </div>
           <nav aria-label="Primary" className="mt-3">
             {navRow(false, true)}
@@ -227,6 +232,7 @@ export default function Header() {
           >
             <SearchIcon />
           </Link>
+          <BagLink tabbable={condensed} />
         </div>
       </div>
 
@@ -248,7 +254,7 @@ export default function Header() {
             <NsvlMark width={104} decorative />
           </Link>
           {/* Balances the menu control so the mark stays centered. */}
-          <span className="h-11 w-11" aria-hidden="true" />
+          <BagLink />
         </div>
 
         {open && (
@@ -323,6 +329,20 @@ export default function Header() {
         )}
       </div>
     </header>
+  );
+}
+
+/** Shopping bag, top right on every header variant. Opens the shop until a cart exists. */
+function BagLink({ tabbable = true }: { tabbable?: boolean }) {
+  return (
+    <Link
+      href="/shop/"
+      className="inline-flex h-11 w-11 items-center justify-center rounded text-ink transition-colors hover:bg-paper-sunk"
+      aria-label="Shopping bag: opens the NSVL shop"
+      tabIndex={tabbable ? 0 : -1}
+    >
+      <BagIcon size={22} />
+    </Link>
   );
 }
 

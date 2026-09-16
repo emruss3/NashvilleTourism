@@ -114,3 +114,6 @@ export function BottleIcon(p: IconProps) {
 export function SparkleIcon(p: IconProps) {
   return base(p, <><path d="M10 2.5 11.8 8.2 17.5 10l-5.7 1.8L10 17.5l-1.8-5.7L2.5 10l5.7-1.8L10 2.5Z" /></>);
 }
+export function BagIcon(p: IconProps) {
+  return base(p, <><path d="M4 7h12l-1 10.5H5L4 7Z" /><path d="M7.5 8.5V6a2.5 2.5 0 0 1 5 0v2.5" /></>);
+}
