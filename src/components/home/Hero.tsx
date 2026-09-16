@@ -26,20 +26,20 @@ export default function Hero() {
       <link rel="preload" as="image" media="(min-width: 768px)" imageSrcSet={wide} imageSizes="100vw" fetchPriority="high" />
 
       {/* 1. Introduction. On desktop this block sits over the backdrop. */}
-      <div className="relative z-10 md:flex md:min-h-[460px] md:flex-col md:justify-center lg:min-h-[520px]">
-        <div className="shell pt-6 md:py-14">
-          <div className="max-w-[560px]">
+      <div className="relative z-10 md:flex md:min-h-[500px] md:flex-col md:justify-end lg:min-h-[560px]">
+        <div className="shell pt-6 md:pb-14 md:pt-20 lg:pb-16">
+          <div className="max-w-[640px]">
             <p className="eyebrow md:text-paper/85">{site.heroEyebrow}</p>
             <h1
               id="hero-title"
-              className="mt-2 text-[2.5rem] leading-[1] text-ink sm:text-[3rem] md:text-[3.75rem] md:text-paper lg:text-[4.5rem]"
+              className="mt-2 text-[2.5rem] leading-[0.98] text-ink sm:text-[3rem] md:text-[4rem] md:text-paper lg:text-[5.25rem]"
             >
               {site.headline}
             </h1>
-            <p className="mt-3 max-w-md text-[17px] text-ink-soft sm:text-lead md:text-paper/90">
+            <p className="mt-3 max-w-md text-[17px] text-ink-soft sm:text-lead md:text-[21px] md:text-paper/90">
               {site.headlineSupport}
             </p>
-            <a href="#discover" className="btn-reverse mt-5 hidden md:inline-flex">
+            <a href="#discover" className="btn-reverse mt-6 hidden min-h-14 px-7 text-base md:inline-flex">
               Explore the city
               <span aria-hidden="true">→</span>
             </a>
@@ -48,14 +48,14 @@ export default function Hero() {
       </div>
 
       {/* 2. Search module: inline on phones, charcoal band on desktop. */}
-      <div id="discover" className="relative z-10 md:bg-ink md:py-4 md:text-paper">
+      <div id="discover" className="relative z-10 md:bg-ink md:py-5 md:text-paper">
         <div className="shell pt-6 md:pt-0">
           <DiscoveryForm />
         </div>
       </div>
 
       {/* 3. Photograph: in flow on phones, full-bleed backdrop with the loop on desktop. */}
-      <figure className="shell mt-6 md:absolute md:inset-x-0 md:top-0 md:z-0 md:m-0 md:h-[460px] md:max-w-none md:p-0 lg:h-[520px]">
+      <figure className="shell mt-6 md:absolute md:inset-x-0 md:top-0 md:z-0 md:m-0 md:h-[500px] md:max-w-none md:p-0 lg:h-[560px]">
         <div className="relative overflow-hidden rounded-card bg-ink md:absolute md:inset-0 md:rounded-none">
           <picture>
             <source media="(max-width: 767px)" srcSet={mobile} type="image/webp" />

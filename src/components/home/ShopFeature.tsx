@@ -14,7 +14,7 @@ export default function ShopFeature() {
   return (
     <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-card bg-paper-sunk p-6 sm:p-8">
       <div className="relative z-10 max-w-xs">
-        <h2 className="text-[2rem] leading-[1.05] sm:text-[2.25rem]">
+        <h2 className="text-[2rem] leading-[1.05] sm:text-[2.5rem] lg:text-[3rem]">
           Good here.
           <br />
           Good anywhere.

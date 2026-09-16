@@ -24,7 +24,7 @@
     --color-surface: #eae7de;
     --color-muted: #59605a;
     --color-border: #d5d7ce;
-    --page-gutter: clamp(20px, 4vw, 64px);
+    --page-gutter: clamp(20px, 4vw, 72px);
     --section-space: clamp(40px, 4.5vw, 64px);
   }
 

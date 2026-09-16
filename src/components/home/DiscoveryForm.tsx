@@ -37,7 +37,7 @@ export default function DiscoveryForm({
 
   const label = `mb-1 block text-2xs font-semibold uppercase tracking-[0.14em] ${dark ? 'text-ink-soft md:sr-only' : 'text-ink-soft'}`;
   const field = dark
-    ? 'field-input md:h-12 md:border-paper/45 md:bg-transparent md:text-paper md:placeholder:text-paper/60 md:focus:border-paper md:[color-scheme:dark]'
+    ? 'field-input md:h-14 md:text-base md:border-paper/45 md:bg-transparent md:text-paper md:placeholder:text-paper/60 md:focus:border-paper md:[color-scheme:dark]'
     : 'field-input';
   const withIcon = 'md:pl-10';
   const iconClass = `pointer-events-none absolute left-3 top-1/2 hidden -translate-y-1/2 md:block ${dark ? 'text-paper/70' : 'text-ink-soft'}`;
@@ -72,7 +72,7 @@ export default function DiscoveryForm({
     <form action="/explore/" method="get" onSubmit={onSubmit} role="search" aria-label="Find shows, places and neighborhoods">
       {initial?.when ? <input type="hidden" name="when" value={initial.when} /> : null}
 
-      <div className="lg:grid lg:grid-cols-[1.1fr_1fr_1fr_1.25fr_auto] lg:items-end lg:gap-3">
+      <div className="lg:grid lg:grid-cols-[1.1fr_1fr_1.1fr_1.3fr_auto] lg:items-end lg:gap-4">
         <div>
           <label htmlFor="explore-q" className={`${label} sr-only`}>
             Search shows, places, neighborhoods
@@ -154,7 +154,7 @@ export default function DiscoveryForm({
             </div>
           </div>
           <div className="sm:col-span-2 lg:col-span-1">
-            <button type="submit" className={dark ? 'btn-reverse hidden w-full md:inline-flex md:w-auto' : 'btn-primary w-full lg:w-auto'}>
+            <button type="submit" className={dark ? 'btn-reverse hidden w-full md:inline-flex md:h-14 md:w-auto md:px-8 md:text-base' : 'btn-primary w-full lg:w-auto'}>
               Find your plans
               <span aria-hidden="true">→</span>
             </button>

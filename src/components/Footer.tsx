@@ -36,7 +36,7 @@ export default function Footer() {
     <footer className="border-t border-ink bg-ink text-paper">
       <div className="shell py-8 lg:py-9">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:gap-10">
-          <Wordmark href="/" tone="paper" width={132} className="shrink-0" />
+          <Wordmark href="/" tone="paper" width={150} className="shrink-0" />
           <nav aria-label="Footer" className="min-w-0 flex-1">
             <ul className="flex flex-wrap gap-x-6 gap-y-1">
               {LINKS.map((link) => (

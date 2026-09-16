@@ -44,7 +44,7 @@ export default async function HomePage() {
           <div className="shell grid gap-8 md:grid-cols-2 md:gap-6 lg:gap-8">
             <div>
               <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
-                <h2 id="calendar-title" className="text-[2rem] sm:text-[2.5rem]">
+                <h2 id="calendar-title" className="text-[2rem] sm:text-[2.5rem] lg:text-[3.25rem]">
                   On the calendar.
                 </h2>
                 <Link
@@ -85,7 +85,7 @@ export default async function HomePage() {
       <section className="py-10 md:order-5 lg:py-12" aria-labelledby="signup-title">
         <div className="shell grid gap-6 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div>
-            <h2 id="signup-title" className="text-[2rem] sm:text-[2.25rem]">
+            <h2 id="signup-title" className="text-[2rem] sm:text-[2.5rem] lg:text-[3rem]">
               {site.newsletter.heading}
             </h2>
             <p className="mt-2 max-w-md text-[17px] text-ink-soft">{site.newsletter.promise}</p>

@@ -83,7 +83,7 @@ const config: Config = {
       },
       maxWidth: {
         prose: '68ch',
-        shell: '1280px',
+        shell: '1440px',
       },
       borderRadius: {
         card: '2px',

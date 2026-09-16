@@ -89,8 +89,8 @@ export default function Header() {
       <Link
         href={href}
         aria-current={active ? 'page' : undefined}
-        className={`inline-flex min-h-11 items-center border-b-2 px-3 font-sans font-semibold text-ink transition-colors ${
-          compact ? 'text-[14px]' : 'text-[15px]'
+        className={`inline-flex min-h-11 items-center border-b-2 px-3.5 font-sans font-semibold text-ink transition-colors ${
+          compact ? 'text-[14px]' : 'text-[17px]'
         } ${active ? 'border-ink' : 'border-transparent hover:border-ink/40'}`}
       >
         {label}
@@ -102,9 +102,9 @@ export default function Header() {
     <header>
       {/* Desktop masthead */}
       <div ref={mastheadRef} className="hidden border-b border-paper-edge bg-paper lg:block">
-        <div className="shell relative flex flex-col items-center py-6">
-          <Wordmark width={240} />
-          <div className="absolute right-[var(--page-gutter)] top-6">
+        <div className="shell relative flex flex-col items-center pb-3 pt-5">
+          <Wordmark width={300} />
+          <div className="absolute right-[var(--page-gutter)] top-5">
             <Link
               href="/search/"
               className="inline-flex h-11 w-11 items-center justify-center rounded text-ink transition-colors hover:bg-paper-sunk"
@@ -113,7 +113,7 @@ export default function Header() {
               <SearchIcon />
             </Link>
           </div>
-          <nav aria-label="Primary" className="mt-5">
+          <nav aria-label="Primary" className="mt-3">
             <ul className="flex items-center justify-center gap-1">
               {primaryNav.map((item) => (
                 <li key={item.href}>{navLink(item.href, item.label)}</li>

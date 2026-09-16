@@ -23,17 +23,17 @@ export default function NeighborhoodCards({ className = '' }: { className?: stri
         <div className="grid gap-3 md:grid-cols-[1fr_auto_auto] md:items-end md:gap-8">
           <div>
             <p className="eyebrow">Neighborhoods</p>
-            <h2 id="neighborhoods-title" className="mt-1 text-[2rem] sm:text-[2.5rem]">
+            <h2 id="neighborhoods-title" className="mt-1 text-[2rem] sm:text-[2.5rem] lg:text-[3.25rem]">
               Find your corner.
             </h2>
           </div>
-          <p className="max-w-[16rem] text-[15px] leading-snug text-ink-soft md:pb-1">
+          <p className="max-w-[16rem] text-[16px] leading-snug text-ink-soft md:pb-2">
             Different neighborhoods.
             <br className="hidden md:inline" /> A closer Nashville.
           </p>
           <Link
             href="/neighborhoods/"
-            className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-ink underline-offset-[0.2em] hover:underline md:pb-1"
+            className="inline-flex min-h-11 items-center gap-1.5 text-[15px] font-semibold text-ink underline-offset-[0.2em] hover:underline md:pb-2"
           >
             Explore all neighborhoods
             <span aria-hidden="true">→</span>
@@ -55,7 +55,7 @@ export default function NeighborhoodCards({ className = '' }: { className?: stri
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/25 to-transparent" aria-hidden="true" />
                 <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 sm:p-5">
                   <div className="min-w-0">
-                    <h3 className="text-[1.5rem] font-bold leading-tight tracking-[-0.03em] text-paper">{hood.name}</h3>
+                    <h3 className="text-[1.5rem] font-bold leading-tight tracking-[-0.03em] text-paper lg:text-[1.75rem]">{hood.name}</h3>
                     <p className="mt-1 truncate text-2xs font-semibold uppercase tracking-[0.14em] text-paper/85">
                       {hood.knownFor.slice(0, 2).join(' · ')}
                     </p>

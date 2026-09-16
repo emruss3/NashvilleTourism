@@ -12,7 +12,7 @@ export default function TripStarter({ className = '' }: { className?: string }) 
       <div className="shell grid gap-6 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-12">
         <div>
           <p className="eyebrow">Plan your trip</p>
-          <h2 id="trip-title" className="mt-2 max-w-[12ch] text-[2.5rem] leading-[1.02] sm:text-[3rem] lg:text-[3.5rem]">
+          <h2 id="trip-title" className="mt-2 max-w-[12ch] text-[2.5rem] leading-[1.02] sm:text-[3rem] lg:text-[4.25rem]">
             {site.brandIdea}
           </h2>
         </div>
