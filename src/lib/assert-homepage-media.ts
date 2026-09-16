@@ -4,7 +4,6 @@ import { images, AVAILABLE_MEDIA, type ImageKey, type MediaAsset } from '@/lib/m
 
 /** Homepage placements that must resolve to unique file sources. */
 export const HOMEPAGE_IMAGE_KEYS: readonly ImageKey[] = [
-  'editorial/rooftop-party',
   'neighborhood/east-nashville',
   'neighborhood/germantown',
   'editorial/weho-skyline',

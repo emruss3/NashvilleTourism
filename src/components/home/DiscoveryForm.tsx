@@ -11,11 +11,11 @@ import { INTERESTS, WHEN_OPTIONS, exploreHref, neighborhoodOptions, type Explore
  *
  * Phones (MOBILE-FIRST.md §Homepage 3): a visible search field, the quick
  * links Tonight / This weekend, and a "Choose dates" toggle that reveals
- * dates, neighborhood and interest.
+ * neighborhood, interest and dates.
  *
- * Desktop (SITE-LAYOUT.md §Discovery band): the same controls laid out as
- * one charcoal band: search, Neighborhood (All Nashville + real options),
- * Interest, Dates, and "Find your plans". The panel is always open there.
+ * Desktop (SITE-LAYOUT.md §Discovery band): the same controls as one
+ * charcoal band of icon-led fields (search, Neighborhood, Interest, Dates)
+ * and a Paper White "Find your plans" button. The panel is always open.
  *
  * A plain GET form to /explore/, so selections live in the URL and survive
  * Back and reload. Dates default to unset; Tonight and This weekend resolve
@@ -26,7 +26,7 @@ export default function DiscoveryForm({
   variant = 'home',
 }: {
   initial?: Partial<ExploreQuery>;
-  /** `explore` keeps the panel open at every width. */
+  /** `explore` keeps the panel open at every width and uses the light styling. */
   variant?: 'home' | 'explore';
 }) {
   const hasDetail = Boolean(initial?.from || initial?.to || initial?.neighborhood || initial?.interest);
@@ -35,14 +35,14 @@ export default function DiscoveryForm({
   const router = useRouter();
   const dark = variant === 'home';
 
-  const label = `mb-1.5 block text-2xs font-semibold uppercase tracking-[0.14em] ${
-    dark ? 'text-ink-soft md:text-paper/75' : 'text-ink-soft'
-  }`;
-  const input = dark
-    ? 'field-input md:border-paper/55 md:bg-transparent md:text-paper md:placeholder:text-paper/60 md:focus:border-paper md:[color-scheme:dark]'
+  const label = `mb-1 block text-2xs font-semibold uppercase tracking-[0.14em] ${dark ? 'text-ink-soft md:sr-only' : 'text-ink-soft'}`;
+  const field = dark
+    ? 'field-input md:h-12 md:border-paper/45 md:bg-transparent md:text-paper md:placeholder:text-paper/60 md:focus:border-paper md:[color-scheme:dark]'
     : 'field-input';
+  const withIcon = 'md:pl-10';
+  const iconClass = `pointer-events-none absolute left-3 top-1/2 hidden -translate-y-1/2 md:block ${dark ? 'text-paper/70' : 'text-ink-soft'}`;
   const quick = dark
-    ? 'inline-flex min-h-11 items-center text-[15px] font-semibold text-ink underline-offset-[0.2em] md:text-paper'
+    ? 'inline-flex min-h-11 items-center text-[15px] font-semibold text-ink underline-offset-[0.2em] md:min-h-8 md:text-sm md:text-paper'
     : 'inline-flex min-h-11 items-center text-[15px] font-semibold text-ink underline-offset-[0.2em]';
 
   // Progressive enhancement: with JS, drop empty fields so the URL only
@@ -72,21 +72,26 @@ export default function DiscoveryForm({
     <form action="/explore/" method="get" onSubmit={onSubmit} role="search" aria-label="Find shows, places and neighborhoods">
       {initial?.when ? <input type="hidden" name="when" value={initial.when} /> : null}
 
-      <div className="lg:grid lg:grid-cols-[1.2fr_1fr_1fr_1.4fr_auto] lg:items-end lg:gap-3">
+      <div className="lg:grid lg:grid-cols-[1.1fr_1fr_1fr_1.25fr_auto] lg:items-end lg:gap-3">
         <div>
-          <label htmlFor="explore-q" className={`${label} sr-only lg:not-sr-only`}>
-            Search
+          <label htmlFor="explore-q" className={`${label} sr-only`}>
+            Search shows, places, neighborhoods
           </label>
           <div className="flex gap-2">
-            <input
-              id="explore-q"
-              name="q"
-              type="search"
-              defaultValue={initial?.q ?? ''}
-              placeholder="Shows, places, neighborhoods"
-              autoComplete="off"
-              className={`${input} flex-1`}
-            />
+            <div className="relative flex-1">
+              <span className={iconClass} aria-hidden="true">
+                <SearchIcon />
+              </span>
+              <input
+                id="explore-q"
+                name="q"
+                type="search"
+                defaultValue={initial?.q ?? ''}
+                placeholder="Shows, places, neighborhoods"
+                autoComplete="off"
+                className={`${field} ${withIcon}`}
+              />
+            </div>
             <button type="submit" className="btn-primary shrink-0 px-4 lg:hidden">
               <span aria-hidden="true">→</span>
               <span className="sr-only">Find your plans</span>
@@ -99,11 +104,14 @@ export default function DiscoveryForm({
           id={panelId}
           className={`${panelOpen ? 'grid' : 'hidden'} mt-3 gap-3 rounded-card border border-paper-edge bg-paper-sunk p-4 sm:grid-cols-2 md:border-paper/30 md:bg-transparent md:p-0 lg:contents`}
         >
-          <div>
+          <div className="relative">
             <label htmlFor="explore-neighborhood" className={label}>
               Neighborhood
             </label>
-            <select id="explore-neighborhood" name="neighborhood" defaultValue={initial?.neighborhood ?? ''} className={input}>
+            <span className={`${iconClass} md:top-[calc(50%+0.25rem)] lg:top-1/2`} aria-hidden="true">
+              <PinIcon />
+            </span>
+            <select id="explore-neighborhood" name="neighborhood" defaultValue={initial?.neighborhood ?? ''} className={`${field} ${withIcon}`}>
               <option value="">All Nashville</option>
               {neighborhoodOptions().map((n) => (
                 <option key={n.value} value={n.value}>
@@ -112,12 +120,15 @@ export default function DiscoveryForm({
               ))}
             </select>
           </div>
-          <div>
+          <div className="relative">
             <label htmlFor="explore-interest" className={label}>
               Interest
             </label>
-            <select id="explore-interest" name="interest" defaultValue={initial?.interest ?? ''} className={input}>
-              <option value="">Anything</option>
+            <span className={`${iconClass} md:top-[calc(50%+0.25rem)] lg:top-1/2`} aria-hidden="true">
+              <NoteIcon />
+            </span>
+            <select id="explore-interest" name="interest" defaultValue={initial?.interest ?? ''} className={`${field} ${withIcon}`}>
+              <option value="">Music, food, art, neighborhoods…</option>
               {INTERESTS.map((i) => (
                 <option key={i.value} value={i.value}>
                   {i.label}
@@ -126,17 +137,20 @@ export default function DiscoveryForm({
             </select>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:col-span-2 lg:col-span-1">
-            <div>
+            <div className="relative">
               <label htmlFor="explore-from" className={label}>
                 From
               </label>
-              <input id="explore-from" name="from" type="date" defaultValue={initial?.from ?? ''} className={input} />
+              <span className={`${iconClass} md:top-[calc(50%+0.25rem)] lg:top-1/2`} aria-hidden="true">
+                <CalendarIcon />
+              </span>
+              <input id="explore-from" name="from" type="date" aria-label="From date" defaultValue={initial?.from ?? ''} className={`${field} ${withIcon}`} />
             </div>
             <div>
               <label htmlFor="explore-to" className={label}>
                 To
               </label>
-              <input id="explore-to" name="to" type="date" defaultValue={initial?.to ?? ''} className={input} />
+              <input id="explore-to" name="to" type="date" aria-label="To date" defaultValue={initial?.to ?? ''} className={field} />
             </div>
           </div>
           <div className="sm:col-span-2 lg:col-span-1">
@@ -183,5 +197,39 @@ export default function DiscoveryForm({
         ) : null}
       </div>
     </form>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.8" />
+      <path d="m13.5 13.5 3.5 3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+function PinIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M8 1.5c-2.2 0-4 1.8-4 4 0 3 4 9 4 9s4-6 4-9c0-2.2-1.8-4-4-4Z" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="8" cy="5.5" r="1.4" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+function NoteIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M6 12.5V3.5l7-1.5v9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="4" cy="12.5" r="2" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="11" cy="11.5" r="2" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+function CalendarIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <rect x="2" y="3.5" width="12" height="10.5" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M2 7h12M5.5 2v3M10.5 2v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
   );
 }

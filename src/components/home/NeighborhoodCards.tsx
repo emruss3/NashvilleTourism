@@ -23,7 +23,7 @@ export default function NeighborhoodCards({ className = '' }: { className?: stri
         <div className="grid gap-3 md:grid-cols-[1fr_auto_auto] md:items-end md:gap-8">
           <div>
             <p className="eyebrow">Neighborhoods</p>
-            <h2 id="neighborhoods-title" className="mt-2 text-[2.25rem] sm:text-[2.75rem]">
+            <h2 id="neighborhoods-title" className="mt-1 text-[2rem] sm:text-[2.5rem]">
               Find your corner.
             </h2>
           </div>
@@ -40,7 +40,7 @@ export default function NeighborhoodCards({ className = '' }: { className?: stri
           </Link>
         </div>
 
-        <ul className="mt-6 grid gap-4 md:grid-cols-3 md:gap-6">
+        <ul className="mt-5 grid gap-4 md:grid-cols-3 md:gap-5">
           {cards.map((hood) => (
             <li key={hood.slug}>
               <Link

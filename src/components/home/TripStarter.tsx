@@ -9,10 +9,10 @@ import { site } from '@/lib/site';
 export default function TripStarter({ className = '' }: { className?: string }) {
   return (
     <section className={`section border-y border-paper-edge bg-paper-sunk ${className}`} aria-labelledby="trip-title">
-      <div className="shell grid gap-8 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-16">
+      <div className="shell grid gap-6 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-12">
         <div>
           <p className="eyebrow">Plan your trip</p>
-          <h2 id="trip-title" className="mt-3 max-w-[12ch] text-[2.5rem] leading-[1.02] sm:text-[3.25rem] lg:text-[4rem]">
+          <h2 id="trip-title" className="mt-2 max-w-[12ch] text-[2.5rem] leading-[1.02] sm:text-[3rem] lg:text-[3.5rem]">
             {site.brandIdea}
           </h2>
         </div>

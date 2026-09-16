@@ -82,7 +82,7 @@ export function buildMetadata({
     url: canonical('/media/social/og-default.jpg'),
     width: 1200,
     height: 630,
-    alt: 'A crowd at a downtown Nashville rooftop show at night.',
+    alt: 'Downtown Nashville at sunset above the Cumberland River and Korean Veterans Memorial Bridge.',
   };
   const blockIndexing = Boolean(noindex) || !allowIndexing;
   return {

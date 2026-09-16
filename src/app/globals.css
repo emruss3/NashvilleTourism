@@ -25,7 +25,7 @@
     --color-muted: #59605a;
     --color-border: #d5d7ce;
     --page-gutter: clamp(20px, 4vw, 64px);
-    --section-space: clamp(40px, 6vw, 88px);
+    --section-space: clamp(40px, 4.5vw, 64px);
   }
 
   html {
