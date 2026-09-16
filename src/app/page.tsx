@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import CategoryLinks from '@/components/home/CategoryLinks';
+import DateShortcuts from '@/components/home/DateShortcuts';
 import EventList from '@/components/home/EventList';
 import Hero from '@/components/home/Hero';
 import NeighborhoodCards from '@/components/home/NeighborhoodCards';
@@ -57,6 +58,9 @@ export default async function HomePage() {
                   See all events
                   <span aria-hidden="true">→</span>
                 </Link>
+              </div>
+              <div className="mt-3">
+                <DateShortcuts />
               </div>
               <div className="mt-4">
                 {live && events.length > 0 ? (

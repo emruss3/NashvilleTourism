@@ -7,7 +7,7 @@ import PageIntro from '@/components/hub/PageIntro';
 import SearchField from '@/components/hub/SearchField';
 import SectionHead from '@/components/hub/SectionHead';
 import { venues } from '@/lib/content';
-import { formatDay, isWhen, resolveWindow, type ExploreQuery } from '@/lib/explore';
+import { WHEN_OPTIONS, formatDay, isWhen, resolveWindow, type ExploreQuery } from '@/lib/explore';
 import { getCalendar } from '@/lib/feeds/calendar';
 import { musicVenues } from '@/lib/music-venues';
 import { buildMetadata, isIndexableRecord } from '@/lib/seo';
@@ -126,10 +126,7 @@ export default async function EventsIndex(props: { searchParams?: Promise<Params
           buttonLabel="Find events"
         />
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          {[
-            { value: 'tonight', label: 'Tonight' },
-            { value: 'weekend', label: 'This weekend' },
-          ].map((w) => {
+          {WHEN_OPTIONS.map((w) => {
             const active = query.when === w.value;
             return (
               <Link

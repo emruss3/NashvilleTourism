@@ -21,7 +21,9 @@ export type Interest = (typeof INTERESTS)[number]['value'];
 
 export const WHEN_OPTIONS = [
   { value: 'tonight', label: 'Tonight' },
+  { value: 'tomorrow', label: 'Tomorrow' },
   { value: 'weekend', label: 'This weekend' },
+  { value: 'week', label: 'Next 7 days' },
 ] as const;
 
 export type When = (typeof WHEN_OPTIONS)[number]['value'];
@@ -134,6 +136,11 @@ function shiftDay(iso: string, days: number): string {
 export function resolveWindow(query: ExploreQuery, now = new Date()): { from?: string; to?: string; label?: string } {
   const today = nashvilleToday(now);
   if (query.when === 'tonight') return { from: today, to: today, label: 'Tonight' };
+  if (query.when === 'tomorrow') {
+    const tomorrow = shiftDay(today, 1);
+    return { from: tomorrow, to: tomorrow, label: 'Tomorrow' };
+  }
+  if (query.when === 'week') return { from: today, to: shiftDay(today, 6), label: 'Next 7 days' };
   if (query.when === 'weekend') {
     const day = new Date(`${today}T12:00:00Z`).getUTCDay();
     const fridayOffset = day === 6 ? -1 : day === 0 ? -2 : 5 - day;
