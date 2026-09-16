@@ -89,7 +89,7 @@ export default async function NeighborhoodsIndex(props: { searchParams?: Promise
           </>
         }
         support="Different neighborhoods. A closer Nashville."
-        media={<SmartImage imageKey="neighborhood/12-south" ratio="h-full" sizes="100vw" priority />}
+        media={<SmartImage imageKey="concept/street-cafe" ratio="h-full" sizes="100vw" priority />}
         aside={
           <ol className="divide-y divide-paper-edge" aria-label="Neighborhood index">
             {index.map((n, i) => (

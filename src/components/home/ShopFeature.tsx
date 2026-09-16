@@ -1,19 +1,18 @@
 import Link from 'next/link';
-import { NsvlLogo } from '@/components/Wordmark';
+import { SmartImage } from '@/components/Media';
 
 /**
  * Shop panel ("Good here. Good anywhere."). Sits directly after the calendar
  * on phones so the shop is not buried after a long catalog.
  *
- * ASSET STATUS: no apparel campaign photograph has been supplied. Until it
- * exists the panel is a Soft Paper still-life of the lockup itself, in the
- * same warm tone as the reference's product photograph, with the approved
- * lines. Swap in the licensed image when it exists.
+ * ASSET STATUS: the still-life is the owner-approved concept illustration
+ * from the brand boards (cap and tee), labelled as an illustration in its
+ * alt text. Swap in licensed campaign photography when it exists.
  */
 export default function ShopFeature() {
   return (
-    <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-card bg-paper-sunk p-6 sm:p-8">
-      <div className="relative z-10 max-w-xs">
+    <div className="relative flex h-full flex-col overflow-hidden rounded-card bg-paper-sunk">
+      <div className="relative z-10 p-6 sm:p-8">
         <h2 className="text-[2rem] leading-[1.05] sm:text-[2.5rem] lg:text-[3rem]">
           Good here.
           <br />
@@ -25,8 +24,8 @@ export default function ShopFeature() {
           <span aria-hidden="true">→</span>
         </Link>
       </div>
-      <div className="relative z-10 mt-8 flex justify-end md:mt-0 md:absolute md:bottom-8 md:right-8">
-        <NsvlLogo variant="lockup" width="min(260px, 55%)" decorative className="md:w-[240px]" />
+      <div className="relative mt-auto">
+        <SmartImage imageKey="concept/shop-still-life" ratio="aspect-[16/10]" sizes="(max-width: 1023px) 100vw, 40vw" />
       </div>
     </div>
   );

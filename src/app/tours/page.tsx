@@ -91,7 +91,7 @@ export default async function ToursHub(props: { searchParams?: Promise<{ q?: str
         mediaFirst
         media={
           <div className="overflow-hidden rounded-card bg-ink">
-            <SmartImage imageKey="editorial/grand-ole-opry-house" ratio="aspect-[16/10] lg:aspect-auto lg:h-[460px]" sizes="(max-width: 1023px) 100vw, 58vw" priority />
+            <SmartImage imageKey="concept/backstage-tour" ratio="aspect-[16/10] lg:aspect-auto lg:h-[460px]" sizes="(max-width: 1023px) 100vw, 58vw" priority />
           </div>
         }
       >
@@ -303,7 +303,7 @@ export default async function ToursHub(props: { searchParams?: Promise<{ q?: str
           <ul className="grid grid-cols-3 gap-3">
             {[
               { time: 'Morning', label: 'Coffee in East Nashville', href: '/neighborhoods/east-nashville/', image: 'neighborhood/east-nashville' as const },
-              { time: 'Afternoon', label: 'Food tour', href: '/tours/?q=Food%20tour', image: 'editorial/nashville-food' as const },
+              { time: 'Afternoon', label: 'Food tour', href: '/tours/?q=Food%20tour', image: 'concept/food-tour-group' as const },
               { time: 'Evening', label: 'Live music on Broadway', href: '/honky-tonk-highway/', image: 'editorial/broadway-nightlife' as const },
             ].map((stop) => (
               <li key={stop.label}>

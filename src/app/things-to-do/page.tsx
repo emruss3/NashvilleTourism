@@ -166,9 +166,9 @@ export default async function ThingsToDoIndex(props: { searchParams?: Promise<Pa
         <SectionHead id="day-title" eyebrow="A Nashville day" title={<>Three moments.<br />Endless possibility.</>} support="From morning light to late-night sounds, here is one way to do it." href="/plan/" linkLabel="Copy this day into the planner" />
         <ul className="mt-6 grid gap-3 md:grid-cols-3">
           {[
-            { time: 'Morning', title: 'Coffee, parks and fresh air.', body: 'Easy energy to start your day right.', href: href('outdoors'), image: 'attractions/shelby-bottoms-greenway' as const },
-            { time: 'Afternoon', title: 'Explore, create, make it yours.', body: 'Museums, neighborhoods and local flavor.', href: href('arts'), image: 'attractions/frist-art-museum' as const },
-            { time: 'After dark', title: 'Live music changes everything.', body: 'From intimate stages to iconic nights.', href: '/live-music-tonight/', image: 'editorial/live-music-crowd' as const },
+            { time: 'Morning', title: 'Coffee, parks and fresh air.', body: 'Easy energy to start your day right.', href: href('outdoors'), image: 'concept/park-couple' as const },
+            { time: 'Afternoon', title: 'Explore, create, make it yours.', body: 'Museums, neighborhoods and local flavor.', href: href('arts'), image: 'concept/museum-afternoon' as const },
+            { time: 'After dark', title: 'Live music changes everything.', body: 'From intimate stages to iconic nights.', href: '/live-music-tonight/', image: 'concept/live-music-night' as const },
           ].map((moment) => (
             <li key={moment.time}>
               <Link href={moment.href} className="group relative block overflow-hidden rounded-card bg-ink text-paper">

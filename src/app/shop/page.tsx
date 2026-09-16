@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import NewsletterForm from '@/components/NewsletterForm';
 import { Breadcrumbs } from '@/components/Ui';
-import { NsvlLogo, NsvlMark } from '@/components/Wordmark';
+import { SmartImage } from '@/components/Media';
 import { site } from '@/lib/site';
 import { buildMetadata } from '@/lib/seo';
 
@@ -30,15 +30,14 @@ type Category = (typeof CATEGORIES)[number]['value'];
  * INTEGRATION STATUS: no commerce provider is connected, so there is no bag,
  * no checkout and no prices; the provider is authoritative for price and
  * inventory and none exists yet. The three core products are listed
- * descriptively with an honest "not yet on sale" state. No campaign or
- * product photography has been supplied; the campaign panel is a still-life
- * of the mark itself and each product shows the mark on its garment colour,
- * never a generated mockup or model.
+ * descriptively with an honest "not yet on sale" state. Campaign and product
+ * imagery are the owner-approved concept illustrations from the brand boards
+ * (labelled as illustrations in alt text) until product photography exists.
  */
 const CORE_PRODUCTS = [
-  { slug: 'charcoal-cap', name: 'Charcoal cap', category: 'headwear' as Category, detail: 'Paper embroidery on the front, 55–65mm wide.', ground: 'ink' as const },
-  { slug: 'paper-tee', name: 'Paper tee', category: 'tees' as Category, detail: 'Charcoal mark, left chest or centered.', ground: 'paper' as const },
-  { slug: 'heavyweight-charcoal-tee', name: 'Heavyweight charcoal tee', category: 'tees' as Category, detail: 'Paper mark, centered chest.', ground: 'ink' as const },
+  { slug: 'charcoal-cap', name: 'Charcoal cap', category: 'headwear' as Category, detail: 'Paper embroidery on the front, 55–65mm wide.', ground: 'ink' as const, image: 'concept/product-cap' as const },
+  { slug: 'paper-tee', name: 'Paper tee', category: 'tees' as Category, detail: 'Charcoal mark, left chest or centered.', ground: 'paper' as const, image: 'concept/product-paper-tee' as const },
+  { slug: 'heavyweight-charcoal-tee', name: 'Heavyweight charcoal tee', category: 'tees' as Category, detail: 'Paper mark, centered chest.', ground: 'ink' as const, image: 'concept/product-heavyweight-tee' as const },
 ];
 
 export default async function ShopPage(props: { searchParams?: Promise<Params> }) {
@@ -55,23 +54,13 @@ export default async function ShopPage(props: { searchParams?: Promise<Params> }
         <Breadcrumbs trail={[{ name: 'Shop', href: '/shop/' }]} />
       </div>
 
-      <section className="shell grid gap-4 pb-8 pt-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-stretch" aria-labelledby="shop-title">
-        <div className="order-2 grid grid-cols-[3fr_2fr] gap-2 lg:order-1">
-          <div className="flex aspect-[4/5] items-center justify-center rounded-card bg-ink lg:aspect-auto lg:min-h-[460px]" aria-hidden="true">
-            <NsvlLogo variant="lockup" tone="paper" width="62%" decorative />
-          </div>
-          <div className="flex flex-col justify-between rounded-card bg-paper-sunk p-4">
-            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">
-              NSVL apparel
-              <br />
-              First release
-            </p>
-            <NsvlMark width="70%" decorative className="self-end" />
-          </div>
+      <section className="shell grid gap-4 pb-8 pt-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,4fr)_minmax(0,5fr)] lg:items-stretch" aria-labelledby="shop-title">
+        <div className="order-2 overflow-hidden rounded-card bg-ink lg:order-1">
+          <SmartImage imageKey="concept/apparel-model" ratio="aspect-[4/3] lg:aspect-auto lg:h-full lg:min-h-[460px]" sizes="(max-width: 1023px) 100vw, 25vw" priority />
         </div>
-        <div className="order-1 flex flex-col justify-center lg:order-2 lg:pl-6">
+        <div className="order-1 flex flex-col justify-center lg:order-2 lg:px-6">
           <p className="eyebrow">NSVL apparel</p>
-          <h1 id="shop-title" className="mt-2 text-[2.5rem] leading-[0.98] sm:text-[3.25rem] lg:text-[4rem]">
+          <h1 id="shop-title" className="mt-2 text-[2.5rem] leading-[0.98] sm:text-[3.25rem] lg:text-[3.5rem]">
             Good here.
             <br />
             Good anywhere.
@@ -86,6 +75,9 @@ export default async function ShopPage(props: { searchParams?: Promise<Params> }
             </a>
             <span className="inline-flex min-h-11 items-center rounded border border-paper-edge px-3 text-sm font-semibold text-ink-soft">Not on sale yet</span>
           </div>
+        </div>
+        <div className="order-3 hidden overflow-hidden rounded-card bg-paper-sunk sm:block">
+          <SmartImage imageKey="concept/apparel-cap-still" ratio="aspect-[16/10] lg:aspect-auto lg:h-full lg:min-h-[460px]" sizes="(max-width: 1023px) 100vw, 42vw" priority />
         </div>
       </section>
 
@@ -138,8 +130,8 @@ export default async function ShopPage(props: { searchParams?: Promise<Params> }
             {products.map((product) => (
               <li key={product.slug}>
                 <article className="flex h-full flex-col">
-                  <div className={`flex aspect-[4/5] items-center justify-center rounded-card ${product.ground === 'ink' ? 'bg-ink' : 'bg-paper-sunk'}`} aria-hidden="true">
-                    <NsvlMark tone={product.ground === 'ink' ? 'paper' : 'ink'} width="44%" decorative />
+                  <div className={`overflow-hidden rounded-card ${product.ground === 'ink' ? 'bg-ink' : 'bg-paper-sunk'}`}>
+                    <SmartImage imageKey={product.image} ratio="aspect-[4/3]" sizes="(max-width: 1023px) 50vw, 25vw" />
                   </div>
                   <h3 className="mt-3 font-sans text-[16px] font-bold sm:text-[17px]">{product.name}</h3>
                   <p className="mt-0.5 text-sm text-ink-soft">{product.detail}</p>
@@ -167,8 +159,8 @@ export default async function ShopPage(props: { searchParams?: Promise<Params> }
 
       <section className="bg-ink text-paper" aria-labelledby="story-title">
         <div className="shell section grid gap-8 lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)] lg:items-center lg:gap-12">
-          <div className="flex aspect-[16/9] items-center justify-center rounded-card border border-paper/20 lg:aspect-[4/3]" aria-hidden="true">
-            <NsvlLogo variant="mark" tone="paper" width="48%" decorative />
+          <div className="overflow-hidden rounded-card border border-paper/20">
+            <SmartImage imageKey="concept/embroidery-detail" ratio="aspect-[16/9] lg:aspect-[4/3]" sizes="(max-width: 1023px) 100vw, 50vw" />
           </div>
           <div>
             <p className="eyebrow text-paper/75">Details</p>

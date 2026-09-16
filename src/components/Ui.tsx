@@ -79,7 +79,7 @@ export function SectionHeader({
     <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
       <div className="max-w-prose">
         {eyebrow && <p className="eyebrow mb-1.5">{eyebrow}</p>}
-        <Heading className={as === 'h1' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-[28px]'}>{title}</Heading>
+        <Heading className={as === 'h1' ? 'text-[2.5rem] sm:text-[3.25rem]' : 'text-[1.625rem] sm:text-[2rem]'}>{title}</Heading>
         {description && <p className="mt-2 max-w-xl text-[16px] leading-relaxed text-ink-soft">{description}</p>}
       </div>
       {href && linkLabel && (
@@ -109,8 +109,8 @@ export function PageHeader({
   return (
     <header className="border-b border-paper-edge pb-8">
       {eyebrow && <p className="eyebrow mb-2">{eyebrow}</p>}
-      <h1 className="max-w-3xl text-3xl sm:text-4xl lg:text-[44px]">{title}</h1>
-      {intro && <p className="mt-3 max-w-prose text-lg leading-relaxed text-ink-soft">{intro}</p>}
+      <h1 className="max-w-4xl text-[2.5rem] leading-[0.98] sm:text-[3.25rem] lg:text-[4rem]">{title}</h1>
+      {intro && <p className="mt-4 max-w-prose text-[17px] leading-relaxed text-ink-soft sm:text-lead">{intro}</p>}
       {meta && <div className="mt-4">{meta}</div>}
     </header>
   );

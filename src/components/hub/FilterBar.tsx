@@ -36,7 +36,13 @@ export default function FilterBar({
   label?: string;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const keyboard = useRef(false);
   const applied = fields.some((f) => f.value);
+
+  // Pointer changes apply immediately. Keyboard users step through options with
+  // the arrows, which fires change on every step in some browsers, so for them
+  // the form submits on Enter or when focus leaves the control instead.
+  const submit = () => formRef.current?.requestSubmit();
 
   return (
     <form
@@ -62,7 +68,22 @@ export default function FilterBar({
                 id={id}
                 name={field.name}
                 defaultValue={field.value ?? ''}
-                onChange={() => formRef.current?.requestSubmit()}
+                onChange={() => {
+                  if (!keyboard.current) submit();
+                }}
+                onKeyDown={(e) => {
+                  keyboard.current = true;
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    submit();
+                  }
+                }}
+                onPointerDown={() => {
+                  keyboard.current = false;
+                }}
+                onBlur={(e) => {
+                  if (keyboard.current && e.currentTarget.value !== (field.value ?? '')) submit();
+                }}
                 className="block h-10 w-full appearance-none bg-transparent px-3 pr-8 text-[15px] font-semibold text-ink md:h-11"
               >
                 <option value="">{field.anyLabel}</option>

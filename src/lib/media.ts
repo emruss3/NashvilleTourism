@@ -16,6 +16,7 @@
  * This module is imported by client components — never import node:fs/path here.
  */
 
+import { conceptMedia } from './media-concept';
 import { adobePurchaseMedia, restoredMedia } from './media-restored';
 import type { MediaAsset, VideoAsset } from './media-types';
 
@@ -835,6 +836,8 @@ const baseImages = {
 export const images = {
   ...baseImages,
   ...restoredMedia,
+  // Owner-approved concept illustrations from the brand handoff boards.
+  ...conceptMedia,
   // Adobe purchase stubs only when the licensed file is present on disk.
   ...adobeReadyMedia,
 } as const;
@@ -911,6 +914,7 @@ const CLEARED_OR_RESTORED = new Set<string>([
   'hero/video',
   ...OWNED_AND_OPEN_BASE,
   ...Object.keys(restoredMedia),
+  ...Object.keys(conceptMedia),
 ]);
 
 const unclearedPresentKeys = TEMP_ALLOW_UNCLEARED_MEDIA
@@ -932,6 +936,8 @@ export const AVAILABLE_MEDIA: ReadonlySet<string> = new Set<string>(
         // Adobe purchase-required keys are intentionally omitted until licensed files land.
         ...OWNED_AND_OPEN_BASE,
         ...Object.keys(restoredMedia),
+        // Concept illustrations: owner-approved, labelled as illustration in alt text.
+        ...Object.keys(conceptMedia),
       ],
 );
 

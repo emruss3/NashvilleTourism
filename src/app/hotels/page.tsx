@@ -88,7 +88,7 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
         support="Find the right base for your Nashville trip. Great rooms. Better neighborhoods."
         media={
           <div className="overflow-hidden rounded-card bg-ink">
-            <SmartImage imageKey="hotels/1-hotel-nashville" ratio="aspect-[16/10] lg:aspect-auto lg:h-[440px]" sizes="(max-width: 1023px) 100vw, 58vw" priority />
+            <SmartImage imageKey="concept/hotel-room-skyline" ratio="aspect-[16/10] lg:aspect-auto lg:h-[440px]" sizes="(max-width: 1023px) 100vw, 58vw" priority />
           </div>
         }
       >
@@ -181,8 +181,8 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
           </div>
           <ul className="grid gap-3 sm:grid-cols-2">
             {[
-              { eyebrow: 'Hotel situations', title: 'More than a stay.', body: 'Boutique downtown, group rentals, pools, value in Midtown: six routes to the right room.', href: '/where-to-stay/', image: 'stay/boutique-hotels-downtown' as const },
-              { eyebrow: 'Plan from this stay', title: 'Build the trip around your hotel.', body: 'Tell the planner where you are sleeping and it keeps the days close to home.', href: '/plan/', image: 'stay/walkable-to-broadway' as const },
+              { eyebrow: 'Hotel situations', title: 'More than a stay.', body: 'Boutique downtown, group rentals, pools, value in Midtown: six routes to the right room.', href: '/where-to-stay/', image: 'concept/hotel-morning' as const },
+              { eyebrow: 'Plan from this stay', title: 'Build the trip around your hotel.', body: 'Tell the planner where you are sleeping and it keeps the days close to home.', href: '/plan/', image: 'concept/rooftop-lounge' as const },
             ].map((tile) => (
               <li key={tile.href}>
                 <Link href={tile.href} className="group relative block overflow-hidden rounded-card bg-ink text-paper">
@@ -215,7 +215,7 @@ function HotelRow({ hotel }: { hotel: Hotel }) {
     <article className={`grid gap-4 py-5 ${hotel.image ? 'md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-8' : ''}`}>
       {hotel.image ? (
         <div className="overflow-hidden rounded-card bg-ink">
-          <ContentImage image={hotel.image} ratio="aspect-[16/10] md:aspect-[4/3]" sizes="(max-width: 767px) 100vw, 40vw" />
+          <ContentImage image={hotel.image} ratio="aspect-[16/9] md:aspect-[4/3]" sizes="(max-width: 767px) 100vw, 40vw" />
         </div>
       ) : null}
       <div className="flex flex-col">

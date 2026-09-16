@@ -15,7 +15,7 @@ import { useEffect, useState } from 'react';
  * one yet, so the bar is present on every route under 768px.
  */
 const ITEMS = [
-  { label: 'Explore', href: '/explore/', match: ['/explore', '/neighborhoods', '/restaurants', '/things-to-do', '/music', '/where-to-stay', '/tours', '/guides'], icon: CompassIcon },
+  { label: 'Explore', href: '/explore/', match: ['/explore', '/neighborhoods', '/restaurants', '/things-to-do', '/music', '/where-to-stay', '/hotels', '/tours', '/guides'], icon: CompassIcon },
   { label: 'Events', href: '/events/', match: ['/events', '/live-music-tonight'], icon: CalendarIcon },
   { label: 'Shop', href: '/shop/', match: ['/shop'], icon: BagIcon },
   { label: 'Plan', href: '/plan/', match: ['/plan', '/weekend'], icon: PlanIcon },

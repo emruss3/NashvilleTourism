@@ -22,6 +22,18 @@ export const revalidate = 1800;
 
 type Params = Record<string, string | string[] | undefined>;
 
+/** Every requested page family is reachable from Explore (PAGE-LAYOUTS.md §Shared frame). */
+const CATEGORIES = [
+  { label: 'Restaurants', href: '/restaurants/' },
+  { label: 'Tours', href: '/tours/' },
+  { label: 'Neighborhoods', href: '/neighborhoods/' },
+  { label: 'Things to do', href: '/things-to-do/' },
+  { label: 'Events', href: '/events/' },
+  { label: 'Hotels', href: '/hotels/' },
+  { label: 'Shop', href: '/shop/' },
+  { label: 'Plan your trip', href: '/plan/' },
+] as const;
+
 export async function generateMetadata(props: { searchParams?: Promise<Params> }) {
   const query = parseExploreQuery((await props.searchParams) ?? {});
   const filtered = hasFilters(query);
@@ -78,6 +90,18 @@ export default async function ExplorePage(props: { searchParams?: Promise<Params
       <div className="rounded-card border border-paper-edge bg-paper-sunk p-4 sm:p-6">
         <DiscoveryForm variant="explore" initial={query} />
       </div>
+
+      <nav aria-label="Explore by category" className="mt-4">
+        <ul className="flex flex-wrap gap-2">
+          {CATEGORIES.map((c) => (
+            <li key={c.href}>
+              <Link href={c.href} className="inline-flex min-h-11 items-center rounded border border-paper-edge px-4 text-[15px] font-semibold text-ink hover:border-ink">
+                {c.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
       <div className="mt-8 flex flex-wrap items-baseline justify-between gap-3 border-b border-paper-edge pb-3">
         <p className="text-[15px] text-ink" aria-live="polite">

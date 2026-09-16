@@ -64,12 +64,12 @@ export default async function PlanPage(props: { searchParams?: Promise<{ occasio
         media={
           <MediaPair
             className="hidden lg:grid"
-            primary={<SmartImage imageKey="editorial/rooftop-party" ratio="aspect-[4/3] lg:aspect-auto lg:h-[400px]" sizes="40vw" priority />}
-            secondary={<SmartImage imageKey="editorial/private-events" ratio="aspect-[3/4] lg:aspect-auto lg:h-[400px]" sizes="25vw" priority />}
+            primary={<SmartImage imageKey="concept/friends-patio" ratio="aspect-[4/3] lg:aspect-auto lg:h-[400px]" sizes="40vw" priority />}
+            secondary={<SmartImage imageKey="concept/group-toast" ratio="aspect-[3/4] lg:aspect-auto lg:h-[400px]" sizes="25vw" priority />}
           />
         }
       >
-        <p className="text-[15px] text-ink-soft">
+        <p className="hidden text-[15px] text-ink-soft lg:block">
           Different groups, one good plan. Tell us about your crew and we build a day-by-day draft from real places, with the right mix of music, food, experiences and local favorites.
         </p>
       </PageIntro>
