@@ -3,19 +3,20 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { exploreNav, primaryNav, secondaryNav, site } from '@/lib/site';
+import { exploreNav, planNav, primaryNav, secondaryNav, site } from '@/lib/site';
 import { BagIcon } from './Icons';
 import Wordmark, { NsvlMark } from './Wordmark';
 
 /**
  * Site header (HOMEPAGE.md §1).
  *
- * Desktop: an editorial masthead with the centered lockup, search on the
- * right, and one row of top-level navigation: Explore, Events, Shop, Plan
- * your trip. Explore is a link to the discovery page and also opens a
- * disclosure listing Restaurants, Tours, Neighborhoods, Things to do and
- * Hotels, so every category is one click from any page. The masthead
- * scrolls away and a slim sticky bar takes over.
+ * Desktop: an editorial masthead with the centered lockup, the utilities
+ * top right (the boxed "Plan your trip" call to action, then the bag at the
+ * far right), and one row of top-level navigation: Explore, Events, Music,
+ * Hotels, Shop, with Shop at the far right. There is no search icon in the
+ * header; search lives on the pages themselves. Explore is a link to the discovery page and also opens
+ * a disclosure listing Restaurants, Tours, Neighborhoods, Things to do and
+ * Hotels. The masthead scrolls away and a slim sticky bar takes over.
  *
  * Under 768px (MOBILE-FIRST.md): one compact 64px sticky row with the menu
  * and the standalone NSVL mark. The menu lists the Explore categories first,
@@ -39,6 +40,7 @@ export default function Header() {
   const exploreActive = pathname.startsWith('/explore') || exploreNav.some((c) => pathname.startsWith(c.href.replace(/\/$/, '')));
   const isActive = (href: string) => {
     if (href === '/explore/') return exploreActive;
+    if (href === '/music/') return pathname.startsWith('/music') || pathname.startsWith('/live-music');
     return pathname === href || pathname.startsWith(href);
   };
 
@@ -185,14 +187,8 @@ export default function Header() {
       <div ref={mastheadRef} className="hidden border-b border-paper-edge bg-paper lg:block">
         <div className="shell relative flex flex-col items-center pb-3 pt-5">
           <Wordmark width={300} />
-          <div className="absolute right-[var(--page-gutter)] top-5 flex items-center gap-1">
-            <Link
-              href="/search/"
-              className="inline-flex h-11 w-11 items-center justify-center rounded text-ink transition-colors hover:bg-paper-sunk"
-              aria-label="Search Nashville.com"
-            >
-              <SearchIcon />
-            </Link>
+          <div className="absolute right-[var(--page-gutter)] top-5 flex items-center gap-2">
+            <PlanBox active={isActive(planNav.href)} />
             <BagLink />
           </div>
           <nav aria-label="Primary" className="mt-3">
@@ -224,14 +220,7 @@ export default function Header() {
               </li>
             ))}
           </ul>
-          <Link
-            href="/search/"
-            className="inline-flex h-11 w-11 items-center justify-center rounded text-ink hover:bg-paper-sunk"
-            aria-label="Search Nashville.com"
-            tabIndex={condensed ? 0 : -1}
-          >
-            <SearchIcon />
-          </Link>
+          <PlanBox active={isActive(planNav.href)} compact tabbable={condensed} />
           <BagLink tabbable={condensed} />
         </div>
       </div>
@@ -286,9 +275,7 @@ export default function Header() {
                       </li>
                     );
                   })}
-                  {primaryNav
-                    .filter((item) => item.href !== '/explore/')
-                    .map((item) => {
+                  {[...primaryNav.filter((item) => item.href !== '/explore/' && item.href !== '/hotels/'), planNav].map((item) => {
                       const active = isActive(item.href);
                       return (
                         <li key={item.href}>
@@ -332,6 +319,22 @@ export default function Header() {
   );
 }
 
+/** Boxed "Plan your trip" call to action in the top-right utilities. */
+function PlanBox({ active, compact = false, tabbable = true }: { active: boolean; compact?: boolean; tabbable?: boolean }) {
+  return (
+    <Link
+      href={planNav.href}
+      aria-current={active ? 'page' : undefined}
+      className={`inline-flex items-center justify-center whitespace-nowrap rounded border font-sans font-semibold transition-colors ${
+        compact ? 'h-9 px-3.5 text-[13px]' : 'h-11 px-4 text-[15px]'
+      } ${active ? 'border-ink bg-ink text-paper' : 'border-ink bg-paper text-ink hover:bg-ink hover:text-paper'}`}
+      tabIndex={tabbable ? 0 : -1}
+    >
+      {planNav.label}
+    </Link>
+  );
+}
+
 /** Shopping bag, top right on every header variant. Opens the shop until a cart exists. */
 function BagLink({ tabbable = true }: { tabbable?: boolean }) {
   return (
@@ -354,14 +357,6 @@ function Chevron({ open }: { open: boolean }) {
   );
 }
 
-function SearchIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.8" />
-      <path d="m13.5 13.5 3.5 3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 function MenuIcon({ open }: { open: boolean }) {
   return (

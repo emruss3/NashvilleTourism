@@ -119,15 +119,19 @@ export const exploreNav = [
   { label: 'Hotels', href: '/hotels/' },
 ] as const;
 
+/** Header row, left to right; Shop stays at the far right. */
 export const primaryNav = [
   { label: 'Explore', href: '/explore/' },
   { label: 'Events', href: '/events/' },
+  { label: 'Music', href: '/music/' },
+  { label: 'Hotels', href: '/hotels/' },
   { label: 'Shop', href: '/shop/' },
-  { label: 'Plan your trip', href: '/plan/' },
 ] as const;
 
+/** Boxed call to action in the header's top-right utilities. */
+export const planNav = { label: 'Plan your trip', href: '/plan/' } as const;
+
 export const secondaryNav = [
-  { label: 'Music venues', href: '/music/' },
   { label: 'Live music tonight', href: '/live-music-tonight/' },
   { label: 'Journal', href: '/guides/' },
   { label: 'Where to stay', href: '/where-to-stay/' },
