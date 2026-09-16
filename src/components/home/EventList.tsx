@@ -95,7 +95,19 @@ export default function EventList({ events, limit = 4 }: { events: LiveEvent[]; 
                   : null;
               const titleClass = 'text-[17px] font-bold leading-snug text-ink underline-offset-[0.2em] hover:underline';
               return (
-                <li key={`${event.source}-${event.id}`} className="flex gap-4 py-4">
+                <li key={`${event.source}-${event.id}`} className="flex gap-3 py-4 sm:gap-4">
+                  {event.imageUrl && !event.imageIsFallback ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={event.imageUrl}
+                      alt=""
+                      width={96}
+                      height={64}
+                      loading="lazy"
+                      decoding="async"
+                      className="hidden h-16 w-24 shrink-0 rounded-card object-cover sm:block"
+                    />
+                  ) : null}
                   <div className="flex w-12 shrink-0 flex-col items-center justify-center text-center">
                     <span className="text-2xs font-semibold uppercase tracking-[0.14em] text-ink">{monthAbbr(event.date)}</span>
                     <span className="text-2xl font-bold leading-none text-ink">{dayNum(event.date)}</span>
@@ -129,6 +141,17 @@ export default function EventList({ events, limit = 4 }: { events: LiveEvent[]; 
                       {event.time ? ` · ${formatTime(event.time)}` : ''}
                       {price ? ` · ${price}` : ''}
                     </p>
+                    {(event.segment || event.genre) && (
+                      <p className="mt-1.5 flex flex-wrap gap-1.5">
+                        {[event.segment, event.genre]
+                          .filter((v, i, arr): v is string => Boolean(v) && arr.indexOf(v) === i)
+                          .map((tag) => (
+                            <span key={tag} className="rounded border border-paper-edge px-1.5 py-0.5 text-2xs font-medium text-ink-soft">
+                              {tag}
+                            </span>
+                          ))}
+                      </p>
+                    )}
                   </div>
                 </li>
               );

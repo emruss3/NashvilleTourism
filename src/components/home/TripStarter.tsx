@@ -6,9 +6,9 @@ import { site } from '@/lib/site';
  * and party size to /plan/, which asks interests and pace next. The date
  * inputs are real controls, not a decorative selector.
  */
-export default function TripStarter() {
+export default function TripStarter({ className = '' }: { className?: string }) {
   return (
-    <section className="section border-y border-paper-edge bg-paper-sunk" aria-labelledby="trip-title">
+    <section className={`section border-y border-paper-edge bg-paper-sunk ${className}`} aria-labelledby="trip-title">
       <div className="shell grid gap-8 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-16">
         <div>
           <p className="eyebrow">Plan your trip</p>
