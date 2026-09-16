@@ -15,6 +15,7 @@ export default function BookingLink({
   partner,
   placement,
   variant = 'primary',
+  className = 'w-full',
 }: {
   url?: string;
   label: string;
@@ -24,6 +25,7 @@ export default function BookingLink({
   partner?: string;
   placement?: 'editorial' | 'sponsored' | 'affiliate';
   variant?: 'primary' | 'secondary';
+  className?: string;
 }) {
   if (!url) {
     return (
@@ -38,7 +40,7 @@ export default function BookingLink({
       href={url}
       target="_blank"
       rel="noopener noreferrer sponsored"
-      className={`${variant === 'primary' ? 'btn-primary' : 'btn-secondary'} w-full`}
+      className={`${variant === 'primary' ? 'btn-primary' : 'btn-secondary'} ${className}`}
       onClick={() => track(event, { item_id: slug, item_name: name, partner, placement })}
     >
       {label}

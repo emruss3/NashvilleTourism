@@ -1,7 +1,11 @@
 import Link from 'next/link';
+import NewsletterForm from '@/components/NewsletterForm';
 import { Breadcrumbs } from '@/components/Ui';
-import { NsvlMark } from '@/components/Wordmark';
+import { NsvlLogo, NsvlMark } from '@/components/Wordmark';
+import { site } from '@/lib/site';
 import { buildMetadata } from '@/lib/seo';
+
+type Params = Record<string, string | string[] | undefined>;
 
 export const metadata = buildMetadata({
   title: 'Shop NSVL',
@@ -10,97 +14,206 @@ export const metadata = buildMetadata({
   path: '/shop/',
 });
 
-/**
- * Shop collection (SITE-LAYOUT.md §Shop, BRAND-GUIDE.md §8).
- *
- * INTEGRATION STATUS: no commerce provider is connected, so there is no
- * bag, no checkout, and no prices; the provider is authoritative for price
- * and inventory and none exists yet. The three core products are listed
- * descriptively with an honest "not yet on sale" state. No product
- * photography has been supplied; each card shows the mark on its garment
- * color instead of a generated mockup.
- */
-const CORE_PRODUCTS = [
-  {
-    slug: 'charcoal-cap',
-    name: 'Charcoal cap',
-    detail: 'Paper embroidery on the front, 55–65mm wide.',
-    ground: 'ink',
-  },
-  {
-    slug: 'paper-tee',
-    name: 'Paper tee',
-    detail: 'Charcoal mark, left chest or centered.',
-    ground: 'paper',
-  },
-  {
-    slug: 'heavyweight-charcoal-tee',
-    name: 'Heavyweight charcoal tee',
-    detail: 'Paper mark, centered chest.',
-    ground: 'ink',
-  },
+const CATEGORIES = [
+  { value: 'all', label: 'All' },
+  { value: 'headwear', label: 'Headwear' },
+  { value: 'tees', label: 'Tees' },
+  { value: 'layers', label: 'Layers' },
+  { value: 'accessories', label: 'Accessories' },
 ] as const;
 
-export default function ShopPage() {
-  return (
-    <div className="shell pb-20">
-      <Breadcrumbs trail={[{ name: 'Shop', href: '/shop/' }]} />
-      <header className="pb-8">
-        <p className="eyebrow">Shop NSVL</p>
-        <h1 className="mt-2 text-[2.5rem] sm:text-[3rem]">Good here. Good anywhere.</h1>
-        <p className="mt-3 max-w-prose text-lead text-ink-soft">
-          Nashville, worn your way. Three core pieces in Paper White and Charcoal Ink, named for what they are.
-        </p>
-      </header>
+type Category = (typeof CATEGORIES)[number]['value'];
 
-      <div className="rounded-card border border-paper-edge bg-paper-sunk px-5 py-4">
-        <p className="text-[15px] text-ink">
-          <strong className="font-semibold">Not on sale yet.</strong> Prices and sizes appear once the store is
-          connected. We do not show made-up prices or countdowns in the meantime.
-        </p>
+/**
+ * Shop: a fashion storefront (page-designs/README.md §07, BRAND-GUIDE.md §8).
+ *
+ * INTEGRATION STATUS: no commerce provider is connected, so there is no bag,
+ * no checkout and no prices; the provider is authoritative for price and
+ * inventory and none exists yet. The three core products are listed
+ * descriptively with an honest "not yet on sale" state. No campaign or
+ * product photography has been supplied; the campaign panel is a still-life
+ * of the mark itself and each product shows the mark on its garment colour,
+ * never a generated mockup or model.
+ */
+const CORE_PRODUCTS = [
+  { slug: 'charcoal-cap', name: 'Charcoal cap', category: 'headwear' as Category, detail: 'Paper embroidery on the front, 55–65mm wide.', ground: 'ink' as const },
+  { slug: 'paper-tee', name: 'Paper tee', category: 'tees' as Category, detail: 'Charcoal mark, left chest or centered.', ground: 'paper' as const },
+  { slug: 'heavyweight-charcoal-tee', name: 'Heavyweight charcoal tee', category: 'tees' as Category, detail: 'Paper mark, centered chest.', ground: 'ink' as const },
+];
+
+export default async function ShopPage(props: { searchParams?: Promise<Params> }) {
+  const params = (await props.searchParams) ?? {};
+  const raw = params.category;
+  const requested = (Array.isArray(raw) ? raw[0] : raw) ?? 'all';
+  const category: Category = CATEGORIES.some((c) => c.value === requested) ? (requested as Category) : 'all';
+  const products = category === 'all' ? CORE_PRODUCTS : CORE_PRODUCTS.filter((p) => p.category === category);
+  const available = new Set(CORE_PRODUCTS.map((p) => p.category));
+
+  return (
+    <>
+      <div className="shell">
+        <Breadcrumbs trail={[{ name: 'Shop', href: '/shop/' }]} />
       </div>
 
-      <section className="mt-10" aria-labelledby="shop-products-heading">
-        <h2 id="shop-products-heading" className="text-[1.75rem]">
-          The first three
+      <section className="shell grid gap-4 pb-8 pt-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-stretch" aria-labelledby="shop-title">
+        <div className="order-2 grid grid-cols-[3fr_2fr] gap-2 lg:order-1">
+          <div className="flex aspect-[4/5] items-center justify-center rounded-card bg-ink lg:aspect-auto lg:min-h-[460px]" aria-hidden="true">
+            <NsvlLogo variant="lockup" tone="paper" width="62%" decorative />
+          </div>
+          <div className="flex flex-col justify-between rounded-card bg-paper-sunk p-4">
+            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">
+              NSVL apparel
+              <br />
+              First release
+            </p>
+            <NsvlMark width="70%" decorative className="self-end" />
+          </div>
+        </div>
+        <div className="order-1 flex flex-col justify-center lg:order-2 lg:pl-6">
+          <p className="eyebrow">NSVL apparel</p>
+          <h1 id="shop-title" className="mt-2 text-[2.5rem] leading-[0.98] sm:text-[3.25rem] lg:text-[4rem]">
+            Good here.
+            <br />
+            Good anywhere.
+          </h1>
+          <p className="mt-3 max-w-md text-[17px] text-ink-soft sm:text-lead">
+            Nashville, worn your way. Three core pieces in Paper White and Charcoal Ink, named for what they are.
+          </p>
+          <div className="mt-5 flex flex-wrap items-center gap-4">
+            <a href="#collection" className="btn-primary">
+              Shop the collection
+              <span aria-hidden="true">→</span>
+            </a>
+            <span className="inline-flex min-h-11 items-center rounded border border-paper-edge px-3 text-sm font-semibold text-ink-soft">Not on sale yet</span>
+          </div>
+        </div>
+      </section>
+
+      <nav aria-label="Shop by category" className="border-y border-paper-edge">
+        <div className="shell flex items-center gap-4">
+          <span className="hidden shrink-0 font-sans text-[15px] font-bold md:inline">Shop by category</span>
+          <ul className="flex flex-1 gap-1 overflow-x-auto md:justify-center md:gap-4">
+            {CATEGORIES.map((c) => {
+              const active = c.value === category;
+              return (
+                <li key={c.value} className="shrink-0">
+                  <Link
+                    href={c.value === 'all' ? '/shop/#collection' : `/shop/?category=${c.value}#collection`}
+                    aria-current={active ? 'true' : undefined}
+                    className={`inline-flex min-h-12 items-center border-b-2 px-3 text-[15px] font-semibold text-ink ${active ? 'border-ink' : 'border-transparent hover:border-ink/40'}`}
+                  >
+                    {c.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </nav>
+
+      <section id="collection" className="shell section scroll-mt-20" aria-labelledby="collection-title">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <h2 id="collection-title" className="text-[1.625rem] sm:text-[2rem]">
+            {category === 'all' ? 'The first three.' : CATEGORIES.find((c) => c.value === category)?.label}
+          </h2>
+          <p className="text-[15px] text-ink-soft">Prices, sizes and colours appear once the store is connected. No made-up prices, no countdowns.</p>
+        </div>
+
+        {products.length === 0 ? (
+          <div className="mt-6 rounded-card border border-dashed border-paper-edge p-8 text-center">
+            <p className="text-[17px] font-semibold">
+              {CATEGORIES.find((c) => c.value === category)?.label} are not in the first release.
+            </p>
+            <p className="mx-auto mt-2 max-w-md text-[15px] text-ink-soft">The first three pieces are a cap and two tees. Browse those, or hear about new releases first.</p>
+            <div className="mt-5 flex flex-wrap justify-center gap-2">
+              {[...available].map((c) => (
+                <Link key={c} href={`/shop/?category=${c}#collection`} className="btn-secondary">
+                  {CATEGORIES.find((x) => x.value === c)?.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <ul className="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {products.map((product) => (
+              <li key={product.slug}>
+                <article className="flex h-full flex-col">
+                  <div className={`flex aspect-[4/5] items-center justify-center rounded-card ${product.ground === 'ink' ? 'bg-ink' : 'bg-paper-sunk'}`} aria-hidden="true">
+                    <NsvlMark tone={product.ground === 'ink' ? 'paper' : 'ink'} width="44%" decorative />
+                  </div>
+                  <h3 className="mt-3 font-sans text-[16px] font-bold sm:text-[17px]">{product.name}</h3>
+                  <p className="mt-0.5 text-sm text-ink-soft">{product.detail}</p>
+                  <p className="mt-auto pt-2 text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">Coming soon</p>
+                </article>
+              </li>
+            ))}
+            {category === 'all' ? (
+              <li className="col-span-2 lg:col-span-1">
+                <div className="flex h-full flex-col justify-between rounded-card border border-paper-edge p-4">
+                  <div>
+                    <p className="eyebrow">New releases</p>
+                    <h3 className="mt-1 text-[1.375rem]">Hear when it opens.</h3>
+                    <p className="mt-1 text-sm text-ink-soft">{site.newsletter.name} carries the first release.</p>
+                  </div>
+                  <div className="mt-4">
+                    <NewsletterForm location="shop" />
+                  </div>
+                </div>
+              </li>
+            ) : null}
+          </ul>
+        )}
+      </section>
+
+      <section className="bg-ink text-paper" aria-labelledby="story-title">
+        <div className="shell section grid gap-8 lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)] lg:items-center lg:gap-12">
+          <div className="flex aspect-[16/9] items-center justify-center rounded-card border border-paper/20 lg:aspect-[4/3]" aria-hidden="true">
+            <NsvlLogo variant="mark" tone="paper" width="48%" decorative />
+          </div>
+          <div>
+            <p className="eyebrow text-paper/75">Details</p>
+            <h2 id="story-title" className="mt-1 text-[2rem] text-paper sm:text-[2.5rem] lg:text-[3rem]">
+              Made to go with you.
+            </h2>
+            <p className="mt-3 max-w-md text-[16px] text-paper/80">Two colours, one mark, descriptive names. Everything else is left to the garment.</p>
+            <dl className="mt-6 grid gap-5 sm:grid-cols-3">
+              {[
+                ['Two colours', 'Paper White and Charcoal Ink, inside and out, down to the woven label.'],
+                ['Embroidered mark', 'Cap front 55–65mm. Tee left chest 70–90mm or centred chest 220–280mm.'],
+                ['Honest names', 'No fake collaborations, no fake scarcity, no unverified bestseller tags.'],
+              ].map(([term, detail]) => (
+                <div key={term} className="border-t border-paper/25 pt-3">
+                  <dt className="text-2xs font-semibold uppercase tracking-[0.14em] text-paper/75">{term}</dt>
+                  <dd className="mt-1 text-sm text-paper/90">{detail}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section className="shell section" aria-labelledby="support-title">
+        <h2 id="support-title" className="text-[1.625rem] sm:text-[2rem]">
+          Fit and confidence.
         </h2>
-        <ul className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {CORE_PRODUCTS.map((product) => (
-            <li key={product.slug}>
-              <article className="card flex h-full flex-col">
-                <div
-                  className={`flex aspect-[4/5] items-center justify-center rounded-t-card ${
-                    product.ground === 'ink' ? 'bg-ink' : 'bg-paper-sunk'
-                  }`}
-                  aria-hidden="true"
-                >
-                  <NsvlMark tone={product.ground === 'ink' ? 'paper' : 'ink'} width="44%" decorative />
-                </div>
-                <div className="flex flex-1 flex-col gap-1.5 p-4">
-                  <h3 className="font-sans text-[17px] font-bold">{product.name}</h3>
-                  <p className="text-sm text-ink-soft">{product.detail}</p>
-                  <p className="mt-auto pt-3 text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">
-                    Coming soon
-                  </p>
-                </div>
-              </article>
+        <ul className="mt-4 grid gap-3 md:grid-cols-3">
+          {[
+            { title: 'Size guide', body: 'Measurements, materials and care arrive with the first release, checked against a sew-out at real embroidery scale.' },
+            { title: 'Shipping and returns', body: 'Policies are published when the store connects. We will not promise delivery times we cannot keep.' },
+            { title: 'Questions', body: 'Ask about the release, sizing or wholesale.', href: '/contact/', linkLabel: 'Contact us' },
+          ].map((item) => (
+            <li key={item.title} className="rounded-card border border-paper-edge p-4">
+              <h3 className="font-sans text-[17px] font-bold">{item.title}</h3>
+              <p className="mt-1 text-[15px] text-ink-soft">{item.body}</p>
+              {item.href ? (
+                <Link href={item.href} className="mt-2 inline-flex min-h-11 items-center gap-1.5 text-[15px] font-semibold text-ink underline-offset-[0.2em] hover:underline">
+                  {item.linkLabel} <span aria-hidden="true">→</span>
+                </Link>
+              ) : null}
             </li>
           ))}
         </ul>
       </section>
-
-      <section className="mt-14 grid gap-4 rounded-card border border-paper-edge p-6 sm:grid-cols-[1fr_auto] sm:items-center sm:p-8">
-        <div>
-          <h2 className="text-[1.75rem]">Hear when it opens.</h2>
-          <p className="mt-2 max-w-prose text-[15px] text-ink-soft">
-            The weekly edit will carry the first release. No mailing list exists yet; the signup page says so
-            plainly.
-          </p>
-        </div>
-        <Link href="/newsletter/" className="btn-primary">
-          The weekly edit
-        </Link>
-      </section>
-    </div>
+    </>
   );
 }

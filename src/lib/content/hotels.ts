@@ -1,4 +1,5 @@
 import type { Hotel } from '../types';
+import { listingImageFromKey, type ImageKey } from '../media';
 
 const checked = '2026-08-07';
 
@@ -15,7 +16,15 @@ const sharedSourceNote =
  * booking layer. No Booking.com property IDs, live rates, availability,
  * ratings, or reviews are fabricated here.
  */
-export const hotels: Hotel[] = [
+/** Cleared exact-property photography. Everything else renders text-only, never a stock room. */
+const HOTEL_IMAGES: Record<string, ImageKey> = {
+  '1-hotel-nashville': 'hotels/1-hotel-nashville',
+  'the-joseph-nashville': 'hotels/the-joseph',
+  'four-seasons-hotel-nashville': 'hotels/four-seasons-nashville',
+  'grand-hyatt-nashville': 'hotels/grand-hyatt-nashville',
+};
+
+const hotelsBase: Hotel[] = [
   {
     kind: 'hotel',
     slug: '1-hotel-nashville',
@@ -381,6 +390,12 @@ export const hotels: Hotel[] = [
     placement: 'affiliate',
   },
 ];
+
+export const hotels: Hotel[] = hotelsBase.map((h) => {
+  const key = HOTEL_IMAGES[h.slug];
+  const image = key ? listingImageFromKey(key) : undefined;
+  return image ? { ...h, image } : h;
+});
 
 export function getHotel(slug: string): Hotel | undefined {
   return hotels.find((hotel) => hotel.slug === slug);

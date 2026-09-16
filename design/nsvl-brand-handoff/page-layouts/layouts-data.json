@@ -1,0 +1,380 @@
+[
+  {
+    "key": "restaurants",
+    "name": "Restaurants",
+    "head": "A good table. A better night.",
+    "sub": "Find your next meal by neighborhood, cuisine or occasion.",
+    "search": "Restaurant, cuisine or neighborhood",
+    "filters": [
+      "Neighborhood",
+      "Cuisine",
+      "Price",
+      "Occasion",
+      "More filters"
+    ],
+    "cta": "Find restaurants",
+    "layout": "split",
+    "sections": [
+      [
+        "Search + intent",
+        "Compact title and search first. Quick links: Brunch, Date night, With a group, Late night. Date, time and party size appear only when a working reservation integration can return availability."
+      ],
+      [
+        "Restaurant results",
+        "Two-column cards beside an optional map on desktop. Each card: verified photograph, name, cuisine, neighborhood, price band, concise editorial reason to go, Save and View restaurant. Three or four initial results before supplemental editorial content."
+      ],
+      [
+        "Editorial collections",
+        "Three story cards: A long lunch, Dinner before the show, A table for everyone. Each opens a curated collection, not an arbitrary search result."
+      ],
+      [
+        "Eat by neighborhood",
+        "Compact links into dining-filtered neighborhood guides."
+      ],
+      [
+        "Build the evening",
+        "Link a saved restaurant to nearby events and add it to the itinerary. No implied reservation."
+      ]
+    ],
+    "mobile": "Search \u2192 occasion shortcuts \u2192 Filters / Map \u2192 single-column restaurant cards \u2192 collections \u2192 neighborhood links \u2192 plan prompt. Map replaces the list when selected; retain filters and scroll.",
+    "detail": "Restaurant detail: name + cuisine/neighborhood/price band \u2192 gallery \u2192 editorial summary \u2192 menu link and practical details \u2192 reservation panel if connected, otherwise Visit website \u2192 address/map \u2192 nearby activities. Reservation inputs: date, time, party size. Show real bookable times only. Sticky Reserve action only with a working integration; otherwise use View website.",
+    "fields": "Name; verified image; cuisine; address; neighborhood; price-band source; website/menu URLs; hours with source/review date; reservation provider and live availability when integrated.",
+    "empty": "No matches: retain filters, offer Clear filters and nearby neighborhoods. Provider failure: say reservations are unavailable and provide the verified restaurant website; never manufacture times.",
+    "cards": [
+      "Restaurant name|Cuisine \u00b7 Neighborhood \u00b7 Price band",
+      "Restaurant name|Why we would go \u00b7 View restaurant",
+      "Restaurant name|Menu \u00b7 Save for later"
+    ]
+  },
+  {
+    "key": "tours",
+    "name": "Tours",
+    "head": "Go beyond the usual.",
+    "sub": "Find an experience worth making time for.",
+    "search": "Tour, attraction or experience",
+    "filters": [
+      "Date",
+      "Travelers",
+      "Category",
+      "Duration",
+      "Price"
+    ],
+    "cta": "Find tours",
+    "layout": "grid",
+    "sections": [
+      [
+        "Search + bookable intent",
+        "Title, date, traveler count and category. Useful category links: Music, Food, Walking, History, On the water. Start with concise copy rather than a tall hero."
+      ],
+      [
+        "Experience results",
+        "Three-column desktop grid. Cards: image, title, operator/provider, duration, departure area, sourced rating/count if available, current from-price with currency and per-person/per-group unit. Actions: View tour and Save."
+      ],
+      [
+        "Featured experience",
+        "One wide editorial feature after the first results, chosen through a documented editorial rule; sponsorship labeled."
+      ],
+      [
+        "Compare by interest",
+        "Category tiles and accessible options where verified. Do not infer physical accessibility from a category."
+      ],
+      [
+        "Fit it into your trip",
+        "Show a suggested day grouping; add chosen tour to an itinerary with a reminder that saving is not booking."
+      ]
+    ],
+    "mobile": "Search/date summary \u2192 Filters \u2192 single-column experience cards \u2192 feature \u2192 categories \u2192 trip prompt. Show duration and price unit without opening a card.",
+    "detail": "Tour detail: title and gallery \u2192 highlights/duration \u2192 date/travelers selector \u2192 actual options and availability \u2192 inclusions/exclusions \u2192 meeting point \u2192 accessibility and cancellation terms \u2192 provider booking handoff. Sticky Check availability until an option is selected; then Continue to provider with known price/terms. Example cross-link: a venue guide can offer a Ryman tour only if a real provider product exists.",
+    "fields": "Provider product ID; title; operator; duration; images/license; departure location; supported dates/options; price/currency/unit; cancellation terms; accessibility facts; booking URL; freshness timestamp.",
+    "empty": "For sold-out dates, offer available alternate dates only if supplied by the provider. On API failure, keep editorial content and a truthful provider link; no invented bookable inventory.",
+    "cards": [
+      "Experience title|Duration \u00b7 Departure area",
+      "Experience title|Provider price \u00b7 per person",
+      "Experience title|View tour \u00b7 Save"
+    ]
+  },
+  {
+    "key": "neighborhoods",
+    "name": "Neighborhoods",
+    "head": "Find your corner.",
+    "sub": "Different neighborhoods. A closer Nashville.",
+    "search": "Find a neighborhood",
+    "filters": [
+      "Food",
+      "Music",
+      "Shopping",
+      "Arts",
+      "Browse all"
+    ],
+    "cta": "Explore neighborhoods",
+    "layout": "editorial",
+    "sections": [
+      [
+        "Neighborhood finder",
+        "Concise introduction and visible name search. Interest shortcuts filter recommendations. Optional city map opens on demand using verified geography."
+      ],
+      [
+        "Neighborhood directory",
+        "Three-column landscape card grid with real neighborhood photography, name, two or three descriptive tags and one sentence on character. All neighborhoods remain accessible through a full directory."
+      ],
+      [
+        "Featured half-day",
+        "Wide image plus a short neighborhood route: eat, explore, see a show. It is a curated suggestion, not a timed reservation."
+      ],
+      [
+        "Choose your base",
+        "Compare atmosphere and practical transport considerations; link to the hotels page with the neighborhood selected. Distances/travel estimates require sourced locations."
+      ],
+      [
+        "Keep exploring",
+        "Adjacent-neighborhood links and suggested guides, then Add a neighborhood to your trip."
+      ]
+    ],
+    "mobile": "Finder \u2192 optional map button \u2192 full-width neighborhood cards \u2192 featured half-day \u2192 choose-your-base comparison \u2192 onward guides. No swipe-only directory.",
+    "detail": "Neighborhood detail: title, signature image and short introduction \u2192 Eat / Do / Shop / Stay anchors \u2192 curated places \u2192 events in the neighborhood \u2192 half-day itinerary \u2192 getting there \u2192 nearby areas. Save individual places as well as the guide.",
+    "fields": "Stable neighborhood slug; verified boundaries or representative location; original description; licensed photos; tags; linked venues/restaurants/hotels/tours; reviewed transport information.",
+    "empty": "If a category has no verified items, omit that section with a useful link to the wider city directory. Do not populate missing places with generic invented listings.",
+    "cards": [
+      "East Nashville|Neighborhood photography \u00b7 Explore",
+      "Germantown|Neighborhood photography \u00b7 Explore",
+      "Wedgewood-Houston|Neighborhood photography \u00b7 Explore"
+    ]
+  },
+  {
+    "key": "things-to-do",
+    "name": "Things to do",
+    "head": "Make a day of it.",
+    "sub": "Find something that fits your kind of Nashville.",
+    "search": "Activity, attraction or interest",
+    "filters": [
+      "Interest",
+      "Neighborhood",
+      "Indoor / outdoor",
+      "Price",
+      "Family-friendly"
+    ],
+    "cta": "Explore things to do",
+    "layout": "editorial",
+    "sections": [
+      [
+        "Discovery shortcuts",
+        "Search plus visible intent links: Free things, With kids, Rainy day, First visit. These must map to verified content tags."
+      ],
+      [
+        "Browse activities",
+        "A mixed three-column grid of evergreen places, activities and attractions. Label type clearly: Attraction, Guide, Tour or Event. Cards show name, location, useful time commitment and View details / Save."
+      ],
+      [
+        "One good day",
+        "A curated morning/afternoon/evening route that can be copied into the planner. Clearly distinguish suggested order from booked times."
+      ],
+      [
+        "Do more of what you love",
+        "Music, food, art, outdoors and shopping collections with concise editorial context."
+      ],
+      [
+        "Happening during your trip",
+        "A small date-driven event module linked to Events; bookable experiences link to Tours. Avoid duplicating entire catalogs."
+      ]
+    ],
+    "mobile": "Search and intent links \u2192 filters \u2192 single-column mixed activity cards \u2192 one-day plan \u2192 interest collections \u2192 dated events.",
+    "detail": "Activity detail: title/type \u2192 photo \u2192 why go \u2192 practical details (address, hours, cost, accessibility where verified) \u2192 Save to trip \u2192 official site or relevant tour/ticket link \u2192 nearby places. Editorial guide detail uses a readable story layout with embedded linked place cards.",
+    "fields": "Content type; title; stable ID; verified location; tags; operating hours/review date; cost basis; time commitment source/editorial estimate; official/booking link; original editorial content.",
+    "empty": "No activity matches: keep choices visible and suggest broader interests. Unknown hours must say Check official hours, not Open now.",
+    "cards": [
+      "Activity or attraction|Type \u00b7 Neighborhood \u00b7 Save",
+      "Activity or attraction|Useful detail \u00b7 View details",
+      "Activity or attraction|Type \u00b7 Neighborhood \u00b7 Save"
+    ]
+  },
+  {
+    "key": "events",
+    "name": "Events",
+    "head": "Be there.",
+    "sub": "The shows, nights and moments worth going out for.",
+    "search": "Artist, event or venue",
+    "filters": [
+      "Tonight",
+      "This weekend",
+      "Choose dates",
+      "Genre",
+      "Venue"
+    ],
+    "cta": "Find events",
+    "layout": "list",
+    "sections": [
+      [
+        "Date-first search",
+        "Search artist/event/venue with Tonight, This weekend and date range shortcuts. Compute local dates in America/Chicago. Make active date range visible."
+      ],
+      [
+        "Chronological event list",
+        "Desktop uses full-width date-grouped rows with image, title, date/time, venue and sourced price/status; View event is primary and Save separate. Sort soonest by default; retain explicit sort when changed."
+      ],
+      [
+        "Venue discovery",
+        "Compact venue cards, each linking to upcoming events at that venue. Include relevant venue tours as separate experiences rather than event tickets."
+      ],
+      [
+        "Plan a night",
+        "Curated dinner + show + nearby stop links. Preserve the selected event when opening the planner."
+      ],
+      [
+        "Weekly edit",
+        "Optional email signup after useful results, never an entry popup."
+      ]
+    ],
+    "mobile": "Search \u2192 date shortcuts \u2192 Filters \u2192 chronological rows grouped by day \u2192 venues \u2192 plan-a-night prompt. Calendar is optional; a cramped month grid is not the default.",
+    "detail": "Event detail: title, date/time, status and venue \u2192 ticket CTA + Save \u2192 image \u2192 event description \u2192 venue/access information \u2192 nearby restaurants/hotels \u2192 related events. Contextual bottom ticket bar replaces bottom navigation while the main CTA is offscreen. Show cancellation/postponement prominently.",
+    "fields": "Provider event ID; event title; actual start/end/timezone; venue and address; images; category; ticket URL; price/currency when sourced; status; provider refresh time.",
+    "empty": "No events on chosen dates: suggest nearby dates without silently changing filters. Tickets unavailable: show status and alternatives; do not display Buy tickets as if inventory is confirmed.",
+    "cards": [
+      "DAY / DATE|Event title \u00b7 Venue \u00b7 Time",
+      "DAY / DATE|Event title \u00b7 Venue \u00b7 Time",
+      "DAY / DATE|Event title \u00b7 Venue \u00b7 Time"
+    ]
+  },
+  {
+    "key": "hotels",
+    "name": "Hotels",
+    "head": "Stay somewhere good.",
+    "sub": "Find the right base for your Nashville trip.",
+    "search": "Neighborhood or hotel",
+    "filters": [
+      "Check-in",
+      "Check-out",
+      "Rooms / guests",
+      "Neighborhood",
+      "Amenities"
+    ],
+    "cta": "Check stays",
+    "layout": "split",
+    "sections": [
+      [
+        "Stay search",
+        "Destination is Nashville; ask check-in/check-out and rooms/guests. Allow neighborhood/name refinement. The form sits above imagery and long destination copy."
+      ],
+      [
+        "Hotel results + map",
+        "Desktop list/map split; each hotel row has photo, name, neighborhood, verified amenities, review source if used and View stay. With live dates/inventory, show transparent nightly/total price basis and taxes/fees status; without live rates, use Check rates."
+      ],
+      [
+        "Choose your neighborhood",
+        "Compact comparison of where to stay, linked to Neighborhoods. Do not invent walking distances."
+      ],
+      [
+        "Stay by style",
+        "Boutique, family, extended stay and other collections supported by actual hotel attributes."
+      ],
+      [
+        "Build around your stay",
+        "Send selected lodging location and travel dates into the planner. A saved hotel is not a confirmed room."
+      ]
+    ],
+    "mobile": "Dates/guest summary \u2192 Edit search \u2192 Filter / Map toggle \u2192 single-column hotel cards \u2192 neighborhoods \u2192 stay styles \u2192 plan prompt. Fullscreen map on request; selected card returns to the same list position.",
+    "detail": "Hotel detail: title/location \u2192 gallery \u2192 date/guest summary \u2192 rooms/rates from provider if connected \u2192 amenities \u2192 location \u2192 terms and property policies \u2192 provider handoff. Sticky Check rates or Continue to provider according to actual capability. Never invent an internal booking checkout.",
+    "fields": "Provider/property ID; official name; verified address; photos/rights; amenities; room/guest limits; check-in/out dates; room/rate option; currency; tax/fee inclusions; cancellation terms; booking link; freshness timestamp.",
+    "empty": "Missing dates: browse hotels with Check rates. No availability: allow changed dates or nearby areas. Provider error: show an explicit rate-check failure and preserve selections.",
+    "cards": [
+      "Hotel name|Neighborhood \u00b7 Verified amenities",
+      "Hotel name|Dates required \u00b7 Check rates",
+      "Hotel name|View stay \u00b7 Save"
+    ]
+  },
+  {
+    "key": "shop",
+    "name": "Shop",
+    "head": "Good here. Good anywhere.",
+    "sub": "Nashville, worn your way.",
+    "search": "Search the collection",
+    "filters": [
+      "All",
+      "Headwear",
+      "Tees",
+      "Layers",
+      "Accessories"
+    ],
+    "cta": "Shop the collection",
+    "layout": "shop",
+    "sections": [
+      [
+        "Collection introduction",
+        "Short title plus a restrained campaign image. On mobile, keep the first product row close to the top. Do not lead with a full-screen fashion video."
+      ],
+      [
+        "Product collection",
+        "Four columns desktop, two mobile where readable. Card: accurate product photograph, name, price/currency and available colors; link to product. Quick add only when variant requirements can be handled accessibly."
+      ],
+      [
+        "Brand story",
+        "A short editorial image/copy module after the first product group. Link back to culture content only where relevant."
+      ],
+      [
+        "Fit and confidence",
+        "Clear links to size guide, materials/care, shipping, returns and contact. Verified policies, no invented delivery promises."
+      ],
+      [
+        "New releases",
+        "Opt-in signup and footer. No fake scarcity, countdown timers or unverified bestseller tags."
+      ]
+    ],
+    "mobile": "Compact campaign/title \u2192 category controls \u2192 two-column products (one at enlarged text if needed) \u2192 brand story \u2192 shopping support. Persistent bag count in header; Shop tab active.",
+    "detail": "Product detail: gallery with count/controls \u2192 name/price \u2192 available color and size \u2192 size guide \u2192 Add to bag \u2192 materials/fit/care \u2192 shipping/returns \u2192 related products. Sticky Choose size until valid selection; then Add to bag. Cart shows quantity, subtotal and fee explanation before provider checkout.",
+    "fields": "Commerce product/variant IDs; accurate price/currency; real inventory; actual color/size options; product photos; materials/fit/care; size guide; shipping/return policies.",
+    "empty": "Unavailable variants disabled and named clearly. Empty collection offers valid other collections. Cart failure preserves choices and announces the error; no false added-to-bag confirmation.",
+    "cards": [
+      "Product name|Price / currency \u00b7 Available colors",
+      "Product name|Price / currency \u00b7 Available colors",
+      "Product name|Price / currency \u00b7 Available colors",
+      "Product name|Price / currency \u00b7 Available colors"
+    ]
+  },
+  {
+    "key": "plan",
+    "name": "Plan your trip",
+    "head": "One good plan changes everything.",
+    "sub": "Tell us who is coming. We\u2019ll build the trip around you.",
+    "search": "Where do you want to start?",
+    "filters": [
+      "Occasion",
+      "Headcount",
+      "Age ranges",
+      "Dates",
+      "Budget",
+      "Preferences"
+    ],
+    "cta": "Build our trip",
+    "layout": "planner",
+    "sections": [
+      [
+        "Your group",
+        "Occasion, headcount, age ranges, dates and budget."
+      ],
+      [
+        "Your style",
+        "Conditional occasion-specific questions, interests, location, transport and needs."
+      ],
+      [
+        "Your tailored plan",
+        "Generate and validate a feasible itinerary."
+      ],
+      [
+        "Refine",
+        "Lock, swap, reduce budget or change pace; preserve fixed commitments."
+      ],
+      [
+        "Save and share",
+        "Persist draft; reservations are separate."
+      ]
+    ],
+    "mobile": "Dates + people \u2192 preferences \u2192 selected day list \u2192 Add a stop \u2192 review/save/share. Bottom Plan tab active; action controls stay above the safe area and keyboard. Map opens separately, not beside a narrow timeline.",
+    "detail": "GROUP-TRIP-PLANNER.md governs group optimization and results.",
+    "fields": "Trip ID when persisted; local draft ID; dates; party; preferences; day/item order; source entity IDs; saved times; freshness/availability state; visibility; booking evidence if present.",
+    "empty": "First-use empty state offers Add a place or Explore suggestions. Unschedulable items show conflicts and alternatives. Offline/local-only drafts explain sync limits; failed save remains in the current session.",
+    "cards": [
+      "Morning|Add a place \u00b7 Suggested time",
+      "Afternoon|Add an experience \u00b7 Not booked",
+      "Evening|Add a show or restaurant"
+    ]
+  }
+]

@@ -265,6 +265,37 @@ export type TripType =
 export type Pace = 'relaxed' | 'balanced' | 'packed';
 export type Budget = 'value' | 'moderate' | 'premium';
 
+export type Occasion = 'bachelorette' | 'bachelor' | 'friends' | 'family' | 'couples' | 'corporate' | 'other';
+
+export type AgeBand = 'under-13' | '13-17' | '18-24' | '25-34' | '35-49' | '50-64' | '65-plus';
+
+export type BudgetScope = 'activities-dining' | 'all-in';
+
+/** Group profile collected by the planner (GROUP-TRIP-PLANNER.md §Data contract). */
+export interface GroupProfile {
+  occasion: Occasion;
+  headcount: number;
+  ageBands: AgeBand[];
+  startDate: string;
+  endDate: string;
+  datesUndecided: boolean;
+  /** Where the group is sleeping, if known. */
+  stayNeighborhood: NeighborhoodSlug | '';
+  transport: 'walk-rideshare' | 'car' | 'mixed' | 'undecided';
+  /** Budget value as entered, in USD. */
+  budgetMode: 'per-person' | 'group';
+  budgetValue: number | null;
+  budgetScope: BudgetScope;
+  interests: string[];
+  pace: Pace;
+  dietary: string;
+  accessibility: string;
+  mustDos: string;
+  avoid: string;
+  /** Occasion-specific chips and short answers, keyed by question id. */
+  answers: Record<string, string[] | string>;
+}
+
 export interface TripInput {
   startDate: string;
   endDate: string;
@@ -296,6 +327,14 @@ export interface ItineraryStop {
    * real, so the UI renders these with an explicit sample label.
    */
   isSample?: boolean;
+  /** Data-backed reasons this stop fits the group, e.g. "Seats your group". */
+  fit?: string[];
+  /** Cost basis when known, e.g. "From $45 per person on Viator". Never a quote. */
+  costNote?: string;
+  /** Honest availability state. Nothing here is booked. */
+  availability?: 'suggested' | 'check-provider';
+  /** Category of the underlying record, for swaps and the recap. */
+  category?: string;
 }
 
 export interface ItineraryDay {

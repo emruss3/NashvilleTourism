@@ -14,6 +14,7 @@ export const ANALYTICS_EVENTS = {
   TRIP_PLANNER_STARTED: 'trip_planner_started',
   TRIP_PLANNER_COMPLETED: 'trip_planner_completed',
   ITINERARY_SAVED: 'itinerary_saved',
+  ITEM_SAVED: 'item_saved',
   ITINERARY_EMAILED: 'itinerary_emailed',
   HOTEL_AFFILIATE_CLICKED: 'hotel_affiliate_clicked',
   TICKET_AFFILIATE_CLICKED: 'ticket_affiliate_clicked',

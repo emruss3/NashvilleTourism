@@ -1,183 +1,112 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { Breadcrumbs, LoadingState, PageHeader, SectionHeader } from '@/components/Ui';
-import HubLead from '@/components/HubLead';
-import PlannerClient from './PlannerClient';
+import { SmartImage } from '@/components/Media';
+import { Breadcrumbs, LoadingState } from '@/components/Ui';
+import PageIntro, { MediaPair } from '@/components/hub/PageIntro';
+import SectionHead from '@/components/hub/SectionHead';
+import { OCCASIONS, occasionFromType } from '@/lib/group-planner';
 import { buildMetadata } from '@/lib/seo';
-import { TRIP_TYPE_LABELS } from '@/lib/itinerary';
-import { neighborhoods, neighborhoodName } from '@/lib/content/neighborhoods';
-import type { TripType } from '@/lib/types';
+import { site } from '@/lib/site';
+import PlannerClient from './PlannerClient';
 
 export const metadata = buildMetadata({
   title: 'Nashville Trip Planner',
   description:
-    'Build a Nashville itinerary around your dates, trip type, budget, and pace. Day-by-day plans with travel times, booking lead times, and alternatives.',
+    'Tell us who is coming and we build the trip around the group: occasion, headcount, ages, dates and budget shape a day-by-day Nashville plan from real places, with the checks still outstanding spelled out.',
   path: '/plan/',
 });
 
-const TYPE_BLURBS: Partial<Record<TripType, string>> = {
-  'first-visit':
-    'First trips usually need one walkable music night Downtown, one stronger dinner neighborhood, and a hotel that keeps transit simple. Expect Broadway to take more time than the map suggests.',
-  couples:
-    'Couples trips work best when dinner reservations and a listening-room show are locked before nightlife. Quieter bases in Germantown, 12 South, or East Nashville often beat a loud Downtown hotel.',
-  friends:
-    'Friends weekends need a shared home base, one big night Downtown, and daytime plans that do not require the whole group to agree. Book the show or experience first; fill meals around it.',
-  bachelor:
-    'Bachelor weekends run on group logistics: a hotel near Broadway or Midtown, a daytime activity with a hard start time, and dinner that can seat everyone without a two-hour wait.',
+const OCCASION_BLURBS: Record<string, string> = {
   bachelorette:
     'Bachelorette weekends usually combine a photo-friendly neighborhood, one reservation-heavy dinner, and a Broadway or Gulch night. Lock lodging and the main dinner before the guest list grows.',
+  bachelor:
+    'Bachelor weekends run on group logistics: a hotel near Broadway or Midtown, a daytime activity with a hard start time, and dinner that can seat everyone without a two-hour wait.',
+  friends:
+    'Friends weekends need a shared home base, one big night Downtown, and daytime plans that do not require the whole group to agree. Book the show or experience first; fill meals around it.',
   family:
-    'Family trips trade walkability for quieter sleeps and earlier dinners. Green Hills, Sylvan Park, and Germantown tend to work better than a room over Lower Broadway.',
-  business:
-    'Business trips need a reliable Downtown or Gulch hotel, short taxi hops to meetings, and one flexible evening plan that still works if the day runs late.',
-  music:
-    'Music-focused trips should book ticketed shows and listening rooms first, then place hotels and dinners within a short ride. Use the live calendar before you fix neighborhood choices.',
-  food:
-    'Food-focused trips prioritize reservation lead times and neighborhood density over Broadway. East Nashville, Germantown, and 12 South usually beat Downtown for dinner quality per night.',
+    'Family trips trade walkability for quieter sleeps and earlier dinners. Green Hills, Sylvan Park and Germantown tend to work better than a room over Lower Broadway.',
+  couples:
+    'Couples trips work best when dinner reservations and a listening-room show are locked before nightlife. Quieter bases in Germantown, 12 South or East Nashville often beat a loud Downtown hotel.',
+  corporate:
+    'Retreats keep the meeting blocks fixed and put the group within a short walk of a reliable Downtown or Gulch hotel, with one dinner that can seat everyone and an evening that still works if the day runs late.',
 };
 
 const RELATED_LINKS = [
   { href: '/weekend/', label: 'Weekend itinerary' },
-  { href: '/where-to-stay/', label: 'Where to stay' },
-  { href: '/live-music-tonight/', label: 'Live music calendar' },
+  { href: '/hotels/', label: 'Hotels' },
   { href: '/events/', label: 'Events' },
   { href: '/neighborhoods/', label: 'Neighborhoods' },
   { href: '/tours/', label: 'Tours & experiences' },
   { href: '/restaurants/', label: 'Restaurants' },
-  { href: '/honky-tonk-highway/', label: 'Honky-tonk highway' },
+  { href: '/things-to-do/', label: 'Things to do' },
 ];
 
-export default async function PlanPage(
-  props: {
-    searchParams?: Promise<{ type?: string }>;
-  }
-) {
+/**
+ * Plan your trip: a group-optimized planner (page-designs/README.md §08,
+ * GROUP-TRIP-PLANNER.md). A short editorial introduction, then the group
+ * form. On phones the form comes before any photograph.
+ */
+export default async function PlanPage(props: { searchParams?: Promise<{ occasion?: string; type?: string }> }) {
   const searchParams = await props.searchParams;
-  const rawType = searchParams?.type;
-  const tripType =
-    rawType && rawType in TRIP_TYPE_LABELS ? (rawType as TripType) : undefined;
-  const typeLabel = tripType ? TRIP_TYPE_LABELS[tripType] : null;
-  const typeBlurb = tripType ? TYPE_BLURBS[tripType] : null;
+  const occasion = occasionFromType(searchParams?.occasion ?? searchParams?.type);
+  const blurb = occasion ? OCCASION_BLURBS[occasion] : undefined;
 
   return (
-    <div className="shell pb-16">
-      <Breadcrumbs trail={[{ name: 'Trip Planner', href: '/plan/' }]} />
-      <PageHeader
-        eyebrow="Trip planner"
-        title={typeLabel ? `Plan a ${typeLabel.toLowerCase()} in Nashville` : 'Plan your Nashville trip'}
-        intro="Answer a few questions and we will assemble a day-by-day plan from our published listings, with travel time between stops and how far ahead to book."
-      />
-      {/* The form is the page. Context copy follows it rather than delaying it. */}
-      <div className="py-6">
-        <Suspense fallback={<LoadingState label="Loading the planner" />}>
-          <PlannerClient />
-        </Suspense>
+    <>
+      <div className="shell">
+        <Breadcrumbs trail={[{ name: 'Plan your trip', href: '/plan/' }]} />
       </div>
 
-      <HubLead imageKey="hub/plan-lead" />
-
-      <section className="max-w-3xl space-y-4 pb-8 text-[15px] leading-relaxed text-ink-soft">
-        {typeBlurb ? (
-          <p>{typeBlurb}</p>
-        ) : (
-          <p>
-            Start with dates, trip type, and pace. The planner builds a day-by-day outline from
-            published neighborhoods, restaurants, music, and experiences—not demo businesses—so you
-            can see travel time between stops and where reservations matter most.
-          </p>
-        )}
-        <p>
-          Before you lock lodging, skim{' '}
-          <Link href="/where-to-stay/" className="text-clay underline underline-offset-2 hover:text-clay-deep">
-            where to stay
-          </Link>{' '}
-          and the neighborhood guides for{' '}
-          <Link
-            href="/neighborhoods/downtown-broadway/"
-            className="text-clay underline underline-offset-2 hover:text-clay-deep"
-          >
-            Downtown &amp; Broadway
-          </Link>
-          ,{' '}
-          <Link
-            href="/neighborhoods/the-gulch/"
-            className="text-clay underline underline-offset-2 hover:text-clay-deep"
-          >
-            the Gulch
-          </Link>
-          , and{' '}
-          <Link
-            href="/neighborhoods/east-nashville/"
-            className="text-clay underline underline-offset-2 hover:text-clay-deep"
-          >
-            East Nashville
-          </Link>
-          . For shows, check{' '}
-          <Link
-            href="/live-music-tonight/"
-            className="text-clay underline underline-offset-2 hover:text-clay-deep"
-          >
-            live music tonight
-          </Link>{' '}
-          and the wider{' '}
-          <Link href="/events/" className="text-clay underline underline-offset-2 hover:text-clay-deep">
-            events calendar
-          </Link>
-          .
+      <PageIntro
+        eyebrow="Plan together"
+        title={site.brandIdea}
+        support="Tell us who is coming. We’ll build the trip around you."
+        media={
+          <MediaPair
+            className="hidden lg:grid"
+            primary={<SmartImage imageKey="editorial/rooftop-party" ratio="aspect-[4/3] lg:aspect-auto lg:h-[400px]" sizes="40vw" priority />}
+            secondary={<SmartImage imageKey="editorial/private-events" ratio="aspect-[3/4] lg:aspect-auto lg:h-[400px]" sizes="25vw" priority />}
+          />
+        }
+      >
+        <p className="text-[15px] text-ink-soft">
+          Different groups, one good plan. Tell us about your crew and we build a day-by-day draft from real places, with the right mix of music, food, experiences and local favorites.
         </p>
-      </section>
+      </PageIntro>
 
-      <section className="border-t border-paper-edge py-10">
-        <SectionHeader
-          title="Trip types"
-          description="Open the planner with a trip type already selected."
-        />
-        <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {(Object.keys(TRIP_TYPE_LABELS) as TripType[]).map((type) => (
-            <li key={type}>
-              <Link
-                href={`/plan/?type=${type}`}
-                className="block rounded-card border border-paper-edge bg-white px-4 py-3 text-sm font-medium text-ink transition-colors hover:border-clay hover:text-clay"
-              >
-                {TRIP_TYPE_LABELS[type]}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <div className="shell pb-10">
+        <div className="rounded-card border border-paper-edge bg-paper-sunk p-5 lg:p-8">
+          <Suspense fallback={<LoadingState label="Loading the planner" />}>
+            <PlannerClient />
+          </Suspense>
+        </div>
+        {blurb ? <p className="mt-6 max-w-3xl text-[15px] leading-relaxed text-ink-soft">{blurb}</p> : null}
+      </div>
 
-      <section className="py-8">
-        <SectionHeader title="Useful next stops" />
-        <ul className="mt-4 flex flex-wrap gap-2">
-          {RELATED_LINKS.map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                className="inline-flex rounded-full border border-paper-edge bg-white px-4 py-1.5 text-sm text-ink-soft transition-colors hover:border-clay hover:text-clay"
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-6 max-w-3xl text-[15px] leading-relaxed text-ink-soft">
-          Neighborhood context for every base:{' '}
-          {neighborhoods
-            .slice(0, 8)
-            .map((n, i) => (
-              <span key={n.slug}>
-                {i > 0 ? ', ' : ''}
-                <Link
-                  href={`/neighborhoods/${n.slug}/`}
-                  className="text-clay underline underline-offset-2 hover:text-clay-deep"
-                >
-                  {neighborhoodName(n.slug)}
+      <section className="border-t border-paper-edge" aria-labelledby="groups-title">
+        <div className="shell section">
+          <SectionHead id="groups-title" eyebrow="Start with your group" title="Who is coming?" size="md" support="Open the planner with the occasion already chosen. Follow-up questions change with it." />
+          <ul className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-7">
+            {OCCASIONS.map((o) => (
+              <li key={o.value}>
+                <Link href={`/plan/?occasion=${o.value}`} className="card flex min-h-12 flex-col justify-center px-4 py-3 text-[15px] font-semibold">
+                  {o.label}
+                  <span className="mt-0.5 text-2xs font-normal text-ink-soft">{o.hint}</span>
                 </Link>
-              </span>
+              </li>
             ))}
-          .
-        </p>
+          </ul>
+          <ul className="mt-8 flex flex-wrap gap-2">
+            {RELATED_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="inline-flex min-h-11 items-center rounded border border-paper-edge px-4 text-[15px] font-semibold text-ink hover:border-ink">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
-    </div>
+    </>
   );
 }

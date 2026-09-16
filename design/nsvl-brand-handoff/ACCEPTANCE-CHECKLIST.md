@@ -42,3 +42,10 @@
 - [ ] Domain migration and deployment handled under separate explicit scope.
 
 Deliver a brief verification report identifying what was actually tested and what remains blocked. A visual mockup is not proof that bookings, ecommerce or sharing work.
+
+## Eight-page completion
+- [ ] All eight page families in PAGE-LAYOUTS.md implemented.
+- [ ] Mobile and desktop screenshots reviewed for each.
+- [ ] Relevant detail pages and conversion flows verified against real integrations.
+- [ ] Cross-page saved items and trip context persist correctly.
+- [ ] Photo placeholders replaced with verified licensed media.

@@ -184,6 +184,30 @@ function rankPlacesForTrip(input: TripInput, candidates: PlannerPlaceCandidate[]
     .map((x) => x.p);
 }
 
+/** Reasons a place fits the group, each backed by a record field. */
+function placeFit(input: TripInput, p: PlannerPlaceCandidate): string[] {
+  const fit: string[] = [];
+  if (input.travelers >= 6 && p.groupFriendly) fit.push('Seats your group');
+  if (input.hasChildren && p.familyFriendly) fit.push('Family-friendly');
+  if (input.neighborhoods.includes(p.neighborhood)) fit.push('Near your stay');
+  if (input.budget === 'value' && p.priceLevel != null && p.priceLevel <= 2) fit.push('Fits a value budget');
+  if (input.budget === 'premium' && p.priceLevel != null && p.priceLevel >= 3) fit.push('Matches a premium budget');
+  const blob = input.interests.join(' ').toLowerCase();
+  if (blob.includes('restaurant') && p.category === 'restaurant') fit.push('Matches your food interest');
+  if (blob.includes('music') && ['venue', 'live-music'].includes(p.category)) fit.push('Matches your music interest');
+  return fit;
+}
+
+function experienceFit(input: TripInput, e: ExperienceCandidate): string[] {
+  const fit: string[] = [];
+  const travelers = new Set(e.travelerTypes ?? []);
+  const blob = `${input.tripType} ${input.interests.join(' ')}`.toLowerCase();
+  if ([...travelers].some((t) => blob.includes(t) || blob.includes(t.replace(/-/g, ' ')))) fit.push('Runs for groups like yours');
+  if (input.hasChildren && travelers.has('families')) fit.push('Family-friendly');
+  if (e.rating != null) fit.push(`Rated ${e.rating.toFixed(1)} on Viator`);
+  return fit;
+}
+
 export function buildItinerary(
   input: TripInput,
   experienceCandidates: ExperienceCandidate[] = [],
@@ -266,7 +290,11 @@ export function buildItinerary(
         reservationNote: bookingNote,
         travelNote: travelNote(prevHood, item.neighborhood),
         mapQuery: item.mapQuery,
-        alternatives: alternatives.filter((x) => x.id !== item.id).slice(0, 2).map((x) => ({ title: x.title, href: x.websiteUrl, note: x.summary })),
+        alternatives: alternatives.filter((x) => x.id !== item.id).slice(0, 3).map((x) => ({ title: x.title, href: x.websiteUrl, note: x.summary })),
+        fit: placeFit(input, item),
+        costNote: item.priceLevel != null ? `Price level ${'$'.repeat(Math.min(Math.max(item.priceLevel, 1), 4))} (a band, not a quote)` : undefined,
+        availability: 'suggested',
+        category: item.category,
       });
       prevHood = item.neighborhood;
     }
@@ -301,6 +329,10 @@ export function buildItinerary(
           neighborhood: neighborhoodName(hood), note: `Bookable Nashville experience.${durationBit}${priceBit}`,
           reservationNote: 'Book on Viator with the affiliate link on the experience page.',
           travelNote: travelNote(prevHood, hood), mapQuery: `${experience.title}, Nashville, TN`,
+          fit: experienceFit(input, experience),
+          costNote: experience.fromPrice?.formatted ? `From ${experience.fromPrice.formatted} per person on Viator (starting price)` : undefined,
+          availability: 'check-provider',
+          category: 'experience',
           alternatives: experiencePool.filter((e) => e.id !== experience.id).slice(0, 2).map((e) => ({ title: e.title, href: `/tours/${encodeURIComponent(e.productCode)}/`, note: e.durationLabel || 'Viator experience' })),
         });
         prevHood = hood;
@@ -317,6 +349,9 @@ export function buildItinerary(
           travelNote: travelNote(prevHood, hood),
           mapQuery: `${event.venue || event.name}, Nashville, TN`,
           alternatives: [],
+          fit: input.startDate ? ['On your dates'] : [],
+          availability: 'check-provider',
+          category: 'event',
         });
         prevHood = hood;
       } else if (realSeePool.length) {

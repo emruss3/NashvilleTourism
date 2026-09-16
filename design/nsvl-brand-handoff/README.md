@@ -1,5 +1,5 @@
 # NSVL / Nashville.com — brand and website handoff
-Version 1.3 • September 16, 2026
+Version 1.5 • September 16, 2026
 
 Start with `CLAUDE-CODE-PROMPT.md`, then read the brand and layout specifications. This is a design and implementation handoff, not a deployed site or an audit of the current codebase.
 
@@ -29,3 +29,12 @@ Suggested handoff: unzip this folder into `design/nsvl-brand-handoff/` in the cu
 
 ## Logo assets added
 See logos/README.md and logos/logo-preview.html. Transparent raster reconstructions and eight consistent CSS color/layout variants are included. White PNGs are review-only due to edge artifacts. Original vector and favicon remain outstanding.
+
+## Eight page layouts
+PAGE-LAYOUTS.md defines all eight requested page families. Open page-layouts/PAGE-LAYOUTS.html for the desktop/mobile visual atlas and page-specific annotations. The atlas is a wireframe, not a functioning booking site.
+
+## Redesigned visual concepts — start here
+The eight boards in page-designs/ supersede the earlier wireframe atlas as visual direction. Open page-designs/INDEX.html to compare them; page-designs/README.md explains each composition and its mobile adaptation. Retain PAGE-LAYOUTS.md for behavior and data requirements.
+
+## Trip planner scope correction
+GROUP-TRIP-PLANNER.md governs the planner. It creates an optimized itinerary from group occasion (including bachelorette or corporate retreat), headcount, age ranges, budget, dates, preferences and constraints. Earlier saved-list-first descriptions are superseded; saving and editing support the generated plan.

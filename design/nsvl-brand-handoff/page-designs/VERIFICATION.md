@@ -1,0 +1,1 @@
+All eight final PNG boards present and readable. Each board was visually reviewed from image-generation output. Updated group-first planner replaces the original generic planner. Index links and wireframe page image links checked against local files. These are static concepts; no booking, commerce or optimization runtime was built or tested.

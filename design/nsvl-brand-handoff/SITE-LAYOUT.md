@@ -80,3 +80,6 @@ Index with one feature, categories and readable cards. Article with headline, au
 
 ## Motion and accessibility
 Hover: subtle underline or 2px translate, not zooming every photograph. Transitions 150–200ms. Honor prefers-reduced-motion. All interactions work without hover. Controls target >=44px. Visible keyboard focus, landmarks, skip link, semantic headings, labeled forms and described validation errors. Date picker must be keyboard accessible. Modals trap focus correctly and return it on close.
+
+## Trip planner scope correction
+GROUP-TRIP-PLANNER.md governs the planner. It creates an optimized itinerary from group occasion (including bachelorette or corporate retreat), headcount, age ranges, budget, dates, preferences and constraints. Earlier saved-list-first descriptions are superseded; saving and editing support the generated plan.

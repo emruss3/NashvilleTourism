@@ -120,6 +120,7 @@ export const primaryNav = [
 export const secondaryNav = [
   { label: 'Events', href: '/events/' },
   { label: 'Live music tonight', href: '/live-music-tonight/' },
+  { label: 'Hotels', href: '/hotels/' },
   { label: 'Where to stay', href: '/where-to-stay/' },
   { label: 'Things to do', href: '/things-to-do/' },
   { label: 'Tours', href: '/tours/' },

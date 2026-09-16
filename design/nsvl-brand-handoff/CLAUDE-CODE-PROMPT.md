@@ -1,6 +1,6 @@
 # Paste this into Claude Code
 
-Implement the NSVL redesign for Nashville.com using this handoff. Read README.md, BRAND-GUIDE.md, SITE-LAYOUT.md, MOBILE-FIRST.md, CONTENT-AND-DATA.md, ACCEPTANCE-CHECKLIST.md and design-tokens.css before editing.
+Implement the NSVL redesign for Nashville.com using this handoff. Read README.md, BRAND-GUIDE.md, SITE-LAYOUT.md, MOBILE-FIRST.md, PAGE-LAYOUTS.md, CONTENT-AND-DATA.md, ACCEPTANCE-CHECKLIST.md and design-tokens.css before editing.
 
 First inspect the existing repository, framework, routing, content sources, commerce, analytics and booking integrations. Follow existing repository instructions. Give a short implementation plan, then proceed with the authorized local implementation. Keep working integrations and stable URLs. Do not assume a framework, install a new backend, change domain/DNS or deploy solely because this design brief exists.
 
@@ -27,3 +27,9 @@ Deliver working repository changes, responsive screenshots and a concise impleme
 Logo update: inspect logos/README.md. Provisional raster reconstructions are available. Use the charcoal silhouette with CSS masking for consistent flat-color web prototypes as shown in logos/logo-preview.html. Never deploy the paper-white review PNGs. Final vector and small favicon remain explicit dependencies.
 
 Palette correction: use Paper White #F5F3ED and Charcoal Ink #1F2421 only as brand colors. Do not introduce a third accent. Keep logos, buttons, labels and packaging neutral; use borders, underlines and explicit text for interaction states.
+
+Implement all eight requested families from PAGE-LAYOUTS.md: Restaurants, Tours, Neighborhoods, Things to do, Events, Hotels, Shop and Plan your trip. Review page-layouts/PAGE-LAYOUTS.html for visual structure. That atlas contains placeholders only; do not treat it as live inventory or finished photography. Its page-specific navigation and directory specifications supersede older conflicting guidance.
+
+Visual redesign supersedes the generic atlas: read page-designs/README.md and inspect all eight boards in page-designs/INDEX.html. Follow those compositions and mobile priorities while preserving PAGE-LAYOUTS.md data/interaction requirements. Generated board photography and listings are illustrative; use authentic production assets and real data. Do not implement the previous gray-placeholder wireframe appearance.
+
+CRITICAL PLANNER REQUIREMENT: Read GROUP-TRIP-PLANNER.md before implementation. Build a conditional group-profile onboarding flow and a constraint-aware itinerary generation/replanning flow, not merely a bookmark organizer. Party occasion, number of people, ages, budget, dates and needs must alter questions and recommendations. Validate capacity, timing, transit, pricing and availability using real data; preserve locked commitments. The optimized group-planner board supersedes any earlier generic planner rendering.

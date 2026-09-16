@@ -1,0 +1,1 @@
+Verified eight page definitions, matching page selectors, initial page visibility by source inspection, and neutral-only design colors. Archive integrity checked. Browser screenshot verification could not run because the environment has no installed Chromium executable. This is a structural design atlas, not a tested production UI.

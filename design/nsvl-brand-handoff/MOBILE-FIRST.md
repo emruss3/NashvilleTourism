@@ -57,3 +57,6 @@ Ship appropriately sized responsive images with reserved dimensions, prioritize 
 - Track discovery searches, event-provider clicks, product views, add-to-bag, checkout starts, confirmed purchases where integration allows, and itinerary saves by device class. Outbound booking clicks are not completed bookings. Avoid personal or sensitive search content in analytics.
 
 Approve the mobile homepage, event detail, product detail and planner screenshots plus their working journeys before judging the desktop redesign complete.
+
+## Trip planner scope correction
+GROUP-TRIP-PLANNER.md governs the planner. It creates an optimized itinerary from group occasion (including bachelorette or corporate retreat), headcount, age ranges, budget, dates, preferences and constraints. Earlier saved-list-first descriptions are superseded; saving and editing support the generated plan.
