@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import CategoryLinks from '@/components/home/CategoryLinks';
 import DateShortcuts from '@/components/home/DateShortcuts';
 import EventList from '@/components/home/EventList';
 import Hero from '@/components/home/Hero';
@@ -34,7 +33,6 @@ export default async function HomePage() {
   return (
     <div className="home">
       <Hero />
-      <CategoryLinks />
 
       {/*
         DOM order is the mobile order (calendar, shop, neighborhoods). On

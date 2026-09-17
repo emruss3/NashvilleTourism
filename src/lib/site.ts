@@ -120,16 +120,26 @@ export const exploreNav = [
 ] as const;
 
 /** Header row, left to right; Shop stays at the far right. */
+/**
+ * One flat row under the masthead, evenly spread across the shell. Ordered by
+ * the reader's intent: broad exploration first, the Music City hook, the daily
+ * need, experiences, orientation, then the booking and retail commitments.
+ */
 export const primaryNav = [
-  { label: 'Explore', href: '/explore/' },
-  { label: 'Events', href: '/events/' },
-  { label: 'Music', href: '/music/' },
+  { label: 'Things to do', href: '/things-to-do/' },
+  { label: 'Concerts & Events', href: '/events/' },
+  { label: 'Restaurants', href: '/restaurants/' },
+  { label: 'Tours', href: '/tours/' },
+  { label: 'Neighborhoods', href: '/neighborhoods/' },
   { label: 'Hotels', href: '/hotels/' },
   { label: 'Shop', href: '/shop/' },
 ] as const;
 
 /** Boxed call to action in the header's top-right utilities. */
 export const planNav = { label: 'Plan your trip', href: '/plan/' } as const;
+
+/** Text link beside it: the reader's saved places (localStorage `nsvl:trip`), listed on the bag page. */
+export const tripNav = { label: 'My trip', href: '/bag/#saved-title' } as const;
 
 export const secondaryNav = [
   { label: 'Live music tonight', href: '/live-music-tonight/' },
