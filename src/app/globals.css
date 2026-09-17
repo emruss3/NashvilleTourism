@@ -18,14 +18,20 @@
     --font-display: 'Manrope', Arial, sans-serif;
     --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-    /* NSVL v1 tokens (design/nsvl-brand-handoff/design-tokens.css) */
-    --color-paper: #f5f3ed;
-    --color-ink: #1f2421;
-    --color-surface: #eae7de;
-    --color-muted: #59605a;
-    --color-border: #d5d7ce;
+    /* NSVL Black / Cream tokens (mirrors tailwind.config.ts) */
+    --color-paper: #fcfbf8;
+    --color-ink: #111111;
+    --color-surface: #ede2cf;
+    --color-muted: #5e5e5e;
+    --color-border: #e3dfd5;
     --page-gutter: clamp(20px, 4vw, 72px);
     --section-space: clamp(40px, 4.5vw, 64px);
+  }
+
+  /* Homepage rhythm from the Black / Cream board: sections sit about 24px
+     apart on desktop, 20px on phones, with no rules between them. */
+  .home {
+    --section-space: clamp(20px, 1.5vw, 24px);
   }
 
   html {

@@ -167,7 +167,8 @@ export default function DiscoveryForm({
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 lg:mt-2">
+      {/* Quick links stay on phones and on the Explore page; the desktop home band is the one row of fields the board shows (the calendar module carries the date shortcuts). */}
+      <div className={`mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 ${dark ? 'lg:hidden' : 'lg:mt-2'}`}>
         <span className={`text-2xs font-semibold uppercase tracking-[0.14em] ${dark ? 'text-ink-soft md:text-paper/70' : 'text-ink-soft'}`}>
           Quick
         </span>

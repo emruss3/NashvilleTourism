@@ -1,10 +1,11 @@
 import type { Config } from 'tailwindcss';
 
 /**
- * Design tokens — NSVL brand guide §4 (design/nsvl-brand-handoff).
- * Two brand colors only: Paper White and Charcoal Ink (v1.3 palette
- * correction removed the vermilion accent). Supporting neutral tones serve
- * borders, muted text and secondary surfaces.
+ * Design tokens — NSVL "Black / Cream" scheme (owner's pick over the v1.3
+ * Paper White / Charcoal Ink pair). Three tones: near-white page, warm cream
+ * for the masthead, secondary panels and the planner band, and true black for
+ * text, buttons, the discovery band and the footer. Supporting neutrals serve
+ * borders and muted text.
  *
  * Token names are kept from the previous system so existing components keep
  * working; their values now resolve to the NSVL palette.
@@ -15,42 +16,42 @@ const config: Config = {
     extend: {
       colors: {
         paper: {
-          DEFAULT: '#F5F3ED', // Paper White — page and card surface
-          card: '#F5F3ED', // cards sit flat on the page, separated by borders
-          sunk: '#EAE7DE', // Soft Paper — secondary panels and form surfaces
-          edge: '#D5D7CE', // Border — decorative dividers, never the sole control boundary
+          DEFAULT: '#FCFBF8', // page and card surface: warm near-white
+          card: '#FCFBF8', // cards sit flat on the page, separated by borders
+          sunk: '#EDE2CF', // Cream — masthead, secondary panels, form surfaces, planner band
+          edge: '#E3DFD5', // Border — decorative dividers, never the sole control boundary
         },
         ink: {
-          DEFAULT: '#1F2421', // Charcoal Ink — text, logo, dark bands, primary buttons
-          soft: '#59605A', // Muted Ink — supporting text
-          faint: '#59605A', // metadata (same tone; hierarchy comes from size and weight)
-          body: '#1F2421',
+          DEFAULT: '#111111', // Black — text, logo, dark bands, primary buttons
+          soft: '#5E5E5E', // Muted — supporting text
+          faint: '#5E5E5E', // metadata (same tone; hierarchy comes from size and weight)
+          body: '#111111',
         },
         clay: {
           // Legacy accent token. NSVL v1.3 has no third brand color: links and
           // selected states use contextual ink with borders, underlines and
           // labels. Everything that used the old accent now resolves to ink.
-          DEFAULT: '#1F2421',
-          deep: '#141816',
-          bright: '#1F2421',
-          wash: '#EAE7DE',
+          DEFAULT: '#111111',
+          deep: '#2B2B2B',
+          bright: '#111111',
+          wash: '#EDE2CF',
         },
         navy: {
-          DEFAULT: '#1F2421', // dark bands and primary buttons
-          deep: '#141816', // hover for charcoal fills
+          DEFAULT: '#111111', // dark bands and primary buttons
+          deep: '#2B2B2B', // hover for black fills
         },
         cumberland: {
-          DEFAULT: '#1F2421',
+          DEFAULT: '#111111',
         },
         sky: {
-          DEFAULT: '#EAE7DE',
+          DEFAULT: '#EDE2CF',
         },
         dogwood: {
-          DEFAULT: '#EAE7DE',
+          DEFAULT: '#EDE2CF',
         },
         mint: {
-          DEFAULT: '#EAE7DE',
-          wash: '#EAE7DE',
+          DEFAULT: '#EDE2CF',
+          wash: '#EDE2CF',
         },
         moss: {
           // Functional positive / verified tone
@@ -58,13 +59,13 @@ const config: Config = {
           wash: '#E6EDE6',
         },
         golden: {
-          DEFAULT: '#1F2421',
-          wash: '#EAE7DE',
+          DEFAULT: '#111111',
+          wash: '#EDE2CF',
         },
         gold: {
           // Sponsored labels — muted, functional
           DEFAULT: '#6E5A2A',
-          wash: '#EAE7DE',
+          wash: '#EDE2CF',
         },
       },
       fontFamily: {

@@ -32,7 +32,7 @@ export default async function HomePage() {
   const featuredExperiences = tours.live ? tours.experiences.slice(0, 3) : [];
 
   return (
-    <>
+    <div className="home">
       <Hero />
       <CategoryLinks />
 
@@ -44,7 +44,7 @@ export default async function HomePage() {
       <div className="flex flex-col">
         <NeighborhoodCards className="md:order-1 md:border-t-0" />
 
-        <section className="section md:order-2 md:border-t md:border-paper-edge" aria-labelledby="calendar-title">
+        <section className="section md:order-2" aria-labelledby="calendar-title">
           <div className="shell grid gap-8 md:grid-cols-2 md:gap-6 lg:gap-8">
             <div>
               <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
@@ -90,7 +90,7 @@ export default async function HomePage() {
       <TripStarter className="md:order-4" />
       <ToursHotels className="md:order-4" />
 
-      <section className="border-t border-paper-edge py-10 md:order-5 lg:py-12" aria-labelledby="signup-title">
+      <section className="section md:order-5" aria-labelledby="signup-title">
         <div className="shell grid gap-6 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div>
             <h2 id="signup-title" className="text-[2rem] sm:text-[2.5rem] lg:text-[3rem]">
@@ -102,6 +102,6 @@ export default async function HomePage() {
         </div>
       </section>
       </div>
-    </>
+    </div>
   );
 }

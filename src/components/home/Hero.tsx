@@ -50,7 +50,7 @@ export default function Hero() {
       </div>
 
       {/* 2. Search module: inline on phones, charcoal band on desktop. */}
-      <div id="discover" className="relative z-10 md:bg-ink md:py-5 md:text-paper">
+      <div id="discover" className="relative z-10 md:bg-ink md:py-4 md:text-paper">
         <div className="shell pt-6 md:pt-0">
           <DiscoveryForm />
         </div>

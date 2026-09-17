@@ -55,7 +55,7 @@ export const viewport: Viewport = {
   // Lets the sticky bottom bar and the body padding extend under the home
   // indicator on notched phones; safe-area insets handle the offset.
   viewportFit: 'cover',
-  themeColor: '#F5F3ED',
+  themeColor: '#EDE2CF',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

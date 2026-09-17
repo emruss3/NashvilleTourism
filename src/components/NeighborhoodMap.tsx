@@ -105,7 +105,7 @@ export default function NeighborhoodMap() {
                     onClick={() => selectHotspot(spot.id)}
                     className={`absolute rounded-md transition-[box-shadow,background-color] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay ${
                       isActive
-                        ? 'bg-clay/15 shadow-[inset_0_0_0_3px_#1F2421]'
+                        ? 'bg-clay/15 shadow-[inset_0_0_0_3px_#111111]'
                         : relatedSelected
                           ? 'bg-clay/10 shadow-[inset_0_0_0_2px_rgba(31,36,33,0.55)]'
                           : 'bg-transparent hover:bg-clay/10 hover:shadow-[inset_0_0_0_2px_rgba(31,36,33,0.45)]'

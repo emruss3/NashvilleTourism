@@ -23,6 +23,9 @@ import Wordmark, { NsvlMark } from './Wordmark';
  * then Events, Shop and Plan, then the secondary links. Search is a visible
  * field on the page, not a header icon.
  *
+ * Every header variant sits on the cream tone (Black / Cream board) with no
+ * rule under it; the hero photograph starts directly beneath the masthead.
+ *
  * The bag sits top right in every variant (HOMEPAGE.md §1) and opens the
  * bag page. No commerce provider is connected yet, so it shows no count;
  * the bag page says the store is not taking orders and lists saved places.
@@ -139,7 +142,7 @@ export default function Header() {
                     aria-controls="explore-menu"
                     aria-label="Explore categories"
                     onClick={() => setExploreOpen((v) => !v)}
-                    className="-ml-2 inline-flex h-11 w-9 items-center justify-center rounded text-ink hover:bg-paper-sunk"
+                    className="-ml-2 inline-flex h-11 w-9 items-center justify-center rounded text-ink hover:bg-ink/5"
                   >
                     <Chevron open={exploreOpen} />
                   </button>
@@ -184,7 +187,7 @@ export default function Header() {
   return (
     <header>
       {/* Desktop masthead */}
-      <div ref={mastheadRef} className="hidden border-b border-paper-edge bg-paper lg:block">
+      <div ref={mastheadRef} className="hidden bg-paper-sunk lg:block">
         <div className="shell relative flex flex-col items-center pb-3 pt-5">
           <Wordmark width={300} />
           <div className="absolute right-[var(--page-gutter)] top-5 flex items-center gap-2">
@@ -199,7 +202,7 @@ export default function Header() {
 
       {/* Desktop condensed bar, visible only after the masthead scrolls away */}
       <div
-        className={`fixed inset-x-0 top-0 z-50 hidden border-b border-paper-edge bg-paper/95 backdrop-blur transition-transform lg:block ${
+        className={`fixed inset-x-0 top-0 z-50 hidden border-b border-paper-edge bg-paper-sunk/95 backdrop-blur transition-transform lg:block ${
           condensed ? 'translate-y-0' : 'pointer-events-none invisible -translate-y-full'
         }`}
         aria-hidden={!condensed}
@@ -226,12 +229,12 @@ export default function Header() {
       </div>
 
       {/* Phone and tablet header: 64px, menu + mark */}
-      <div className="sticky top-0 z-50 border-b border-paper-edge bg-paper/95 backdrop-blur lg:hidden">
+      <div className="sticky top-0 z-50 bg-paper-sunk/95 backdrop-blur lg:hidden">
         <div className="shell flex h-16 items-center gap-2">
           <button
             ref={toggleRef}
             type="button"
-            className="inline-flex h-11 w-11 items-center justify-center rounded text-ink transition-colors hover:bg-paper-sunk"
+            className="inline-flex h-11 w-11 items-center justify-center rounded text-ink transition-colors hover:bg-ink/5"
             aria-expanded={open}
             aria-controls="mobile-nav"
             onClick={() => setOpen((v) => !v)}
@@ -327,7 +330,7 @@ function PlanBox({ active, compact = false, tabbable = true }: { active: boolean
       aria-current={active ? 'page' : undefined}
       className={`inline-flex items-center justify-center whitespace-nowrap rounded border font-sans font-semibold transition-colors ${
         compact ? 'h-9 px-3.5 text-[13px]' : 'h-11 px-4 text-[15px]'
-      } ${active ? 'border-ink bg-ink text-paper' : 'border-ink bg-paper text-ink hover:bg-ink hover:text-paper'}`}
+      } ${active ? 'border-ink bg-ink text-paper' : 'border-ink bg-transparent text-ink hover:bg-ink hover:text-paper'}`}
       tabIndex={tabbable ? 0 : -1}
     >
       {planNav.label}
@@ -340,7 +343,7 @@ function BagLink({ tabbable = true }: { tabbable?: boolean }) {
   return (
     <Link
       href="/bag/"
-      className="inline-flex h-11 w-11 items-center justify-center rounded text-ink transition-colors hover:bg-paper-sunk"
+      className="inline-flex h-11 w-11 items-center justify-center rounded text-ink transition-colors hover:bg-ink/5"
       aria-label="Your bag"
       tabIndex={tabbable ? 0 : -1}
     >
