@@ -41,6 +41,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/neighborhoods/', priority: 0.8, freq: 'monthly' },
     { path: '/guides/', priority: 0.9, freq: 'weekly' },
     { path: '/plan/', priority: 0.9, freq: 'monthly' },
+    { path: '/private-events/', priority: 0.8, freq: 'monthly' },
     { path: '/how-we-choose/', priority: 0.6, freq: 'yearly' },
     { path: '/editorial-standards/', priority: 0.5, freq: 'yearly' },
     { path: '/corrections/', priority: 0.3, freq: 'yearly' },

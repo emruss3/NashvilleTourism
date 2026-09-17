@@ -21,6 +21,7 @@ export const ANALYTICS_EVENTS = {
   ACTIVITY_AFFILIATE_CLICKED: 'activity_affiliate_clicked',
   RESTAURANT_RESERVATION_CLICKED: 'restaurant_reservation_clicked',
   NEWSLETTER_SIGNUP: 'newsletter_signup',
+  EVENT_INQUIRY_SUBMITTED: 'event_inquiry_submitted',
   SPONSOR_CLICKED: 'sponsor_clicked',
   MAP_OPENED: 'map_opened',
   PHONE_CLICKED: 'phone_clicked',

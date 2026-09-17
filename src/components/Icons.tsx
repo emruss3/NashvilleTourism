@@ -111,6 +111,9 @@ export function RingIcon(p: IconProps) {
 export function BottleIcon(p: IconProps) {
   return base(p, <><path d="M8 2.5h4v3l1.5 2.5v9a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1V8L8 5.5v-3Z" /><path d="M6.5 11h7" /></>);
 }
+export function CarIcon(p: IconProps) {
+  return base(p, <><path d="M3 11.5 4.6 6.8A1.5 1.5 0 0 1 6 5.8h8a1.5 1.5 0 0 1 1.4 1l1.6 4.7M3 11.5h14v4H3v-4Z" /><circle cx="6" cy="15.5" r="1.6" /><circle cx="14" cy="15.5" r="1.6" /><path d="M5.5 11.5h9" /></>);
+}
 export function SparkleIcon(p: IconProps) {
   return base(p, <><path d="M10 2.5 11.8 8.2 17.5 10l-5.7 1.8L10 17.5l-1.8-5.7L2.5 10l5.7-1.8L10 2.5Z" /></>);
 }

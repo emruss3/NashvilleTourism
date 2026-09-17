@@ -14,8 +14,8 @@ import Wordmark, { NsvlMark } from './Wordmark';
  * on the left and the utilities on the right: "My trip" as a text link, the
  * boxed "Plan your trip" call to action, then the bag at the far right. Row
  * two is one flat navigation row spread evenly across the shell:
- * Restaurants, Tours, Neighborhoods, Things to do, Concerts & Events, Hotels,
- * Shop. There is no search icon in the header; search lives on the pages.
+ * Things to do, Music, Restaurants, Tours, Neighborhoods, Hotels, Private
+ * Events, Shop. There is no search icon in the header; search lives on the pages.
  * The masthead scrolls away and a slim sticky bar takes over.
  *
  * Under 768px (MOBILE-FIRST.md): one compact 64px sticky row with the menu
@@ -36,7 +36,7 @@ export default function Header() {
 
   const isActive = (href: string) => {
     const base = href.replace(/#.*$/, '');
-    if (base === '/events/') return pathname.startsWith('/events') || pathname.startsWith('/music') || pathname.startsWith('/live-music');
+    if (base === '/music/') return pathname.startsWith('/music') || pathname.startsWith('/live-music') || pathname.startsWith('/events');
     if (base === '/bag/') return pathname.startsWith('/bag');
     return pathname === base || pathname.startsWith(base);
   };

@@ -21,6 +21,7 @@ const LINKS = [
   { label: 'Hotels', href: '/hotels/' },
   { label: 'Shop', href: '/shop/' },
   { label: 'Plan', href: '/plan/' },
+  { label: 'Private events', href: '/private-events/' },
   { label: 'Journal', href: '/guides/' },
   { label: 'Subscribe', href: '/newsletter/' },
   { label: 'Advertise', href: '/advertising/' },

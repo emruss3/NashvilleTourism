@@ -127,11 +127,12 @@ export const exploreNav = [
  */
 export const primaryNav = [
   { label: 'Things to do', href: '/things-to-do/' },
-  { label: 'Concerts & Events', href: '/events/' },
+  { label: 'Music', href: '/music/' },
   { label: 'Restaurants', href: '/restaurants/' },
   { label: 'Tours', href: '/tours/' },
   { label: 'Neighborhoods', href: '/neighborhoods/' },
   { label: 'Hotels', href: '/hotels/' },
+  { label: 'Private Events', href: '/private-events/' },
   { label: 'Shop', href: '/shop/' },
 ] as const;
 
@@ -170,6 +171,7 @@ export const footerNav = {
   ],
   Plan: [
     { label: 'Build a trip', href: '/plan/' },
+    { label: 'Private events', href: '/private-events/' },
     { label: 'The weekend', href: '/weekend/' },
     { label: 'Live music tonight', href: '/live-music-tonight/' },
     { label: 'Shop NSVL', href: '/shop/' },
