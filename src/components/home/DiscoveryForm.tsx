@@ -7,20 +7,25 @@ import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
 import { INTERESTS, WHEN_OPTIONS, exploreHref, neighborhoodOptions, type ExploreQuery } from '@/lib/explore';
 
 /**
- * Discovery module, rendered once and styled for both layouts:
+ * Discovery module, rendered once and styled for both layouts.
  *
- * Phones (MOBILE-FIRST.md §Homepage 3): a visible search field, the quick
- * links Tonight / This weekend, and a "Choose dates" toggle that reveals
- * neighborhood, interest and dates.
+ * Phones (MOBILE-FIRST.md §Homepage 3): a visible search field with its own
+ * Go button, the quick links Tonight / Tomorrow / This weekend / Next 7 days,
+ * and a "More options" toggle that reveals neighborhood, interest and when.
  *
- * Desktop (SITE-LAYOUT.md §Discovery band): the same controls as one
- * charcoal band of icon-led fields (search, Neighborhood, Interest, Dates)
- * and a Paper White "Find your plans" button. The panel is always open.
+ * Desktop (SITE-LAYOUT.md §Discovery band): one row of labelled fields on the
+ * black band: Search, Neighborhood, Interest, When, then the "Find your
+ * plans" button. Every field carries a visible label so nothing depends on a
+ * clipped placeholder, and "When" is a single select (Any time, Tonight,
+ * Tomorrow, This weekend, Next 7 days, Pick dates) instead of two bare date
+ * inputs; picking dates reveals the From / To fields beneath the row.
  *
  * A plain GET form to /explore/, so selections live in the URL and survive
- * Back and reload. Dates default to unset; Tonight and This weekend resolve
- * in America/Chicago at request time.
+ * Back and reload. Tonight and This weekend resolve in America/Chicago at
+ * request time; explicit dates replace a shortcut and vice versa.
  */
+const PICK_DATES = 'dates';
+
 export default function DiscoveryForm({
   initial,
   variant = 'home',
@@ -29,24 +34,29 @@ export default function DiscoveryForm({
   /** `explore` keeps the panel open at every width and uses the light styling. */
   variant?: 'home' | 'explore';
 }) {
-  const hasDetail = Boolean(initial?.from || initial?.to || initial?.neighborhood || initial?.interest);
+  const hasDates = Boolean(initial?.from || initial?.to);
+  const hasDetail = hasDates || Boolean(initial?.neighborhood || initial?.interest || initial?.when);
   const [open, setOpen] = useState(variant === 'explore' || hasDetail);
+  const [when, setWhen] = useState<string>(hasDates ? PICK_DATES : initial?.when ?? '');
   const panelId = useId();
+  const datesId = useId();
   const router = useRouter();
   const dark = variant === 'home';
+  const pickingDates = when === PICK_DATES;
 
-  const label = `mb-1 block text-2xs font-semibold uppercase tracking-[0.14em] ${dark ? 'text-ink-soft md:sr-only' : 'text-ink-soft'}`;
+  const label = `mb-1 block text-2xs font-semibold uppercase tracking-[0.14em] ${dark ? 'text-ink-soft md:text-paper/75' : 'text-ink-soft'}`;
   const field = dark
-    ? 'field-input md:h-14 md:text-base md:border-paper/45 md:bg-transparent md:text-paper md:placeholder:text-paper/60 md:focus:border-paper md:[color-scheme:dark]'
+    ? 'field-input md:h-[52px] md:text-base md:border-paper/50 md:bg-transparent md:text-paper md:placeholder:text-paper/65 md:focus:border-paper md:focus-visible:outline-paper md:[color-scheme:dark]'
     : 'field-input';
   const withIcon = 'md:pl-10';
-  const iconClass = `pointer-events-none absolute left-3 top-1/2 hidden -translate-y-1/2 md:block ${dark ? 'text-paper/70' : 'text-ink-soft'}`;
+  const iconClass = `pointer-events-none absolute left-3 top-[calc(50%+0.625rem)] hidden -translate-y-1/2 md:block ${dark ? 'text-paper/70' : 'text-ink-soft'}`;
   const quick = dark
     ? 'inline-flex min-h-11 items-center text-[15px] font-semibold text-ink underline-offset-[0.2em] md:min-h-8 md:text-sm md:text-paper'
     : 'inline-flex min-h-11 items-center text-[15px] font-semibold text-ink underline-offset-[0.2em]';
 
   // Progressive enhancement: with JS, drop empty fields so the URL only
-  // carries real filters. Without JS the native GET submit still works.
+  // carries real filters. Without JS the native GET submit still works and
+  // /explore/ ignores a `when` of "dates" as an unknown value.
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
@@ -54,8 +64,12 @@ export default function DiscoveryForm({
     for (const [key, value] of data.entries()) {
       if (typeof value === 'string' && value.trim()) params.set(key, value.trim());
     }
-    // Explicit dates replace a Tonight / This weekend shortcut.
-    if (params.has('from') || params.has('to')) params.delete('when');
+    if (params.get('when') === PICK_DATES) params.delete('when');
+    // A shortcut and explicit dates never travel together.
+    if (params.has('when')) {
+      params.delete('from');
+      params.delete('to');
+    }
     track(ANALYTICS_EVENTS.DISCOVERY_SUBMITTED, {
       item_type: params.get('interest') || undefined,
       neighborhood: params.get('neighborhood') || undefined,
@@ -70,16 +84,14 @@ export default function DiscoveryForm({
 
   return (
     <form action="/explore/" method="get" onSubmit={onSubmit} role="search" aria-label="Find shows, places and neighborhoods">
-      {initial?.when ? <input type="hidden" name="when" value={initial.when} /> : null}
-
-      <div className="lg:grid lg:grid-cols-[1.1fr_1fr_1.1fr_1.3fr_auto] lg:items-end lg:gap-4">
-        <div>
-          <label htmlFor="explore-q" className={`${label} sr-only`}>
-            Search shows, places, neighborhoods
+      <div className="lg:grid lg:grid-cols-[1.45fr_1fr_1.15fr_1fr_auto] lg:items-end lg:gap-4">
+        <div className="relative">
+          <label htmlFor="explore-q" className={`${label} sr-only md:not-sr-only`}>
+            Search
           </label>
           <div className="flex gap-2">
             <div className="relative flex-1">
-              <span className={iconClass} aria-hidden="true">
+              <span className={`${iconClass} !top-1/2`} aria-hidden="true">
                 <SearchIcon />
               </span>
               <input
@@ -89,6 +101,7 @@ export default function DiscoveryForm({
                 defaultValue={initial?.q ?? ''}
                 placeholder="Shows, places, neighborhoods"
                 autoComplete="off"
+                enterKeyHint="search"
                 className={`${field} ${withIcon}`}
               />
             </div>
@@ -108,7 +121,7 @@ export default function DiscoveryForm({
             <label htmlFor="explore-neighborhood" className={label}>
               Neighborhood
             </label>
-            <span className={`${iconClass} md:top-[calc(50%+0.25rem)] lg:top-1/2`} aria-hidden="true">
+            <span className={iconClass} aria-hidden="true">
               <PinIcon />
             </span>
             <select id="explore-neighborhood" name="neighborhood" defaultValue={initial?.neighborhood ?? ''} className={`${field} ${withIcon}`}>
@@ -124,11 +137,11 @@ export default function DiscoveryForm({
             <label htmlFor="explore-interest" className={label}>
               Interest
             </label>
-            <span className={`${iconClass} md:top-[calc(50%+0.25rem)] lg:top-1/2`} aria-hidden="true">
+            <span className={iconClass} aria-hidden="true">
               <NoteIcon />
             </span>
             <select id="explore-interest" name="interest" defaultValue={initial?.interest ?? ''} className={`${field} ${withIcon}`}>
-              <option value="">Music, food, art, neighborhoods…</option>
+              <option value="">Anything</option>
               {INTERESTS.map((i) => (
                 <option key={i.value} value={i.value}>
                   {i.label}
@@ -136,25 +149,58 @@ export default function DiscoveryForm({
               ))}
             </select>
           </div>
-          <div className="grid grid-cols-2 gap-2 sm:col-span-2 lg:col-span-1">
-            <div className="relative">
+          <div className="relative">
+            <label htmlFor="explore-when" className={label}>
+              When
+            </label>
+            <span className={iconClass} aria-hidden="true">
+              <CalendarIcon />
+            </span>
+            <select
+              id="explore-when"
+              name="when"
+              value={when}
+              onChange={(e) => setWhen(e.target.value)}
+              aria-controls={datesId}
+              aria-expanded={pickingDates}
+              className={`${field} ${withIcon}`}
+            >
+              <option value="">Any time</option>
+              {WHEN_OPTIONS.map((w) => (
+                <option key={w.value} value={w.value}>
+                  {w.label}
+                </option>
+              ))}
+              <option value={PICK_DATES}>Pick dates…</option>
+            </select>
+          </div>
+          {/* Explicit dates, shown only after "Pick dates…" so the row stays one line. Wrapped in the panel so phones get it too. */}
+          <div
+            id={datesId}
+            className={`${pickingDates ? 'grid' : 'hidden'} grid-cols-2 gap-3 sm:col-span-2 lg:order-last lg:col-span-5 lg:max-w-md lg:pb-1`}
+          >
+            <div>
               <label htmlFor="explore-from" className={label}>
                 From
               </label>
-              <span className={`${iconClass} md:top-[calc(50%+0.25rem)] lg:top-1/2`} aria-hidden="true">
-                <CalendarIcon />
-              </span>
-              <input id="explore-from" name="from" type="date" aria-label="From date" defaultValue={initial?.from ?? ''} className={`${field} ${withIcon}`} />
+              <input
+                id="explore-from"
+                name="from"
+                type="date"
+                defaultValue={initial?.from ?? ''}
+                disabled={!pickingDates}
+                className={field}
+              />
             </div>
             <div>
               <label htmlFor="explore-to" className={label}>
                 To
               </label>
-              <input id="explore-to" name="to" type="date" aria-label="To date" defaultValue={initial?.to ?? ''} className={field} />
+              <input id="explore-to" name="to" type="date" defaultValue={initial?.to ?? ''} disabled={!pickingDates} className={field} />
             </div>
           </div>
           <div className="sm:col-span-2 lg:col-span-1">
-            <button type="submit" className={dark ? 'btn-reverse hidden w-full md:inline-flex md:h-14 md:w-auto md:px-8 md:text-base' : 'btn-primary w-full lg:w-auto'}>
+            <button type="submit" className={dark ? 'btn-reverse hidden w-full md:inline-flex md:h-[52px] md:w-auto md:px-8 md:text-base' : 'btn-primary w-full lg:w-auto'}>
               Find your plans
               <span aria-hidden="true">→</span>
             </button>
@@ -164,10 +210,11 @@ export default function DiscoveryForm({
               </button>
             ) : null}
           </div>
+
         </div>
       </div>
 
-      {/* Quick links stay on phones and on the Explore page; the desktop home band is the one row of fields the board shows (the calendar module carries the date shortcuts). */}
+      {/* Quick links stay on phones and on the Explore page; the desktop home band is the one labelled row the board shows (the calendar module carries the date shortcuts). */}
       <div className={`mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 ${dark ? 'lg:hidden' : 'lg:mt-2'}`}>
         <span className={`text-2xs font-semibold uppercase tracking-[0.14em] ${dark ? 'text-ink-soft md:text-paper/70' : 'text-ink-soft'}`}>
           Quick
@@ -190,7 +237,7 @@ export default function DiscoveryForm({
             onClick={() => setOpen((v) => !v)}
             className={`${quick} gap-1.5 hover:underline lg:hidden`}
           >
-            Choose dates
+            More options
             <span aria-hidden="true" className={`text-xs transition-transform ${open ? 'rotate-180' : ''}`}>
               ▾
             </span>

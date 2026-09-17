@@ -84,8 +84,8 @@
   }
 
   :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-    outline: 3px solid currentColor;
-    outline-offset: 3px;
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
     border-radius: 2px;
   }
 
