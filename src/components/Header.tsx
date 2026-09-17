@@ -19,7 +19,7 @@ import Wordmark, { NsvlMark } from './Wordmark';
  * The masthead scrolls away and a slim sticky bar takes over.
  *
  * Under 768px (MOBILE-FIRST.md): one compact 64px sticky row with the menu
- * and the standalone NSVL mark. The menu lists the same seven sections, then
+ * and the NSVL / NASHVILLE lockup. The menu lists the same seven sections, then
  * My trip and Plan your trip, then the secondary links.
  *
  * The bag sits top right in every variant and opens the bag page. No
@@ -165,10 +165,10 @@ export default function Header() {
             <span className="sr-only">{open ? 'Close menu' : 'Open menu'}</span>
             <MenuIcon open={open} />
           </button>
-          <Link href="/" aria-label={`${site.name} home`} className="inline-flex flex-1 justify-center">
-            <NsvlMark width={104} decorative />
-          </Link>
-          {/* Balances the menu control so the mark stays centered. */}
+          {/* Full lockup (NSVL over NASHVILLE) at the 140px minimum; the menu and bag controls balance it. */}
+          <div className="flex min-w-0 flex-1 justify-center">
+            <Wordmark width={140} />
+          </div>
           <BagLink />
         </div>
 
