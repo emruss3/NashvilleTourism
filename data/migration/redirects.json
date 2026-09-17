@@ -1,0 +1,10 @@
+{
+  "generatedAt": "2026-09-17T00:00:00.000Z",
+  "source": "awaiting data/migration/nashville_com_backlink_audit_redirect_map.xlsx; run `npm run redirects:build`",
+  "hosts": [
+    "nashville.com",
+    "www.nashville.com"
+  ],
+  "target": "https://nashroam.com",
+  "rules": []
+}

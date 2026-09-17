@@ -1,0 +1,159 @@
+{
+  "generatedAt": "2026-09-17T02:32:31.831Z",
+  "static": [
+    "/",
+    "/about/",
+    "/advertising/",
+    "/authors/",
+    "/bag/",
+    "/contact/",
+    "/corrections/",
+    "/editorial-standards/",
+    "/events/",
+    "/events/this-weekend/",
+    "/explore/",
+    "/guides/",
+    "/homepage-v2/",
+    "/honky-tonk-highway/",
+    "/hotels/",
+    "/how-we-choose/",
+    "/live-music-tonight/",
+    "/music/",
+    "/neighborhoods/",
+    "/newsletter/",
+    "/photo-credits/",
+    "/plan/",
+    "/privacy/",
+    "/restaurants/",
+    "/search/",
+    "/shop/",
+    "/style-guide/",
+    "/terms/",
+    "/things-to-do/",
+    "/tours/",
+    "/weekend/",
+    "/where-to-stay/"
+  ],
+  "dynamic": [
+    {
+      "pattern": "/authors/[slug]/",
+      "slugs": [
+        "editorial-desk",
+        "music-desk",
+        "managing-editor"
+      ]
+    },
+    {
+      "pattern": "/events/[slug]/",
+      "slugs": []
+    },
+    {
+      "pattern": "/guides/[slug]/",
+      "slugs": [
+        "best-restaurants-nashville",
+        "best-bars-rooftops-nashville",
+        "best-live-music-venues-nashville",
+        "where-to-stay-nashville",
+        "best-things-to-do-nashville",
+        "nashville-neighborhood-guide",
+        "nashville-first-time-visitors",
+        "nashville-weekend-itinerary",
+        "nashville-bachelorette-guide",
+        "nashville-with-kids"
+      ]
+    },
+    {
+      "pattern": "/hotels/[slug]/",
+      "slugs": [
+        "1-hotel-nashville",
+        "the-joseph-nashville",
+        "four-seasons-hotel-nashville",
+        "omni-nashville-hotel",
+        "jw-marriott-nashville",
+        "grand-hyatt-nashville",
+        "thompson-nashville",
+        "w-nashville",
+        "conrad-nashville",
+        "graduate-nashville",
+        "hutton-hotel",
+        "holiday-inn-nashville-vanderbilt",
+        "germantown-inn",
+        "hilton-nashville-green-hills"
+      ]
+    },
+    {
+      "pattern": "/music/[slug]/",
+      "slugs": [
+        "ryman-auditorium",
+        "grand-ole-opry",
+        "bridgestone-arena",
+        "ascend-amphitheater",
+        "the-pinnacle",
+        "the-truth",
+        "bluebird-cafe",
+        "the-listening-room-cafe",
+        "station-inn",
+        "3rd-and-lindsley",
+        "the-basement-east",
+        "exit-in"
+      ]
+    },
+    {
+      "pattern": "/neighborhoods/[slug]/",
+      "slugs": [
+        "downtown-broadway",
+        "12-south",
+        "the-gulch",
+        "east-nashville",
+        "germantown",
+        "wedgewood-houston",
+        "midtown",
+        "hillsboro-village",
+        "sylvan-park",
+        "green-hills"
+      ]
+    },
+    {
+      "pattern": "/restaurants/[slug]/",
+      "slugs": []
+    },
+    {
+      "pattern": "/things-to-do/[slug]/",
+      "slugs": [
+        "country-music-hall-of-fame",
+        "the-parthenon",
+        "nashville-farmers-market",
+        "shelby-bottoms-greenway",
+        "ryman-auditorium-tour",
+        "frist-art-museum",
+        "cheekwood-estate-gardens",
+        "national-museum-of-african-american-music"
+      ]
+    },
+    {
+      "pattern": "/tours/[productCode]/",
+      "slugs": []
+    },
+    {
+      "pattern": "/where-to-stay/[slug]/",
+      "slugs": [
+        "boutique-hotels-downtown",
+        "group-rentals-bachelor-bachelorette",
+        "luxury-resorts-opryland",
+        "walkable-to-broadway",
+        "hotels-with-pools",
+        "value-stays-midtown"
+      ]
+    }
+  ],
+  "sections": {
+    "hotels": "/hotels/",
+    "golf": null,
+    "attractions": "/things-to-do/",
+    "music": "/music/",
+    "events": "/events/",
+    "articles": "/guides/",
+    "restaurants": "/restaurants/",
+    "neighborhoods": "/neighborhoods/"
+  }
+}
