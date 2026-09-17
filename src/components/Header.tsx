@@ -126,7 +126,7 @@ export default function Header() {
             </div>
           </div>
         </div>
-        <nav aria-label="Primary" className="border-y border-paper-edge bg-paper">
+        <nav aria-label="Primary" className="border-t border-ink/15 bg-paper-sunk">
           <div className="shell">{navRow(false, true)}</div>
         </nav>
       </div>
