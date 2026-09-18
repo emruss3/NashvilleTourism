@@ -79,7 +79,7 @@ export function neighborhoodImageKey(slug: string): ImageKey {
  */
 const AREA_FALLBACKS: Record<string, ImageKey[]> = {
   'downtown-broadway': ['hero/lower-broadway', 'editorial/broadway-rooftop-day', 'downtown/sobro', 'editorial/broadway-nightlife', 'editorial/printers-alley', 'downtown/nashville-yards'],
-  midtown: ['editorial/parthenon-west-end', 'editorial/music-row-studio-b', 'editorial/skyline'],
+  midtown: ['editorial/parthenon-west-end', 'editorial/skyline', 'hero/nashroam-skyline'],
   'the-gulch': ['neighborhood/the-gulch', 'editorial/skyline'],
   'east-nashville': ['neighborhood/east-nashville', 'editorial/pedestrian-bridge'],
   germantown: ['neighborhood/germantown', 'editorial/skyline'],
