@@ -20,14 +20,7 @@ export default function AdvertisingPage() {
         intro="How we make money, stated plainly, including the things we will not sell."
       />
       <div className="prose-editorial py-10">
-        <div className="rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep not-prose">
-          <strong className="font-semibold">Template page.</strong> This is placeholder commercial
-          policy text. Rates, inventory, contract terms, and disclosure language must be reviewed by
-          counsel and completed with real business details before publication. Nothing on this page
-          is an offer, and no product described here is currently for sale.
-        </div>
-
-        <p className="mt-6">
+        <p>
           {site.name} is supported by advertising, sponsorship, and affiliate commissions. We would
           rather tell you exactly how that works than let you guess. The short version: money can buy
           attention on this site, clearly marked as such. It cannot buy a recommendation.

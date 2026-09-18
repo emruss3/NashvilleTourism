@@ -1,14 +1,14 @@
 import Link from 'next/link';
 import { BedIcon, BuildingIcon, CalendarIcon, CarIcon, CheckIcon, ForkIcon, GlassIcon, MusicIcon, PeopleIcon, PinIcon, SparkleIcon } from '@/components/Icons';
 import { ContentImage, SmartImage } from '@/components/Media';
-import { Breadcrumbs } from '@/components/Ui';
+import { Breadcrumbs, JsonLd } from '@/components/Ui';
 import PageIntro from '@/components/hub/PageIntro';
 import SectionHead from '@/components/hub/SectionHead';
 import InquiryForm from '@/components/private-events/InquiryForm';
 import { hotels } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
 import { EVENT_TYPES, OCCASIONS, SERVICES, SPACE_TILES, STEPS, isEventType, type BriefPrefill } from '@/lib/private-events';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, serviceSchema } from '@/lib/seo';
 
 type Params = Record<string, string | string[] | undefined>;
 
@@ -66,6 +66,15 @@ export default async function PrivateEventsPage(props: { searchParams?: Promise<
 
   return (
     <>
+      <JsonLd
+        data={serviceSchema({
+          path: '/private-events/',
+          name: 'Private event venue sourcing in Nashville',
+          serviceType: 'Event planning',
+          description: 'Corporate gatherings, holiday parties, convention receptions and private celebrations: share a brief and NSVL connects you with Nashville spaces that fit, then you confirm directly with the venue.',
+          audience: 'Corporate and group event planners',
+        })}
+      />
       <div className="shell">
         <Breadcrumbs trail={[{ name: 'Private events', href: '/private-events/' }]} />
       </div>

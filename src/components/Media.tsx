@@ -2,15 +2,17 @@ import { getImage, hasMedia, type ImageKey } from '@/lib/media';
 import { asset as assetUrl } from '@/lib/seo';
 
 /**
- * Renders a real photograph when the licensed file has been added, and a
- * quiet fallback until then. The fallback reserves the same space, so
- * swapping in the real asset causes no layout shift.
+ * Renders a real photograph when the licensed file has been added. When a
+ * key has no cleared file, `fallbackKey` (usually the neighborhood or area
+ * photograph) renders instead; with no fallback nothing renders at all, so
+ * no page ever shows an empty "photography coming" box.
  *
  * Credits stay in the media registry and /photo-credits — never as on-image pills
  * (those read as location labels).
  */
 export function SmartImage({
   imageKey,
+  fallbackKey,
   ratio = 'aspect-[3/2]',
   className = '',
   sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
@@ -19,6 +21,8 @@ export function SmartImage({
   showCredit: _showCredit = false,
 }: {
   imageKey?: ImageKey;
+  /** Cleared photograph of the surrounding area, used when `imageKey` has no cleared file. */
+  fallbackKey?: ImageKey;
   ratio?: string;
   className?: string;
   sizes?: string;
@@ -27,21 +31,12 @@ export function SmartImage({
   /** Deprecated: on-image credit pills are not rendered. */
   showCredit?: boolean;
 }) {
-  const asset = getImage(imageKey);
-  const ready = imageKey ? hasMedia(imageKey) : false;
+  const primaryReady = imageKey ? hasMedia(imageKey) : false;
+  const key = primaryReady ? imageKey : fallbackKey && hasMedia(fallbackKey) ? fallbackKey : undefined;
+  const asset = getImage(key);
   const round = rounded ? 'rounded-card' : '';
 
-  if (!asset || !ready) {
-    return (
-      <div
-        className={`photo-slot ${ratio} ${round} ${className}`}
-        role="img"
-        aria-label={asset?.alt ?? 'Photography placeholder'}
-      >
-        <span className="sr-only">Photography coming soon</span>
-      </div>
-    );
-  }
+  if (!asset || !key) return null;
 
   const desktopSrcSet = buildSrcSet(asset);
   const mobileSrcSet = asset.srcMobileSet
@@ -114,7 +109,7 @@ function buildSrcSet(image: {
 
 /**
  * Exact listing photography from ContentBase.image. Never falls back to a
- * category stock image — missing photos use PhotoSlot instead.
+ * category stock image; callers without a photo render the area instead.
  */
 export function ContentImage({
   image,

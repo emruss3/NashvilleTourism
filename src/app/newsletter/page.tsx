@@ -1,6 +1,6 @@
-import { Breadcrumbs, PageHeader } from '@/components/Ui';
+import { Breadcrumbs, JsonLd, PageHeader } from '@/components/Ui';
 import NewsletterForm from '@/components/NewsletterForm';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, webPageSchema } from '@/lib/seo';
 import { site } from '@/lib/site';
 
 export const metadata = buildMetadata({
@@ -13,6 +13,7 @@ export const metadata = buildMetadata({
 export default function NewsletterPage() {
   return (
     <div className="shell pb-16">
+      <JsonLd data={webPageSchema('WebPage', { path: '/newsletter/', name: site.newsletter.name, description: site.newsletter.promise })} />
       <Breadcrumbs trail={[{ name: 'Newsletter', href: '/newsletter/' }]} />
       <PageHeader eyebrow="Newsletter" title={site.newsletter.heading} intro={site.newsletter.promise} />
 

@@ -94,11 +94,10 @@ Data maturity varies by section. Treat each accordingly:
 - **Hotels** (/hotels/, /where-to-stay/): real Nashville hotels. Practical
   details are marked "needs re-check" until a person re-verifies them; confirm
   with the property before relying on specifics.
-- **Events** (/events/, /live-music-tonight/): live feed where connected;
-  records labelled [Sample] are placeholders and not real events.
-- **Restaurants** (/restaurants/): a mix. Records marked verified are real
-  places; records with bracketed [Sample] names are placeholders and must not
-  be presented as real businesses.
+- **Events** (/events/, /live-music-tonight/): dated listings come from the
+  live ticketing feed only; nothing is invented when the feed is quiet.
+- **Restaurants** (/restaurants/): real places from the neighborhood guides,
+  each checked on the date shown on its page.
 - **Neighborhoods and guides**: editorial content based on general local
   knowledge, with check dates shown.
 `;

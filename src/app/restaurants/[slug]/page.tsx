@@ -62,7 +62,7 @@ export default async function RestaurantPage(props: { params: Promise<{ slug: st
 
       <div className="grid gap-10 py-10 lg:grid-cols-[1.6fr_1fr]">
         <div>
-          <PhotoSlot label={r.title} ratio="aspect-[16/9]" className="rounded-card" />
+          <PhotoSlot label={r.title} neighborhood={r.neighborhood} ratio="aspect-[16/9]" className="rounded-card" />
 
           <section className="py-8">
             <h2 className="text-2xl">Why we recommend it</h2>

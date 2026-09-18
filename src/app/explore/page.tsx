@@ -107,8 +107,8 @@ export default async function ExplorePage(props: { searchParams?: Promise<Params
 
       {!calendar.live && (window.label || query.when) ? (
         <p className="mt-4 rounded-card border border-paper-edge p-4 text-[15px] text-ink-soft">
-          The live event calendar is on its way, so date filters currently apply to events only once it is
-          connected. Places are shown for every date.
+          No dated listings for that window yet. Places are shown for every date; for tonight&rsquo;s music,
+          start with the <Link href="/music/" className="font-semibold text-ink underline-offset-[0.2em] hover:underline">venue guide</Link>.
         </p>
       ) : null}
 

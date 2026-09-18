@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { Breadcrumbs, PageHeader, FactTable } from '@/components/Ui';
-import { buildMetadata } from '@/lib/seo';
+import { Breadcrumbs, JsonLd, PageHeader, FactTable } from '@/components/Ui';
+import { buildMetadata, webPageSchema } from '@/lib/seo';
 import { site } from '@/lib/site';
 
 export const metadata = buildMetadata({
@@ -13,6 +13,7 @@ export const metadata = buildMetadata({
 export default function AboutPage() {
   return (
     <div className="shell pb-16">
+      <JsonLd data={webPageSchema('AboutPage', { path: '/about/', name: `About ${site.name}`, description: site.positioning })} />
       <Breadcrumbs trail={[{ name: 'About', href: '/about/' }]} />
       <PageHeader
         eyebrow="About"
@@ -20,14 +21,6 @@ export default function AboutPage() {
         intro="An independent guide to Nashville, written by people who live here and checked before it is published."
       />
       <div className="prose-editorial py-10">
-        <div className="rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep not-prose">
-          <strong className="font-semibold">Template page.</strong> This site is running on
-          placeholder brand and business details. Before publication, the operating company, address,
-          staff, and ownership disclosures on this page must be replaced with real, checkable
-          information and reviewed by counsel. Nothing here should be treated as a live statement
-          about an existing business.
-        </div>
-
         <h2 className="text-2xl mt-10 mb-3">What {site.name} is</h2>
         <p>
           {site.name} is a city guide to Nashville. We publish recommendations for restaurants,
@@ -99,24 +92,17 @@ export default function AboutPage() {
 
         <h2 className="text-2xl mt-10 mb-3">Who writes this</h2>
         <p>
-          Every article carries a named writer and, where a piece has been through a formal check, a
-          named editor. Author pages list what each person covers and how to reach them. Bylines are
-          real people, never a generic desk name standing in for one.
+          Every guide carries the desk that produced it and, where a piece has been through a formal
+          check, the desk that checked it. The desk pages list what each one covers and how to reach
+          it. When an individual writer is credited, that is a real person, never a pen name.
         </p>
 
         <h2 className="text-2xl mt-10 mb-3">Business details</h2>
-        <p>
-          These fields are placeholders in the template and must be completed before launch.
-        </p>
         <div className="not-prose mt-4">
           <FactTable
             rows={[
               { label: 'Publication', value: site.name },
-              { label: 'Legal entity', value: site.org.legalName },
-              {
-                label: 'Address',
-                value: `${site.org.address.street}, ${site.org.address.city}, ${site.org.address.region} ${site.org.address.postalCode}, ${site.org.address.country}`,
-              },
+              { label: 'Based in', value: `${site.org.address.city}, ${site.org.address.region}` },
               { label: 'General email', value: site.org.email },
               { label: 'Editorial email', value: site.org.editorialEmail },
               { label: 'Corrections', value: site.org.correctionsEmail },

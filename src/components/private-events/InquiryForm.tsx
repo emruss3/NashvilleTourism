@@ -211,7 +211,7 @@ export default function InquiryForm({ prefill = {} }: { prefill?: BriefPrefill }
 
       {state === 'unavailable' ? (
         <p role="alert" className="rounded-card border border-ink bg-paper-sunk p-4 text-sm text-ink sm:col-span-2 lg:col-span-3">
-          Our inquiry inbox is not connected yet, so nothing was saved.{' '}
+          We couldn&rsquo;t save your inquiry just now.{' '}
           <a href={mailto} className="font-semibold underline underline-offset-[0.2em]">
             Email the same details to {site.org.email}
           </a>{' '}

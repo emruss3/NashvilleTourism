@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Breadcrumbs, JsonLd, MapLink, SectionHeader } from '@/components/Ui';
 import { ContentImage, SmartImage } from '@/components/Media';
+import { hasMedia } from '@/lib/media';
 import { StickySectionNav } from '@/components/neighborhood-guide/StickySectionNav';
 import { getAttraction, getVenue } from '@/lib/content';
 import type { NeighborhoodEditorialGuide, NeighborhoodPick } from '@/lib/content/neighborhood-guides';
@@ -32,7 +33,7 @@ function buildNav(guide: NeighborhoodEditorialGuide) {
 
 function PickRow({ pick }: { pick: NeighborhoodPick }) {
   const listing = pick.photoPolicy === 'text-only' ? undefined : listingImage(pick);
-  const useKey = pick.photoPolicy !== 'text-only' && pick.imageKey;
+  const useKey = pick.photoPolicy !== 'text-only' && pick.imageKey && hasMedia(pick.imageKey);
   const title = pick.href ? (
     <Link href={pick.href} className="hover:text-clay">
       {pick.title}

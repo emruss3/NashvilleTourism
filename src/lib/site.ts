@@ -7,7 +7,6 @@
  *
  * The site is still served from nashroam.com until the domain migration is
  * authorised separately; canonical URLs follow the live host, not the brand.
- * The legal entity and business address remain placeholders until launch.
  */
 
 /**
@@ -19,7 +18,7 @@
  *   1. NEXT_PUBLIC_SITE_URL          the real domain, once one is chosen
  *   2. Vercel's production domain    stable across deploys
  *   3. Vercel's per-deployment URL   preview builds
- *   4. A clearly fake placeholder    local work before a domain exists
+ *   4. The live host                  local work with no environment set
  */
 function resolveSiteUrl(): string {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL;
@@ -34,7 +33,7 @@ function resolveSiteUrl(): string {
   const vercelDeploy = process.env.NEXT_PUBLIC_VERCEL_URL || process.env.VERCEL_URL;
   if (vercelDeploy) return `https://${vercelDeploy.replace(/^https?:\/\//, '').replace(/\/$/, '')}`;
 
-  return 'https://brand-placeholder.example.com';
+  return 'https://nashroam.com';
 }
 
 const SITE_URL = resolveSiteUrl();
@@ -69,42 +68,28 @@ export const site = {
   },
   locale: 'en_US',
   org: {
-    legalName: '[LEGAL ENTITY]',
+    /** Publisher name as it appears in legal and provenance contexts. */
+    legalName: 'NSVL',
+    /** Based in Nashville; correspondence goes by email. */
     address: {
-      street: '[Street Address]',
       city: 'Nashville',
       region: 'TN',
-      postalCode: '[ZIP]',
       country: 'US',
     },
     email: 'hello@nashroam.com',
     editorialEmail: 'editorial@nashroam.com',
     correctionsEmail: 'corrections@nashroam.com',
     advertisingEmail: 'advertise@nashroam.com',
-    phone: '[Phone]',
+    eventsEmail: 'hello@nashroam.com',
   },
-  /** Only verified accounts are rendered; placeholders stay hidden (no dead icons). */
+  /** Public profiles. Only real accounts are listed; add handles here when they exist. */
   social: {
-    instagram: 'https://instagram.com/[handle]',
-    x: 'https://x.com/[handle]',
-    facebook: 'https://facebook.com/[handle]',
     newsletter: '/newsletter/',
+    profiles: [] as { label: string; href: string }[],
   },
   affiliation:
-    'NSVL is an independent city guide operated by [LEGAL ENTITY]. It is not affiliated with the Metropolitan Government of Nashville and Davidson County or the Nashville Convention & Visitors Corp.',
+    'NSVL is an independent city guide based in Nashville. It is not affiliated with the Metropolitan Government of Nashville and Davidson County or the Nashville Convention & Visitors Corp.',
 } as const;
-
-/** True only after the public business identity has replaced launch placeholders. */
-export const hasLaunchIdentity =
-  !site.domain.includes('[') &&
-  !site.org.legalName.includes('[') &&
-  !site.org.email.includes('[') &&
-  !site.org.address.street.includes('[');
-
-/** True for a social URL that is a real account rather than a placeholder. */
-export function isVerifiedSocial(url: string): boolean {
-  return !url.includes('[');
-}
 
 /**
  * Top-level navigation (HOMEPAGE.md §1): Explore, Events, Shop, Plan your

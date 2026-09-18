@@ -3,6 +3,7 @@ import { CalendarIcon } from '@/components/Icons';
 import { SmartImage } from '@/components/Media';
 import { Breadcrumbs } from '@/components/Ui';
 import EventSchedule from '@/components/events/EventSchedule';
+import RoomsTonight from '@/components/events/RoomsTonight';
 import PageIntro from '@/components/hub/PageIntro';
 import SearchField from '@/components/hub/SearchField';
 import SectionHead from '@/components/hub/SectionHead';
@@ -209,20 +210,7 @@ export default async function EventsIndex(props: { searchParams?: Promise<Params
 
             <div id="upcoming" className="mt-6 scroll-mt-24">
               {!calendar.live ? (
-                <div className="rounded-card border border-dashed border-paper-edge p-8 text-center">
-                  <p className="text-[17px] font-semibold">The live calendar is on its way.</p>
-                  <p className="mx-auto mt-2 max-w-md text-[15px] text-ink-soft">
-                    We are connecting current ticketed events at Nashville venues. Until then, the venue guides and the honky-tonk highway cover what is on most nights.
-                  </p>
-                  <div className="mt-5 flex flex-wrap justify-center gap-3">
-                    <Link href="/music/" className="btn-secondary">
-                      Browse venues
-                    </Link>
-                    <Link href="/honky-tonk-highway/" className="btn-tertiary">
-                      Honky-tonk highway
-                    </Link>
-                  </div>
-                </div>
+                <RoomsTonight limit={6} note="No dated listings to show for this window yet. These rooms have music most nights; set times and covers are on each venue page." />
               ) : shown.length === 0 ? (
                 <div className="rounded-card border border-dashed border-paper-edge p-8 text-center">
                   <p className="text-[17px] font-semibold">No events {window.label ? window.label.toLowerCase() : 'match'}{query.q ? ` for “${query.q}”` : ''}.</p>

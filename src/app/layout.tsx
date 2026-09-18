@@ -5,7 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { JsonLd } from '@/components/Ui';
 import BottomNav from '@/components/BottomNav';
-import { allowIndexing, asset, organizationSchema, websiteSchema, canonical } from '@/lib/seo';
+import { allowIndexing, asset, onlineStoreSchema, organizationSchema, websiteSchema, canonical } from '@/lib/seo';
 import { site } from '@/lib/site';
 
 /** GA4 measurement ID — public by design; override via NEXT_PUBLIC_GA_ID at build time. */
@@ -87,7 +87,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main" className="skip-link">
           Skip to main content
         </a>
-        <JsonLd data={[organizationSchema(), websiteSchema()]} />
+        <JsonLd data={[organizationSchema(), websiteSchema(), onlineStoreSchema()]} />
         <Header />
         <main id="main">{children}</main>
         <Footer />

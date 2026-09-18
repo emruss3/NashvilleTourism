@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { asset, breadcrumbSchema } from '@/lib/seo';
+import RoomsTonight from './events/RoomsTonight';
 
 /** Renders a JSON-LD block. Kept as a component so schema is easy to audit. */
 export function JsonLd({ data }: { data: object | object[] | null | undefined }) {
@@ -244,26 +245,11 @@ export function EmptyState({
 }
 
 /**
- * Shown on event surfaces until the live ticket calendar is connected.
- * Reader-facing copy only: no provider names, keys, or deployment steps.
+ * Shown on event surfaces when the dated feed has nothing for the window:
+ * the rooms with music most nights, from the venue shortlist.
  */
 export function CalendarComingSoon({ label = 'events' }: { label?: string }) {
-  return (
-    <EmptyState
-      title="The live calendar is on its way"
-      description={`We are connecting current ticketed ${label} at Nashville venues. Until then, the venue guides and the honky-tonk highway cover what is on most nights.`}
-      action={
-        <div className="flex flex-wrap justify-center gap-3">
-          <Link href="/music/" className="btn-secondary min-h-11">
-            Browse venues
-          </Link>
-          <Link href="/honky-tonk-highway/" className="btn-tertiary min-h-11">
-            Honky-tonk highway
-          </Link>
-        </div>
-      }
-    />
-  );
+  return <RoomsTonight note={`No dated ${label} to show for this window yet. These rooms have music most nights; set times and covers are on each venue page.`} />;
 }
 
 export function LoadingState({ label = 'Loading' }: { label?: string }) {

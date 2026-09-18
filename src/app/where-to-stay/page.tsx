@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { Breadcrumbs, PageHeader, ScrollableTable, SectionHeader } from '@/components/Ui';
+import { Breadcrumbs, JsonLd, PageHeader, ScrollableTable, SectionHeader } from '@/components/Ui';
 import { HotelCard } from '@/components/Cards';
 import HubLead from '@/components/HubLead';
 import { AffiliateDisclosure } from '@/components/Trust';
 import BookingWidget from '@/components/BookingWidget';
 import { hotels } from '@/lib/content';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, isIndexableRecord, itemListSchema } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Where to Stay in Nashville: Compare Areas & Book',
@@ -141,6 +141,7 @@ export default function WhereToStayHub() {
 
   return (
     <div className="shell pb-16">
+      <JsonLd data={itemListSchema(hotels.filter(isIndexableRecord).map((h) => ({ name: h.title, url: `/hotels/${h.slug}/`, description: h.summary })), 'Where to stay in Nashville')} />
       <Breadcrumbs trail={[{ name: 'Where to Stay', href: '/where-to-stay/' }]} />
 
       <PageHeader

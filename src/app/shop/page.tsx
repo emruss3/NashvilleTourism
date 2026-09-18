@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import NewsletterForm from '@/components/NewsletterForm';
-import { Breadcrumbs } from '@/components/Ui';
+import { Breadcrumbs, JsonLd } from '@/components/Ui';
 import { SmartImage } from '@/components/Media';
 import { site } from '@/lib/site';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, productListSchema } from '@/lib/seo';
 
 type Params = Record<string, string | string[] | undefined>;
 
@@ -50,6 +50,7 @@ export default async function ShopPage(props: { searchParams?: Promise<Params> }
 
   return (
     <>
+      <JsonLd data={productListSchema(CORE_PRODUCTS.map((p) => ({ slug: p.slug, name: p.name, detail: p.detail, category: p.category, image: `/media/${p.image}.jpg` })))} />
       <div className="shell">
         <Breadcrumbs trail={[{ name: 'Shop', href: '/shop/' }]} />
       </div>
@@ -135,7 +136,7 @@ export default async function ShopPage(props: { searchParams?: Promise<Params> }
                   </div>
                   <h3 className="mt-3 font-sans text-[16px] font-bold sm:text-[17px]">{product.name}</h3>
                   <p className="mt-0.5 text-sm text-ink-soft">{product.detail}</p>
-                  <p className="mt-auto pt-2 text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">Coming soon</p>
+                  <p className="mt-auto pt-2 text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">Not yet on sale</p>
                 </article>
               </li>
             ))}

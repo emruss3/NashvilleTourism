@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import DateShortcuts from '@/components/home/DateShortcuts';
 import EventList from '@/components/home/EventList';
+import RoomsTonight from '@/components/events/RoomsTonight';
 import Hero from '@/components/home/Hero';
 import NeighborhoodCards from '@/components/home/NeighborhoodCards';
 import ShopFeature from '@/components/home/ShopFeature';
@@ -8,10 +9,12 @@ import ToursHotels from '@/components/home/ToursHotels';
 import TripStarter from '@/components/home/TripStarter';
 import NewsletterForm from '@/components/NewsletterForm';
 import { TourProductCard } from '@/components/tours/TourProductCard';
-import { SectionHeader } from '@/components/Ui';
+import { JsonLd, SectionHeader } from '@/components/Ui';
 import { getCalendar } from '@/lib/feeds/calendar';
 import { experienceToProductSummary } from '@/lib/feeds/experiences';
 import { getToursCatalog } from '@/lib/feeds/tours';
+import { attractions } from '@/lib/content';
+import { isIndexableRecord, touristDestinationSchema } from '@/lib/seo';
 import { site } from '@/lib/site';
 import { assertHomepageMediaIntegrity } from '@/lib/assert-homepage-media';
 
@@ -32,6 +35,11 @@ export default async function HomePage() {
 
   return (
     <div className="home">
+      <JsonLd
+        data={touristDestinationSchema(
+          attractions.filter(isIndexableRecord).slice(0, 8).map((a) => ({ name: a.title, url: `/things-to-do/${a.slug}/`, description: a.summary })),
+        )}
+      />
       <Hero />
 
       {/*
@@ -61,25 +69,7 @@ export default async function HomePage() {
                 <DateShortcuts />
               </div>
               <div className="mt-4">
-                {live && events.length > 0 ? (
-                  <EventList events={events} limit={3} />
-                ) : (
-                  <div className="rounded-card border border-paper-edge p-5 sm:p-6">
-                    <p className="text-[17px] font-semibold text-ink">The live calendar is on its way.</p>
-                    <p className="mt-2 max-w-prose text-[15px] text-ink-soft">
-                      We are connecting current ticketed shows at Nashville venues. Until then, the venue
-                      guides and the honky-tonk highway cover what is on most nights.
-                    </p>
-                    <div className="mt-5 flex flex-wrap gap-3">
-                      <Link href="/music/" className="btn-primary">
-                        Browse venues
-                      </Link>
-                      <Link href="/honky-tonk-highway/" className="btn-secondary">
-                        Honky-tonk highway
-                      </Link>
-                    </div>
-                  </div>
-                )}
+                {live && events.length > 0 ? <EventList events={events} limit={3} /> : <RoomsTonight />}
               </div>
             </div>
             <ShopFeature />

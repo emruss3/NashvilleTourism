@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { hasLaunchIdentity, isVerifiedSocial, site } from '@/lib/site';
+import { site } from '@/lib/site';
 import FooterNewsletter from './FooterNewsletter';
 import Wordmark from './Wordmark';
 
@@ -31,11 +31,7 @@ const LINKS = [
 ] as const;
 
 export default function Footer() {
-  const socials = [
-    { label: 'Instagram', href: site.social.instagram },
-    { label: 'X', href: site.social.x },
-    { label: 'Facebook', href: site.social.facebook },
-  ].filter((s) => isVerifiedSocial(s.href));
+  const socials = site.social.profiles;
 
   return (
     <footer className="border-t border-ink bg-ink text-paper">
@@ -76,23 +72,16 @@ export default function Footer() {
 
         <div className="mt-6 space-y-1.5 border-t border-paper/15 pt-4 text-[11px] leading-relaxed text-paper/55">
           <p>
-            {site.positioning}{' '}
-            {hasLaunchIdentity ? site.affiliation : site.affiliation.replace(' operated by [LEGAL ENTITY]', '')} We may
-            earn a commission when readers make purchases or reservations through certain links; it does not determine
-            our editorial recommendations.
+            {site.positioning} {site.affiliation} We may earn a commission when readers make purchases or reservations
+            through certain links; it does not determine our editorial recommendations.
           </p>
-          {hasLaunchIdentity && (
-            <address className="not-italic">
-              {site.org.legalName}, {site.org.address.street}, {site.org.address.city}, {site.org.address.region}{' '}
-              {site.org.address.postalCode} ·{' '}
-              <a href={`mailto:${site.org.email}`} className="underline hover:text-paper">
-                {site.org.email}
-              </a>
-            </address>
-          )}
-          <p>
-            © {new Date().getFullYear()} {hasLaunchIdentity ? site.org.legalName : site.name}.
-          </p>
+          <address className="not-italic">
+            {site.name}, {site.org.address.city}, {site.org.address.region} ·{' '}
+            <a href={`mailto:${site.org.email}`} className="underline hover:text-paper">
+              {site.org.email}
+            </a>
+          </address>
+          <p>© {new Date().getFullYear()} {site.name}.</p>
         </div>
       </div>
     </footer>

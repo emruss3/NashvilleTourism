@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Breadcrumbs, JsonLd, PageHeader, SectionHeader } from '@/components/Ui';
 import { GuideCard } from '@/components/Cards';
 import { authors, getAuthor, guides } from '@/lib/content';
-import { buildMetadata, personSchema } from '@/lib/seo';
+import { buildMetadata, deskSchema } from '@/lib/seo';
 
 export function generateStaticParams() {
   return authors.map((a) => ({ slug: a.slug }));
@@ -18,7 +18,6 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
     description: a.bio,
     path: `/authors/${a.slug}/`,
     type: 'article',
-    noindex: a.name.startsWith('['),
   });
 }
 
@@ -32,7 +31,7 @@ export default async function AuthorPage(props: { params: Promise<{ slug: string
 
   return (
     <div className="shell pb-16">
-      {!a.name.startsWith('[') && <JsonLd data={personSchema(a)} />}
+      <JsonLd data={deskSchema(a)} />
       <Breadcrumbs
         trail={[
           { name: 'Authors', href: '/authors/' },

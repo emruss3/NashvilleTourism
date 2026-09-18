@@ -94,7 +94,7 @@ export default async function VenueDetail(
   const firstEvent = venueEvents[0];
   const feedMessage = calendar.live
     ? 'Ticketmaster event data is refreshed throughout the day.'
-    : 'Upcoming show dates are on their way. Check the venue site for this week.';
+    : 'For this week’s dates, use the venue’s own calendar; the box office link is below.';
 
   return (
     <div className="shell pb-16">

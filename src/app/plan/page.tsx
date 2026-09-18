@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { SmartImage } from '@/components/Media';
-import { Breadcrumbs, LoadingState } from '@/components/Ui';
+import { Breadcrumbs, JsonLd, LoadingState } from '@/components/Ui';
 import PageIntro, { MediaPair } from '@/components/hub/PageIntro';
 import SectionHead from '@/components/hub/SectionHead';
 import { OCCASIONS, occasionFromType } from '@/lib/group-planner';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, serviceSchema } from '@/lib/seo';
 import { site } from '@/lib/site';
 import PlannerClient from './PlannerClient';
 
@@ -54,6 +54,16 @@ export default async function PlanPage(props: { searchParams?: Promise<{ occasio
   return (
     <>
       <div className="shell">
+        <JsonLd
+          data={serviceSchema({
+            path: '/plan/',
+            name: 'Nashville group trip planner',
+            serviceType: 'Travel planning',
+            description: 'Tell NSVL who is coming and when, and it builds a Nashville plan around the group: shows, tables and places that fit, with nothing booked on your behalf.',
+            audience: 'Visitors planning a Nashville trip',
+            offers: { price: '0' },
+          })}
+        />
         <Breadcrumbs trail={[{ name: 'Plan your trip', href: '/plan/' }]} />
       </div>
 

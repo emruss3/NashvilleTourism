@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import { Breadcrumbs, PageHeader, SectionHeader } from '@/components/Ui';
+import { Breadcrumbs, JsonLd, PageHeader, SectionHeader } from '@/components/Ui';
 import HubLead from '@/components/HubLead';
 import { AffiliateDisclosure } from '@/components/Trust';
 import BookingWidget from '@/components/BookingWidget';
 import BookingLink from '@/components/BookingLink';
 import { partners } from '@/lib/partners';
 import { ANALYTICS_EVENTS, type AnalyticsEvent } from '@/lib/analytics';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, webPageSchema } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'The Nashville weekend: Friday to Sunday',
@@ -153,6 +153,7 @@ const DAYS: Day[] = [
 export default function WeekendHub() {
   return (
     <div className="shell pb-16">
+      <JsonLd data={webPageSchema('CollectionPage', { path: '/weekend/', name: 'A weekend in Nashville', description: 'How to spend a Friday-to-Sunday in Nashville: where to stay, what to book and the order to do it in.' })} />
       <Breadcrumbs trail={[{ name: 'Weekend', href: '/weekend/' }]} />
 
       <PageHeader

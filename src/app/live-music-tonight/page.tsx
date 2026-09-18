@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import { Breadcrumbs, CalendarComingSoon, PageHeader } from '@/components/Ui';
+import { Breadcrumbs, CalendarComingSoon, JsonLd, PageHeader } from '@/components/Ui';
 import HubLead from '@/components/HubLead';
 import LiveMusicCalendar from '@/components/LiveMusicCalendar';
 import { getCalendar, genresOf, venuesOf } from '@/lib/feeds/calendar';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, webPageSchema } from '@/lib/seo';
 import { formatDate } from '@/components/Trust';
 
 export const revalidate = 1800;
@@ -23,6 +23,7 @@ export default async function LiveMusicPage() {
 
   return (
     <div className="shell pb-24">
+      <JsonLd data={webPageSchema('CollectionPage', { path: '/live-music-tonight/', name: 'Live music in Nashville tonight', description: 'Tonight’s shows and the rooms with music seven nights a week, from the honky-tonks to the Ryman.' })} />
       <Breadcrumbs trail={[{ name: 'Live music tonight', href: '/live-music-tonight/' }]} />
       <PageHeader
         eyebrow="Show calendar"

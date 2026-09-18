@@ -59,7 +59,7 @@ export default async function EventPage(props: { params: Promise<{ slug: string 
 
       <div className="grid gap-10 py-10 lg:grid-cols-[1.6fr_1fr]">
         <div>
-          <PhotoSlot label={e.title} ratio="aspect-[16/9]" className="rounded-card" />
+          <PhotoSlot label={e.title} neighborhood={e.neighborhood} ratio="aspect-[16/9]" className="rounded-card" />
           <section className="py-8">
             <h2 className="text-2xl">About this event</h2>
             <div className="prose-editorial mt-3">

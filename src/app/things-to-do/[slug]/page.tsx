@@ -70,7 +70,7 @@ export default async function AttractionPage(props: { params: Promise<{ slug: st
               priority
             />
           ) : (
-            <PhotoSlot label={a.title} ratio="aspect-[16/9]" className="rounded-card" />
+            <PhotoSlot label={a.title} neighborhood={a.neighborhood} ratio="aspect-[16/9]" className="rounded-card" />
           )}
           <section className="py-8">
             <h2 className="text-2xl">Why we recommend it</h2>

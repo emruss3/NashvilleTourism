@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { Breadcrumbs, MapLink, PageHeader, ScrollableTable, SectionHeader } from '@/components/Ui';
+import { Breadcrumbs, JsonLd, MapLink, PageHeader, ScrollableTable, SectionHeader } from '@/components/Ui';
 import HubLead from '@/components/HubLead';
 import { AffiliateDisclosure } from '@/components/Trust';
 import BookingLink from '@/components/BookingLink';
 import { partners } from '@/lib/partners';
 import { ANALYTICS_EVENTS } from '@/lib/analytics';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, honkyTonkHighwaySchema } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Honky Tonk Highway: How to Do Lower Broadway',
@@ -103,6 +103,7 @@ const TIMING: { when: string; crowd: string; expect: string }[] = [
 export default function HonkyTonkHighway() {
   return (
     <div className="shell pb-16">
+      <JsonLd data={honkyTonkHighwaySchema()} />
       <Breadcrumbs trail={[{ name: 'Honky Tonk Highway', href: '/honky-tonk-highway/' }]} />
 
       <PageHeader

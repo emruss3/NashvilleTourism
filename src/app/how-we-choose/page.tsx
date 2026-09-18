@@ -117,11 +117,11 @@ export default function HowWeChoosePage() {
           details were right when a person looked and may have changed since. Treat prices and hours
           as indicative and confirm anything that matters before you travel.
         </p>
-        <h3 className="text-xl mt-6 mb-2">Sample data, not yet verified</h3>
+        <h3 className="text-xl mt-6 mb-2">Not yet verified</h3>
         <p>
           The record exists in our system but no one has confirmed its details against a source. It
-          is not a recommendation and should not be used to plan anything. In this template, seeded
-          records carry this state on purpose so that nothing unchecked can pass as confirmed.
+          is not a recommendation and does not appear on the site until a person has checked it, so
+          nothing unchecked can pass as confirmed.
         </p>
 
         <h2 className="text-2xl mt-10 mb-3">What money cannot buy</h2>

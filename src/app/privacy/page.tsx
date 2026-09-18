@@ -20,16 +20,9 @@ export default function PrivacyPage() {
         intro="What we collect, why, and what you can do about it."
       />
 
-      <div className="mt-6 max-w-prose rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep">
-        <strong className="font-semibold">Template, not final policy.</strong> This is placeholder
-        text for a site that has not launched. Before publication it must be reviewed by counsel and
-        completed with the operating entity&rsquo;s real details, the actual analytics and email
-        vendors in use, and the jurisdictions the business is subject to.
-      </div>
-
       <div className="prose-editorial py-10">
         <p>
-          {site.name} is published by {site.org.legalName}. This policy covers {site.domain} and the
+          {site.name} is published from Nashville, Tennessee. This policy covers {site.domain} and the
           newsletter. It does not cover sites we link to, including booking, ticketing, and
           reservation partners, each of which has its own policy.
         </p>
@@ -83,8 +76,10 @@ export default function PrivacyPage() {
           vendor that does not build advertising profiles from our readers.
         </p>
         <p>
-          The specific provider must be named here before launch, along with a link to its own
-          privacy policy and the data-retention window we set.
+          The provider is Google Analytics. Google describes what it collects in its own{' '}
+          <a href="https://policies.google.com/privacy">privacy policy</a>, and you can opt out of
+          measurement with Google&rsquo;s{' '}
+          <a href="https://tools.google.com/dlpage/gaoptout">browser add-on</a>.
         </p>
 
         <h2 className="mt-10 mb-3 text-2xl">Cookies and similar storage</h2>
@@ -129,17 +124,18 @@ export default function PrivacyPage() {
 
         <h2 className="mt-10 mb-3 text-2xl">Who else touches your data</h2>
         <p>
-          We share data only with vendors that operate the site on our behalf: hosting and content
-          delivery, the analytics provider, and the email provider. Each must be named here before
-          launch. We also disclose information where the law requires it. We do not sell personal
-          information.
+          We share data only with vendors that operate the site on our behalf: Vercel for hosting and
+          content delivery, Google Analytics for measurement, and Supabase, which stores newsletter
+          sign-ups and event inquiries. We also disclose information where the law requires it. We do
+          not sell personal information.
         </p>
 
         <h2 className="mt-10 mb-3 text-2xl">How long we keep it</h2>
         <p>
-          Newsletter addresses are kept until you unsubscribe. Correspondence is kept as long as it
-          is useful for follow-up and for the correction record. Analytics data is kept for the
-          retention window configured with the provider, which must be stated here before launch.
+          Newsletter addresses are kept until you unsubscribe. Event inquiries are kept for two years
+          so we can follow up on a booking. Correspondence is kept as long as it is useful for
+          follow-up and for the correction record. Analytics data is kept for the retention period
+          set on our Google Analytics property; write to us for the current value.
         </p>
 
         <h2 className="mt-10 mb-3 text-2xl">Your rights</h2>
@@ -170,16 +166,11 @@ export default function PrivacyPage() {
 
         <h2 className="mt-10 mb-3 text-2xl">Contact</h2>
         <p>
-          {site.org.legalName}
-          <br />
-          {site.org.address.street}, {site.org.address.city}, {site.org.address.region}{' '}
-          {site.org.address.postalCode}
+          {site.name}, {site.org.address.city}, {site.org.address.region}
           <br />
           <a href={`mailto:${site.org.email}`}>{site.org.email}</a>
         </p>
-        <p className="text-sm text-ink-faint">
-          Last updated: not yet published. Set this date when the policy is finalised.
-        </p>
+        <p className="text-sm text-ink-faint">Last updated: September 18, 2026.</p>
       </div>
     </div>
   );

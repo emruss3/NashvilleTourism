@@ -1,5 +1,5 @@
 import type { Guide } from '@/lib/types';
-import type { ImageKey } from '@/lib/media';
+import { hasMedia, type ImageKey } from '@/lib/media';
 
 /**
  * Cleared production image keys for UI placements.
@@ -10,14 +10,38 @@ export const GUIDE_IMAGES: Record<string, ImageKey> = {
   'best-restaurants-nashville': 'guide/best-restaurants',
   'best-bars-rooftops-nashville': 'guide/bars-rooftops',
   'best-live-music-venues-nashville': 'guide/live-music-venues',
-  'where-to-stay-nashville': 'guide/where-to-stay',
-  'best-things-to-do-nashville': 'guide/best-things-to-do',
+  'where-to-stay-nashville': 'hub/hotels',
+  'best-things-to-do-nashville': 'editorial/parthenon-west-end',
   'nashville-neighborhood-guide': 'guide/neighborhood-guide',
   'nashville-first-time-visitors': 'guide/first-time-visitors',
-  'nashville-weekend-itinerary': 'guide/weekend-itinerary',
-  'nashville-bachelorette-guide': 'guide/bachelorette',
-  'nashville-with-kids': 'guide/with-kids',
+  'nashville-weekend-itinerary': 'hub/weekend',
+  'nashville-bachelorette-guide': 'hub/bachelorette',
+  'nashville-with-kids': 'editorial/pedestrian-bridge',
 };
+
+/**
+ * Cleared photograph of the area a music venue sits in, for venues whose own
+ * photography is not yet cleared. Always the district, never another business.
+ */
+export function areaImageKey(area: string): ImageKey {
+  const byArea: Record<string, ImageKey> = {
+    Downtown: 'neighborhood/downtown-broadway',
+    SoBro: 'downtown/sobro',
+    Riverfront: 'editorial/pedestrian-bridge',
+    'Nashville Yards': 'downtown/nashville-yards',
+    'The Gulch': 'neighborhood/the-gulch',
+    'East Nashville': 'neighborhood/east-nashville',
+    'Elliston Place': 'neighborhood/midtown',
+    Midtown: 'neighborhood/midtown',
+    'Green Hills': 'neighborhood/green-hills',
+    'Music Valley': 'editorial/skyline',
+    'Wedgewood-Houston': 'editorial/weho-skyline',
+    Germantown: 'neighborhood/germantown',
+    '12 South': 'neighborhood/12-south',
+  };
+  const hit = Object.entries(byArea).find(([name]) => area.toLowerCase().includes(name.toLowerCase()));
+  return hit ? hit[1] : 'editorial/skyline';
+}
 
 export function guideImageKey(item: Guide): ImageKey {
   const key = GUIDE_IMAGES[item.slug];
@@ -45,6 +69,35 @@ export function neighborhoodImageKey(slug: string): ImageKey {
     'west-end': 'editorial/parthenon-west-end',
   };
   return bySlug[slug] ?? 'hub/neighborhoods-index';
+}
+
+/**
+ * Cleared photograph of a listing's neighborhood, for listings whose own
+ * photography is not cleared. Several candidates per area so adjacent cards
+ * do not repeat one frame; the seed (usually the listing title) picks one.
+ * Only district and skyline frames, never another business.
+ */
+const AREA_FALLBACKS: Record<string, ImageKey[]> = {
+  'downtown-broadway': ['hero/lower-broadway', 'editorial/broadway-rooftop-day', 'downtown/sobro', 'editorial/broadway-nightlife', 'editorial/printers-alley', 'downtown/nashville-yards'],
+  midtown: ['editorial/parthenon-west-end', 'editorial/music-row-studio-b', 'editorial/skyline'],
+  'the-gulch': ['neighborhood/the-gulch', 'editorial/skyline'],
+  'east-nashville': ['neighborhood/east-nashville', 'editorial/pedestrian-bridge'],
+  germantown: ['neighborhood/germantown', 'editorial/skyline'],
+  '12-south': ['neighborhood/12-south'],
+  'hillsboro-village': ['neighborhood/hillsboro-village'],
+  'sylvan-park': ['neighborhood/sylvan-park'],
+  'green-hills': ['neighborhood/green-hills'],
+  'wedgewood-houston': ['editorial/weho-skyline', 'editorial/weho-lounge'],
+  'music-row': ['editorial/music-row-studio-b'],
+  'west-end': ['editorial/parthenon-west-end'],
+};
+
+export function listingFallbackKey(neighborhood: string, seed = ''): ImageKey | undefined {
+  const candidates = [...(AREA_FALLBACKS[neighborhood] ?? []), 'editorial/skyline' as ImageKey, 'hero/nashroam-skyline' as ImageKey].filter((k) => hasMedia(k));
+  if (candidates.length === 0) return undefined;
+  let h = 0;
+  for (const ch of seed) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return candidates[h % candidates.length];
 }
 
 /** Where-to-stay category hub leads. */

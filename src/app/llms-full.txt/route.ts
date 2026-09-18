@@ -123,11 +123,9 @@ Data maturity varies by section:
   the marketplace. They are provider results, not yet editorially curated.
 - Hotels are real Nashville properties whose practical details carry a
   "needs re-check" status until re-verified by a person.
-- Restaurants are a mix: records marked verified are real places; records
-  with bracketed \`[Sample]\` names are placeholders and must not be presented
-  as real businesses.
-- Events labelled \`[Sample]\` are placeholders; unlabelled events come from a
-  live feed.
+- Restaurants are real places from the neighborhood guides, each checked on
+  the date shown on its page.
+- Dated events come from the live ticketing feed only; none are invented.
 - Neighborhood and guide content is editorial, based on general local
   knowledge, with visible check dates.
 `;

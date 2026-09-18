@@ -164,7 +164,7 @@ export default async function ToursHub(props: { searchParams?: Promise<{ q?: str
               ? `${catalog.products.length} live matches shown. ${catalog.attribution}`
               : liveNoResults
                 ? 'No current Nashville products matched these filters. Try a broader search or clear the date.'
-                : 'Live search across Nashville tours is on its way. The format guide below covers what to book and what to watch for in the meantime.'
+                : 'Bookable Nashville tours by format: what each one is for, what it costs to do well and what to watch for.'
           }
         />
         <div className="mt-4">
@@ -214,14 +214,7 @@ export default async function ToursHub(props: { searchParams?: Promise<{ q?: str
               Show all Nashville experiences
             </Link>
           </div>
-        ) : (
-          <div className="mt-6 rounded-card border border-paper-edge bg-paper-sunk p-6 text-[15px] leading-relaxed text-ink-soft">
-            <p className="font-semibold text-ink">Live tour search is coming soon.</p>
-            <p className="mt-2">
-              We only list real, bookable products, so nothing is shown until the live inventory is connected. Use the format guide below to decide what to book, then check back.
-            </p>
-          </div>
-        )}
+        ) : null}
       </section>
 
       <section className="border-y border-paper-edge bg-paper-sunk" aria-labelledby="formats-title">

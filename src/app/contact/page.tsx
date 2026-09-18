@@ -1,18 +1,19 @@
 import Link from 'next/link';
-import { Breadcrumbs, PageHeader, FactTable } from '@/components/Ui';
-import { buildMetadata } from '@/lib/seo';
+import { Breadcrumbs, JsonLd, PageHeader, FactTable } from '@/components/Ui';
+import { buildMetadata, webPageSchema } from '@/lib/seo';
 import { site } from '@/lib/site';
 
 export const metadata = buildMetadata({
   title: 'Contact',
   description:
-    'How to reach the right person: general questions, editorial and story pitches, corrections, and advertising, plus our postal address.',
+    'How to reach the right person: general questions, editorial and story pitches, corrections, advertising and private event briefs.',
   path: '/contact/',
 });
 
 export default function ContactPage() {
   return (
     <div className="shell pb-16">
+      <JsonLd data={webPageSchema('ContactPage', { path: '/contact/', name: `Contact ${site.name}`, description: 'General questions, editorial pitches, corrections, advertising and private event briefs, each read by a person in Nashville.' })} />
       <Breadcrumbs trail={[{ name: 'Contact', href: '/contact/' }]} />
       <PageHeader
         eyebrow="Get in touch"
@@ -92,26 +93,30 @@ export default function ContactPage() {
                 ),
               },
               {
-                label: 'Post',
+                label: 'Private events',
                 value: (
                   <>
-                    {site.org.legalName}
-                    <span className="block">{site.org.address.street}</span>
-                    <span className="block">
-                      {site.org.address.city}, {site.org.address.region}{' '}
-                      {site.org.address.postalCode}
+                    <Link href="/private-events/" className="text-clay underline underline-offset-2">
+                      Send an event brief
+                    </Link>
+                    <span className="block text-ink-faint">
+                      Corporate gatherings, holiday parties, convention receptions and private celebrations.
                     </span>
-                    <span className="block">{site.org.address.country}</span>
+                  </>
+                ),
+              },
+              {
+                label: 'Where we are',
+                value: (
+                  <>
+                    {site.org.address.city}, {site.org.address.region}
+                    <span className="block text-ink-faint">We work from Nashville and answer by email; there is no walk-in office.</span>
                   </>
                 ),
               },
             ]}
           />
         </div>
-        <p className="mt-6">
-          The address above is a placeholder in this template and must be replaced with a real
-          business address before launch.
-        </p>
 
         <h2 className="text-2xl mt-10 mb-3">Response times</h2>
         <ul className="mt-3 space-y-2 list-disc pl-5">

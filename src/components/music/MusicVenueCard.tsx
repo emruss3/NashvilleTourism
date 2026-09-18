@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ContentImage, SmartImage } from '@/components/Media';
 import type { LiveEvent } from '@/lib/feeds/ticketmaster';
+import { areaImageKey } from '@/lib/media-placements';
 import type { MusicVenueEntry } from '@/lib/music-venues';
 
 export function MusicVenueMedia({
@@ -29,6 +30,7 @@ export function MusicVenueMedia({
   return (
     <SmartImage
       imageKey={venue.imageKey}
+      fallbackKey={areaImageKey(venue.area)}
       ratio={ratio}
       className={className}
       priority={priority}

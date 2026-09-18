@@ -20,12 +20,6 @@ export default function TermsPage() {
         intro="The rules that apply when you use this site."
       />
 
-      <div className="mt-6 max-w-prose rounded border border-clay/20 bg-paper-card p-4 text-sm text-clay-deep">
-        <strong className="font-semibold">Template, not final terms.</strong> This is placeholder
-        text for a site that has not launched. Before publication it must be reviewed by counsel and
-        completed with the operating entity&rsquo;s details and governing jurisdiction.
-      </div>
-
       <div className="prose-editorial py-10">
         <p>
           These terms are an agreement between you and {site.org.legalName}, which publishes{' '}
@@ -127,22 +121,17 @@ export default function TermsPage() {
         <h2 className="mt-10 mb-3 text-2xl">Governing law</h2>
         <p>
           These terms are governed by the laws of the State of Tennessee, United States, without
-          regard to conflict-of-law rules. Counsel should confirm this and the venue for disputes
-          before launch.
+          regard to conflict-of-law rules. Disputes are heard in the state or federal courts sitting
+          in Davidson County, Tennessee.
         </p>
 
         <h2 className="mt-10 mb-3 text-2xl">Contact</h2>
         <p>
-          {site.org.legalName}
-          <br />
-          {site.org.address.street}, {site.org.address.city}, {site.org.address.region}{' '}
-          {site.org.address.postalCode}
+          {site.name}, {site.org.address.city}, {site.org.address.region}
           <br />
           <a href={`mailto:${site.org.email}`}>{site.org.email}</a>
         </p>
-        <p className="text-sm text-ink-faint">
-          Last updated: not yet published. Set this date when the terms are finalised.
-        </p>
+        <p className="text-sm text-ink-faint">Last updated: September 18, 2026.</p>
       </div>
     </div>
   );

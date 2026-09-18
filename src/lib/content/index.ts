@@ -1,29 +1,35 @@
 import type { Listing, SearchDoc } from '../types';
 import {
-  restaurants,
-  events,
+  restaurants as restaurantFixtures,
+  events as eventFixtures,
   venues,
   attractions,
-  getRestaurant,
-  getEvent,
+  getRestaurant as getRestaurantFixture,
+  getEvent as getEventFixture,
   getVenue,
   getAttraction,
 } from './listings';
+
+/** Seeded demonstration rows never render, route, index or export. */
+const isPublished = (r: { title: string; slug: string; dataStatus: string }) =>
+  !r.title.startsWith('[Sample]') && !r.slug.startsWith('sample-') && r.dataStatus !== 'unverified';
+
+export const restaurants = restaurantFixtures.filter(isPublished);
+export const events = eventFixtures.filter(isPublished);
+export const getRestaurant = (slug: string) => {
+  const r = getRestaurantFixture(slug);
+  return r && isPublished(r) ? r : undefined;
+};
+export const getEvent = (slug: string) => {
+  const e = getEventFixture(slug);
+  return e && isPublished(e) ? e : undefined;
+};
 import { hotels } from './hotels';
 import { guides } from './guides';
 import { neighborhoods, neighborhoodName } from './neighborhoods';
 import { musicVenues } from '../music-venues';
 
-export {
-  restaurants,
-  events,
-  venues,
-  attractions,
-  getRestaurant,
-  getEvent,
-  getVenue,
-  getAttraction,
-};
+export { venues, attractions, getVenue, getAttraction };
 export { hotels, getHotel } from './hotels';
 export * from './guides';
 export * from './neighborhoods';

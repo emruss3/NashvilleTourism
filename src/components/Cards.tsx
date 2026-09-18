@@ -10,7 +10,7 @@ import type {
   Venue,
 } from '@/lib/types';
 import { hasMedia, type ImageKey } from '@/lib/media';
-import { guideImageKey, neighborhoodImageKey } from '@/lib/media-placements';
+import { guideImageKey, listingFallbackKey, neighborhoodImageKey } from '@/lib/media-placements';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
 import { ContentImage, SmartImage } from './Media';
 import { PlacementLabel, VerificationBadge } from './Trust';
@@ -18,41 +18,43 @@ import { PlacementLabel, VerificationBadge } from './Trust';
 export { guideImageKey, neighborhoodImageKey } from '@/lib/media-placements';
 
 /**
- * Typographic image stand-in when a listing has no exact photograph.
- * Never substitute a category or unrelated business image.
+ * When a listing has no exact photograph, show the cleared photograph of its
+ * neighborhood. Never a category stock image or another business.
  */
 export function PhotoSlot({
   label,
+  neighborhood,
   ratio = 'aspect-[3/2]',
   className = '',
 }: {
   label: string;
+  neighborhood?: string;
   ratio?: string;
   className?: string;
 }) {
-  return (
-    <div className={`photo-slot ${ratio} ${className}`} role="img" aria-label={`Photography placeholder for ${label}`}>
-      <span className="sr-only">Photography coming soon for {label}</span>
-    </div>
-  );
+  const key = neighborhood ? listingFallbackKey(neighborhood, label) : undefined;
+  if (!key) return null;
+  return <SmartImage imageKey={key} ratio={ratio} className={className} sizes="(max-width: 1023px) 100vw, 60vw" />;
 }
 
-/** Exact listing photo or intentional placeholder — never a generic category image. */
+/** Exact listing photo, otherwise the neighborhood photograph. */
 function ListingMedia({
   image,
   label,
+  neighborhood,
   ratio = 'aspect-[3/2]',
   sizes,
 }: {
   image?: ImageRef;
   label: string;
+  neighborhood?: string;
   ratio?: string;
   sizes?: string;
 }) {
   if (image?.src) {
     return <ContentImage image={image} ratio={ratio} sizes={sizes} />;
   }
-  return <PhotoSlot label={label} ratio={ratio} />;
+  return <PhotoSlot label={label} neighborhood={neighborhood} ratio={ratio} />;
 }
 
 function MetaRow({ items }: { items: (string | undefined | false)[] }) {
@@ -69,7 +71,7 @@ function MetaRow({ items }: { items: (string | undefined | false)[] }) {
 export function RestaurantCard({ item, compact = false }: { item: Restaurant; compact?: boolean }) {
   return (
     <article className="card group relative flex flex-col overflow-hidden">
-      {!compact && <ListingMedia image={item.image} label={item.title} />}
+      {!compact && <ListingMedia image={item.image} label={item.title} neighborhood={item.neighborhood} />}
       <div className="flex flex-1 flex-col gap-2 p-4">
         <MetaRow items={[neighborhoodName(item.neighborhood), item.cuisine, item.priceRange]} />
         <h3 className="font-sans font-bold text-lg leading-snug">
@@ -92,7 +94,7 @@ export function RestaurantCard({ item, compact = false }: { item: Restaurant; co
 export function HotelCard({ item }: { item: Hotel }) {
   return (
     <article className="card group relative flex flex-col overflow-hidden">
-      <ListingMedia image={item.image} label={item.title} />
+      <ListingMedia image={item.image} label={item.title} neighborhood={item.neighborhood} />
       <div className="flex flex-1 flex-col gap-2 p-4">
         <MetaRow items={[neighborhoodName(item.neighborhood), item.priceCategory]} />
         <h3 className="font-sans font-bold text-lg leading-snug">
@@ -165,7 +167,7 @@ export function VenueCard({ item }: { item: Venue }) {
     <article className="card group relative flex flex-col overflow-hidden">
       <ListingMedia
         image={item.image}
-        label={item.title}
+        label={item.title} neighborhood={item.neighborhood}
         sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
       />
       <div className="flex flex-1 flex-col gap-2 p-4">
@@ -195,7 +197,7 @@ export function AttractionCard({ item }: { item: Attraction }) {
     <article className="card group relative flex flex-col overflow-hidden">
       <ListingMedia
         image={item.image}
-        label={item.title}
+        label={item.title} neighborhood={item.neighborhood}
         ratio="aspect-[4/3]"
         sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
       />

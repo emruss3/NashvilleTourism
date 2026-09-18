@@ -101,9 +101,12 @@ export default async function MusicIndex() {
         />
         <div className="mt-5">
           {!calendar.live ? (
-            <div className="rounded-card border border-dashed border-paper-edge p-8 text-center">
-              <p className="text-[17px] font-semibold">Show dates are on their way.</p>
-              <p className="mx-auto mt-2 max-w-md text-[15px] text-ink-soft">We are connecting the live ticket calendar. The venue guides below are complete in the meantime.</p>
+            <div className="rounded-card border border-paper-edge p-6">
+              <p className="text-[17px] font-semibold">Pick the room first; the date follows.</p>
+              <p className="mt-2 max-w-prose text-[15px] text-ink-soft">
+                Every venue guide below covers the cover charge, set times and where the box office sends you. Most of these rooms
+                have music seven nights a week.
+              </p>
             </div>
           ) : upcoming.length === 0 ? (
             <div className="rounded-card border border-dashed border-paper-edge p-8 text-center">
@@ -197,18 +200,11 @@ export default async function MusicIndex() {
 function VenueTile({ venue, events, featured }: { venue: MusicVenueEntry; events: LiveEvent[]; featured: boolean }) {
   const next = events[0];
   const href = `/music/${venue.slug}/`;
-  const hasImage = Boolean(venue.editorial?.image || venue.imageKey);
   return (
     <article className="group relative flex h-full flex-col">
-      {hasImage ? (
-        <div className="overflow-hidden rounded-card bg-ink">
-          <MusicVenueMedia venue={venue} ratio={featured ? 'aspect-[16/9]' : 'aspect-[4/3]'} priority={featured} />
-        </div>
-      ) : (
-        <div className="flex aspect-[4/3] items-center justify-center rounded-card border border-paper-edge bg-paper-sunk px-4 text-center text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft" aria-hidden="true">
-          {venue.openingNote ?? 'Photography coming'}
-        </div>
-      )}
+      <div className="overflow-hidden rounded-card bg-ink">
+        <MusicVenueMedia venue={venue} ratio={featured ? 'aspect-[16/9]' : 'aspect-[4/3]'} priority={featured} />
+      </div>
       <div className="flex flex-1 items-start justify-between gap-2 pt-3">
         <div className="min-w-0">
           <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">
