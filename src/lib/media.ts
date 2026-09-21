@@ -20,6 +20,7 @@
  */
 
 import { conceptMedia } from './media-concept';
+import { CVC_IMPORTED_KEYS, cvcMedia } from './media-cvc';
 import { adobePurchaseMedia, restoredMedia } from './media-restored';
 import type { MediaAsset, VideoAsset } from './media-types';
 
@@ -751,6 +752,7 @@ const baseImages = {
 export const images = {
   ...baseImages,
   ...restoredMedia,
+  ...cvcMedia,
   // Owner-approved concept illustrations from the brand handoff boards.
   ...conceptMedia,
   // Adobe purchase stubs only when the licensed file is present on disk.
@@ -845,6 +847,8 @@ export const CVC_EDITORIAL_KEYS: readonly string[] = [
   'neighborhood/wedgewood-houston',
   'neighborhood/west-end',
   'cvc/hermitage-hotel-lobby',
+  // Frames imported from the Brandfolder share by scripts/media/import-cvc.py.
+  ...CVC_IMPORTED_KEYS,
 ];
 
 /** Cleared hero keys stay allowlisted; uncleared hero stills stay gated. Hero video is the Pexels drone loop only. */

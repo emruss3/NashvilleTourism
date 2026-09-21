@@ -17,14 +17,18 @@ import { test } from 'node:test';
 
 const ROOT = process.cwd();
 const MEDIA = fs.readFileSync(path.join(ROOT, 'src/lib/media.ts'), 'utf8');
+const IMPORTED = fs.existsSync(path.join(ROOT, 'src/lib/media-cvc.ts')) ? fs.readFileSync(path.join(ROOT, 'src/lib/media-cvc.ts'), 'utf8') : '';
 
 /** Keys whose registry entry carries the Visit Music City licence. */
 function cvcKeys(): string[] {
   const keys: string[] = [];
   const entry = /'([a-z-]+\/[a-z0-9-]+)':\s*\{([\s\S]*?)\n  \},?/g;
   let m: RegExpExecArray | null;
-  while ((m = entry.exec(MEDIA))) {
-    if (/licence:\s*'[^']*Visit Music City usage statement/.test(m[2])) keys.push(m[1]);
+  for (const text of [MEDIA, IMPORTED]) {
+    entry.lastIndex = 0;
+    while ((m = entry.exec(text))) {
+      if (/licence:\s*'[^']*Visit Music City usage statement/.test(m[2])) keys.push(m[1]);
+    }
   }
   return keys;
 }
@@ -58,7 +62,8 @@ test('CVC-licensed keys are declared and allowlisted for production', () => {
   assert.ok(keys.length > 0, 'expected at least one Visit Music City licensed key');
   const list = MEDIA.match(/export const CVC_EDITORIAL_KEYS[^;]*;/)?.[0] ?? '';
   for (const key of keys) {
-    assert.ok(list.includes(`'${key}'`) || !MEDIA.includes(`'${key}': {`) , `${key} carries the CVC licence but is not in CVC_EDITORIAL_KEYS`);
+    const imported = IMPORTED.includes(`'${key}': {`); // media-cvc.ts is allowlisted wholesale via CVC_IMPORTED_KEYS
+    assert.ok(imported || list.includes(`'${key}'`) || !MEDIA.includes(`'${key}': {`), `${key} carries the CVC licence but is not in CVC_EDITORIAL_KEYS`);
   }
 });
 

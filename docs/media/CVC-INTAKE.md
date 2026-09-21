@@ -82,20 +82,26 @@ Pick these first; they replace concept illustrations or Commons street frames on
 Do not take: hotel rooms and pools for the hotel pages (those carry affiliate links), tour
 operator vehicles, anything for the shop or private-events pages.
 
-## Installing a frame
+## Installing frames from the Brandfolder share
 
-1. Download the original from the folder. Keep the CVC filename in `source_filename`.
-2. Resize to a 2400 px longest edge (`scripts/media/` has the resize helpers), export JPG plus
-   640/960/1600/2400 WebP variants into the matching `public/media/<group>/` folder.
-3. Add the registry entry in `src/lib/media.ts` with
-   `credit: 'Courtesy of Nashville Convention & Visitors Corp.'` (or the photographer credit the
-   file carries) and
-   `licence: 'Visit Music City usage statement (email, Conley Merritt, NCVC, 2026-09-21): tourism-promotion and tourism-article use only; never on shop, advertising, private-events or affiliate surfaces'`,
-   then add the key to `CVC_EDITORIAL_KEYS`.
-4. Add the row to `docs/media/ASSET-RIGHTS.json` with `rightsStatus: "cleared"`,
-   `approvalStatus: "approved"`, `license: "Visit Music City usage statement"`, the permission
-   block, and the folder URL as `source_page`.
-5. `npm run test:media`, then `npm run build`, then check `/photo-credits/`.
+The share is https://brandfolder.com/s/w6kr476hzpk96cvgx9pcqs. Download the originals you want into
+one folder, then:
+
+```bash
+python scripts/media/import-cvc.py --source ~/Downloads/brandfolder --init
+#   writes docs/media/cvc-intake/manifest.json with one row per file and a suggested key
+#   fill alt (what is actually in frame, naming any business shown), placement, optional
+#   photographer credit; set "skip": true for frames not wanted; rename keys to the target
+#   keys in the wanted list above where they replace an existing placement
+python scripts/media/import-cvc.py --source ~/Downloads/brandfolder
+#   master JPG + 640/960/1600/2400 WebP into public/media/<group>/, generated
+#   src/lib/media-cvc.ts, cleared rows with the permission block in ASSET-RIGHTS.json
+npm run test:media && npm run build
+```
+
+Imported keys are allowlisted automatically and the guard test keeps them off commercial
+surfaces. Point placements at the new keys (`media-placements.ts`, page intros, guide picks),
+check `/photo-credits/`, commit the files with the manifest.
 
 ## Reply to send Conley
 
