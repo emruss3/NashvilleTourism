@@ -13,11 +13,16 @@ export default function RoomsTonight({
   title = 'Tonight starts with the room.',
   note = 'Most of these have music seven nights a week. Set times and covers are on each venue page.',
   limit = 3,
+  headingLevel = 'h3',
 }: {
   title?: string;
   note?: string;
   limit?: number;
+  /** `h2` when the module is the first heading after the page title. */
+  headingLevel?: 'h2' | 'h3';
 }) {
+  const Heading = headingLevel;
+  const Sub = headingLevel === 'h2' ? 'h3' : 'h4';
   const bySlug = new Map(musicVenues.map((v) => [v.slug, v]));
   const rooms = PICKS.map((s) => bySlug.get(s)).filter((v): v is NonNullable<typeof v> => Boolean(v && v.active)).slice(0, limit);
   if (rooms.length === 0) return null;
@@ -25,7 +30,7 @@ export default function RoomsTonight({
   return (
     <div className="rounded-card border border-paper-edge p-5 sm:p-6">
       <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
-        <h3 className="text-[1.375rem] sm:text-[1.5rem]">{title}</h3>
+        <Heading className="text-[1.375rem] sm:text-[1.5rem]">{title}</Heading>
         <Link href="/music/" className="inline-flex min-h-11 items-center gap-1.5 text-[15px] font-semibold text-ink underline-offset-[0.2em] hover:underline">
           All venues <span aria-hidden="true">→</span>
         </Link>
@@ -39,11 +44,11 @@ export default function RoomsTonight({
             <p className="mt-2 text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">
               {venue.area} · {venue.format}
             </p>
-            <h4 className="mt-0.5 font-sans text-[17px] font-bold leading-snug">
+            <Sub className="mt-0.5 font-sans text-[17px] font-bold leading-snug">
               <Link href={`/music/${venue.slug}/`} className="after:absolute after:inset-0 underline-offset-[0.2em] hover:underline">
                 {venue.name}
               </Link>
-            </h4>
+            </Sub>
             <p className="mt-1 text-sm text-ink-soft">{venue.coverNote}</p>
           </li>
         ))}

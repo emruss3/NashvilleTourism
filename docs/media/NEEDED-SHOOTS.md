@@ -1,6 +1,6 @@
 # NashRoam original photography — needed shoots
 
-**Policy:** Prefer OWNED / COMMISSIONED photography as a long-term competitive advantage. Do not use Visit Music City / Nashville CVC assets. Do not substitute generic stock for named businesses.
+**Policy:** Prefer OWNED / COMMISSIONED photography for commercial surfaces (hotel and tour modules, shop, private events), where Visit Music City assets are not permitted. CVC frames now cover editorial pages under the NCVC usage statement (`CVC-INTAKE.md`). Do not substitute generic stock for named businesses.
 
 Related: `COMMERCIAL-MEDIA-SOURCING.md`, `STOCK-PURCHASE-QUEUE.md`, `DIRECT-PHOTO-REQUESTS.md`, `docs/media/reference/`.
 

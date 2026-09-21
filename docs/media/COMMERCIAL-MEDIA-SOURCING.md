@@ -1,6 +1,6 @@
 # Commercial media sourcing
 
-**Policy (2026-08-07):** NashRoam does **not** pursue Nashville CVC / Visit Music City image rights. NashRoam is a commercial competitor. CVC photography is `rightsStatus: reference-only` + `approvalStatus: hold` forever — art-direction memory only (`docs/media/reference/`).
+**Policy (2026-09-21, replaces 2026-08-07):** The Nashville Convention & Visitors Corp granted access to its General Nashville folder under the NCVC usage statement (tourism promotion and tourism articles only; no for-profit, commercial, merchandising or advertising use). CVC photography is now cleared for **editorial placements only**, credited "Courtesy of Nashville Convention & Visitors Corp.", and kept off the shop, bag, advertising, private-events and affiliate surfaces by `tests/media-usage.test.ts`. Intake, wanted list and the reply to NCVC: `docs/media/CVC-INTAKE.md`.
 
 ## Render rule
 
@@ -21,7 +21,7 @@ Implemented as membership in `AVAILABLE_MEDIA` (`src/lib/media.ts`). No exceptio
 | C | **DIRECT LICENSE** | Written permission from business or photographer for NashRoam.com commercial digital editorial use (incl. affiliate/booking revenue) |
 | D | **COMMISSION** | Original NashRoam shoot |
 
-There is **no CVC strategy**.
+CVC frames are the first choice for editorial hubs and neighborhood guides; owned and commissioned photography remains the goal for commercial surfaces, which CVC cannot cover.
 
 ## Placement manifest
 

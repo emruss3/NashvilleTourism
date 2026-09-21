@@ -249,7 +249,7 @@ export function EmptyState({
  * the rooms with music most nights, from the venue shortlist.
  */
 export function CalendarComingSoon({ label = 'events' }: { label?: string }) {
-  return <RoomsTonight note={`No dated ${label} to show for this window yet. These rooms have music most nights; set times and covers are on each venue page.`} />;
+  return <RoomsTonight headingLevel="h2" note={`No dated ${label} to show for this window yet. These rooms have music most nights; set times and covers are on each venue page.`} />;
 }
 
 export function LoadingState({ label = 'Loading' }: { label?: string }) {

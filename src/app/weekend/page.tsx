@@ -161,7 +161,7 @@ export default function WeekendHub() {
         title="The weekend, Friday to Sunday"
         intro="Three slots a day, three days. Book the room, one show, and one dinner, and leave the rest loose."
       />
-      <HubLead imageKey="hub/weekend-lead" />
+      <HubLead imageKey="trending/weekender" />
 
       <section className="py-6">
         <h2 className="sr-only">Book your weekend</h2>

@@ -10,7 +10,7 @@ export const GUIDE_IMAGES: Record<string, ImageKey> = {
   'best-restaurants-nashville': 'guide/best-restaurants',
   'best-bars-rooftops-nashville': 'guide/bars-rooftops',
   'best-live-music-venues-nashville': 'guide/live-music-venues',
-  'where-to-stay-nashville': 'hub/hotels',
+  'where-to-stay-nashville': 'cvc/hermitage-hotel-lobby',
   'best-things-to-do-nashville': 'editorial/parthenon-west-end',
   'nashville-neighborhood-guide': 'guide/neighborhood-guide',
   'nashville-first-time-visitors': 'guide/first-time-visitors',
@@ -27,7 +27,7 @@ export function areaImageKey(area: string): ImageKey {
   const byArea: Record<string, ImageKey> = {
     Downtown: 'neighborhood/downtown-broadway',
     SoBro: 'downtown/sobro',
-    Riverfront: 'editorial/pedestrian-bridge',
+    Riverfront: 'editorial/skyline',
     'Nashville Yards': 'downtown/nashville-yards',
     'The Gulch': 'neighborhood/the-gulch',
     'East Nashville': 'neighborhood/east-nashville',
@@ -61,12 +61,12 @@ export function neighborhoodImageKey(slug: string): ImageKey {
     midtown: 'neighborhood/midtown',
     '12-south': 'neighborhood/12-south',
     'hillsboro-village': 'neighborhood/hillsboro-village',
-    'music-row': 'editorial/music-row-studio-b',
+    'music-row': 'neighborhood/music-row',
     'green-hills': 'neighborhood/green-hills',
     // BPH-owned exact WeHo photograph — rights audit cleared (ASSET-RIGHTS weho-skyline).
     'wedgewood-houston': 'editorial/weho-skyline',
     'sylvan-park': 'neighborhood/sylvan-park',
-    'west-end': 'editorial/parthenon-west-end',
+    'west-end': 'neighborhood/west-end',
   };
   return bySlug[slug] ?? 'hub/neighborhoods-index';
 }
@@ -81,7 +81,7 @@ const AREA_FALLBACKS: Record<string, ImageKey[]> = {
   'downtown-broadway': ['hero/lower-broadway', 'editorial/broadway-rooftop-day', 'downtown/sobro', 'editorial/broadway-nightlife', 'editorial/printers-alley', 'downtown/nashville-yards'],
   midtown: ['editorial/parthenon-west-end', 'editorial/skyline', 'hero/nashroam-skyline'],
   'the-gulch': ['neighborhood/the-gulch', 'editorial/skyline'],
-  'east-nashville': ['neighborhood/east-nashville', 'editorial/pedestrian-bridge'],
+  'east-nashville': ['neighborhood/east-nashville', 'editorial/skyline'],
   germantown: ['neighborhood/germantown', 'editorial/skyline'],
   '12-south': ['neighborhood/12-south'],
   'hillsboro-village': ['neighborhood/hillsboro-village'],

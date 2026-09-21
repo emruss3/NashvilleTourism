@@ -652,10 +652,10 @@ export const neighborhoodGuides: NeighborhoodEditorialGuide[] = [
       },
       {
         title: 'Bastion',
+        imageKey: 'neighborhood/wedgewood-houston',
         bestFor: 'Food-focused / intimate',
         category: 'Food-focused / intimate',
         body: 'The smaller adaptive-reuse counterweight to Aba — come when the plate and intimacy matter more than a large designed room.',
-        photoPolicy: 'text-only',
       },
       {
         title: 'Never Never',

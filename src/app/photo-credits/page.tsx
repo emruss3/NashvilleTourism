@@ -5,7 +5,7 @@ import rightsDoc from '../../../docs/media/ASSET-RIGHTS.json';
 export const metadata = buildMetadata({
   title: 'Photo credits',
   description:
-    'Attribution for openly licensed photographs used on Nashville.com, including Creative Commons and Pexels sources. Cropping and resizing are noted; photographers do not endorse this site.',
+    'Attribution for the photography on Nashville.com: Visit Music City frames courtesy of the Nashville Convention & Visitors Corp, plus Creative Commons and Pexels sources. Cropping and resizing are noted; photographers do not endorse this site.',
   path: '/photo-credits/',
 });
 
@@ -22,6 +22,8 @@ const LICENSE_URLS: Record<string, string> = {
 };
 
 type RightsRow = {
+  asset_id?: string | null;
+  alt_text?: string | null;
   credit?: string | null;
   source_page?: string | null;
   license?: string | null;
@@ -100,6 +102,7 @@ function isClearedApproved(row: RightsRow): boolean {
 
 function isCvcRow(row: RightsRow): boolean {
   if (row.rightsStatus === 'reference-only') return true;
+  if (String(row.license || '').includes('Visit Music City')) return true;
   const blob = `${row.source_site || ''} ${row.owner || ''} ${row.credit || ''} ${row.restrictions || ''}`.toLowerCase();
   return (
     blob.includes('cvc') ||
@@ -188,9 +191,16 @@ function pendingNonCvcCredits(rows: RightsRow[]): PendingLibraryCredit[] {
   return [...byOwner.values()].sort((a, b) => a.owner.localeCompare(b.owner));
 }
 
+function cvcCredits(rows: RightsRow[]): RightsRow[] {
+  return rows
+    .filter((row) => isClearedApproved(row) && String(row.license || '').includes('Visit Music City'))
+    .sort((a, b) => String(a.alt_text || '').localeCompare(String(b.alt_text || '')));
+}
+
 export default function PhotoCreditsPage() {
   const credits = uniqueOpenLicenseCredits(rightsDoc.assets as RightsRow[]);
   const pending = pendingNonCvcCredits(rightsDoc.assets as RightsRow[]);
+  const cvc = cvcCredits(rightsDoc.assets as RightsRow[]);
 
   return (
     <div className="shell pb-16">
@@ -198,8 +208,27 @@ export default function PhotoCreditsPage() {
       <PageHeader
         eyebrow="Attribution"
         title="Photo credits"
-        intro="Openly licensed photographs used on this site are listed below. Creative Commons images require attribution; Pexels License images do not, but are listed for completeness. Visit Music City / Nashville CVC photography is not used and is not listed — NSVL does not pursue those rights. Other property media awaiting commercial clearance is recorded separately and is not shown in production. Photographers and rights holders do not endorse NSVL."
+        intro="Photography on this site comes from three places: the Nashville Convention & Visitors Corp, whose frames appear courtesy of Visit Music City on our editorial pages; openly licensed photographs (Creative Commons images require attribution, Pexels License images do not, but both are listed); and property media awaiting commercial clearance, recorded separately and not shown until cleared. Photographers and rights holders do not endorse NSVL."
       />
+
+      {cvc.length > 0 ? (
+        <section className="max-w-3xl border-b border-paper-edge py-8">
+          <h2 className="font-sans text-lg font-bold text-ink">Courtesy of Nashville Convention &amp; Visitors Corp.</h2>
+          <p className="mt-2 text-small leading-relaxed text-ink-soft">
+            Used with permission of the Nashville Convention &amp; Visitors Corp (Visit Music City) to promote Nashville as a
+            destination and to illustrate our tourism coverage. These frames never appear on the shop, advertising or
+            private-events pages, and are not used in advertising or merchandise.
+          </p>
+          <ul className="mt-3 list-disc space-y-1 pl-5 text-small leading-relaxed text-ink-soft">
+            {cvc.map((row) => (
+              <li key={row.asset_id}>
+                {row.alt_text}
+                {row.recommended_use ? <span className="text-ink-faint"> ({row.recommended_use})</span> : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="max-w-3xl space-y-8 py-8">
         {credits.map((credit) => (
@@ -269,8 +298,7 @@ export default function PhotoCreditsPage() {
           <p className="text-small leading-relaxed text-ink-soft">
             These sources are recorded for chain-of-custody only. They are not shown on the live site
             until each asset is marked cleared and approved for commercial digital editorial use on
-            Nashville.com. Visit Music City / Nashville CVC assets are excluded from this list and
-            from production permanently.
+            Nashville.com. Visit Music City frames are listed above under their own permission.
           </p>
           {pending.map((item) => (
             <article key={item.owner} className="border-b border-paper-edge pb-6">

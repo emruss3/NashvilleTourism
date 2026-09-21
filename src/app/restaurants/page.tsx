@@ -106,7 +106,7 @@ export default async function RestaurantsIndex(props: { searchParams?: Promise<P
         support="Find your next meal by neighborhood, cuisine or occasion."
         media={
           <MediaPair
-            primary={<SmartImage imageKey="concept/dining-table" ratio="aspect-[4/3] lg:aspect-auto lg:h-[380px]" sizes="(max-width: 1023px) 60vw, 40vw" priority />}
+            primary={<SmartImage imageKey="hub/restaurants-premium" ratio="aspect-[4/3] lg:aspect-auto lg:h-[380px]" sizes="(max-width: 1023px) 60vw, 40vw" priority />}
             secondary={<SmartImage imageKey="concept/dining-bar" ratio="aspect-[3/4] lg:aspect-auto lg:h-[380px]" sizes="(max-width: 1023px) 40vw, 25vw" priority />}
           />
         }

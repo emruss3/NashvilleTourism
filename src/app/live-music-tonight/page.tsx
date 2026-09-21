@@ -30,7 +30,7 @@ export default async function LiveMusicPage() {
         title="Live music in Nashville tonight"
         intro="Concerts and live music at Nashville venues only. Filter by tonight, this weekend, venue, or genre—then book tickets or plan Broadway around a ticketed show."
       />
-      <HubLead imageKey="music/ascend-amphitheater" />
+      <HubLead imageKey="hub/live-music-premium" />
 
       <section className="max-w-3xl space-y-4 py-8 text-[15px] leading-relaxed text-ink-soft">
         <p>

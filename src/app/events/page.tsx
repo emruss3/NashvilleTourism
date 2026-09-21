@@ -113,7 +113,7 @@ export default async function EventsIndex(props: { searchParams?: Promise<Params
         support="The shows, nights and moments worth going out for."
         media={
           <div className="overflow-hidden rounded-card bg-paper/10">
-            <SmartImage imageKey="concept/concert-crowd" ratio="aspect-[16/10] lg:aspect-auto lg:h-[440px]" sizes="(max-width: 1023px) 100vw, 58vw" priority />
+            <SmartImage imageKey="hub/events-premium" ratio="aspect-[16/10] lg:aspect-auto lg:h-[440px]" sizes="(max-width: 1023px) 100vw, 58vw" priority />
           </div>
         }
       >

@@ -74,7 +74,7 @@ export default async function PlanPage(props: { searchParams?: Promise<{ occasio
         media={
           <MediaPair
             className="hidden lg:grid"
-            primary={<SmartImage imageKey="concept/friends-patio" ratio="aspect-[4/3] lg:aspect-auto lg:h-[400px]" sizes="40vw" priority />}
+            primary={<SmartImage imageKey="hub/trip-planner-premium" ratio="aspect-[4/3] lg:aspect-auto lg:h-[400px]" sizes="40vw" priority />}
             secondary={<SmartImage imageKey="concept/group-toast" ratio="aspect-[3/4] lg:aspect-auto lg:h-[400px]" sizes="25vw" priority />}
           />
         }

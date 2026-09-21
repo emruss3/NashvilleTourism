@@ -7,10 +7,13 @@
  *
  * Production rule: an image may render only when it is in AVAILABLE_MEDIA
  * (`rightsStatus === 'cleared'` && `approvalStatus === 'approved'`).
- * TEMP_ALLOW_UNCLEARED_MEDIA temporarily also shows uncleared keys (CVC /
- * pending press). Flip that flag off before any production rights claim.
- * Missing keys still render a typographic fallback — never a wrong-business
- * substitute. See `public/media/README.md` and
+ * TEMP_ALLOW_UNCLEARED_MEDIA temporarily also shows uncleared keys (pending
+ * press). Flip that flag off before any production rights claim.
+ * Visit Music City frames are cleared for editorial placements only under
+ * the NCVC usage statement (docs/media/CVC-INTAKE.md); CVC_EDITORIAL_KEYS
+ * lists them and tests/media-usage.test.ts keeps them off commercial pages.
+ * Missing keys render nothing or the area photograph — never a
+ * wrong-business substitute. See `public/media/README.md` and
  * `docs/media/COMMERCIAL-MEDIA-SOURCING.md`.
  *
  * This module is imported by client components — never import node:fs/path here.
@@ -23,9 +26,8 @@ import type { MediaAsset, VideoAsset } from './media-types';
 export type { MediaAsset, VideoAsset } from './media-types';
 
 /**
- * Uncleared stills (CVC / pending press) must not ship. The site is live on
- * nashroam.com and /photo-credits publicly states CVC photography is not used,
- * so this stays false; uncleared keys render the typographic fallback.
+ * Uncleared stills (pending press) must not ship; this stays false and
+ * uncleared keys render nothing. CVC frames are allowlisted separately.
  */
 export const TEMP_ALLOW_UNCLEARED_MEDIA = false;
 
@@ -354,131 +356,44 @@ const baseImages = {
     width: 1600,
     height: 1067,
   },
-  'neighborhood/12-south': {
-    src: '/media/neighborhoods/12-south.jpg',
-    alt: 'Draper James shopfront on 12th Avenue South in the 12 South neighborhood.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
-    width: 1800,
-    height: 1200,
-  },
-  'neighborhood/downtown-broadway': {
-    src: '/media/neighborhoods/downtown-broadway-2400.webp',
-    srcSet:
-      '/media/neighborhoods/downtown-broadway-960.webp 960w, /media/neighborhoods/downtown-broadway-1600.webp 1600w, /media/neighborhoods/downtown-broadway-2400.webp 2199w',
-    srcMobile: '/media/neighborhoods/downtown-broadway-mobile-1400.webp',
-    srcMobileSet:
-      '/media/neighborhoods/downtown-broadway-mobile-960.webp 960w, /media/neighborhoods/downtown-broadway-mobile-1400.webp 1174w',
-    alt: "Robert's Western World and Lower Broadway neon on a busy downtown Nashville block.",
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
-    width: 2199,
-    height: 1237,
-    objectPosition: 'center',
-    objectPositionMobile: 'center',
-  },
-  'neighborhood/east-nashville': {
-    src: '/media/neighborhoods/east-nashville.jpg',
-    alt: 'Rosemary & Beauty Queen exterior in East Nashville.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
-    width: 1800,
-    height: 1200,
-  },
-  'neighborhood/germantown': {
-    src: '/media/neighborhoods/germantown.jpg',
-    alt: 'The Cupcake Collection storefront in Germantown, Nashville.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
-    width: 1800,
-    height: 1200,
-  },
-  'neighborhood/green-hills': {
-    src: '/media/neighborhoods/green-hills.jpg',
-    alt: 'The Bluebird Cafe exterior in Green Hills, Nashville.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
-    width: 1800,
-    height: 1200,
-  },
-  'neighborhood/hillsboro-village': {
-    src: '/media/neighborhoods/hillsboro-village.jpg',
-    alt: 'The Belcourt Theatre in Hillsboro Village, Nashville.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
-    width: 1800,
-    height: 1200,
-  },
-  'neighborhood/midtown': {
-    src: '/media/neighborhoods/midtown.jpg',
-    alt: 'Odie’s Bar exterior neon and patio overlooking Division Street in Midtown Nashville.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
-    width: 1800,
-    height: 1200,
+  'cvc/hermitage-hotel-lobby': {
+    src: '/media/guides/where-to-stay.jpg',
+    alt: 'The lobby of the Hermitage Hotel in downtown Nashville.',
+    credit: 'Courtesy of Nashville Convention & Visitors Corp.',
+    licence: 'Visit Music City usage statement (email, Conley Merritt, NCVC, 2026-09-21): tourism-promotion and tourism-article use only; never on shop, advertising, private-events or affiliate surfaces',
+    width: 2000,
+    height: 1250,
   },
   'neighborhood/music-row': {
     src: '/media/neighborhoods/music-row.jpg',
     alt: 'Music Row streetscape in Nashville.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
-    width: 1800,
-    height: 1200,
-  },
-  'neighborhood/the-gulch': {
-    src: '/media/neighborhoods/the-gulch.jpg',
-    alt: 'Biscuit Love restaurant in the Gulch, Nashville.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
+    credit: 'Courtesy of Nashville Convention & Visitors Corp.',
+    licence: 'Visit Music City usage statement (email, Conley Merritt, NCVC, 2026-09-21): tourism-promotion and tourism-article use only; never on shop, advertising, private-events or affiliate surfaces',
     width: 1800,
     height: 1200,
   },
   'neighborhood/wedgewood-houston': {
     src: '/media/neighborhoods/wedgewood-houston.jpg',
-    alt: 'Bastion restaurant exterior in Wedgewood-Houston, Nashville.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
-    width: 1800,
-    height: 1200,
-  },
-  'neighborhood/sylvan-park': {
-    src: '/media/neighborhoods/sylvan-park.jpg',
-    alt: 'Sylvan Supply storefront in Sylvan Park, Nashville.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
+    alt: 'Bastion’s dining room under paper lanterns in Wedgewood-Houston, Nashville.',
+    credit: 'Courtesy of Nashville Convention & Visitors Corp.',
+    licence: 'Visit Music City usage statement (email, Conley Merritt, NCVC, 2026-09-21): tourism-promotion and tourism-article use only; never on shop, advertising, private-events or affiliate surfaces',
     width: 1800,
     height: 1200,
   },
   'neighborhood/west-end': {
     src: '/media/neighborhoods/west-end.jpg',
     alt: 'The Parthenon at Centennial Park along West End Avenue.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
+    credit: 'Courtesy of Nashville Convention & Visitors Corp.',
+    licence: 'Visit Music City usage statement (email, Conley Merritt, NCVC, 2026-09-21): tourism-promotion and tourism-article use only; never on shop, advertising, private-events or affiliate surfaces',
     width: 1800,
     height: 1200,
   },
 
-  'guide/first-time-visitors': {
-    src: '/media/guides/first-time-visitors.jpg',
-    alt: 'Aerial view of the downtown Nashville skyline.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
-    width: 2000,
-    height: 1250,
-  },
   'guide/weekend-itinerary': {
     src: '/media/guides/weekend-itinerary.jpg',
     alt: 'Three guests dining on a rooftop terrace overlooking Nashville.',
     credit: 'Four Seasons Hotels and Resorts',
     licence: 'Four Seasons press library — usage authorization pending',
-    width: 2000,
-    height: 1250,
-  },
-  'guide/where-to-stay': {
-    src: '/media/guides/where-to-stay.jpg',
-    alt: 'The lobby of the Hermitage Hotel in downtown Nashville.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
     width: 2000,
     height: 1250,
   },
@@ -496,8 +411,8 @@ const baseImages = {
   'hub/events-premium': {
     src: '/media/hubs/events-premium.jpg',
     alt: 'People dancing outdoors at a Musicians Corner concert in Nashville.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
+    credit: 'Courtesy of Nashville Convention & Visitors Corp.',
+    licence: 'Visit Music City usage statement (email, Conley Merritt, NCVC, 2026-09-21): tourism-promotion and tourism-article use only; never on shop, advertising, private-events or affiliate surfaces',
     width: 1800,
     height: 1200,
   },
@@ -514,8 +429,8 @@ const baseImages = {
   'hub/live-music-premium': {
     src: '/media/hubs/live-music-premium.jpg',
     alt: 'Cassadee Pope performing at the Ryman Auditorium.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
+    credit: 'Courtesy of Nashville Convention & Visitors Corp.',
+    licence: 'Visit Music City usage statement (email, Conley Merritt, NCVC, 2026-09-21): tourism-promotion and tourism-article use only; never on shop, advertising, private-events or affiliate surfaces',
     width: 1800,
     height: 1200,
   },
@@ -524,16 +439,16 @@ const baseImages = {
     srcSet:
       '/media/hubs/restaurants-premium-960.webp 960w, /media/hubs/restaurants-premium-1600.webp 1600w, /media/hubs/restaurants-premium-2400.webp 1800w',
     alt: 'The cocktail bar at Twelve Thirty Club in Nashville.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
+    credit: 'Courtesy of Nashville Convention & Visitors Corp.',
+    licence: 'Visit Music City usage statement (email, Conley Merritt, NCVC, 2026-09-21): tourism-promotion and tourism-article use only; never on shop, advertising, private-events or affiliate surfaces',
     width: 1800,
     height: 1200,
   },
   'hub/things-to-do-premium': {
     src: '/media/hubs/things-to-do-premium.jpg',
     alt: 'A Gray Line tour bus parked in front of the Parthenon in Centennial Park.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
+    credit: 'Courtesy of Nashville Convention & Visitors Corp.',
+    licence: 'Visit Music City frame, held back: a Gray Line coach is in frame; not allowlisted',
     width: 1800,
     height: 1200,
   },
@@ -542,24 +457,24 @@ const baseImages = {
     srcSet:
       '/media/hubs/trip-planner-premium-960.webp 960w, /media/hubs/trip-planner-premium-1600.webp 1600w, /media/hubs/trip-planner-premium-2400.webp 1800w',
     alt: 'Nashville skyline seen from a pedestrian bridge.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
+    credit: 'Courtesy of Nashville Convention & Visitors Corp.',
+    licence: 'Visit Music City usage statement (email, Conley Merritt, NCVC, 2026-09-21): tourism-promotion and tourism-article use only; never on shop, advertising, private-events or affiliate surfaces',
     width: 1800,
     height: 1200,
   },
   'trending/live-tonight': {
     src: '/media/trending/live-tonight.jpg',
     alt: 'A live concert crowd in Nashville.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
+    credit: 'Courtesy of Nashville Convention & Visitors Corp.',
+    licence: 'Visit Music City usage statement (email, Conley Merritt, NCVC, 2026-09-21): tourism-promotion and tourism-article use only; never on shop, advertising, private-events or affiliate surfaces',
     width: 1800,
     height: 1200,
   },
   'trending/weekender': {
     src: '/media/trending/weekender.jpg',
     alt: 'Aerial view of the Tennessee State Capitol and downtown Nashville skyline with green parkland.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
+    credit: 'Courtesy of Nashville Convention & Visitors Corp.',
+    licence: 'Visit Music City usage statement (email, Conley Merritt, NCVC, 2026-09-21): tourism-promotion and tourism-article use only; never on shop, advertising, private-events or affiliate surfaces',
     width: 1800,
     height: 1200,
   },
@@ -638,7 +553,7 @@ const baseImages = {
       '/media/venues/twelve-thirty-club-640.webp 640w, /media/venues/twelve-thirty-club-960.webp 960w, /media/venues/twelve-thirty-club-1600.webp 1600w',
     alt: 'Twelve Thirty Club supper club bar with red and green leather seating, brass, marble, and dark wood.',
     credit: 'Nashville Convention & Visitors Corp / property media',
-    licence: 'CVC or unresolved property media — reference-only / pending clearance; do not ship',
+    licence: 'Visit Music City usage statement (email, Conley Merritt, NCVC, 2026-09-21): tourism-promotion and tourism-article use only; never on shop, advertising, private-events or affiliate surfaces',
     width: 1600,
     height: 1067,
   },
@@ -762,8 +677,8 @@ const baseImages = {
     srcMobileSet:
       '/media/editorial/pedestrian-bridge-mobile-800.webp 800w, /media/editorial/pedestrian-bridge-mobile-1200.webp 1200w',
     alt: 'John Seigenthaler Pedestrian Bridge at blue hour with downtown skyline and Cumberland River reflections.',
-    credit: 'Nashville Convention & Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
+    credit: 'Courtesy of Nashville Convention & Visitors Corp.',
+    licence: 'Visit Music City usage statement (email, Conley Merritt, NCVC, 2026-09-21): tourism-promotion and tourism-article use only; never on shop, advertising, private-events or affiliate surfaces',
     width: 2400,
     height: 1350,
   },
@@ -785,8 +700,8 @@ const baseImages = {
     srcSet:
       '/media/restaurants/peg-leg-porker-640.webp 640w, /media/restaurants/peg-leg-porker-960.webp 960w, /media/restaurants/peg-leg-porker-1600.webp 1600w',
     alt: 'Peg Leg Porker white-brick building, covered patio, and PEG LEG PORKER signage in the Gulch.',
-    credit: 'Nashville Convention and Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
+    credit: 'Courtesy of Nashville Convention & Visitors Corp.',
+    licence: 'Visit Music City frame, held back: 413px master is too small for any placement; not allowlisted',
     width: 1600,
     height: 1066,
   },
@@ -795,8 +710,8 @@ const baseImages = {
     srcSet:
       '/media/restaurants/butter-milk-ranch-640.webp 640w, /media/restaurants/butter-milk-ranch-960.webp 960w, /media/restaurants/butter-milk-ranch-1600.webp 1012w',
     alt: 'The Butter Milk Ranch restaurant and patio on 12th Avenue South in Nashville.',
-    credit: 'Nashville Convention and Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
+    credit: 'Courtesy of Nashville Convention & Visitors Corp.',
+    licence: 'Visit Music City usage statement (email, Conley Merritt, NCVC, 2026-09-21): tourism-promotion and tourism-article use only; never on shop, advertising, private-events or affiliate surfaces',
     width: 1012,
     height: 675,
   },
@@ -825,8 +740,8 @@ const baseImages = {
     srcSet:
       '/media/restaurants/playdate-640.webp 640w, /media/restaurants/playdate-960.webp 960w, /media/restaurants/playdate-1600.webp 1012w',
     alt: "Playdate's outdoor patio with white umbrellas on 12th Avenue South.",
-    credit: 'Nashville Convention and Visitors Corp',
-    licence: 'CVC / Visit Music City — reference-only; not licensed; do not ship',
+    credit: 'Courtesy of Nashville Convention & Visitors Corp.',
+    licence: 'Visit Music City usage statement (email, Conley Merritt, NCVC, 2026-09-21): tourism-promotion and tourism-article use only; never on shop, advertising, private-events or affiliate surfaces',
     width: 1012,
     height: 675,
   },
@@ -909,12 +824,36 @@ const OWNED_AND_OPEN_BASE: readonly string[] = [
   'attractions/country-music-hall-of-fame-night',
 ];
 
+/**
+ * Visit Music City frames cleared for editorial placements under the NCVC
+ * usage statement (docs/media/CVC-INTAKE.md). Editorial pages only; the
+ * build test keeps them off shop, advertising, private-events and affiliate
+ * surfaces. Credit: Courtesy of Nashville Convention & Visitors Corp.
+ */
+export const CVC_EDITORIAL_KEYS: readonly string[] = [
+  'hub/events-premium',
+  'hub/live-music-premium',
+  'hub/restaurants-premium',
+  'hub/trip-planner-premium',
+  'trending/live-tonight',
+  'trending/weekender',
+  'venues/twelve-thirty-club',
+  'restaurants/butter-milk-ranch',
+  'restaurants/playdate',
+  'editorial/pedestrian-bridge',
+  'neighborhood/music-row',
+  'neighborhood/wedgewood-houston',
+  'neighborhood/west-end',
+  'cvc/hermitage-hotel-lobby',
+];
+
 /** Cleared hero keys stay allowlisted; uncleared hero stills stay gated. Hero video is the Pexels drone loop only. */
 const CLEARED_OR_RESTORED = new Set<string>([
   'hero/video',
   ...OWNED_AND_OPEN_BASE,
   ...Object.keys(restoredMedia),
   ...Object.keys(conceptMedia),
+  ...CVC_EDITORIAL_KEYS,
 ]);
 
 const unclearedPresentKeys = TEMP_ALLOW_UNCLEARED_MEDIA
@@ -932,12 +871,13 @@ export const AVAILABLE_MEDIA: ReadonlySet<string> = new Set<string>(
     ? ['hero/video', ...unclearedPresentKeys]
     : [
         // Production gate: rightsStatus === 'cleared' && approvalStatus === 'approved'.
-        // CVC / Visit Music City assets are never listed here.
         // Adobe purchase-required keys are intentionally omitted until licensed files land.
         ...OWNED_AND_OPEN_BASE,
         ...Object.keys(restoredMedia),
         // Concept illustrations: owner-approved, labelled as illustration in alt text.
         ...Object.keys(conceptMedia),
+        // Visit Music City frames: editorial placements only (see CVC_EDITORIAL_KEYS).
+        ...CVC_EDITORIAL_KEYS,
       ],
 );
 
