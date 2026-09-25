@@ -70,16 +70,28 @@ function encodeBase64(text: string): string {
   return Buffer.from(text, 'utf8').toString('base64');
 }
 
+/** Largest party the guest selectors offer (StaySearch, BookingWidget, planner). */
+export const MAX_STAY_ADULTS = 20;
+
 /**
- * `occupancies` = base64 of `[{ adults, children }]`, one object per room.
- * Adults default to 2, one room, no children.
+ * Rooms for a party: up to 4 adults share one room; a bigger group is split
+ * into rooms of two, so a 16-person bachelorette lands on the booking site
+ * as eight doubles rather than one impossible room. Explicit `rooms` wins.
  */
-export function occupanciesParam(occupancy: StayOccupancy = {}): string {
-  const adults = Math.min(Math.max(Math.trunc(occupancy.adults ?? 2), 1), 12);
-  const rooms = Math.min(Math.max(Math.trunc(occupancy.rooms ?? 1), 1), 8);
+export function splitOccupancy(occupancy: StayOccupancy = {}): { adults: number; children: number[] }[] {
+  const adults = Math.min(Math.max(Math.trunc(occupancy.adults ?? 2), 1), MAX_STAY_ADULTS);
   const children = (occupancy.children ?? []).filter((age) => Number.isInteger(age) && age >= 0 && age <= 17);
-  const room = { adults, children };
-  return encodeBase64(JSON.stringify(Array.from({ length: rooms }, () => room)));
+  const wanted = occupancy.rooms ? Math.trunc(occupancy.rooms) : adults <= 4 ? 1 : Math.ceil(adults / 2);
+  const rooms = Math.min(Math.max(wanted, 1), adults);
+  const base = Math.floor(adults / rooms);
+  const extra = adults % rooms;
+  // Children ride with the first room; child ages per room is a Phase 3 refinement.
+  return Array.from({ length: rooms }, (_, i) => ({ adults: base + (i < extra ? 1 : 0), children: i === 0 ? children : [] }));
+}
+
+/** `occupancies` = base64 of `[{ adults, children }]`, one object per room. */
+export function occupanciesParam(occupancy: StayOccupancy = {}): string {
+  return encodeBase64(JSON.stringify(splitOccupancy(occupancy)));
 }
 
 /** `nsh:{surface}:{slug}` — short, lower-case, no PII, no dates. */

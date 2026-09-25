@@ -262,7 +262,7 @@ export default function BookingWidget({
         {tab === 'tours'
           ? 'Live products and starting prices from Viator. Final availability and checkout are confirmed on Viator.'
           : tab === 'hotels'
-            ? `Hotel checkout happens on our booking site, run with Nuitée; “${partners.stay.merchant}” appears on your card statement, and Nuitée provides 24/7 booking support. Room prices include our margin; it never changes which hotels we recommend.`
+            ? `Rates and checkout are on our booking site, run with Nuitée; “${partners.stay.merchant}” appears on your card statement, and Nuitée handles booking support. Room prices include our margin; it never changes which hotels we recommend.`
             : 'We earn a commission on bookings made through these partners. It never changes what we recommend.'}
       </p>
     </div>

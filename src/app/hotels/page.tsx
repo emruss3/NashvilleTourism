@@ -170,7 +170,7 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
         </ul>
         <p className="mt-3 text-2xs text-ink-soft">
           Amenities are as listed by each property and re-checked periodically. Nightly rates, taxes and fees appear on our booking
-          site for your dates; checkout there is processed by {partners.stay.merchant}, with 24/7 support from Nuitée.
+          site for your dates; checkout there is processed by {partners.stay.merchant}, and Nuitée handles booking support.
         </p>
       </section>
 

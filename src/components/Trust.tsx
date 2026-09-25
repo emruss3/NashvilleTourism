@@ -88,8 +88,8 @@ export function AffiliateDisclosure({ compact = false, variant = 'affiliate' }: 
     if (compact) {
       return (
         <p className="text-2xs text-ink-faint">
-          Room prices include our margin and are set at or above the hotel&rsquo;s published rate. Checkout is on our booking
-          site; &ldquo;Nuitée Travel Limited&rdquo; appears on your card statement.{' '}
+          Room prices on our booking site include our margin; it never changes which hotels we recommend. Checkout there is
+          handled by Nuitée, and &ldquo;Nuitée Travel Limited&rdquo; appears on your card statement.{' '}
           <Link href="/advertising/#disclosure" className="underline hover:text-ink">
             How this works
           </Link>
@@ -99,10 +99,10 @@ export function AffiliateDisclosure({ compact = false, variant = 'affiliate' }: 
     return (
       <div className="rounded border border-paper-edge bg-paper-sunk p-4 text-sm text-ink-soft">
         <p>
-          <strong className="font-semibold text-ink">How booking works.</strong> Room prices include our margin and are set at
-          or above the hotel&rsquo;s published rate. It never changes which hotels we recommend. Bookings are completed on our
-          booking site and processed by Nuitée Travel Limited, which appears on your card statement; Nuitée provides 24/7
-          booking support.{' '}
+          <strong className="font-semibold text-ink">How booking works.</strong> Rates, availability and room prices on our
+          booking site come from Nuitée and include our margin. That margin never changes which hotels we recommend or the
+          order we list them in. Bookings are completed there and processed by Nuitée Travel Limited, which appears on your
+          card statement, and Nuitée handles booking support and changes.{' '}
           <Link href="/how-we-choose/" className="text-clay underline underline-offset-2">
             How we choose
           </Link>

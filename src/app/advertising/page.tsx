@@ -185,9 +185,10 @@ export default function AdvertisingPage() {
           </p>
           <p>
             <strong className="font-semibold text-ink">Hotel bookings.</strong> Hotel checkout happens on our booking site,
-            operated with Nuitée; Nuitée Travel Limited is the merchant of record and appears on your card statement, and
-            Nuitée provides 24/7 booking support. Room prices there include our margin and are set at or above the
-            hotel&rsquo;s published rate. Our margin never changes which hotels we recommend or the order we list them in.
+            operated with Nuitée. Rates, availability, room prices, confirmations, changes and cancellations there are
+            Nuitée&rsquo;s; Nuitée Travel Limited is the merchant of record and appears on your card statement, and Nuitée
+            handles booking support. Room prices include our margin. That margin never changes which hotels we recommend or
+            the order we list them in, and we do not verify any rate before you see it on the booking site.
           </p>
           <p>
             Affiliate links are only added to places our editorial desk already recommends on the

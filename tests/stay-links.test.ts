@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
-import { clientReference, occupanciesParam, stayCheckoutHref, stayHotelHref, stayListingHref, stayHost } from '../src/lib/stay-links.ts';
+import { clientReference, occupanciesParam, splitOccupancy, stayCheckoutHref, stayHotelHref, stayListingHref, stayHost } from '../src/lib/stay-links.ts';
 
 const HOST = 'stay.nashroam.com';
 
@@ -30,10 +30,23 @@ function withEnv(values: Record<string, string | undefined>, fn: () => void) {
 test('occupancies is base64 of one object per room', () => {
   assert.deepEqual(JSON.parse(Buffer.from(occupanciesParam({ adults: 2 }), 'base64').toString()), [{ adults: 2, children: [] }]);
   assert.deepEqual(JSON.parse(Buffer.from(occupanciesParam({ adults: 3, children: [4, 9], rooms: 2 }), 'base64').toString()), [
-    { adults: 3, children: [4, 9] },
-    { adults: 3, children: [4, 9] },
+    { adults: 2, children: [4, 9] },
+    { adults: 1, children: [] },
   ]);
   assert.deepEqual(JSON.parse(Buffer.from(occupanciesParam(), 'base64').toString()), [{ adults: 2, children: [] }]);
+});
+
+test('large parties split into rooms of two instead of clamping', () => {
+  const count = (rooms: { adults: number }[]) => rooms.reduce((n, r) => n + r.adults, 0);
+  assert.equal(splitOccupancy({ adults: 4 }).length, 1, 'four adults still share one room');
+  assert.deepEqual(splitOccupancy({ adults: 5 }), [{ adults: 2, children: [] }, { adults: 2, children: [] }, { adults: 1, children: [] }]);
+  const sixteen = splitOccupancy({ adults: 16 });
+  assert.equal(sixteen.length, 8);
+  assert.equal(count(sixteen), 16, 'nobody is dropped');
+  assert.ok(sixteen.every((r) => r.adults === 2));
+  assert.equal(count(splitOccupancy({ adults: 20 })), 20, 'the selectors\' maximum survives intact');
+  assert.equal(count(splitOccupancy({ adults: 40 })), 20, 'above the selector maximum is capped, never silently truncated to one room');
+  assert.deepEqual(splitOccupancy({ adults: 3, rooms: 2, children: [6] }), [{ adults: 2, children: [6] }, { adults: 1, children: [] }], 'explicit rooms win');
 });
 
 test('clientReference is short, lower-case and free of PII or dates', () => {

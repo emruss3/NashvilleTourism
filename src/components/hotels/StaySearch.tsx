@@ -109,7 +109,7 @@ export default function StaySearch({
           <span aria-hidden="true">→</span>
         </button>
         <p className="mt-2 text-2xs text-ink-soft">
-          Your dates carry through to every hotel below. Checkout is on our booking site, run with Nuitée; “{partners.stay.merchant}” appears on your card statement. Room prices include our margin; it never changes which hotels we recommend.
+          Your dates carry through to every hotel below. Rates and checkout are on our booking site, run with Nuitée; “{partners.stay.merchant}” appears on your card statement. Room prices include our margin; it never changes which hotels we recommend.
         </p>
       </div>
     </form>
