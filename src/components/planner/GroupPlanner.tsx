@@ -783,7 +783,7 @@ export default function GroupPlanner({
               {hotelPicks.length > 0 ? (
                 <section className="mt-10 border-t border-paper-edge pt-6">
                   <p className="eyebrow">Where to stay for this trip</p>
-                  <p className="mt-1 text-[15px] text-ink-soft">Matched to your neighborhoods and budget. Rates open on Booking.com; a saved hotel is not a room.</p>
+                  <p className="mt-1 text-[15px] text-ink-soft">Matched to your neighborhoods and budget. Check rates for your dates from each hotel page; a saved hotel is not a room.</p>
                   <ul className="mt-3 grid gap-3 sm:grid-cols-3">
                     {hotelPicks.map((h) => (
                       <li key={h.slug} className="rounded-card border border-paper-edge p-4">

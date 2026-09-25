@@ -17,6 +17,7 @@ export const ANALYTICS_EVENTS = {
   ITEM_SAVED: 'item_saved',
   ITINERARY_EMAILED: 'itinerary_emailed',
   HOTEL_AFFILIATE_CLICKED: 'hotel_affiliate_clicked',
+  HOTEL_MARKET_VIEWED: 'hotel_market_viewed',
   TICKET_AFFILIATE_CLICKED: 'ticket_affiliate_clicked',
   ACTIVITY_AFFILIATE_CLICKED: 'activity_affiliate_clicked',
   RESTAURANT_RESERVATION_CLICKED: 'restaurant_reservation_clicked',
@@ -39,7 +40,13 @@ export interface AnalyticsPayload {
   neighborhood?: string;
   /** For commercial clickouts: which partner received the click. */
   partner?: string;
-  placement?: 'editorial' | 'sponsored' | 'affiliate';
+  placement?: 'editorial' | 'sponsored' | 'affiliate' | 'whitelabel';
+  /** `nsh:{surface}:{slug}` carried on white-label links. */
+  client_reference?: string;
+  /** Provider hotel id on hotel clickouts. */
+  hotel_id?: string;
+  /** Nightly price shown next to the CTA, when one was. */
+  nightly_shown?: number;
   search_term?: string;
   results_count?: number;
   trip_type?: string;

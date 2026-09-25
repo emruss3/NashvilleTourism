@@ -3,6 +3,11 @@ import { listingImageFromKey, type ImageKey } from '../media';
 
 const checked = '2026-08-07';
 
+/**
+ * Search-link fallback, used only when the white-label booking site is not
+ * configured or a hotel has no LiteAPI id. No affiliate id; nothing is earned
+ * on it. This is the one place a Booking.com URL is allowed to exist.
+ */
 function bookingSearch(hotelName: string): string {
   const query = encodeURIComponent(`${hotelName}, Nashville, Tennessee`);
   return `https://www.booking.com/searchresults.html?ss=${query}`;
@@ -12,8 +17,9 @@ const sharedSourceNote =
   'Real operating Nashville hotel. Core identity and location checked against current hotel/Booking.com sources on 2026-08-07. High-level amenities and parking notes should be refreshed from the future hotel provider before marking verified.';
 
 /**
- * Real Nashville hotel inventory with Booking.com search links as a temporary
- * booking layer. No Booking.com property IDs, live rates, availability,
+ * Real Nashville hotel inventory. Booking goes through the Nuitée white-label
+ * site keyed by `liteApiHotelId` (docs/HOTEL-BOOKING.md); `fallbackUrl` is a
+ * plain search link for when that is unavailable. No live rates, availability,
  * ratings, or reviews are fabricated here.
  */
 /** Cleared exact-property photography. Everything else renders text-only, never a stock room. */
@@ -42,7 +48,8 @@ const hotelsBase: Hotel[] = [
     familyFriendly: true,
     walkabilityNote: 'Excellent for Bridgestone Arena, Music City Center, Broadway and Nashville Yards.',
     nearbyAttractions: ['Bridgestone Arena', 'Lower Broadway', 'Music City Center', 'Nashville Yards'],
-    bookingUrl: bookingSearch('1 Hotel Nashville'),
+    liteApiHotelId: 'lp65576337',
+    fallbackUrl: bookingSearch('1 Hotel Nashville'),
     mapQuery: '1 Hotel Nashville, Nashville, TN',
     relatedSlugs: ['the-joseph-nashville', 'jw-marriott-nashville', 'grand-hyatt-nashville'],
     dataStatus: 'needs-recheck',
@@ -68,7 +75,8 @@ const hotelsBase: Hotel[] = [
     familyFriendly: true,
     walkabilityNote: 'Very strong for SoBro, the convention center, Bridgestone Arena and Lower Broadway.',
     nearbyAttractions: ['Music City Center', 'Country Music Hall of Fame', 'Bridgestone Arena', 'Lower Broadway'],
-    bookingUrl: bookingSearch('The Joseph Nashville'),
+    liteApiHotelId: 'lp65565b9f',
+    fallbackUrl: bookingSearch('The Joseph Nashville'),
     mapQuery: 'The Joseph Nashville, Nashville, TN',
     relatedSlugs: ['four-seasons-hotel-nashville', '1-hotel-nashville', 'omni-nashville-hotel'],
     dataStatus: 'needs-recheck',
@@ -94,7 +102,8 @@ const hotelsBase: Hotel[] = [
     familyFriendly: true,
     walkabilityNote: 'Excellent for Broadway, Ascend Amphitheater, the riverfront and Bridgestone Arena.',
     nearbyAttractions: ['Cumberland Riverfront', 'Ascend Amphitheater', 'Lower Broadway', 'Bridgestone Arena'],
-    bookingUrl: bookingSearch('Four Seasons Hotel Nashville'),
+    liteApiHotelId: 'lp655820da',
+    fallbackUrl: bookingSearch('Four Seasons Hotel Nashville'),
     mapQuery: 'Four Seasons Hotel Nashville, Nashville, TN',
     relatedSlugs: ['the-joseph-nashville', 'omni-nashville-hotel', '1-hotel-nashville'],
     dataStatus: 'needs-recheck',
@@ -120,7 +129,8 @@ const hotelsBase: Hotel[] = [
     familyFriendly: true,
     walkabilityNote: 'Excellent for the Country Music Hall of Fame, Music City Center, Bridgestone Arena and Broadway.',
     nearbyAttractions: ['Country Music Hall of Fame', 'Music City Center', 'Bridgestone Arena', 'Lower Broadway'],
-    bookingUrl: bookingSearch('Omni Nashville Hotel'),
+    liteApiHotelId: 'lp69b87',
+    fallbackUrl: bookingSearch('Omni Nashville Hotel'),
     mapQuery: 'Omni Nashville Hotel, Nashville, TN',
     relatedSlugs: ['the-joseph-nashville', 'four-seasons-hotel-nashville', 'jw-marriott-nashville'],
     dataStatus: 'needs-recheck',
@@ -146,7 +156,8 @@ const hotelsBase: Hotel[] = [
     familyFriendly: true,
     walkabilityNote: 'Strong downtown position near Bridgestone Arena, the convention center and Lower Broadway.',
     nearbyAttractions: ['Bridgestone Arena', 'Music City Center', 'Lower Broadway', 'Nashville Yards'],
-    bookingUrl: bookingSearch('JW Marriott Nashville'),
+    liteApiHotelId: 'lpdbbb7',
+    fallbackUrl: bookingSearch('JW Marriott Nashville'),
     mapQuery: 'JW Marriott Nashville, Nashville, TN',
     relatedSlugs: ['1-hotel-nashville', 'grand-hyatt-nashville', 'the-joseph-nashville'],
     dataStatus: 'needs-recheck',
@@ -172,7 +183,8 @@ const hotelsBase: Hotel[] = [
     familyFriendly: true,
     walkabilityNote: 'Walkable to Nashville Yards, the Gulch and Lower Broadway.',
     nearbyAttractions: ['Nashville Yards', 'The Gulch', 'Lower Broadway', 'Frist Art Museum'],
-    bookingUrl: bookingSearch('Grand Hyatt Nashville'),
+    liteApiHotelId: 'lp6555c71b',
+    fallbackUrl: bookingSearch('Grand Hyatt Nashville'),
     mapQuery: 'Grand Hyatt Nashville, Nashville, TN',
     relatedSlugs: ['1-hotel-nashville', 'jw-marriott-nashville', 'conrad-nashville'],
     dataStatus: 'needs-recheck',
@@ -198,7 +210,8 @@ const hotelsBase: Hotel[] = [
     familyFriendly: true,
     walkabilityNote: 'Excellent inside the Gulch and roughly a 15-20 minute walk to Lower Broadway.',
     nearbyAttractions: ['Station Inn', 'The Gulch', 'Nashville Yards', 'Lower Broadway'],
-    bookingUrl: bookingSearch('Thompson Nashville'),
+    liteApiHotelId: 'lp97976',
+    fallbackUrl: bookingSearch('Thompson Nashville'),
     mapQuery: 'Thompson Nashville, Nashville, TN',
     relatedSlugs: ['w-nashville', '1-hotel-nashville', 'grand-hyatt-nashville'],
     dataStatus: 'needs-recheck',
@@ -224,7 +237,8 @@ const hotelsBase: Hotel[] = [
     familyFriendly: true,
     walkabilityNote: 'Excellent for the Gulch, with downtown and Nashville Yards close enough to walk for most visitors.',
     nearbyAttractions: ['The Gulch', 'Station Inn', 'Nashville Yards', 'Lower Broadway'],
-    bookingUrl: bookingSearch('W Nashville'),
+    liteApiHotelId: 'lp65570334',
+    fallbackUrl: bookingSearch('W Nashville'),
     mapQuery: 'W Nashville, Nashville, TN',
     relatedSlugs: ['thompson-nashville', '1-hotel-nashville', 'grand-hyatt-nashville'],
     dataStatus: 'needs-recheck',
@@ -250,7 +264,8 @@ const hotelsBase: Hotel[] = [
     familyFriendly: true,
     walkabilityNote: 'Good for Music Row and Midtown; Broadway is a short ride or a longer walk.',
     nearbyAttractions: ['Music Row', 'Midtown', 'Vanderbilt University', 'Nashville Yards'],
-    bookingUrl: bookingSearch('Conrad Nashville'),
+    liteApiHotelId: 'lp65578f3b',
+    fallbackUrl: bookingSearch('Conrad Nashville'),
     mapQuery: 'Conrad Nashville, Nashville, TN',
     relatedSlugs: ['graduate-nashville', 'hutton-hotel', 'holiday-inn-nashville-vanderbilt'],
     dataStatus: 'needs-recheck',
@@ -276,7 +291,8 @@ const hotelsBase: Hotel[] = [
     familyFriendly: true,
     walkabilityNote: 'Excellent for Vanderbilt and nearby Midtown/Music Row; downtown is a short ride.',
     nearbyAttractions: ['Vanderbilt University', 'Music Row', 'Midtown', 'Centennial Park'],
-    bookingUrl: bookingSearch('Graduate by Hilton Nashville'),
+    liteApiHotelId: 'lp214163',
+    fallbackUrl: bookingSearch('Graduate by Hilton Nashville'),
     mapQuery: 'Graduate Nashville, Nashville, TN',
     relatedSlugs: ['conrad-nashville', 'hutton-hotel', 'holiday-inn-nashville-vanderbilt'],
     dataStatus: 'needs-recheck',
@@ -302,7 +318,8 @@ const hotelsBase: Hotel[] = [
     familyFriendly: true,
     walkabilityNote: 'Good for Midtown, Music Row and Vanderbilt; downtown is usually easier by rideshare.',
     nearbyAttractions: ['Music Row', 'Vanderbilt University', 'Midtown', 'Centennial Park'],
-    bookingUrl: bookingSearch('Hutton Hotel Nashville'),
+    liteApiHotelId: 'lp440f1',
+    fallbackUrl: bookingSearch('Hutton Hotel Nashville'),
     mapQuery: 'Hutton Hotel Nashville, Nashville, TN',
     relatedSlugs: ['conrad-nashville', 'graduate-nashville', 'holiday-inn-nashville-vanderbilt'],
     dataStatus: 'needs-recheck',
@@ -328,7 +345,8 @@ const hotelsBase: Hotel[] = [
     familyFriendly: true,
     walkabilityNote: 'Excellent for Centennial Park and Vanderbilt; downtown is best reached by a short ride.',
     nearbyAttractions: ['Centennial Park', 'The Parthenon', 'Vanderbilt University', 'West End'],
-    bookingUrl: bookingSearch('Holiday Inn Nashville Vanderbilt'),
+    liteApiHotelId: 'lp1a70d',
+    fallbackUrl: bookingSearch('Holiday Inn Nashville Vanderbilt'),
     mapQuery: 'Holiday Inn Nashville Vanderbilt, Nashville, TN',
     relatedSlugs: ['graduate-nashville', 'hutton-hotel', 'conrad-nashville'],
     dataStatus: 'needs-recheck',
@@ -354,7 +372,8 @@ const hotelsBase: Hotel[] = [
     familyFriendly: true,
     walkabilityNote: 'Excellent for Germantown restaurants, Bicentennial Capitol Mall and the Farmers Market.',
     nearbyAttractions: ['Nashville Farmers Market', 'Bicentennial Capitol Mall', 'First Horizon Park', 'Tennessee State Capitol'],
-    bookingUrl: bookingSearch('Germantown Inn Nashville'),
+    liteApiHotelId: 'lpa0b50',
+    fallbackUrl: bookingSearch('Germantown Inn Nashville'),
     mapQuery: 'Germantown Inn Nashville, Nashville, TN',
     relatedSlugs: ['the-joseph-nashville', 'grand-hyatt-nashville', 'omni-nashville-hotel'],
     dataStatus: 'needs-recheck',
@@ -380,7 +399,8 @@ const hotelsBase: Hotel[] = [
     familyFriendly: true,
     walkabilityNote: 'Walkable to Green Hills shopping and nearby restaurants; downtown requires a drive or rideshare.',
     nearbyAttractions: ['The Mall at Green Hills', 'Bluebird Cafe', 'Green Hills restaurants', 'Radnor Lake'],
-    bookingUrl: bookingSearch('Hilton Nashville Green Hills'),
+    liteApiHotelId: 'lp102466',
+    fallbackUrl: bookingSearch('Hilton Nashville Green Hills'),
     mapQuery: 'Hilton Nashville Green Hills, Nashville, TN',
     relatedSlugs: ['holiday-inn-nashville-vanderbilt', 'graduate-nashville', 'germantown-inn'],
     dataStatus: 'needs-recheck',

@@ -83,7 +83,33 @@ export function PlacementLabel({ placement, sponsorName }: { placement: Placemen
 }
 
 /** Inline disclosure placed next to commercial links. */
-export function AffiliateDisclosure({ compact = false }: { compact?: boolean }) {
+export function AffiliateDisclosure({ compact = false, variant = 'affiliate' }: { compact?: boolean; variant?: 'affiliate' | 'stay' }) {
+  if (variant === 'stay') {
+    if (compact) {
+      return (
+        <p className="text-2xs text-ink-faint">
+          Room prices include our margin and are set at or above the hotel&rsquo;s published rate. Checkout is on our booking
+          site; &ldquo;Nuitée Travel Limited&rdquo; appears on your card statement.{' '}
+          <Link href="/advertising/#disclosure" className="underline hover:text-ink">
+            How this works
+          </Link>
+        </p>
+      );
+    }
+    return (
+      <div className="rounded border border-paper-edge bg-paper-sunk p-4 text-sm text-ink-soft">
+        <p>
+          <strong className="font-semibold text-ink">How booking works.</strong> Room prices include our margin and are set at
+          or above the hotel&rsquo;s published rate. It never changes which hotels we recommend. Bookings are completed on our
+          booking site and processed by Nuitée Travel Limited, which appears on your card statement; Nuitée provides 24/7
+          booking support.{' '}
+          <Link href="/how-we-choose/" className="text-clay underline underline-offset-2">
+            How we choose
+          </Link>
+        </p>
+      </div>
+    );
+  }
   if (compact) {
     return (
       <p className="text-2xs text-ink-faint">

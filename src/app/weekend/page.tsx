@@ -4,6 +4,7 @@ import HubLead from '@/components/HubLead';
 import { AffiliateDisclosure } from '@/components/Trust';
 import BookingWidget from '@/components/BookingWidget';
 import BookingLink from '@/components/BookingLink';
+import { hotelSearchPath } from '@/lib/hotel-booking';
 import { partners } from '@/lib/partners';
 import { ANALYTICS_EVENTS, type AnalyticsEvent } from '@/lib/analytics';
 import { buildMetadata, webPageSchema } from '@/lib/seo';
@@ -69,8 +70,8 @@ const DAYS: Day[] = [
     ],
     cta: {
       label: 'Check hotel rates',
-      url: partners.hotels.build({ area: 'Downtown' }),
-      partner: partners.hotels.name,
+      url: hotelSearchPath({ neighborhood: 'downtown-broadway' }),
+      partner: 'NSVL',
       event: ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED,
       slug: 'weekend-friday-hotel',
       note: 'Friday and Saturday rates move fast downtown. Lock the room first.',
@@ -218,7 +219,8 @@ export default function WeekendHub() {
                 slug={d.cta.slug}
                 event={d.cta.event}
                 partner={d.cta.partner}
-                placement="affiliate"
+                placement={d.cta.url.startsWith('/') ? 'editorial' : 'affiliate'}
+                clientReference={d.cta.url.startsWith('/') ? 'nsh:guide:weekend' : undefined}
               />
             </div>
           </div>
