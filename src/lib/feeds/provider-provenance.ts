@@ -5,7 +5,7 @@
 
 export const PROVIDER_KEYS = {
   viator: 'viator',
-  bookingDemand: 'booking_demand',
+  liteapi: 'liteapi',
   googlePlaces: 'google_places',
   nashroamEditorial: 'nashroam_editorial',
 } as const;
@@ -40,21 +40,11 @@ export function viatorProvenance(productCode: string, fetchedAt: string): Provid
   };
 }
 
-export function bookingDemandProvenance(hotelId: string, fetchedAt: string): ProviderProvenance {
+export function liteapiProvenance(hotelId: string, fetchedAt: string): ProviderProvenance {
   return {
-    providerKey: PROVIDER_KEYS.bookingDemand,
+    providerKey: PROVIDER_KEYS.liteapi,
     externalId: hotelId,
     fetchedAt,
-    volatileFields: [
-      'photos',
-      'rating',
-      'reviewCount',
-      'reviews',
-      'amenities',
-      'rooms',
-      'rates',
-      'availability',
-      'bookingUrl',
-    ],
+    volatileFields: ['photos', 'rating', 'reviewCount', 'reviews', 'facilities', 'rates', 'availability', 'offerId', 'suggestedSellingPrice'],
   };
 }

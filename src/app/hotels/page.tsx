@@ -9,6 +9,8 @@ import StaySearch from '@/components/hotels/StaySearch';
 import PageIntro from '@/components/hub/PageIntro';
 import SectionHead from '@/components/hub/SectionHead';
 import { ANALYTICS_EVENTS } from '@/lib/analytics';
+import { hotelBookingHref } from '@/lib/hotel-booking';
+import { partners } from '@/lib/partners';
 import { guides, hotels, neighborhoods } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
 import { neighborhoodImageKey } from '@/lib/media-placements';
@@ -32,7 +34,7 @@ export async function generateMetadata(props: { searchParams?: Promise<Params> }
     description:
       'Nashville hotels by neighborhood with honest notes on walkability, noise and who each area suits. Check rates with your dates; independent recommendations.',
     path: '/hotels/',
-    noindex: Boolean(one(params, 'neighborhood')),
+    noindex: Boolean(one(params, 'neighborhood') || one(params, 'checkin') || one(params, 'adults')),
   });
 }
 
@@ -51,14 +53,28 @@ function amenityIcon(label: string) {
  * Hotels: an editorial shortlist (page-designs/README.md §06).
  * Restrained property photograph beside the stay search, a numbered
  * neighborhood rail, wide hotel rows with substantial photography where the
- * exact property is cleared, then the guide hand-off. Without a live-rate
- * provider every row says "Check rates" and opens the property on
- * Booking.com; no nightly price is shown.
+ * exact property is cleared, then the guide hand-off. Every row says
+ * "Check rates" and opens the property on our booking site with the dates
+ * from the stay search carried through; no nightly price is shown yet.
  */
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+
+function readStay(params: Params) {
+  const checkin = one(params, 'checkin');
+  const checkout = one(params, 'checkout');
+  const adultsRaw = Number(one(params, 'adults'));
+  const valid = Boolean(checkin && checkout && ISO_DAY.test(checkin) && ISO_DAY.test(checkout) && checkout > checkin);
+  return {
+    checkin: valid ? checkin : undefined,
+    checkout: valid ? checkout : undefined,
+    adults: Number.isInteger(adultsRaw) && adultsRaw >= 1 && adultsRaw <= 12 ? adultsRaw : undefined,
+  };
+}
 export default async function HotelsIndex(props: { searchParams?: Promise<Params> }) {
   const params = (await props.searchParams) ?? {};
   const hoodParam = one(params, 'neighborhood');
   const hood = neighborhoods.some((n) => n.slug === hoodParam) ? hoodParam : undefined;
+  const stay = readStay(params);
 
   const rail = neighborhoods.filter((n) => hotels.some((h) => h.neighborhood === n.slug));
   const rows = hotels.filter((h) => !hood || h.neighborhood === hood).sort((a, b) => Number(Boolean(b.image)) - Number(Boolean(a.image)));
@@ -92,7 +108,7 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
           </div>
         }
       >
-        <StaySearch neighborhoods={rail.map((n) => ({ value: n.slug, label: n.name }))} initialNeighborhood={hood} />
+        <StaySearch neighborhoods={rail.map((n) => ({ value: n.slug, label: n.name }))} initialNeighborhood={hood} initialCheckin={stay.checkin} initialCheckout={stay.checkout} initialGuests={stay.adults} />
       </PageIntro>
 
       <section className="border-y border-paper-edge" aria-labelledby="rail-title">
@@ -142,18 +158,19 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
           ) : null}
         </div>
         <div className="mt-3">
-          <AffiliateDisclosure compact />
+          <AffiliateDisclosure compact variant={partners.stay.host ? 'stay' : 'affiliate'} />
         </div>
 
         <ul className="mt-4 divide-y divide-paper-edge border-y border-paper-edge">
           {rows.map((h) => (
             <li key={h.slug}>
-              <HotelRow hotel={h} />
+              <HotelRow hotel={h} stay={stay} />
             </li>
           ))}
         </ul>
         <p className="mt-3 text-2xs text-ink-soft">
-          Amenities are as listed by each property and re-checked periodically. Nightly rates, taxes and fees appear on Booking.com for your dates.
+          Amenities are as listed by each property and re-checked periodically. Nightly rates, taxes and fees appear on our booking
+          site for your dates; checkout there is processed by {partners.stay.merchant}, and Nuitée handles booking support.
         </p>
       </section>
 
@@ -210,7 +227,8 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
   );
 }
 
-function HotelRow({ hotel }: { hotel: Hotel }) {
+function HotelRow({ hotel, stay }: { hotel: Hotel; stay: { checkin?: string; checkout?: string; adults?: number } }) {
+  const booking = hotelBookingHref(hotel, { surface: 'hotel', ...stay });
   return (
     <article className={`grid gap-4 py-5 ${hotel.image ? 'md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-8' : ''}`}>
       {hotel.image ? (
@@ -239,13 +257,15 @@ function HotelRow({ hotel }: { hotel: Hotel }) {
         ) : null}
         <div className="mt-4 flex flex-wrap items-center gap-3 md:mt-auto md:pt-4">
           <BookingLink
-            url={hotel.bookingUrl}
+            url={booking.url}
             label="Check rates"
             name={hotel.title}
             slug={hotel.slug}
             event={ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED}
-            partner="Booking.com"
-            placement="affiliate"
+            partner={booking.partner}
+            placement={booking.placement}
+            clientReference={booking.clientReference}
+            hotelId={booking.hotelId}
             className="min-h-11 px-5"
           />
           <Link href={`/hotels/${hotel.slug}/`} className="inline-flex min-h-11 items-center text-[15px] font-semibold text-ink underline-offset-[0.2em] hover:underline">

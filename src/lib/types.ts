@@ -116,7 +116,10 @@ export interface Hotel extends ContentBase {
   /** 0-100. Our own read on how much you can do without a car. */
   walkabilityNote: string;
   nearbyAttractions: string[];
-  bookingUrl?: string;
+  /** LiteAPI hotel id (lp…); the white-label hotel page lives at /hotels/{id}. */
+  liteApiHotelId?: string;
+  /** Affiliate/search link used only when no white-label link can be built. */
+  fallbackUrl?: string;
   mapQuery: string;
   relatedSlugs: string[];
 }

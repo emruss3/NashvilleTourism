@@ -2,13 +2,14 @@
 
 import { useId, useState } from 'react';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
+import { hotelSearchPath } from '@/lib/hotel-booking';
 import { partners } from '@/lib/partners';
 
 type Tab = 'hotels' | 'tours' | 'tickets';
 type Variant = 'default' | 'hero';
 
 const TABS: { key: Tab; label: string; cta: string }[] = [
-  { key: 'hotels', label: 'Hotels', cta: 'Check Availability' },
+  { key: 'hotels', label: 'Hotels', cta: 'Check rates' },
   { key: 'tours', label: 'Tours', cta: 'Find Experiences' },
   { key: 'tickets', label: 'Tickets', cta: 'Buy Tickets' },
 ];
@@ -72,9 +73,12 @@ export default function BookingWidget({
     let openExternal = true;
 
     if (tab === 'hotels') {
-      url = partners.hotels.build({ checkin, checkout, adults });
+      // Stay on NSVL: the hotel pages carry the dates, and checkout happens
+      // on our booking site from there. Never a partner homepage.
+      url = hotelSearchPath({ checkin, checkout, adults });
       event = ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED;
-      partner = partners.hotels.name;
+      partner = 'NSVL';
+      openExternal = false;
     } else if (tab === 'tours') {
       // Stay on NashRoam. Search is resolved against live Viator inventory and
       // exact Viator productUrl attribution is used only on result/detail CTAs.
@@ -88,7 +92,7 @@ export default function BookingWidget({
       partner = partners.tickets.name;
     }
 
-    track(event, { partner, placement: 'affiliate', item_type: tab, item_id: `widget_${tab}` });
+    track(event, { partner, placement: tab === 'tickets' ? 'affiliate' : 'editorial', item_type: tab, item_id: `widget_${tab}`, client_reference: tab === 'hotels' ? 'nsh:widget:home' : undefined });
     if (openExternal) {
       window.open(url, '_blank', 'noopener,noreferrer');
     } else {
@@ -257,7 +261,9 @@ export default function BookingWidget({
       >
         {tab === 'tours'
           ? 'Live products and starting prices from Viator. Final availability and checkout are confirmed on Viator.'
-          : 'We earn a commission on bookings made through these partners. It never changes what we recommend.'}
+          : tab === 'hotels'
+            ? `Rates and checkout are on our booking site, run with Nuitée; “${partners.stay.merchant}” appears on your card statement, and Nuitée handles booking support. Room prices include our margin; it never changes which hotels we recommend.`
+            : 'We earn a commission on bookings made through these partners. It never changes what we recommend.'}
       </p>
     </div>
   );

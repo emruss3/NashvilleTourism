@@ -3,6 +3,7 @@ import { Breadcrumbs, JsonLd, MapLink, PageHeader, ScrollableTable, SectionHeade
 import HubLead from '@/components/HubLead';
 import { AffiliateDisclosure } from '@/components/Trust';
 import BookingLink from '@/components/BookingLink';
+import { hotelSearchPath } from '@/lib/hotel-booking';
 import { partners } from '@/lib/partners';
 import { ANALYTICS_EVENTS } from '@/lib/analytics';
 import { buildMetadata, honkyTonkHighwaySchema } from '@/lib/seo';
@@ -251,17 +252,18 @@ export default function HonkyTonkHighway() {
               Search bar crawl experiences
             </Link>
             <BookingLink
-              url={partners.hotels.build({ area: 'Broadway' })}
+              url={hotelSearchPath({ neighborhood: 'downtown-broadway' })}
               label="Check hotels near Broadway"
               name="Hotels walkable to Broadway"
               slug="walkable-to-broadway"
               event={ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED}
-              partner={partners.hotels.name}
-              placement="affiliate"
+              partner="NSVL"
+              placement="editorial"
+              clientReference="nsh:guide:honky-tonk-highway"
             />
           </div>
           <div className="mt-4">
-            <AffiliateDisclosure compact />
+            <AffiliateDisclosure compact variant={partners.stay.host ? 'stay' : 'affiliate'} />
           </div>
         </div>
       </section>

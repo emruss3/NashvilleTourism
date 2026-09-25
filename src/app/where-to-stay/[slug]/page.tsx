@@ -8,6 +8,7 @@ import BookingWidget from '@/components/BookingWidget';
 import BookingLink from '@/components/BookingLink';
 import { hotels } from '@/lib/content';
 import { stayHubImageKey } from '@/lib/media-placements';
+import { hotelSearchPath } from '@/lib/hotel-booking';
 import { partners } from '@/lib/partners';
 import { ANALYTICS_EVENTS, type AnalyticsEvent } from '@/lib/analytics';
 import { buildMetadata } from '@/lib/seo';
@@ -32,6 +33,8 @@ interface Hub {
     url: string;
     partner: string;
     event: AnalyticsEvent;
+    /** On-site marketplace links are editorial; the Vrbo hand-off stays an affiliate link until Phase 2. */
+    placement: 'editorial' | 'affiliate';
     /** Shown when no listing of ours matches, so the page still converts. */
     emptyNote: string;
   };
@@ -55,10 +58,11 @@ const HUBS: Hub[] = [
     match: (h) => ['downtown-broadway', 'the-gulch', 'germantown'].includes(h.neighborhood),
     bookingCta: {
       label: 'Check downtown rates',
-      url: partners.hotels.build({ area: 'Downtown' }),
-      partner: partners.hotels.name,
+      url: hotelSearchPath({ neighborhood: 'downtown-broadway' }),
+      partner: 'NSVL',
       event: ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED,
-      emptyNote: 'Search downtown availability directly for your dates.',
+      placement: 'editorial',
+      emptyNote: 'Check downtown rates for your dates on our hotel pages.',
     },
   },
   {
@@ -82,6 +86,7 @@ const HUBS: Hub[] = [
       url: partners.rentals.build({ adults: 10 }),
       partner: partners.rentals.name,
       event: ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED,
+      placement: 'affiliate',
       emptyNote: 'Search whole-home rentals sized for your group.',
     },
   },
@@ -101,12 +106,12 @@ const HUBS: Hub[] = [
     ],
     match: (h) => h.nearbyAttractions.some((a) => /opry|music valley/i.test(a)),
     bookingCta: {
-      label: 'Check Music Valley availability',
-      url: partners.hotels.build({ area: 'Music Valley' }),
-      partner: partners.hotels.name,
+      label: 'Check Music Valley rates',
+      url: hotelSearchPath(),
+      partner: 'NSVL',
       event: ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED,
-      emptyNote:
-        'We do not have a verified listing in Music Valley yet. Search the area directly for your dates.',
+      placement: 'editorial',
+      emptyNote: 'We do not have a verified listing in Music Valley yet. Browse every hotel we cover for your dates.',
     },
   },
   {
@@ -126,10 +131,11 @@ const HUBS: Hub[] = [
     match: (h) => ['downtown-broadway', 'the-gulch'].includes(h.neighborhood),
     bookingCta: {
       label: 'Check rates near Broadway',
-      url: partners.hotels.build({ area: 'Broadway' }),
-      partner: partners.hotels.name,
+      url: hotelSearchPath({ neighborhood: 'downtown-broadway' }),
+      partner: 'NSVL',
       event: ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED,
-      emptyNote: 'Search availability on and around Lower Broadway.',
+      placement: 'editorial',
+      emptyNote: 'Check rates on and around Lower Broadway for your dates.',
     },
   },
   {
@@ -149,10 +155,11 @@ const HUBS: Hub[] = [
     match: (h) => h.hasPool,
     bookingCta: {
       label: 'Check hotels with pools',
-      url: partners.hotels.build({}),
-      partner: partners.hotels.name,
+      url: hotelSearchPath(),
+      partner: 'NSVL',
       event: ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED,
-      emptyNote: 'Search availability and filter for a pool.',
+      placement: 'editorial',
+      emptyNote: 'Browse every hotel we cover; each page says whether there is a pool.',
     },
   },
   {
@@ -172,10 +179,11 @@ const HUBS: Hub[] = [
     match: (h) => h.neighborhood === 'midtown' || h.priceCategory === '$$',
     bookingCta: {
       label: 'Check Midtown rates',
-      url: partners.hotels.build({ area: 'Midtown' }),
-      partner: partners.hotels.name,
+      url: hotelSearchPath({ neighborhood: 'midtown' }),
+      partner: 'NSVL',
       event: ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED,
-      emptyNote: 'Search Midtown availability for your dates.',
+      placement: 'editorial',
+      emptyNote: 'Check Midtown rates for your dates on our hotel pages.',
     },
   },
 ];
@@ -285,7 +293,9 @@ export default async function StaySubHub(props: { params: Promise<{ slug: string
         <div className="rounded-card border border-paper-edge bg-white p-6">
           <h2 className="font-display text-xl">{hub.bookingCta.label}</h2>
           <p className="mt-2 max-w-prose text-[15px] leading-relaxed text-ink-soft">
-            Rates and availability change daily. Search your exact dates through {hub.bookingCta.partner}.
+            {hub.bookingCta.placement === 'editorial'
+              ? `Rates and availability change daily. Check your exact dates on our hotel pages; checkout is on our booking site, processed by ${partners.stay.merchant}.`
+              : `Rates and availability change daily. Search your exact dates through ${hub.bookingCta.partner}.`}
           </p>
           <div className="mt-4 max-w-sm [&>a]:min-h-[44px]">
             <BookingLink
@@ -295,11 +305,12 @@ export default async function StaySubHub(props: { params: Promise<{ slug: string
               slug={hub.slug}
               event={hub.bookingCta.event}
               partner={hub.bookingCta.partner}
-              placement="affiliate"
+              placement={hub.bookingCta.placement}
+              clientReference={`nsh:hub:${hub.slug}`}
             />
           </div>
           <div className="mt-4">
-            <AffiliateDisclosure compact />
+            <AffiliateDisclosure compact variant={hub.bookingCta.placement === 'editorial' && partners.stay.host ? 'stay' : 'affiliate'} />
           </div>
         </div>
       </section>

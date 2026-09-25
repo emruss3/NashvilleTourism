@@ -6,7 +6,7 @@ import { AffiliateDisclosure, PlacementLabel, VerificationBadge, formatDate } fr
 import BookingLink from '@/components/BookingLink';
 import { hotels, getHotel } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
-import { partners } from '@/lib/partners';
+import { hotelBookingHref } from '@/lib/hotel-booking';
 import { ANALYTICS_EVENTS } from '@/lib/analytics';
 import { buildMetadata, hotelSchema, isIndexableRecord } from '@/lib/seo';
 
@@ -35,7 +35,7 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
 
   const hood = neighborhoodName(h.neighborhood);
   const related = h.relatedSlugs.map((s) => getHotel(s)).filter((x): x is NonNullable<typeof x> => Boolean(x));
-  const bookingUrl = partners.hotels.build({ area: h.title });
+  const booking = hotelBookingHref(h, { surface: 'hotel' });
 
   return (
     <div className="shell pb-16">
@@ -143,17 +143,20 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
 
           <div className="space-y-3 rounded-card border border-paper-edge bg-white p-4">
             <BookingLink
-              url={bookingUrl}
-              label="Check availability"
+              url={booking.url}
+              label="Check rates"
               name={h.title}
               slug={h.slug}
               event={ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED}
-              placement={h.placement === 'editorial' ? 'editorial' : h.placement}
+              partner={booking.partner}
+              placement={booking.placement}
+              clientReference={booking.clientReference}
+              hotelId={booking.hotelId}
             />
             <MapLink query={h.mapQuery} label="Directions and map" />
           </div>
 
-          {(h.placement === 'affiliate' || h.placement === 'sponsored') && <AffiliateDisclosure />}
+          {booking.placement === 'whitelabel' ? <AffiliateDisclosure variant="stay" /> : (h.placement === 'affiliate' || h.placement === 'sponsored') && <AffiliateDisclosure />}
         </aside>
       </div>
 

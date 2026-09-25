@@ -1,31 +1,26 @@
 /**
  * Commercial partner configuration.
  *
- * Hotels / tickets / rentals still use affiliate deep links here.
- * Tours no longer construct Viator.com URLs with NEXT_PUBLIC_VIATOR_PID —
- * live inventory and productUrl attribution come from Supabase Edge
- * Functions (VIATOR_API_KEY lives in Supabase secrets, not Vercel).
+ * Hotels book through the Nuitée white-label site (src/lib/stay-links.ts,
+ * docs/HOTEL-BOOKING.md); every hotel surface uses hotelBookingHref() from
+ * src/lib/hotel-booking.ts. Tickets and rentals still use affiliate deep
+ * links here. Tours no longer construct Viator.com URLs — live inventory and
+ * productUrl attribution come from Supabase Edge Functions (VIATOR_API_KEY
+ * lives in Supabase secrets, not Vercel).
  */
+
+import { STAY_MERCHANT, STAY_PARTNER, stayHost } from './stay-links';
 
 const env = (k: string) => process.env[k] || '';
 
 export const partners = {
-  hotels: {
-    name: 'Booking.com',
-    affiliateId: env('NEXT_PUBLIC_BOOKING_AID'),
-    /**
-     * City search fallback until Booking.com Demand API credentials power
-     * live inventory (see src/lib/feeds/booking-demand.ts).
-     */
-    build(params: { checkin?: string; checkout?: string; adults?: number; area?: string }) {
-      const u = new URL('https://www.booking.com/searchresults.html');
-      u.searchParams.set('ss', params.area ? `${params.area}, Nashville, Tennessee` : 'Nashville, Tennessee');
-      if (params.checkin) u.searchParams.set('checkin', params.checkin);
-      if (params.checkout) u.searchParams.set('checkout', params.checkout);
-      if (params.adults) u.searchParams.set('group_adults', String(params.adults));
-      const aid = env('NEXT_PUBLIC_BOOKING_AID');
-      if (aid) u.searchParams.set('aid', aid);
-      return u.toString();
+  stay: {
+    name: STAY_PARTNER,
+    /** Merchant of record on the booking site; appears on the card statement. */
+    merchant: STAY_MERCHANT,
+    /** White-label host, or undefined when hotel CTAs must fall back to search links. */
+    get host() {
+      return stayHost();
     },
   },
 
@@ -76,6 +71,4 @@ export const partners = {
 export type PartnerKey = keyof typeof partners;
 
 /** True when at least one public affiliate ID is configured. */
-export const HAS_AFFILIATE_IDS = Boolean(
-  partners.hotels.affiliateId || partners.tickets.affiliateId || partners.rentals.affiliateId,
-);
+export const HAS_AFFILIATE_IDS = Boolean(partners.tickets.affiliateId || partners.rentals.affiliateId);
