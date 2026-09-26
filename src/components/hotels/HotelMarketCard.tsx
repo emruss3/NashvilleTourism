@@ -86,7 +86,7 @@ export default function HotelMarketCard({
         <div className="mt-auto pt-4">
           <BookingLink
             url={href}
-            label="Check rates"
+            label={`See rooms from ${formatNightly(rate.nightly)}`}
             name={rate.name}
             slug={slug}
             event={ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED}

@@ -7,7 +7,7 @@ import BookingLink from '@/components/BookingLink';
 import LivePrice from '@/components/hotels/LivePrice';
 import { hotels, getHotel } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
-import { getHotelRates, isHotelsLiveConfigured } from '@/lib/feeds/hotels-live';
+import { formatNightly, getHotelRates, isHotelsLiveConfigured } from '@/lib/feeds/hotels-live';
 import { hotelBookingHref } from '@/lib/hotel-booking';
 import { partners } from '@/lib/partners';
 import { defaultStayDates, stayDatesLabel } from '@/lib/stay-dates';
@@ -156,7 +156,7 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
             <LivePrice rate={rate} datesLabel={stayDatesLabel(dates)} />
             <BookingLink
               url={booking.url}
-              label="Check rates"
+              label={rate ? `See rooms from ${formatNightly(rate.nightly)}` : 'Check rates'}
               name={h.title}
               slug={h.slug}
               event={ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED}

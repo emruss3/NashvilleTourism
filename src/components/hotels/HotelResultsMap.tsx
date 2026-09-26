@@ -16,6 +16,8 @@ export interface MapPoint {
   lng: number;
   /** "From $312 a night" */
   priceLabel?: string;
+  /** "$312", drawn on the pin itself. */
+  pinLabel?: string;
   href?: string;
   hrefLabel?: string;
   /** Editorial pick: drawn larger and darker, listed first. */
@@ -78,20 +80,25 @@ export default function HotelResultsMap({ points, center, title = 'Map of these 
         }).addTo(map);
         const bounds = L.latLngBounds([]);
         for (const p of [...points].sort((a, b) => Number(Boolean(a.pinned)) - Number(Boolean(b.pinned)))) {
-          const marker = L.circleMarker([p.lat, p.lng], {
-            radius: p.pinned ? 9 : 6,
-            color: '#FCFBF8',
-            weight: 1.5,
-            fillColor: p.pinned ? '#111111' : '#5E5E5E',
-            fillOpacity: p.pinned ? 1 : 0.85,
-          }).addTo(map);
+          // The nightly rate is the pin. Picks are ink on paper-white text; the rest are paper with an ink border.
+          const pinStyle = p.pinned
+            ? 'background:#111111;color:#FCFBF8;border:1.5px solid #FCFBF8'
+            : 'background:#FCFBF8;color:#111111;border:1.5px solid #111111';
+          const text = escapeHtml(p.pinLabel ?? '');
+          const icon = L.divIcon({
+            className: 'nsvl-price-pin',
+            html: `<span style="display:inline-block;white-space:nowrap;padding:3px 8px;border-radius:999px;font:600 13px/1.2 Inter,system-ui,sans-serif;box-shadow:0 1px 2px rgba(0,0,0,.25);${pinStyle}">${text || '•'}</span>`,
+            iconSize: null,
+            iconAnchor: [0, 12],
+          });
+          const marker = L.marker([p.lat, p.lng], { icon, zIndexOffset: p.pinned ? 1000 : 0, riseOnHover: true }).addTo(map);
           const html = `<div style="font: 14px/1.4 Inter, system-ui, sans-serif; color: #111111; max-width: 220px">
             <strong>${escapeHtml(p.name)}</strong>${p.pinned ? ' <span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#5E5E5E">Our pick</span>' : ''}
             ${p.priceLabel ? `<div>${escapeHtml(p.priceLabel)}</div>` : ''}
             ${p.href ? `<a href="${escapeHtml(p.href)}" ${p.href.startsWith('http') ? 'target="_blank" rel="noopener noreferrer sponsored"' : ''} style="color:#111111;font-weight:600;text-decoration:underline">${escapeHtml(p.hrefLabel ?? 'Check rates')}</a>` : ''}
           </div>`;
           marker.bindPopup(html, { closeButton: true });
-          marker.bindTooltip(escapeHtml(p.name), { direction: 'top', offset: [0, -8] });
+          marker.bindTooltip(escapeHtml(p.name), { direction: 'top', offset: [0, -14] });
           bounds.extend([p.lat, p.lng]);
         }
         if (center) bounds.extend([center.lat, center.lng]);
@@ -114,10 +121,11 @@ export default function HotelResultsMap({ points, center, title = 'Map of these 
       <div ref={host} role="region" aria-label={title} className="h-[320px] w-full sm:h-[380px]" />
       <figcaption className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 text-2xs text-ink-soft">
         <span>
-          <span aria-hidden="true" className="mr-1 inline-block h-2.5 w-2.5 rounded-full bg-ink align-middle" />
+          Each pin is the nightly rate.
+          <span aria-hidden="true" className="ml-2 mr-1 inline-block rounded-full bg-ink px-1.5 py-0.5 align-middle text-[11px] font-semibold text-paper">$</span>
           Our picks
-          <span aria-hidden="true" className="ml-3 mr-1 inline-block h-2 w-2 rounded-full bg-ink-soft align-middle" />
-          Other places with live rates. Tap a dot for the price.
+          <span aria-hidden="true" className="ml-3 mr-1 inline-block rounded-full border border-ink px-1.5 py-0.5 align-middle text-[11px] font-semibold text-ink">$</span>
+          Other places. Tap a pin for the name and link.
         </span>
         {state === 'failed' ? <span>The map could not load; the list below has every stay.</span> : null}
       </figcaption>

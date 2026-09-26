@@ -147,7 +147,7 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
     ...rows.flatMap((h): MapPoint[] => {
       const rate = h.liteApiHotelId ? rateById.get(h.liteApiHotelId) : undefined;
       if (!rate) return [];
-      return [{ id: h.slug, name: h.title, lat: rate.lat, lng: rate.lng, priceLabel: `From ${formatNightly(rate.nightly)} a night`, href: `/hotels/${h.slug}/`, hrefLabel: 'View hotel details', pinned: true }];
+      return [{ id: h.slug, name: h.title, lat: rate.lat, lng: rate.lng, priceLabel: `From ${formatNightly(rate.nightly)} a night`, pinLabel: formatNightly(rate.nightly), href: `/hotels/${h.slug}/`, hrefLabel: 'View hotel details', pinned: true }];
     }),
     ...marketRanked.map((item): MapPoint => ({
       id: item.rate.hotelId,
@@ -155,6 +155,7 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
       lat: item.rate.lat,
       lng: item.rate.lng,
       priceLabel: `From ${formatNightly(item.rate.nightly)} a night`,
+      pinLabel: formatNightly(item.rate.nightly),
       href: stayHotelHref(item.rate.hotelId, { checkin, checkout, adults: stay.adults, clientReference: clientReference('map', item.rate.hotelId) }),
     })),
   ];
@@ -384,7 +385,7 @@ function HotelRow({ hotel, stay, rate, datesLabel }: { hotel: Hotel; stay: { che
         <div className="mt-4 flex flex-wrap items-center gap-3 md:mt-auto md:pt-4">
           <BookingLink
             url={booking.url}
-            label="Check rates"
+            label={rate ? `See rooms from ${formatNightly(rate.nightly)}` : 'Check rates'}
             name={hotel.title}
             slug={hotel.slug}
             event={ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED}
