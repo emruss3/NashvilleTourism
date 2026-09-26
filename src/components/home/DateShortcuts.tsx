@@ -7,9 +7,9 @@ import { todayChicagoISO } from '@/lib/stay-dates';
  * Quick date access for "On the calendar." (HOMEPAGE.md §4). Tonight,
  * Tomorrow, This weekend and Next 7 days resolve in America/Chicago on the
  * events page at request time, so the links never go stale between
- * revalidations. The date field is a plain GET form to the same page for
- * any other day; a second date is optional. The calendar icon is a real
- * button that opens the picker, and picking a day submits straight away.
+ * revalidations. One date field, a plain GET form to the same page for any
+ * other day: a click anywhere on the box opens the picker, and picking a
+ * day submits straight away.
  */
 export default function DateShortcuts() {
   const today = todayChicagoISO();
@@ -29,15 +29,9 @@ export default function DateShortcuts() {
       </ul>
       <form action="/events/" method="get" className="flex items-center gap-1.5" aria-label="Find events on a date">
         <label htmlFor="calendar-from" className="sr-only">
-          From date
+          Pick a date
         </label>
         <DateField id="calendar-from" name="from" required min={today} autoSubmit className="field-input h-10 min-h-0 w-[12rem] text-sm" label="Open the calendar to pick a date" />
-        <div className="hidden md:block">
-          <label htmlFor="calendar-to" className="sr-only">
-            To date (optional)
-          </label>
-          <DateField id="calendar-to" name="to" min={today} className="field-input h-10 min-h-0 w-[12rem] text-sm" label="Open the calendar to pick an end date" />
-        </div>
         <button type="submit" className="btn-secondary h-10 min-h-0 px-3.5 text-sm">
           Go
         </button>
