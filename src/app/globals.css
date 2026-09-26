@@ -227,9 +227,23 @@ input[type='date']::-webkit-calendar-picker-indicator {
   background: #ede2cf;
   font-family: var(--font-sans), system-ui, sans-serif;
 }
-.leaflet-container .leaflet-tile-pane {
+.leaflet-container[data-variant='ink'] {
+  background: #111111;
+}
+.leaflet-container[data-variant='paper'] .leaflet-tile-pane {
   /* Positron is grey; a light sepia pulls it toward paper without hiding streets. */
   filter: sepia(0.35) saturate(0.55) brightness(1.03) contrast(0.95);
+}
+.leaflet-container[data-variant='ink'] .leaflet-tile-pane {
+  /* Dark Matter is blue-black; pull it to neutral black and lift the streets a touch. */
+  filter: saturate(0) contrast(1.05) brightness(1.08);
+}
+.leaflet-container[data-variant='ink'] .leaflet-control-attribution {
+  background: rgba(17, 17, 17, 0.85);
+  color: #b9b4a8;
+}
+.leaflet-container[data-variant='ink'] .leaflet-control-attribution a {
+  color: #fcfbf8;
 }
 .leaflet-container .leaflet-control-zoom a,
 .leaflet-container .leaflet-control-zoom a:hover {

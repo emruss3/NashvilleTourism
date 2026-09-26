@@ -63,7 +63,17 @@ function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string);
 }
 
-export default function HotelResultsMap({ points, center, title = 'Map of these stays' }: { points: MapPoint[]; center?: { lat: number; lng: number }; title?: string }) {
+/**
+ * Two looks, both in the site palette:
+ *  - `ink`: black basemap (CARTO Dark Matter), paper price pins. Echoes the
+ *    site's black discovery band and footer. Default.
+ *  - `paper`: near-white basemap (CARTO Positron) tinted toward cream, ink
+ *    price pins.
+ * Switch with the `variant` prop; nothing else changes.
+ */
+export type MapVariant = 'ink' | 'paper';
+
+export default function HotelResultsMap({ points, center, title = 'Map of these stays', variant = 'ink' }: { points: MapPoint[]; center?: { lat: number; lng: number }; title?: string; variant?: MapVariant }) {
   const host = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<'idle' | 'ready' | 'failed'>('idle');
 
@@ -75,19 +85,24 @@ export default function HotelResultsMap({ points, center, title = 'Map of these 
       .then((L) => {
         if (cancelled || !host.current) return;
         map = L.map(host.current, { scrollWheelZoom: false, attributionControl: true });
-        // CARTO Positron: a near-monochrome basemap that sits with the black and
-        // cream palette; the tile pane is tinted toward paper in globals.css.
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        // CARTO basemaps over OpenStreetMap data: Dark Matter for the ink look,
+        // Positron (tinted toward paper in globals.css) for the paper look.
+        L.tileLayer(`https://{s}.basemaps.cartocdn.com/${variant === 'ink' ? 'dark_all' : 'light_all'}/{z}/{x}/{y}{r}.png`, {
           subdomains: 'abcd',
           maxZoom: 19,
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         }).addTo(map);
         const bounds = L.latLngBounds([]);
         for (const p of [...points].sort((a, b) => Number(Boolean(a.pinned)) - Number(Boolean(b.pinned)))) {
-          // The nightly rate is the pin. Picks are ink on paper-white text; the rest are paper with an ink border.
-          const pinStyle = p.pinned
-            ? 'background:#111111;color:#FCFBF8;border:1.5px solid #FCFBF8'
-            : 'background:#FCFBF8;color:#111111;border:1.5px solid #111111';
+          // The nightly rate is the pin. Picks are the solid pin, the rest the outlined one, in whichever palette the basemap needs.
+          const pinStyle =
+            variant === 'ink'
+              ? p.pinned
+                ? 'background:#FCFBF8;color:#111111;border:1.5px solid #111111'
+                : 'background:#111111;color:#FCFBF8;border:1.5px solid #FCFBF8'
+              : p.pinned
+                ? 'background:#111111;color:#FCFBF8;border:1.5px solid #FCFBF8'
+                : 'background:#FCFBF8;color:#111111;border:1.5px solid #111111';
           const text = escapeHtml(p.pinLabel ?? '');
           const icon = L.divIcon({
             className: 'nsvl-price-pin',
@@ -121,14 +136,14 @@ export default function HotelResultsMap({ points, center, title = 'Map of these 
   if (!points.length) return null;
 
   return (
-    <figure className="overflow-hidden rounded-card border border-paper-edge bg-paper-sunk">
-      <div ref={host} role="region" aria-label={title} className="h-[320px] w-full sm:h-[380px]" />
-      <figcaption className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 text-2xs text-ink-soft">
+    <figure className={`overflow-hidden rounded-card border border-paper-edge ${variant === 'ink' ? 'bg-ink' : 'bg-paper-sunk'}`}>
+      <div ref={host} role="region" aria-label={title} data-variant={variant} className="h-[320px] w-full sm:h-[380px]" />
+      <figcaption className={`flex flex-wrap items-center justify-between gap-2 px-4 py-2 text-2xs ${variant === 'ink' ? 'bg-paper text-ink-soft' : 'text-ink-soft'}`}>
         <span>
           Each pin is the nightly rate.
-          <span aria-hidden="true" className="ml-2 mr-1 inline-block rounded-full bg-ink px-1.5 py-0.5 align-middle text-[11px] font-semibold text-paper">$</span>
+          <span aria-hidden="true" className={`ml-2 mr-1 inline-block rounded-full px-1.5 py-0.5 align-middle text-[11px] font-semibold ${variant === 'ink' ? 'border border-ink bg-paper text-ink' : 'bg-ink text-paper'}`}>$</span>
           Our picks
-          <span aria-hidden="true" className="ml-3 mr-1 inline-block rounded-full border border-ink px-1.5 py-0.5 align-middle text-[11px] font-semibold text-ink">$</span>
+          <span aria-hidden="true" className={`ml-3 mr-1 inline-block rounded-full px-1.5 py-0.5 align-middle text-[11px] font-semibold ${variant === 'ink' ? 'bg-ink text-paper ring-1 ring-paper-edge' : 'border border-ink bg-paper text-ink'}`}>$</span>
           Other places. Tap a pin for the name and link.
         </span>
         {state === 'failed' ? <span>The map could not load; the list below has every stay.</span> : null}
