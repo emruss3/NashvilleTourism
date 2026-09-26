@@ -8,12 +8,19 @@ function nextDay(iso: string): string {
   return Number.isFinite(t) ? new Date(t + 86_400_000).toISOString().slice(0, 10) : iso;
 }
 
+function dayLabel(iso: string): string {
+  return new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso}T00:00:00Z`));
+}
+
 /**
- * One calendar box for a stay, matching the homepage date box: a click
- * anywhere on it opens the picker. Check-in and check-out are two native
- * date inputs inside the same box, so the form still submits `checkin` and
- * `checkout`, and once a check-in day is picked the check-out picker opens
- * on its own with the day after as its earliest choice.
+ * One calendar control for a stay, matching the homepage date box. The
+ * visible part is a single button that reads "Choose dates" or
+ * "Fri, Oct 9 → Sun, Oct 11". Clicking it opens the check-in picker; once a
+ * check-in day is chosen the check-out picker opens on its own with the
+ * next day as its earliest choice. The two native date inputs sit invisibly
+ * inside the box, so the form still submits `checkin` and `checkout`, the
+ * pickers anchor to the box, and keyboard and screen-reader users can Tab
+ * to each date directly.
  */
 export default function StayDatesField({
   id,
@@ -22,7 +29,6 @@ export default function StayDatesField({
   onChange,
   min,
   className = 'field-input',
-  iconClassName = 'text-ink-soft',
   nameIn = 'checkin',
   nameOut = 'checkout',
 }: {
@@ -32,9 +38,8 @@ export default function StayDatesField({
   onChange: (dates: { checkin: string; checkout: string }) => void;
   /** Earliest check-in, YYYY-MM-DD. */
   min?: string;
-  /** Box styling; the native inputs inside are unstyled. */
+  /** Box styling for the visible button. */
   className?: string;
-  iconClassName?: string;
   nameIn?: string;
   nameOut?: string;
 }) {
@@ -52,19 +57,21 @@ export default function StayDatesField({
     }
   }
 
-  const inputClass = 'min-w-0 flex-1 border-0 bg-transparent p-0 text-[15px] text-ink outline-none focus-visible:underline focus-visible:underline-offset-4';
+  const summary = checkin && checkout ? `${dayLabel(checkin)} → ${dayLabel(checkout)}` : checkin ? `${dayLabel(checkin)} → check-out` : 'Choose dates';
+  const hidden = 'absolute inset-0 h-full w-full opacity-0 pointer-events-none';
 
   return (
-    <div
-      className={`${className} relative flex cursor-pointer items-center gap-1 pl-10 pr-2`}
-      onClick={(e) => {
-        // Clicks on the inputs open their own picker; anything else opens the next one to fill.
-        if ((e.target as HTMLElement).tagName === 'INPUT') return;
-        open(checkin ? 'out' : 'in');
-      }}
-    >
-      <button type="button" onClick={() => open('in')} aria-label="Open the calendar to choose your dates" className={`absolute left-0 top-0 flex h-full w-10 items-center justify-center ${iconClassName} hover:text-ink`}>
-        <CalendarIcon size={16} />
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => open(checkin && !checkout ? 'out' : 'in')}
+        aria-label={checkin && checkout ? `Dates: ${summary}. Open the calendar to change them` : 'Open the calendar to choose your dates'}
+        className={`${className} flex w-full items-center gap-3 text-left`}
+      >
+        <span className="shrink-0 text-ink-soft" aria-hidden="true">
+          <CalendarIcon size={16} />
+        </span>
+        <span className={checkin ? 'text-ink' : 'text-ink-soft'}>{summary}</span>
       </button>
       <label htmlFor={`${id}-in`} className="sr-only">
         Check-in
@@ -76,18 +83,14 @@ export default function StayDatesField({
         type="date"
         min={min}
         value={checkin}
-        onClick={() => open('in')}
+        tabIndex={-1}
         onChange={(e) => {
           const value = e.target.value;
           onChange({ checkin: value, checkout: checkout && value && checkout > value ? checkout : '' });
           if (value) setTimeout(() => open('out'), 0);
         }}
-        className={inputClass}
-        aria-label="Check-in"
+        className={hidden}
       />
-      <span aria-hidden="true" className="px-1 text-ink-soft">
-        →
-      </span>
       <label htmlFor={`${id}-out`} className="sr-only">
         Check-out
       </label>
@@ -98,10 +101,9 @@ export default function StayDatesField({
         type="date"
         min={checkin ? nextDay(checkin) : min}
         value={checkout}
-        onClick={() => open('out')}
+        tabIndex={-1}
         onChange={(e) => onChange({ checkin, checkout: e.target.value })}
-        className={inputClass}
-        aria-label="Check-out"
+        className={hidden}
       />
     </div>
   );

@@ -15,7 +15,7 @@ import { hotelBookingHref, hotelSearchPath, type HotelSearchParams } from '@/lib
 import { partners } from '@/lib/partners';
 import { guides, hotels, neighborhoods } from '@/lib/content';
 import { getNeighborhood, neighborhoodName } from '@/lib/content/neighborhoods';
-import { priceBandFromCategory, type MarketFilters } from '@/lib/feeds/hotel-marketplace-rank';
+import { priceBandFromCategory, rankMarketplace, type MarketFilters } from '@/lib/feeds/hotel-marketplace-rank';
 import { getAreaRates, getHotelRates, isHotelsLiveConfigured, type LiveHotelRate, type LiveRatesResult } from '@/lib/feeds/hotels-live';
 import { LOWER_BROADWAY } from '@/lib/geo';
 import { resolveStayDates, stayDatesLabel } from '@/lib/stay-dates';
@@ -95,7 +95,8 @@ function MarketFilterChips({ base, filters }: { base: HotelSearchParams; filters
     { label: 'Whole homes and apartments', on: filters.type === 'rental', params: { ...base, type: filters.type === 'rental' ? undefined : 'rental' } },
   ];
   return (
-    <ul className="flex flex-wrap gap-2" aria-label="Narrow the live results">
+    <ul className="flex flex-wrap items-center gap-2" aria-label="Narrow the live results">
+      <li className="mr-1 text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">Narrow live rates</li>
       {chips.map((chip) => (
         <li key={chip.label}>
           <Link
@@ -136,6 +137,9 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
       ])
     : [undefined, undefined];
   const rateById = new Map<string, LiveHotelRate>((editorialRates?.live ? editorialRates.rates : []).map((r) => [r.hotelId, r]));
+  const marketRank = { center, priceBand: area ? priceBandFromCategory(area.typicalHotelPrice) : undefined, excludeIds: rows.map((h) => h.liteApiHotelId).filter((id): id is string => Boolean(id)), filters: stay.filters, limit: 36 };
+  // Counted here so the results heading can say how many live places sit below the editorial rows.
+  const marketCount = areaResult?.live ? rankMarketplace(areaResult.rates, marketRank).length : 0;
   const datesLabel = stayDatesLabel(stay.dates);
   const searchBase: HotelSearchParams = { neighborhood: hood, checkin: stay.dates.chosen ? checkin : undefined, checkout: stay.dates.chosen ? checkout : undefined, adults: stay.adults, ...stay.filters, stars: stay.filters.minStars, max: stay.filters.maxNightly, refundable: stay.filters.refundableOnly };
 
@@ -213,6 +217,16 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
               Rates for {datesLabel}
               {stay.adults ? `, ${stay.adults} ${stay.adults === 1 ? 'guest' : 'guests'}` : ''}
               {stay.dates.chosen ? '.' : '. That is the coming weekend; pick your own dates above.'}
+              {marketCount > 0 ? (
+                <>
+                  {' '}
+                  Our picks come first;{' '}
+                  <a href="#market" className="font-semibold text-ink underline underline-offset-[0.2em]">
+                    {marketCount} more {marketCount === 1 ? 'place' : 'places'} with live rates
+                  </a>{' '}
+                  follow, ranked by distance, guest rating and price.
+                </>
+              ) : null}
             </p>
           </div>
           {hood ? (
@@ -221,6 +235,11 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
             </Link>
           ) : null}
         </div>
+        {areaResult?.live ? (
+          <div className="mt-4">
+            <MarketFilterChips base={searchBase} filters={stay.filters} />
+          </div>
+        ) : null}
         <div className="mt-3">
           <AffiliateDisclosure compact variant={partners.stay.host ? 'stay' : 'affiliate'} />
         </div>
@@ -243,7 +262,7 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
           id="market"
           className="scroll-mt-20 border-t border-paper-edge py-8"
           result={areaResult}
-          rank={{ center, priceBand: area ? priceBandFromCategory(area.typicalHotelPrice) : undefined, excludeIds: rows.map((h) => h.liteApiHotelId).filter((id): id is string => Boolean(id)), filters: stay.filters, limit: 36 }}
+          rank={marketRank}
           checkin={checkin}
           checkout={checkout}
           adults={stay.adults}
@@ -253,7 +272,6 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
           intro={stay.dates.chosen ? undefined : 'Showing the coming weekend; set your own dates above.'}
           fromLabel={area ? `from the center of ${area.name}` : 'from Lower Broadway'}
           emptyNote="Nothing beyond our picks above came back with a rate for these dates and filters. Try clearing a filter or widening the area."
-          controls={<MarketFilterChips base={searchBase} filters={stay.filters} />}
           disclosure={false}
         />
       </div>
