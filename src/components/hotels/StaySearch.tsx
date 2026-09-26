@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
-import DateField from '@/components/DateField';
+import StayDatesField from '@/components/StayDatesField';
 import { PeopleIcon, PinIcon } from '@/components/Icons';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
 import { hotelSearchPath } from '@/lib/hotel-booking';
@@ -44,7 +44,8 @@ export default function StaySearch({
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    const url = hotelSearchPath({ checkin, checkout, adults: guests, neighborhood: area || undefined });
+    // Land on the results, not the top of the page, so the search visibly did something.
+    const url = hotelSearchPath({ checkin, checkout, adults: guests, neighborhood: area || undefined }, 'stays');
     track(ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED, { partner: 'NSVL', placement: 'editorial', item_type: 'hotels', item_id: 'stay_search', neighborhood: area || undefined, client_reference: `nsh:staysearch:${area || 'nashville'}` });
     router.push(url);
   }
@@ -55,18 +56,22 @@ export default function StaySearch({
   const label = 'mb-1 block text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft';
 
   return (
-    <form action="/hotels/" method="get" onSubmit={submit} aria-label="Check hotel rates" className="grid gap-2 sm:grid-cols-2">
-      <div className="relative">
-        <label htmlFor={`${id}-in`} className={label}>
-          Check in
-        </label>
-        <DateField id={`${id}-in`} name="checkin" min={todayISO()} value={checkin} onChange={setCheckin} className={dateField} label="Open the calendar for check-in" />
-      </div>
-      <div className="relative">
-        <label htmlFor={`${id}-out`} className={label}>
-          Check out
-        </label>
-        <DateField id={`${id}-out`} name="checkout" min={checkin || todayISO()} value={checkout} onChange={setCheckout} className={dateField} label="Open the calendar for check-out" />
+    <form action="/hotels/#stays" method="get" onSubmit={submit} aria-label="Check hotel rates" className="grid gap-2 sm:grid-cols-2">
+      <div className="relative sm:col-span-2">
+        <p className={label} id={`${id}-dates-label`}>
+          Dates
+        </p>
+        <StayDatesField
+          id={`${id}-dates`}
+          checkin={checkin}
+          checkout={checkout}
+          min={todayISO()}
+          onChange={(d) => {
+            setCheckin(d.checkin);
+            setCheckout(d.checkout);
+          }}
+          className={dateField}
+        />
       </div>
       <div className="relative">
         <label htmlFor={`${id}-guests`} className={label}>

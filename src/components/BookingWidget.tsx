@@ -3,6 +3,7 @@
 import { useId, useState } from 'react';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
 import DateField from '@/components/DateField';
+import StayDatesField from '@/components/StayDatesField';
 import { hotelSearchPath } from '@/lib/hotel-booking';
 import { partners } from '@/lib/partners';
 
@@ -152,11 +153,17 @@ export default function BookingWidget({
         >
           {tab === 'hotels' && (
             <>
-              <Field label="Check in" id={`${baseId}-ci`}>
-                <DateField id={`${baseId}-ci`} min={todayISO()} value={checkin} onChange={setCheckin} label="Open the calendar for check-in" />
-              </Field>
-              <Field label="Check out" id={`${baseId}-co`}>
-                <DateField id={`${baseId}-co`} min={checkin || todayISO()} value={checkout} onChange={setCheckout} label="Open the calendar for check-out" />
+              <Field label="Dates" id={`${baseId}-dates-in`} className="lg:col-span-2">
+                <StayDatesField
+                  id={`${baseId}-dates`}
+                  checkin={checkin}
+                  checkout={checkout}
+                  min={todayISO()}
+                  onChange={(d) => {
+                    setCheckin(d.checkin);
+                    setCheckout(d.checkout);
+                  }}
+                />
               </Field>
               <Field label="Guests" id={`${baseId}-ad`}>
                 <select

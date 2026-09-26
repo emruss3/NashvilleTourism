@@ -209,6 +209,11 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
               {rows.length} {rows.length === 1 ? 'hotel' : 'hotels'}
               {hood ? <span className="font-normal text-ink-soft"> in {neighborhoodName(hood)}</span> : <span className="font-normal text-ink-soft"> we would send a friend to</span>}
             </h2>
+            <p className="mt-1 text-[15px] text-ink-soft">
+              Rates for {datesLabel}
+              {stay.adults ? `, ${stay.adults} ${stay.adults === 1 ? 'guest' : 'guests'}` : ''}
+              {stay.dates.chosen ? '.' : '. That is the coming weekend; pick your own dates above.'}
+            </p>
           </div>
           {hood ? (
             <Link href="/hotels/#stays" className="inline-flex min-h-11 items-center text-[15px] font-semibold text-ink underline-offset-[0.2em] hover:underline">
