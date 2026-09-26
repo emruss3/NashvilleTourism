@@ -249,6 +249,7 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
           fromLabel={area ? `from the center of ${area.name}` : 'from Lower Broadway'}
           emptyNote="Nothing beyond our picks above came back with a rate for these dates and filters. Try clearing a filter or widening the area."
           controls={<MarketFilterChips base={searchBase} filters={stay.filters} />}
+          disclosure={false}
         />
       </div>
 

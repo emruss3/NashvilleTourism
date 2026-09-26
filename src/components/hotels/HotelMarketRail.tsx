@@ -30,6 +30,8 @@ export interface HotelMarketRailProps {
   controls?: React.ReactNode;
   className?: string;
   id?: string;
+  /** Pass false on pages that already carry the stay disclosure above the rail. */
+  disclosure?: boolean;
 }
 
 /**
@@ -92,9 +94,11 @@ export default async function HotelMarketRail(props: HotelMarketRailProps) {
       <p className="mt-4 max-w-prose text-2xs text-ink-soft">
         {result.attribution ?? 'Hotel names, photos, ratings and live rates supplied by LiteAPI (Nuitée).'} Marketplace listings are provider inventory, not NSVL recommendations, except where marked “Our pick”. Order is set by NSVL: our picks first, then distance, guest rating, star rating and price fit for the area.
       </p>
-      <div className="mt-3">
-        <AffiliateDisclosure compact variant="stay" />
-      </div>
+      {props.disclosure === false ? null : (
+        <div className="mt-3">
+          <AffiliateDisclosure compact variant="stay" />
+        </div>
+      )}
     </section>
   );
 }

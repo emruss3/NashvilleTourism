@@ -109,7 +109,7 @@ Modes of `liteapi-live` (POST JSON `{ mode, ... }`, `apikey` = service key):
 | `lookups_refresh` | service or cron token | none | facility and hotel-type lookups only (`/data/facilities`, `/data/hotelTypes`) |
 | `health` | service, cron token or probe token | none | reports env, cache and catalog row counts, last catalog refresh, which tokens are set |
 
-The cron token unlocks every mode, not only `catalog_refresh`: it lives in Vault (database admins only) and in function secrets, so SQL smoke tests can exercise `area_rates` without the service key. The probe token stays health-only. The provider rejects an area radius under 1 km, so the function and the feed both clamp to 1 km; small neighborhoods still rank by their own center.
+The cron token unlocks every mode, not only `catalog_refresh`: it lives in Vault (database admins only) and in function secrets, so SQL smoke tests can exercise `area_rates` without the service key. The probe token stays health-only. That is the same `nashroam_cron_token` the other scheduled jobs use, so anyone holding it can pull rates through the function. Acceptable for a server-only secret; it must never reach a client bundle, a browser, or a shared notebook, and if it ever does, rotate it in three places at once: Vault (`select vault.update_secret(id, '<new>')` on the `nashroam_cron_token` row), function secrets (`NASHROAM_CRON_TOKEN`), and any other function that checks `x-nashroam-cron-token`. The provider rejects an area radius under 1 km, so the function and the feed both clamp to 1 km; small neighborhoods still rank by their own center.
 
 Rate limiting inside the function: at most 3 concurrent provider calls, 400 ms spacing in sandbox (150 ms in production), 3 attempts with backoff on 429 and 5xx, 120 s abort.
 
@@ -141,7 +141,7 @@ Every rail renders nothing when `NEXT_PUBLIC_STAY_HOST` is unset, the service ke
 | Check | Result |
 | --- | --- |
 | `health` | ok, sandbox, both tokens set, provider row present |
-| `catalog_refresh` | 1,910 fetched, 1,828 kept inside the county bounds; 820 facilities, 52 hotel types |
+| `catalog_refresh` | 1,910 fetched, 1,828 kept inside the county bounds; 820 facilities, 52 hotel types. By provider type: about 385 hotel-type rows (204 Hotels 326, 219 Aparthotels 21, 205 Motels 18, 218 Inns 13, 216 Guest houses 5) and about 1,370 rental-type rows (201 Apartments 463, 220 Holiday homes 441, 230 Cottages 192, 250 Private vacation home 186, 229 Condos 63, 213 Villas 9); 73 untyped |
 | Gulch, Fri 2 to Sun 4 Oct, 2 adults, 1 km | 40 rates; 7 editorial hotels present and pinned first by `rankMarketplace` |
 | Same call again inside the TTL | `cached: true`, `ingestion_runs` count unchanged (7 before, 7 after) |
 | Cached rows outside Davidson County | 0 |
