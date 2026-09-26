@@ -156,10 +156,13 @@ export function NeighborhoodGuide({
   neighborhood,
   guide,
   downtownEvents,
+  stayRail,
 }: {
   neighborhood: Neighborhood;
   guide: NeighborhoodEditorialGuide;
   downtownEvents: LiveEvent[];
+  /** Live "Stay here" rail from the page; null when the feed is off. */
+  stayRail?: React.ReactNode;
 }) {
   const path = `/neighborhoods/${neighborhood.slug}/`;
   const nav = buildNav(guide);
@@ -422,6 +425,8 @@ export function NeighborhoodGuide({
             </dl>
           </section>
         ) : null}
+
+        {stayRail}
 
         <section className="border-t border-paper-edge py-12">
           <SectionHeader title="Keep planning" />

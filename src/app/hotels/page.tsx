@@ -5,14 +5,20 @@ import { ContentImage, SmartImage } from '@/components/Media';
 import SaveButton from '@/components/SaveButton';
 import { AffiliateDisclosure, HowWeChooseCallout } from '@/components/Trust';
 import { Breadcrumbs, JsonLd } from '@/components/Ui';
+import HotelMarketRail from '@/components/hotels/HotelMarketRail';
+import LivePrice from '@/components/hotels/LivePrice';
 import StaySearch from '@/components/hotels/StaySearch';
 import PageIntro from '@/components/hub/PageIntro';
 import SectionHead from '@/components/hub/SectionHead';
 import { ANALYTICS_EVENTS } from '@/lib/analytics';
-import { hotelBookingHref } from '@/lib/hotel-booking';
+import { hotelBookingHref, hotelSearchPath, type HotelSearchParams } from '@/lib/hotel-booking';
 import { partners } from '@/lib/partners';
 import { guides, hotels, neighborhoods } from '@/lib/content';
-import { neighborhoodName } from '@/lib/content/neighborhoods';
+import { getNeighborhood, neighborhoodName } from '@/lib/content/neighborhoods';
+import { priceBandFromCategory, type MarketFilters } from '@/lib/feeds/hotel-marketplace-rank';
+import { getAreaRates, getHotelRates, isHotelsLiveConfigured, type LiveHotelRate, type LiveRatesResult } from '@/lib/feeds/hotels-live';
+import { LOWER_BROADWAY } from '@/lib/geo';
+import { resolveStayDates, stayDatesLabel } from '@/lib/stay-dates';
 import { neighborhoodImageKey } from '@/lib/media-placements';
 import { buildMetadata, isIndexableRecord, itemListSchema } from '@/lib/seo';
 import type { Hotel } from '@/lib/types';
@@ -34,7 +40,8 @@ export async function generateMetadata(props: { searchParams?: Promise<Params> }
     description:
       'Nashville hotels by neighborhood with honest notes on walkability, noise and who each area suits. Check rates with your dates; independent recommendations.',
     path: '/hotels/',
-    noindex: Boolean(one(params, 'neighborhood') || one(params, 'checkin') || one(params, 'adults')),
+    // Any search or filter view is a marketplace view: noindex, like /tours/.
+    noindex: ['neighborhood', 'checkin', 'checkout', 'adults', 'stars', 'max', 'refundable', 'type'].some((key) => one(params, key)),
   });
 }
 
@@ -57,28 +64,80 @@ function amenityIcon(label: string) {
  * "Check rates" and opens the property on our booking site with the dates
  * from the stay search carried through; no nightly price is shown yet.
  */
-const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+/** Nashville-wide search when no neighborhood is chosen: Lower Broadway out to the ring. */
+const CITYWIDE_RADIUS_KM = 12;
 
 function readStay(params: Params) {
-  const checkin = one(params, 'checkin');
-  const checkout = one(params, 'checkout');
+  const dates = resolveStayDates(one(params, 'checkin'), one(params, 'checkout'));
   const adultsRaw = Number(one(params, 'adults'));
-  const valid = Boolean(checkin && checkout && ISO_DAY.test(checkin) && ISO_DAY.test(checkout) && checkout > checkin);
+  const starsRaw = Number(one(params, 'stars'));
+  const maxRaw = Number(one(params, 'max'));
+  const typeRaw = one(params, 'type');
   return {
-    checkin: valid ? checkin : undefined,
-    checkout: valid ? checkout : undefined,
-    adults: Number.isInteger(adultsRaw) && adultsRaw >= 1 && adultsRaw <= 12 ? adultsRaw : undefined,
+    dates,
+    adults: Number.isInteger(adultsRaw) && adultsRaw >= 1 && adultsRaw <= 20 ? adultsRaw : undefined,
+    filters: {
+      minStars: Number.isInteger(starsRaw) && starsRaw >= 1 && starsRaw <= 5 ? starsRaw : undefined,
+      maxNightly: Number.isFinite(maxRaw) && maxRaw >= 50 && maxRaw <= 5000 ? Math.round(maxRaw) : undefined,
+      refundableOnly: one(params, 'refundable') === '1',
+      type: typeRaw === 'hotel' || typeRaw === 'rental' ? typeRaw : undefined,
+    } satisfies MarketFilters,
   };
+}
+
+/** Filter chips: each is a link that toggles one filter and keeps the rest of the search. */
+function MarketFilterChips({ base, filters }: { base: HotelSearchParams; filters: MarketFilters }) {
+  const chips: Array<{ label: string; on: boolean; params: HotelSearchParams }> = [
+    { label: '4 stars and up', on: filters.minStars === 4, params: { ...base, stars: filters.minStars === 4 ? undefined : 4 } },
+    { label: 'Free cancellation', on: Boolean(filters.refundableOnly), params: { ...base, refundable: !filters.refundableOnly } },
+    { label: 'Under $250 a night', on: filters.maxNightly === 250, params: { ...base, max: filters.maxNightly === 250 ? undefined : 250 } },
+    { label: 'Hotels only', on: filters.type === 'hotel', params: { ...base, type: filters.type === 'hotel' ? undefined : 'hotel' } },
+    { label: 'Whole homes and apartments', on: filters.type === 'rental', params: { ...base, type: filters.type === 'rental' ? undefined : 'rental' } },
+  ];
+  return (
+    <ul className="flex flex-wrap gap-2" aria-label="Narrow the live results">
+      {chips.map((chip) => (
+        <li key={chip.label}>
+          <Link
+            href={hotelSearchPath(chip.params, 'market')}
+            aria-pressed={chip.on}
+            className={`inline-flex min-h-10 items-center rounded border px-3 text-sm font-semibold ${chip.on ? 'border-ink bg-ink text-paper' : 'border-paper-edge text-ink hover:border-ink'}`}
+          >
+            {chip.on ? <span aria-hidden="true" className="mr-1.5">✓</span> : null}
+            {chip.label}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
 }
 export default async function HotelsIndex(props: { searchParams?: Promise<Params> }) {
   const params = (await props.searchParams) ?? {};
   const hoodParam = one(params, 'neighborhood');
   const hood = neighborhoods.some((n) => n.slug === hoodParam) ? hoodParam : undefined;
   const stay = readStay(params);
+  const { checkin, checkout } = stay.dates;
 
   const rail = neighborhoods.filter((n) => hotels.some((h) => h.neighborhood === n.slug));
   const rows = hotels.filter((h) => !hood || h.neighborhood === hood).sort((a, b) => Number(Boolean(b.image)) - Number(Boolean(a.image)));
   const hotelGuides = guides.filter((g) => g.cluster === 'Hotels');
+  const area = hood ? getNeighborhood(hood) : undefined;
+  const center = area?.center ?? LOWER_BROADWAY;
+  const editorialIds = hotels.map((h) => h.liteApiHotelId).filter((id): id is string => Boolean(id));
+
+  // Live rates: the editorial rows get "from $X a night" and the marketplace
+  // rail below them gets everything else with a rate. Both calls are served
+  // from the Postgres cache inside the TTL, so a repeat render costs nothing.
+  const liveEnabled = Boolean(partners.stay.host) && isHotelsLiveConfigured();
+  const [editorialRates, areaResult]: [LiveRatesResult | undefined, LiveRatesResult | undefined] = liveEnabled
+    ? await Promise.all([
+        getHotelRates({ hotelIds: editorialIds, checkin, checkout, adults: stay.adults, campaign: 'hotels-editorial' }),
+        getAreaRates({ center, radiusKm: area?.radiusKm ?? CITYWIDE_RADIUS_KM, checkin, checkout, adults: stay.adults, areaKey: hood ?? 'nashville', campaign: 'hotels-marketplace' }),
+      ])
+    : [undefined, undefined];
+  const rateById = new Map<string, LiveHotelRate>((editorialRates?.live ? editorialRates.rates : []).map((r) => [r.hotelId, r]));
+  const datesLabel = stayDatesLabel(stay.dates);
+  const searchBase: HotelSearchParams = { neighborhood: hood, checkin: stay.dates.chosen ? checkin : undefined, checkout: stay.dates.chosen ? checkout : undefined, adults: stay.adults, ...stay.filters, stars: stay.filters.minStars, max: stay.filters.maxNightly, refundable: stay.filters.refundableOnly };
 
   return (
     <>
@@ -108,7 +167,7 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
           </div>
         }
       >
-        <StaySearch neighborhoods={rail.map((n) => ({ value: n.slug, label: n.name }))} initialNeighborhood={hood} initialCheckin={stay.checkin} initialCheckout={stay.checkout} initialGuests={stay.adults} />
+        <StaySearch neighborhoods={neighborhoods.map((n) => ({ value: n.slug, label: n.name }))} initialNeighborhood={hood} initialCheckin={stay.dates.chosen ? checkin : undefined} initialCheckout={stay.dates.chosen ? checkout : undefined} initialGuests={stay.adults} />
       </PageIntro>
 
       <section className="border-y border-paper-edge" aria-labelledby="rail-title">
@@ -164,7 +223,7 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
         <ul className="mt-4 divide-y divide-paper-edge border-y border-paper-edge">
           {rows.map((h) => (
             <li key={h.slug}>
-              <HotelRow hotel={h} stay={stay} />
+              <HotelRow hotel={h} stay={{ checkin, checkout, adults: stay.adults }} rate={h.liteApiHotelId ? rateById.get(h.liteApiHotelId) : undefined} datesLabel={datesLabel} />
             </li>
           ))}
         </ul>
@@ -173,6 +232,25 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
           site for your dates; checkout there is processed by {partners.stay.merchant}, and Nuitée handles booking support.
         </p>
       </section>
+
+      <div className="shell">
+        <HotelMarketRail
+          id="market"
+          className="scroll-mt-20 border-t border-paper-edge py-8"
+          result={areaResult}
+          rank={{ center, priceBand: area ? priceBandFromCategory(area.typicalHotelPrice) : undefined, excludeIds: rows.map((h) => h.liteApiHotelId).filter((id): id is string => Boolean(id)), filters: stay.filters, limit: 36 }}
+          checkin={checkin}
+          checkout={checkout}
+          adults={stay.adults}
+          surface="market"
+          areaKey={hood ?? 'nashville'}
+          title={area ? `More places to stay in ${area.name}` : 'More places to stay across Nashville'}
+          intro={stay.dates.chosen ? undefined : 'Showing the coming weekend; set your own dates above.'}
+          fromLabel={area ? `from the center of ${area.name}` : 'from Lower Broadway'}
+          emptyNote="Nothing beyond our picks above came back with a rate for these dates and filters. Try clearing a filter or widening the area."
+          controls={<MarketFilterChips base={searchBase} filters={stay.filters} />}
+        />
+      </div>
 
       <section className="border-y border-paper-edge bg-paper-sunk" aria-labelledby="guide-title">
         <div className="shell section grid gap-6 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-12">
@@ -227,7 +305,7 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
   );
 }
 
-function HotelRow({ hotel, stay }: { hotel: Hotel; stay: { checkin?: string; checkout?: string; adults?: number } }) {
+function HotelRow({ hotel, stay, rate, datesLabel }: { hotel: Hotel; stay: { checkin: string; checkout: string; adults?: number }; rate?: LiveHotelRate; datesLabel: string }) {
   const booking = hotelBookingHref(hotel, { surface: 'hotel', ...stay });
   return (
     <article className={`grid gap-4 py-5 ${hotel.image ? 'md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-8' : ''}`}>
@@ -255,6 +333,7 @@ function HotelRow({ hotel, stay }: { hotel: Hotel; stay: { checkin?: string; che
             ))}
           </ul>
         ) : null}
+        <LivePrice rate={rate} datesLabel={datesLabel} className="mt-3" />
         <div className="mt-4 flex flex-wrap items-center gap-3 md:mt-auto md:pt-4">
           <BookingLink
             url={booking.url}

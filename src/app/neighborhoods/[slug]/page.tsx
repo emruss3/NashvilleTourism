@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Breadcrumbs, Chip, FactTable, JsonLd, MapLink, PageHeader, SectionHeader } from '@/components/Ui';
 import { AttractionCard, HotelCard, RestaurantCard, VenueCard } from '@/components/Cards';
 import { SmartImage } from '@/components/Media';
+import HotelMarketRail from '@/components/hotels/HotelMarketRail';
 import { NeighborhoodGuide } from '@/components/neighborhood-guide/NeighborhoodGuide';
 import { formatDate } from '@/components/Trust';
 import {
@@ -15,6 +16,8 @@ import {
   attractions,
 } from '@/lib/content';
 import { getCalendar } from '@/lib/feeds/calendar';
+import { priceBandFromCategory } from '@/lib/feeds/hotel-marketplace-rank';
+import { defaultStayDates } from '@/lib/stay-dates';
 import { buildMetadata, placeSchema } from '@/lib/seo';
 import { neighborhoodImageKey } from '@/lib/media-placements';
 
@@ -55,6 +58,23 @@ export default async function NeighborhoodPage(props: { params: Promise<{ slug: 
   if (!n) notFound();
 
   const guide = getNeighborhoodGuide(n.slug);
+  const dates = defaultStayDates();
+  // "Stay here": the top live rates around this neighborhood's center for the
+  // coming weekend. Renders nothing when the feed is unavailable.
+  const stayRail = (
+    <HotelMarketRail
+      search={{ center: n.center, radiusKm: n.radiusKm, checkin: dates.checkin, checkout: dates.checkout, areaKey: n.slug, campaign: 'hotels-neighborhood' }}
+      rank={{ center: n.center, priceBand: priceBandFromCategory(n.typicalHotelPrice), limit: 6 }}
+      checkin={dates.checkin}
+      checkout={dates.checkout}
+      surface="hood"
+      areaKey={n.slug}
+      title={`Stay in ${n.name}`}
+      intro="Showing the coming weekend; set your own dates on the hotels page."
+      fromLabel={`from the center of ${n.name}`}
+      className="border-t border-paper-edge py-10"
+    />
+  );
   if (guide) {
     const calendar = await getCalendar();
     const venueMatchers = (guide.downtownVenueNames ?? []).map((name) => name.toLowerCase());
@@ -66,7 +86,7 @@ export default async function NeighborhoodPage(props: { params: Promise<{ slug: 
           })
         : [];
 
-    return <NeighborhoodGuide neighborhood={n} guide={guide} downtownEvents={downtownEvents} />;
+    return <NeighborhoodGuide neighborhood={n} guide={guide} downtownEvents={downtownEvents} stayRail={stayRail} />;
   }
 
   const localRestaurants = restaurants.filter(
@@ -182,6 +202,8 @@ export default async function NeighborhoodPage(props: { params: Promise<{ slug: 
           </div>
         </section>
       )}
+
+      {stayRail}
 
       {localVenues.length > 0 && (
         <section className="border-t border-paper-edge py-10">

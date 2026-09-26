@@ -6,7 +6,10 @@ import HubLead from '@/components/HubLead';
 import { AffiliateDisclosure } from '@/components/Trust';
 import BookingWidget from '@/components/BookingWidget';
 import BookingLink from '@/components/BookingLink';
+import HotelMarketRail from '@/components/hotels/HotelMarketRail';
 import { hotels } from '@/lib/content';
+import { getStaySearchPreset } from '@/lib/content/stay-search-presets';
+import { defaultStayDates } from '@/lib/stay-dates';
 import { stayHubImageKey } from '@/lib/media-placements';
 import { hotelSearchPath } from '@/lib/hotel-booking';
 import { partners } from '@/lib/partners';
@@ -33,8 +36,8 @@ interface Hub {
     url: string;
     partner: string;
     event: AnalyticsEvent;
-    /** On-site marketplace links are editorial; the Vrbo hand-off stays an affiliate link until Phase 2. */
-    placement: 'editorial' | 'affiliate';
+    /** Every hub CTA is an on-site marketplace link. */
+    placement: 'editorial';
     /** Shown when no listing of ours matches, so the page still converts. */
     emptyNote: string;
   };
@@ -82,12 +85,12 @@ const HUBS: Hub[] = [
     ],
     match: (h) => h.bestFor.some((b) => /group|bachelor/i.test(b)),
     bookingCta: {
-      label: 'Search whole-home rentals',
-      url: partners.rentals.build({ adults: 10 }),
-      partner: partners.rentals.name,
+      label: 'Search whole homes for your group',
+      url: hotelSearchPath({ neighborhood: 'east-nashville', type: 'rental', adults: 8 }, 'market'),
+      partner: 'NSVL',
       event: ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED,
-      placement: 'affiliate',
-      emptyNote: 'Search whole-home rentals sized for your group.',
+      placement: 'editorial',
+      emptyNote: 'Whole homes and apartments with live rates for your dates are listed below and on our hotel pages.',
     },
   },
   {
@@ -107,7 +110,7 @@ const HUBS: Hub[] = [
     match: (h) => h.nearbyAttractions.some((a) => /opry|music valley/i.test(a)),
     bookingCta: {
       label: 'Check Music Valley rates',
-      url: hotelSearchPath(),
+      url: hotelSearchPath({ neighborhood: 'music-valley-opryland', stars: 4 }, 'market'),
       partner: 'NSVL',
       event: ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED,
       placement: 'editorial',
@@ -155,7 +158,7 @@ const HUBS: Hub[] = [
     match: (h) => h.hasPool,
     bookingCta: {
       label: 'Check hotels with pools',
-      url: hotelSearchPath(),
+      url: hotelSearchPath({}, 'market'),
       partner: 'NSVL',
       event: ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED,
       placement: 'editorial',
@@ -220,6 +223,8 @@ export default async function StaySubHub(props: { params: Promise<{ slug: string
   if (!hub) notFound();
 
   const matches = hotels.filter(hub.match);
+  const preset = getStaySearchPreset(hub.slug);
+  const dates = defaultStayDates();
 
   return (
     <div className="shell pb-16">
@@ -277,6 +282,35 @@ export default async function StaySubHub(props: { params: Promise<{ slug: string
         )}
       </section>
 
+      {preset ? (
+        <HotelMarketRail
+          search={{
+            center: preset.center,
+            radiusKm: preset.radiusKm,
+            checkin: dates.checkin,
+            checkout: dates.checkout,
+            adults: preset.adults,
+            occupancies: preset.singleRoom && preset.adults ? [{ adults: preset.adults, children: [] }] : undefined,
+            areaKey: `hub-${hub.slug}`,
+            campaign: 'hotels-hub',
+          }}
+          rank={{
+            center: preset.center,
+            filters: { minStars: preset.minStars, maxNightly: preset.maxNightly, refundableOnly: preset.refundableOnly, facilities: preset.facilities, type: preset.type, maxChainSize: preset.maxChainSize, minOccupancy: preset.singleRoom ? preset.adults : undefined },
+            sort: preset.sort,
+            limit: 12,
+          }}
+          checkin={dates.checkin}
+          checkout={dates.checkout}
+          adults={preset.adults}
+          surface="hub"
+          areaKey={hub.slug}
+          title={preset.title}
+          intro="Showing the coming weekend; set your own dates on the hotels page."
+          className="py-6"
+        />
+      ) : null}
+
       <section className="py-6">
         <h2 className="text-2xl sm:text-[28px]">What to know before you book</h2>
         <ul className="mt-4 max-w-prose space-y-3">
@@ -293,9 +327,7 @@ export default async function StaySubHub(props: { params: Promise<{ slug: string
         <div className="rounded-card border border-paper-edge bg-white p-6">
           <h2 className="font-display text-xl">{hub.bookingCta.label}</h2>
           <p className="mt-2 max-w-prose text-[15px] leading-relaxed text-ink-soft">
-            {hub.bookingCta.placement === 'editorial'
-              ? `Rates and availability change daily. Check your exact dates on our hotel pages; checkout is on our booking site, processed by ${partners.stay.merchant}.`
-              : `Rates and availability change daily. Search your exact dates through ${hub.bookingCta.partner}.`}
+            Rates and availability change daily. Check your exact dates on our hotel pages; checkout is on our booking site, processed by {partners.stay.merchant}.
           </p>
           <div className="mt-4 max-w-sm [&>a]:min-h-[44px]">
             <BookingLink
@@ -310,7 +342,7 @@ export default async function StaySubHub(props: { params: Promise<{ slug: string
             />
           </div>
           <div className="mt-4">
-            <AffiliateDisclosure compact variant={hub.bookingCta.placement === 'editorial' && partners.stay.host ? 'stay' : 'affiliate'} />
+            <AffiliateDisclosure compact variant={partners.stay.host ? 'stay' : 'affiliate'} />
           </div>
         </div>
       </section>

@@ -4,9 +4,13 @@ import { Breadcrumbs, Chip, FactTable, JsonLd, MapLink, PageHeader, SectionHeade
 import { HotelCard, PhotoSlot } from '@/components/Cards';
 import { AffiliateDisclosure, PlacementLabel, VerificationBadge, formatDate } from '@/components/Trust';
 import BookingLink from '@/components/BookingLink';
+import LivePrice from '@/components/hotels/LivePrice';
 import { hotels, getHotel } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
+import { getHotelRates, isHotelsLiveConfigured } from '@/lib/feeds/hotels-live';
 import { hotelBookingHref } from '@/lib/hotel-booking';
+import { partners } from '@/lib/partners';
+import { defaultStayDates, stayDatesLabel } from '@/lib/stay-dates';
 import { ANALYTICS_EVENTS } from '@/lib/analytics';
 import { buildMetadata, hotelSchema, isIndexableRecord } from '@/lib/seo';
 
@@ -35,7 +39,14 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
 
   const hood = neighborhoodName(h.neighborhood);
   const related = h.relatedSlugs.map((s) => getHotel(s)).filter((x): x is NonNullable<typeof x> => Boolean(x));
-  const booking = hotelBookingHref(h, { surface: 'hotel' });
+  // Live "from" price for the coming weekend; the CTA carries the same dates
+  // so the booking site opens on the stay that was quoted.
+  const dates = defaultStayDates();
+  const live = h.liteApiHotelId && partners.stay.host && isHotelsLiveConfigured()
+    ? await getHotelRates({ hotelIds: [h.liteApiHotelId], checkin: dates.checkin, checkout: dates.checkout, campaign: 'hotels-detail' })
+    : undefined;
+  const rate = live?.live ? live.rates.find((r) => r.hotelId === h.liteApiHotelId) : undefined;
+  const booking = hotelBookingHref(h, { surface: 'hotel', checkin: rate ? dates.checkin : undefined, checkout: rate ? dates.checkout : undefined });
 
   return (
     <div className="shell pb-16">
@@ -142,6 +153,7 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
           />
 
           <div className="space-y-3 rounded-card border border-paper-edge bg-white p-4">
+            <LivePrice rate={rate} datesLabel={stayDatesLabel(dates)} />
             <BookingLink
               url={booking.url}
               label="Check rates"
