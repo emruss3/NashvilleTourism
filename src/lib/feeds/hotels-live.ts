@@ -209,7 +209,8 @@ export async function getAreaRates(params: AreaRatesParams): Promise<LiveRatesRe
     mode: 'area_rates',
     lat: params.center.lat,
     lng: params.center.lng,
-    radiusKm: params.radiusKm,
+    // The provider's floor is 1 km; small neighborhoods still rank by their own center.
+    radiusKm: Math.max(1, params.radiusKm),
     checkin: params.checkin,
     checkout: params.checkout,
     adults: params.adults,

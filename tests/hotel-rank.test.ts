@@ -3,7 +3,7 @@
  */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { passesFilters, priceBandFromCategory, rankMarketplace, scoreRate } from '../src/lib/feeds/hotel-marketplace-rank.ts';
+import { hasFacility, passesFilters, priceBandFromCategory, rankMarketplace, scoreRate } from '../src/lib/feeds/hotel-marketplace-rank.ts';
 import type { LiveHotelRate } from '../src/lib/feeds/hotels-live.ts';
 import { distanceKm, inDavidsonCounty, LOWER_BROADWAY } from '../src/lib/geo.ts';
 import { defaultStayDates, resolveStayDates } from '../src/lib/stay-dates.ts';
@@ -65,10 +65,17 @@ test('filters: stars, price ceiling, refundable, type, facilities, chain size, o
   assert.equal(passesFilters(r, { type: 'hotel' }), false);
   assert.equal(passesFilters(r, { facilities: ['pool'] }), true);
   assert.equal(passesFilters(r, { facilities: ['spa'] }), false);
+  assert.equal(hasFacility(['Pool umbrellas', 'Billiards or pool table', 'Access to nearby outdoor pool'], 'pool'), false, 'pool furniture and billiards are not a pool');
+  assert.equal(hasFacility(['Indoor/outdoor pool'], 'pool'), true);
+  assert.equal(hasFacility(['Rooftop pool', 'Gym'], 'pool'), true);
+  assert.equal(passesFilters(rate({ hotelId: 'lp6', hotelTypeId: 204, name: 'Drury Plaza Hotel' }), { type: 'hotel' }), true, 'type 204 is a hotel');
   assert.equal(passesFilters(r, { maxChainSize: 3 }), false);
   assert.equal(passesFilters(r, { minOccupancy: 6 }), false);
   assert.equal(passesFilters(rate({ hotelId: 'lp2', hotelTypeName: 'Hotel' }), { type: 'hotel' }), true);
   assert.equal(passesFilters(rate({ hotelId: 'lp3', name: 'Broadway Lofts Apartments' }), { type: 'rental' }), true, 'name fallback when the type lookup is empty');
+  assert.equal(passesFilters(rate({ hotelId: 'lp4', hotelTypeId: 220 }), { type: 'rental' }), true, 'type id 220 is a rental even with no lookup name');
+  assert.equal(passesFilters(rate({ hotelId: 'lp5', hotelTypeId: 204, name: 'Downtown Apartments Hotel' }), { type: 'rental' }), false, 'type id 204 is a hotel whatever the name says');
+  assert.equal(passesFilters(rate({ hotelId: 'lp7', hotelTypeId: 201, name: 'Grand Hotel' }), { type: 'rental' }), true, 'type id 201 is Apartments in the provider lookup, whatever the name says');
 });
 
 test('distance, rating volume and price fit move the score in the expected direction', () => {

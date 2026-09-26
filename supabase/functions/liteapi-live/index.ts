@@ -19,6 +19,12 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
  * hotel_catalog_cache) and every outbound call is logged to ingestion_runs.
  * Cache hits are not logged, so "zero outbound calls inside the TTL" can be
  * asserted from that table.
+ *
+ * Auth: the Supabase service key (apikey header) unlocks everything. The
+ * cron token (NASHROAM_CRON_TOKEN, mirrored in Vault as nashroam_cron_token
+ * and only readable by database admins) is equivalent, so pg_cron and SQL
+ * smoke tests work without the service key. The probe token unlocks health
+ * only.
  */
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "https://aeomrsutkhwmnscvvfur.supabase.co";
@@ -207,7 +213,8 @@ async function logRun(source: Source, jobType: string, meta: Record<string, unkn
   }
 }
 
-async function finishRun(id: string | null, status: "success" | "error", patch: Record<string, unknown>): Promise<void> {
+// ingestion_runs.status is constrained to running | succeeded | partial | failed.
+async function finishRun(id: string | null, status: "succeeded" | "failed", patch: Record<string, unknown>): Promise<void> {
   if (!id) return;
   try {
     await restPatch("ingestion_runs", `id=eq.${id}`, { completed_at: new Date().toISOString(), status, ...patch });
@@ -458,7 +465,7 @@ async function serveRates(req: RatesRequest, campaign: string): Promise<Response
     }),
   });
   if (!res.ok) {
-    await finishRun(runId, "error", { error_message: `HTTP ${res.status}`, metadata: { environment: LITEAPI_ENV, status: res.status, ms: res.ms, requestId: res.requestId, providerError: res.data?.error ?? null } });
+    await finishRun(runId, "failed", { error_message: `HTTP ${res.status}`, metadata: { environment: LITEAPI_ENV, status: res.status, ms: res.ms, requestId: res.requestId, providerError: res.data?.error ?? null } });
     return json({ ok: false, environment: LITEAPI_ENV, error: typeof res.data?.error?.description === "string" ? res.data.error.description : typeof res.data?.error === "string" ? res.data.error : `LiteAPI /hotels/rates failed (${res.status})`, status: res.status }, res.status === 0 ? 502 : res.status === 429 ? 429 : 502);
   }
 
@@ -469,17 +476,18 @@ async function serveRates(req: RatesRequest, campaign: string): Promise<Response
   try {
     await restUpsert("hotel_rate_cache", [{ area_key: req.areaKey, checkin: req.checkin, checkout: req.checkout, occupancy_key: occKey, payload: rates, fetched_at: fetchedAt, expires_at: expiresAt, source_id: source.id }], "area_key,checkin,checkout,occupancy_key");
   } catch (error) {
-    await finishRun(runId, "error", { records_fetched: rates.length, error_message: `cache write failed: ${String(error).slice(0, 200)}` });
+    await finishRun(runId, "failed", { records_fetched: rates.length, error_message: `cache write failed: ${String(error).slice(0, 200)}` });
     return json({ ok: true, cached: false, environment: LITEAPI_ENV, areaKey: req.areaKey, fetchedAt, expiresAt, attribution: source.attribution_text, canDisplayRating: source.can_display_rating ?? false, rates, warning: "cache write failed" });
   }
-  await finishRun(runId, "success", { records_fetched: Array.isArray(res.data?.data) ? res.data.data.length : rates.length, records_upserted: rates.length, metadata: { environment: LITEAPI_ENV, status: res.status, ms: res.ms, requestId: res.requestId, areaKey: req.areaKey, campaign } });
+  await finishRun(runId, "succeeded", { records_fetched: Array.isArray(res.data?.data) ? res.data.data.length : rates.length, records_upserted: rates.length, metadata: { environment: LITEAPI_ENV, status: res.status, ms: res.ms, requestId: res.requestId, areaKey: req.areaKey, campaign } });
   return json({ ok: true, cached: false, environment: LITEAPI_ENV, areaKey: req.areaKey, fetchedAt, expiresAt, attribution: source.attribution_text, canDisplayRating: source.can_display_rating ?? false, rates });
 }
 
 async function modeAreaRates(body: Record<string, unknown>): Promise<Response> {
   const lat = num(body.lat);
   const lng = num(body.lng);
-  const radiusKm = Math.min(Math.max(num(body.radiusKm) ?? 2, 0.3), 30);
+  // LiteAPI rejects a radius under 1000 m ("radius should be above 1000m").
+  const radiusKm = Math.min(Math.max(num(body.radiusKm) ?? 2, 1), 30);
   const checkin = isoDay(body.checkin);
   const checkout = isoDay(body.checkout);
   if (lat == null || lng == null || !inDavidson(lat, lng)) return json({ ok: false, error: "lat/lng inside Davidson County required" }, 400);
@@ -520,7 +528,7 @@ async function modeHotelDetail(body: Record<string, unknown>): Promise<Response>
   const runId = await logRun(source, "liteapi_hotel_detail", { hotelId });
   const res = await liteapiFetch(`/data/hotel?hotelId=${encodeURIComponent(hotelId)}`);
   if (!res.ok) {
-    await finishRun(runId, "error", { error_message: `HTTP ${res.status}` });
+    await finishRun(runId, "failed", { error_message: `HTTP ${res.status}` });
     return json({ ok: false, environment: LITEAPI_ENV, error: `LiteAPI /data/hotel failed (${res.status})` }, 502);
   }
   const d = res.data?.data ?? {};
@@ -550,23 +558,77 @@ async function modeHotelDetail(body: Record<string, unknown>): Promise<Response>
   } catch {
     // Serve uncached.
   }
-  await finishRun(runId, "success", { records_fetched: 1, records_upserted: 1, metadata: { environment: LITEAPI_ENV, ms: res.ms, hotelId } });
+  await finishRun(runId, "succeeded", { records_fetched: 1, records_upserted: 1, metadata: { environment: LITEAPI_ENV, ms: res.ms, hotelId } });
   return json({ ok: true, cached: false, environment: LITEAPI_ENV, fetchedAt, attribution: source.attribution_text, detail });
 }
 
-async function refreshLookups(source: Source): Promise<{ facilities: number; hotelTypes: number }> {
-  const [facilities, types] = await Promise.all([liteapiFetch("/data/facilities"), liteapiFetch("/data/hoteltypes")]);
+/**
+ * LiteAPI's lookup endpoints have not kept one field naming: facilities use
+ * `facility_id`/`facility`, hotel types have shipped as `hotel_type_id`/
+ * `hotel_type`, `hotelTypeId`/`hotelType`, `id`/`name`, and as an object map.
+ * Pick the first integer-like field as the id and the first string field
+ * that is not the id as the name, so a rename upstream degrades to "still
+ * works" instead of "zero rows".
+ */
+function parseLookupRows(payload: any, fetchedAt: string): Array<{ id: number; name: string; fetched_at: string }> {
+  const root = payload?.data ?? payload;
+  const rows: Array<{ id: number; name: string; fetched_at: string }> = [];
+  const push = (id: unknown, name: unknown) => {
+    const n = num(id);
+    if (n == null || typeof name !== "string" || !name.trim()) return;
+    rows.push({ id: Math.trunc(n), name: name.trim(), fetched_at: fetchedAt });
+  };
+  if (Array.isArray(root)) {
+    for (const item of root) {
+      if (!item || typeof item !== "object") continue;
+      const entries = Object.entries(item);
+      const idEntry = entries.find(([k, v]) => /(^|_)(id)$/i.test(k) && num(v) != null) ?? entries.find(([, v]) => num(v) != null && typeof v !== "string");
+      const nameEntry = entries.find(([k, v]) => k !== idEntry?.[0] && typeof v === "string" && v.trim() && !/(^|_)id$/i.test(k) && !/^(sort|order|code)$/i.test(k));
+      if (idEntry && nameEntry) push(idEntry[1], nameEntry[1]);
+    }
+  } else if (root && typeof root === "object") {
+    for (const [k, v] of Object.entries(root)) {
+      if (typeof v === "string") push(k, v);
+      else if (v && typeof v === "object") push((v as any).id ?? k, (v as any).name ?? (v as any).hotel_type ?? (v as any).facility);
+    }
+  }
+  return rows;
+}
+
+async function refreshLookups(source: Source): Promise<{ facilities: number; hotelTypes: number; hotelTypesSample?: string }> {
+  // 2026-09-26: /data/hoteltypes answered with a truncated body ("unexpected
+  // end of file") on every attempt while /data/facilities was fine, so try the
+  // documented camel-case path first and keep the lower-case one as a fallback.
+  const facilities = await liteapiFetch("/data/facilities");
+  let types = await liteapiFetch("/data/hotelTypes");
+  if (!types.ok || !parseLookupRows(types.data, "").length) types = await liteapiFetch("/data/hoteltypes");
   const fetchedAt = new Date().toISOString();
-  const facilityRows = (Array.isArray(facilities.data?.data) ? facilities.data.data : [])
-    .map((f: any) => ({ id: num(f?.facility_id ?? f?.facilityId ?? f?.id), name: typeof (f?.facility ?? f?.name) === "string" ? (f.facility ?? f.name) : null, fetched_at: fetchedAt }))
-    .filter((f: any) => f.id != null && f.name);
-  const typeRows = (Array.isArray(types.data?.data) ? types.data.data : [])
-    .map((t: any) => ({ id: num(t?.hotel_type_id ?? t?.hotelTypeId ?? t?.id), name: typeof (t?.hotel_type ?? t?.name) === "string" ? (t.hotel_type ?? t.name) : null, fetched_at: fetchedAt }))
-    .filter((t: any) => t.id != null && t.name);
+  const facilityRows = parseLookupRows(facilities.data, fetchedAt);
+  const typeRows = parseLookupRows(types.data, fetchedAt);
   await restUpsert("lookup_liteapi_facilities", facilityRows, "id");
   await restUpsert("lookup_liteapi_hotel_types", typeRows, "id");
   void source;
-  return { facilities: facilityRows.length, hotelTypes: typeRows.length };
+  return {
+    facilities: facilityRows.length,
+    hotelTypes: typeRows.length,
+    // When a parse comes back empty, keep the first bytes of the raw body in
+    // the run log so the next fix does not need a provider call to see it.
+    hotelTypesSample: typeRows.length ? undefined : JSON.stringify(types.data).slice(0, 600),
+  };
+}
+
+async function modeLookupsRefresh(): Promise<Response> {
+  const source = await liteapiSource();
+  const runId = await logRun(source, "liteapi_lookups_refresh", {});
+  try {
+    const lookups = await refreshLookups(source);
+    lookupsCache = null;
+    await finishRun(runId, "succeeded", { records_fetched: lookups.facilities + lookups.hotelTypes, records_upserted: lookups.facilities + lookups.hotelTypes, metadata: { environment: LITEAPI_ENV, ...lookups } });
+    return json({ ok: true, environment: LITEAPI_ENV, ...lookups });
+  } catch (error) {
+    await finishRun(runId, "failed", { error_message: String(error).slice(0, 300) });
+    return json({ ok: false, environment: LITEAPI_ENV, error: String(error).slice(0, 300) }, 502);
+  }
 }
 
 async function modeCatalogRefresh(body: Record<string, unknown>): Promise<Response> {
@@ -624,10 +686,10 @@ async function modeCatalogRefresh(body: Record<string, unknown>): Promise<Respon
       await restPatch("hotel_catalog_cache", `fetched_at=lt.${encodeURIComponent(fetchedAt)}&deleted_at=is.null`, { deleted_at: fetchedAt });
     }
     lookupsCache = null;
-    await finishRun(runId, "success", { records_fetched: fetched, records_upserted: kept, metadata: { environment: LITEAPI_ENV, radiusMeters, lookups } });
+    await finishRun(runId, "succeeded", { records_fetched: fetched, records_upserted: kept, metadata: { environment: LITEAPI_ENV, radiusMeters, lookups } });
     return json({ ok: true, environment: LITEAPI_ENV, fetched, kept, lookups });
   } catch (error) {
-    await finishRun(runId, "error", { records_fetched: fetched, records_upserted: kept, error_message: String(error).slice(0, 300) });
+    await finishRun(runId, "failed", { records_fetched: fetched, records_upserted: kept, error_message: String(error).slice(0, 300) });
     return json({ ok: false, environment: LITEAPI_ENV, error: String(error).slice(0, 300), fetched, kept }, 502);
   }
 }
@@ -643,7 +705,7 @@ async function modeHealth(): Promise<Response> {
     const [rates, catalog, runs] = await Promise.all([
       fetch(`${SUPABASE_URL}/rest/v1/hotel_rate_cache?select=id&expires_at=gt.${encodeURIComponent(new Date().toISOString())}`, { headers: restHeaders({ Prefer: "count=exact", "Range-Unit": "items", Range: "0-0" }) }),
       fetch(`${SUPABASE_URL}/rest/v1/hotel_catalog_cache?select=lite_id&deleted_at=is.null`, { headers: restHeaders({ Prefer: "count=exact", "Range-Unit": "items", Range: "0-0" }) }),
-      restSelect<{ completed_at: string }>("ingestion_runs?select=completed_at&job_type=eq.liteapi_catalog_refresh&status=eq.success&order=completed_at.desc&limit=1"),
+      restSelect<{ completed_at: string }>("ingestion_runs?select=completed_at&job_type=eq.liteapi_catalog_refresh&status=eq.succeeded&order=completed_at.desc&limit=1"),
     ]);
     cacheRows = Number(rates.headers.get("content-range")?.split("/")[1] ?? NaN) || 0;
     catalogRows = Number(catalog.headers.get("content-range")?.split("/")[1] ?? NaN) || 0;
@@ -679,22 +741,22 @@ Deno.serve(async (req: Request) => {
   }
   const mode = typeof body.mode === "string" ? body.mode : "";
 
-  const service = await hasServiceAccess(req);
   const cron = hasCronAccess(req);
+  const service = cron || (await hasServiceAccess(req));
   const probe = hasProbeAccess(req);
 
   if (mode === "health") {
-    if (!service && !cron && !probe) return json({ ok: false, error: "Unauthorized" }, 401);
+    if (!service && !probe) return json({ ok: false, error: "Unauthorized" }, 401);
     return modeHealth();
-  }
-  if (mode === "catalog_refresh") {
-    if (!service && !cron) return json({ ok: false, error: "Unauthorized" }, 401);
-    return modeCatalogRefresh(body);
   }
   if (!service) return json({ ok: false, error: "Unauthorized" }, 401);
 
   try {
     switch (mode) {
+      case "catalog_refresh":
+        return await modeCatalogRefresh(body);
+      case "lookups_refresh":
+        return await modeLookupsRefresh();
       case "area_rates":
         return await modeAreaRates(body);
       case "hotel_rates":
@@ -702,7 +764,7 @@ Deno.serve(async (req: Request) => {
       case "hotel_detail":
         return await modeHotelDetail(body);
       default:
-        return json({ ok: false, error: "Unknown mode. Use area_rates, hotel_rates, hotel_detail, catalog_refresh or health." }, 400);
+        return json({ ok: false, error: "Unknown mode. Use area_rates, hotel_rates, hotel_detail, catalog_refresh, lookups_refresh or health." }, 400);
     }
   } catch (error) {
     return json({ ok: false, environment: LITEAPI_ENV, error: String(error).slice(0, 300) }, 500);

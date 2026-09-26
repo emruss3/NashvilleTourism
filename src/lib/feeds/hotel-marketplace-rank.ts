@@ -57,7 +57,40 @@ export interface RankedHotel {
   score: number;
 }
 
-const RENTAL_TYPE = /apartment|aparthotel|rental|villa|house|home|condo|cottage|cabin|residence|hostel/i;
+/**
+ * LiteAPI hotel-type ids, from /data/hotelTypes on 2026-09-26 (stored in
+ * lookup_liteapi_hotel_types). Davidson County counts in brackets.
+ *   Rentals: 201 Apartments [463], 220 Holiday homes [441], 230 Cottages
+ *   [192], 250 Private vacation home [186], 229 Condos [63], 213 Villas [9].
+ *   Hotels: 204 Hotels [326], 219 Aparthotels [21], 205 Motels [18],
+ *   218 Inns [13], 216 Guest houses [5], 206 Resorts.
+ * Ids decide the type filter; the lookup names are a display nicety and the
+ * fallback for ids we have not classified.
+ */
+export const RENTAL_TYPE_IDS = new Set([201, 213, 220, 229, 230, 250]);
+export const HOTEL_TYPE_IDS = new Set([204, 205, 206, 216, 218, 219]);
+
+/**
+ * Facility words map to real amenities, not to anything containing the word:
+ * "pool" must not match "Pool umbrellas" or "Billiards or pool table".
+ */
+const FACILITY_MATCHERS: Record<string, { any: RegExp[]; none: RegExp }> = {
+  pool: {
+    any: [/swimming pool/i, /\b(outdoor|indoor|rooftop|heated|infinity|plunge|private|seasonal|natural|indoor\/outdoor)\s+pool\b/i, /^pool$/i, /\bpool\s*\((?!table)/i],
+    none: /billiard|table|umbrella|lounger|cabana|nearby|towel|pool bar|poolside/i,
+  },
+  gym: { any: [/\b(gym|fitness)\b/i], none: /nearby/i },
+  parking: { any: [/\bparking\b/i], none: /nearby|street/i },
+  breakfast: { any: [/\bbreakfast\b/i], none: /nearby|surcharge/i },
+};
+
+export function hasFacility(names: string[], word: string): boolean {
+  const key = word.toLowerCase();
+  const matcher = FACILITY_MATCHERS[key];
+  if (!matcher) return names.some((n) => n.toLowerCase().includes(key));
+  return names.some((n) => matcher.any.some((re) => re.test(n)) && !matcher.none.test(n));
+}
+const RENTAL_TYPE = /apartment|aparthotel|rental|villa|house|home|condo|cottage|cabin|residence|hostel|holiday/i;
 const HOTEL_TYPE = /hotel|resort|inn|motel|lodge|boutique|suite|bed and breakfast|b&b|guest/i;
 
 /** Map a `typicalHotelPrice` band such as "$$$–$$$$" to nightly USD. */
@@ -72,6 +105,8 @@ export function priceBandFromCategory(band: string): [number, number] | undefine
 }
 
 export function isRental(rate: LiveHotelRate): boolean {
+  if (rate.hotelTypeId !== undefined && RENTAL_TYPE_IDS.has(rate.hotelTypeId)) return true;
+  if (rate.hotelTypeId !== undefined && HOTEL_TYPE_IDS.has(rate.hotelTypeId)) return false;
   const name = rate.hotelTypeName ?? '';
   if (RENTAL_TYPE.test(name)) return true;
   if (HOTEL_TYPE.test(name)) return false;
@@ -86,11 +121,7 @@ export function passesFilters(rate: LiveHotelRate, f: MarketFilters = {}): boole
   if (f.type === 'hotel' && isRental(rate)) return false;
   if (f.minOccupancy && rate.maxOccupancy !== undefined && rate.maxOccupancy < f.minOccupancy) return false;
   if (f.maxChainSize && (rate.chainSize ?? 0) > f.maxChainSize) return false;
-  if (f.facilities?.length) {
-    const names = rate.facilities.map((n) => n.toLowerCase());
-    const ok = f.facilities.every((word) => names.some((n) => n.includes(word.toLowerCase())));
-    if (!ok) return false;
-  }
+  if (f.facilities?.length && !f.facilities.every((word) => hasFacility(rate.facilities, word))) return false;
   return true;
 }
 
