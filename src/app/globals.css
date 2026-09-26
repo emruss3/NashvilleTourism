@@ -220,3 +220,64 @@ input[type='date']::-webkit-calendar-picker-indicator {
   -webkit-appearance: none;
   appearance: none;
 }
+
+/* Leaflet chrome on the hotels map, restyled to the NSVL black and cream
+   palette. Outside @layer so Tailwind keeps every rule. */
+.leaflet-container {
+  background: #ede2cf;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+.leaflet-container .leaflet-tile-pane {
+  /* Positron is grey; a light sepia pulls it toward paper without hiding streets. */
+  filter: sepia(0.35) saturate(0.55) brightness(1.03) contrast(0.95);
+}
+.leaflet-container .leaflet-control-zoom a,
+.leaflet-container .leaflet-control-zoom a:hover {
+  background: #fcfbf8;
+  color: #111111;
+  border-color: #e3dfd5;
+  border-radius: 0;
+}
+.leaflet-container .leaflet-bar {
+  border: 1px solid #e3dfd5;
+  border-radius: 2px;
+  box-shadow: none;
+}
+.leaflet-container .leaflet-control-attribution {
+  background: rgba(252, 251, 248, 0.88);
+  color: #5e5e5e;
+  font-size: 10px;
+}
+.leaflet-container .leaflet-control-attribution a {
+  color: #111111;
+}
+.leaflet-container .leaflet-popup-content-wrapper {
+  background: #fcfbf8;
+  color: #111111;
+  border: 1px solid #e3dfd5;
+  border-radius: 2px;
+  box-shadow: none;
+}
+.leaflet-container .leaflet-popup-tip {
+  background: #fcfbf8;
+  border: 1px solid #e3dfd5;
+  box-shadow: none;
+}
+.leaflet-container .leaflet-popup-close-button {
+  color: #5e5e5e;
+}
+.leaflet-container .leaflet-tooltip {
+  background: #111111;
+  color: #fcfbf8;
+  border: 0;
+  border-radius: 2px;
+  box-shadow: none;
+  font-size: 12px;
+}
+.leaflet-container .leaflet-tooltip-top::before {
+  border-top-color: #111111;
+}
+.nsvl-price-pin {
+  background: transparent;
+  border: 0;
+}

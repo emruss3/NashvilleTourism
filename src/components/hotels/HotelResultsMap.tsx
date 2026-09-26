@@ -4,10 +4,11 @@ import { useEffect, useRef, useState } from 'react';
 
 /**
  * Map of the stays on /hotels/: our picks and the live marketplace results,
- * one dot each, with the nightly price in the popup. Leaflet and the
- * OpenStreetMap tiles load in the browser on demand from a CDN (no npm
- * dependency, no key). If they cannot load, the block says so instead of
- * leaving a blank box.
+ * one price pin each. Leaflet loads in the browser on demand from a CDN and
+ * the basemap is CARTO Positron over OpenStreetMap data (no npm dependency,
+ * no key, attribution shown). If they cannot load, the block says so instead
+ * of leaving a blank box. Leaflet's own chrome is restyled to the NSVL
+ * palette in globals.css.
  */
 export interface MapPoint {
   id: string;
@@ -74,9 +75,12 @@ export default function HotelResultsMap({ points, center, title = 'Map of these 
       .then((L) => {
         if (cancelled || !host.current) return;
         map = L.map(host.current, { scrollWheelZoom: false, attributionControl: true });
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 18,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        // CARTO Positron: a near-monochrome basemap that sits with the black and
+        // cream palette; the tile pane is tinted toward paper in globals.css.
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+          subdomains: 'abcd',
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         }).addTo(map);
         const bounds = L.latLngBounds([]);
         for (const p of [...points].sort((a, b) => Number(Boolean(a.pinned)) - Number(Boolean(b.pinned)))) {
