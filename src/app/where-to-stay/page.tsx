@@ -3,6 +3,7 @@ import { Breadcrumbs, JsonLd, PageHeader, ScrollableTable, SectionHeader } from 
 import { HotelCard } from '@/components/Cards';
 import HubLead from '@/components/HubLead';
 import { AffiliateDisclosure } from '@/components/Trust';
+import { hotelSearchPath } from '@/lib/hotel-booking';
 import BookingWidget from '@/components/BookingWidget';
 import { hotels } from '@/lib/content';
 import { buildMetadata, isIndexableRecord, itemListSchema } from '@/lib/seo';
@@ -60,6 +61,8 @@ const SITUATIONS: { slug: string; title: string; whoFor: string; cta: string }[]
 interface AreaRow {
   area: string;
   href?: string;
+  /** Neighborhood slug for the live-rates link. */
+  slug?: string;
   bestFor: string;
   walk: string;
   noise: string;
@@ -74,6 +77,7 @@ const AREAS: AreaRow[] = [
   {
     area: 'Downtown / Broadway',
     href: '/neighborhoods/downtown-broadway/',
+    slug: 'downtown-broadway',
     bestFor: 'First trips, groups, walking to everything',
     walk: 'You are on it',
     noise: 'Loud until close, every night',
@@ -82,6 +86,7 @@ const AREAS: AreaRow[] = [
   {
     area: 'The Gulch',
     href: '/neighborhoods/the-gulch/',
+    slug: 'the-gulch',
     bestFor: 'Groups who want dinner and nightlife on foot',
     walk: '15-20 min',
     noise: 'Moderate, quieter than Broadway',
@@ -90,6 +95,7 @@ const AREAS: AreaRow[] = [
   {
     area: 'Germantown',
     href: '/neighborhoods/germantown/',
+    slug: 'germantown',
     bestFor: 'Food-focused trips, couples, sleeping well',
     walk: '20-25 min',
     noise: 'Low on residential blocks',
@@ -98,6 +104,7 @@ const AREAS: AreaRow[] = [
   {
     area: 'Midtown',
     href: '/neighborhoods/midtown/',
+    slug: 'midtown',
     bestFor: 'Value, business travel, college-area bars',
     walk: 'Not walkable; 8-12 min ride',
     noise: 'Moderate near the bar strip',
@@ -106,6 +113,7 @@ const AREAS: AreaRow[] = [
   {
     area: 'East Nashville',
     href: '/neighborhoods/east-nashville/',
+    slug: 'east-nashville',
     bestFor: 'Repeat visitors, longer stays, local bars',
     walk: 'Not walkable; 10-15 min ride',
     noise: 'Low, residential',
@@ -114,6 +122,7 @@ const AREAS: AreaRow[] = [
   {
     area: '12 South',
     href: '/neighborhoods/12-south/',
+    slug: '12-south',
     bestFor: 'Couples, shopping, slow mornings',
     walk: 'Not walkable; 12-18 min ride',
     noise: 'Low, residential',
@@ -122,6 +131,7 @@ const AREAS: AreaRow[] = [
   {
     area: 'Green Hills',
     href: '/neighborhoods/green-hills/',
+    slug: 'green-hills',
     bestFor: 'Families, suites, shopping, free parking',
     walk: 'Not walkable; 15-20 min ride',
     noise: 'Low',
@@ -129,6 +139,8 @@ const AREAS: AreaRow[] = [
   },
   {
     area: 'Music Valley / Opryland',
+    href: '/neighborhoods/music-valley-opryland/',
+    slug: 'music-valley-opryland',
     bestFor: 'Resort stays, conventions, driving trips',
     walk: 'Not walkable; 20-30 min drive',
     noise: 'Low',
@@ -213,6 +225,9 @@ export default function WhereToStayHub() {
                 <th scope="col" className="px-4 py-3 font-semibold text-ink">
                   Typical nightly rate
                 </th>
+                <th scope="col" className="px-4 py-3 font-semibold text-ink">
+                  <span className="sr-only">Live rates</span>
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-paper-edge">
@@ -231,6 +246,13 @@ export default function WhereToStayHub() {
                   <td className="px-4 py-3 text-ink-soft">{a.walk}</td>
                   <td className="px-4 py-3 text-ink-soft">{a.noise}</td>
                   <td className="px-4 py-3 text-ink-soft">{a.rate}</td>
+                  <td className="px-4 py-3">
+                    {a.slug ? (
+                      <Link href={hotelSearchPath({ neighborhood: a.slug }, 'market')} className="inline-flex min-h-10 items-center whitespace-nowrap font-semibold text-ink underline-offset-[0.2em] hover:underline">
+                        See rates<span className="sr-only"> in {a.area}</span>
+                      </Link>
+                    ) : null}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -238,8 +260,8 @@ export default function WhereToStayHub() {
         </ScrollableTable>
         <p className="mt-3 max-w-prose text-sm text-ink-faint">
           Rate bands are broad planning ranges for a standard room, not quotes. Nashville pricing
-          swings hard around festivals, football weekends, and big arena shows. Check current rates
-          for your dates before you decide.
+          swings hard around festivals, football weekends, and big arena shows. “See rates” opens live
+          prices for the coming weekend; set your own dates there before you decide.
         </p>
       </section>
 

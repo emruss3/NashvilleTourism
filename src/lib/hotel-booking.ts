@@ -30,13 +30,29 @@ export function hotelBookingHref(
   return { url: hotel.fallbackUrl, partner: 'Booking.com', placement: 'affiliate', clientReference: reference, hotelId: hotel.liteApiHotelId };
 }
 
+export interface HotelSearchParams {
+  checkin?: string;
+  checkout?: string;
+  adults?: number;
+  neighborhood?: string;
+  /** Marketplace filters (docs/HOTEL-BOOKING.md). */
+  stars?: number;
+  max?: number;
+  refundable?: boolean;
+  type?: 'hotel' | 'rental';
+}
+
 /** On-site marketplace URL with the search carried in the query. */
-export function hotelSearchPath(params: { checkin?: string; checkout?: string; adults?: number; neighborhood?: string } = {}): string {
+export function hotelSearchPath(params: HotelSearchParams = {}, hash?: string): string {
   const u = new URLSearchParams();
   if (params.checkin) u.set('checkin', params.checkin);
   if (params.checkout) u.set('checkout', params.checkout);
   if (params.adults) u.set('adults', String(params.adults));
   if (params.neighborhood) u.set('neighborhood', params.neighborhood);
+  if (params.stars) u.set('stars', String(params.stars));
+  if (params.max) u.set('max', String(params.max));
+  if (params.refundable) u.set('refundable', '1');
+  if (params.type) u.set('type', params.type);
   const qs = u.toString();
-  return qs ? `/hotels/?${qs}` : '/hotels/';
+  return `${qs ? `/hotels/?${qs}` : '/hotels/'}${hash ? `#${hash}` : ''}`;
 }

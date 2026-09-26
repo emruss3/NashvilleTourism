@@ -3,8 +3,8 @@
  *
  * Hotels book through the Nuitée white-label site (src/lib/stay-links.ts,
  * docs/HOTEL-BOOKING.md); every hotel surface uses hotelBookingHref() from
- * src/lib/hotel-booking.ts. Tickets and rentals still use affiliate deep
- * links here. Tours no longer construct Viator.com URLs — live inventory and
+ * src/lib/hotel-booking.ts, and whole-home rentals come from the same
+ * marketplace. Tickets still use an affiliate deep link here. Tours no longer construct Viator.com URLs — live inventory and
  * productUrl attribution come from Supabase Edge Functions (VIATOR_API_KEY
  * lives in Supabase secrets, not Vercel).
  */
@@ -53,22 +53,9 @@ export const partners = {
     },
   },
 
-  rentals: {
-    name: 'Vrbo',
-    affiliateId: env('NEXT_PUBLIC_VRBO_AID'),
-    /** Whole-home rentals, which is what most large groups actually want. */
-    build(params: { checkin?: string; checkout?: string; adults?: number }) {
-      const u = new URL('https://www.vrbo.com/search');
-      u.searchParams.set('q', 'Nashville, Tennessee');
-      if (params.checkin) u.searchParams.set('startDate', params.checkin);
-      if (params.checkout) u.searchParams.set('endDate', params.checkout);
-      if (params.adults) u.searchParams.set('adults', String(params.adults));
-      return u.toString();
-    },
-  },
 } as const;
 
 export type PartnerKey = keyof typeof partners;
 
 /** True when at least one public affiliate ID is configured. */
-export const HAS_AFFILIATE_IDS = Boolean(partners.tickets.affiliateId || partners.rentals.affiliateId);
+export const HAS_AFFILIATE_IDS = Boolean(partners.tickets.affiliateId);

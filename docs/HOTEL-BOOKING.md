@@ -1,6 +1,6 @@
 # Hotel booking: LiteAPI marketplace + Nuitée white-label checkout
 
-Last updated 2026-09-25. Supersedes every Booking.com affiliate note in this repo.
+Last updated 2026-09-26. Supersedes every Booking.com affiliate note in this repo.
 
 ## Architecture
 
@@ -23,8 +23,9 @@ Doctrine (`system_documents.data_refresh_strategy` v3): we own identity, editori
 | Supabase secrets | `LITEAPI_PRODUCTION_API_KEY` | when issued | `prod_…` |
 | Supabase secrets | `LITEAPI_ENV` | `sandbox` \| `production` | default production |
 | Supabase secrets | `LITEAPI_PROBE_TOKEN` | random | Accepted by `liteapi-live` for `health` mode only, so deploys can be verified from SQL without the service key |
+| Supabase secrets | `NASHROAM_CRON_TOKEN` | must equal Vault secret `nashroam_cron_token` | Accepted by `liteapi-live` for every mode; the weekly pg_cron job and SQL smoke tests send it |
 
-Removed: `NEXT_PUBLIC_BOOKING_AID`, `BOOKING_DEMAND_API_KEY`, `BOOKING_DEMAND_AFFILIATE_ID`. `NEXT_PUBLIC_VRBO_AID` goes when the rentals hub switches to LiteAPI inventory in Phase 2.
+Removed: `NEXT_PUBLIC_BOOKING_AID`, `BOOKING_DEMAND_API_KEY`, `BOOKING_DEMAND_AFFILIATE_ID`, `NEXT_PUBLIC_VRBO_AID` (the rentals hub now uses marketplace inventory).
 
 Cutover to `stay.nashville.com` and to the production key are config changes only: the env var, the Supabase secret and the dashboard domain. No code edit.
 
@@ -78,14 +79,91 @@ Partner back office: https://partners.wlbl.cloud/ (linked from the LiteAPI dashb
 | Chargebacks | Filed against Nuitée; their T&C may pass the loss back to us (open item) |
 | Analytics | GTM on both surfaces; `clientReference` on every link |
 
+## Marketplace (Phase 2)
+
+### Data flow
+
+```
+page (server component, revalidate 3600)
+  -> src/lib/feeds/hotels-live.ts  getAreaRates / getHotelRates
+  -> invokeEdgeFunction('liteapi-live')   [SUPABASE_SERVICE_ROLE_KEY, server only]
+  -> hotel_rate_cache hit?  yes: return payload (no provider call, nothing logged)
+                            no:  POST api.liteapi.travel/v3.0/hotels/rates
+                                 (includeHotelData, maxRatesPerHotel 1, currency USD,
+                                  guestNationality US, timeout 18s)
+                                 -> normalize, drop anything outside Davidson County,
+                                    write hotel_rate_cache (TTL = data_sources.default_ttl_minutes, 180),
+                                    log ingestion_runs (job_type liteapi_area_rates | liteapi_hotel_rates)
+  -> src/lib/feeds/hotel-marketplace-rank.ts   filters, then our score
+  -> HotelMarketRail / HotelMarketCard         noindex surfaces, "from" price with fetch time
+```
+
+Modes of `liteapi-live` (POST JSON `{ mode, ... }`, `apikey` = service key):
+
+| Mode | Auth | Body | Cache key |
+| --- | --- | --- | --- |
+| `area_rates` | service | `lat, lng, radiusKm, checkin, checkout, adults \| occupancies[], areaKey?` | `areaKey` (neighborhood slug, `hub-<slug>`, `nashville`) or `geo:{lat4}:{lng4}:{r}` + dates + occupancy |
+| `hotel_rates` | service | `hotelIds[], checkin, checkout, adults` | `ids:<hash of sorted ids>` + dates + occupancy |
+| `hotel_detail` | service | `hotelId` | `detail:<id>`, 7 days |
+| `catalog_refresh` | service or cron token | `maxPages?, radiusKm?` | `hotel_catalog_cache`, lookups; weekly Monday 09:20 UTC |
+| `lookups_refresh` | service or cron token | none | facility and hotel-type lookups only (`/data/facilities`, `/data/hotelTypes`) |
+| `health` | service, cron token or probe token | none | reports env, cache and catalog row counts, last catalog refresh, which tokens are set |
+
+The cron token unlocks every mode, not only `catalog_refresh`: it lives in Vault (database admins only) and in function secrets, so SQL smoke tests can exercise `area_rates` without the service key. The probe token stays health-only. The provider rejects an area radius under 1 km, so the function and the feed both clamp to 1 km; small neighborhoods still rank by their own center.
+
+Rate limiting inside the function: at most 3 concurrent provider calls, 400 ms spacing in sandbox (150 ms in production), 3 attempts with backoff on 429 and 5xx, 120 s abort.
+
+### Ranking
+
+`rankMarketplace()` in `src/lib/feeds/hotel-marketplace-rank.ts`, unit-tested in `tests/hotel-rank.test.ts`.
+
+1. Editorial hotels (any `liteApiHotelId` in `hotels.ts`) first, in editorial order, badged "Our pick".
+2. Then `RANK_WEIGHTS`: distance to the active center 0.40 (zero at 4 km), guest rating scaled by log review volume 0.30, stars 0.15, fit against the neighborhood's `typicalHotelPrice` band 0.15.
+3. Filters before ranking: `stars`, `max` nightly, `refundable`, `type` (hotel or rental by provider type id: 201 Apartments, 220 Holiday homes, 230 Cottages, 250 Private vacation home, 229 Condos and 213 Villas are rentals; 204 Hotels, 219 Aparthotels, 205 Motels, 218 Inns, 216 Guest houses and 206 Resorts are hotels; unknown ids fall back to the lookup name, then the listing name), facilities (pool, matched to real pool amenities and not pool furniture), chain size, occupancy.
+4. Margin and SSP are never inputs. The net rate never leaves the edge function; `ssp` is carried for the display floor only, and the test asserts the order is identical with SSP values permuted.
+5. Rows outside Davidson County are dropped in the function and again in the feed.
+
+### Surfaces
+
+| Page | What it shows | Dates |
+| --- | --- | --- |
+| `/hotels/` | Editorial rows with live "from" price, then "More places to stay" rail (editorial ids excluded, filter chips) | URL or next Fri–Sun |
+| `/hotels/?neighborhood=…` | Same, scoped to the neighborhood's centroid and radius (`src/lib/content/neighborhoods.ts`) | same |
+| `/hotels/[slug]/` | "From $X a night" for the coming weekend; CTA carries those dates | next Fri–Sun |
+| `/where-to-stay/[slug]/` | Preset rail from `src/lib/content/stay-search-presets.ts`; rentals hub searches whole homes for 8 in one unit, no Vrbo | next Fri–Sun |
+| `/where-to-stay/` | "See rates" per area row | none |
+| `/neighborhoods/[slug]/` | "Stay in …" rail, top 6 | next Fri–Sun |
+
+Every rail renders nothing when `NEXT_PUBLIC_STAY_HOST` is unset, the service key is missing, or the provider fails. No empty state carries partner branding. Any `/hotels/` view with a query string is `noindex`.
+
+### Sandbox acceptance, 2026-09-26
+
+| Check | Result |
+| --- | --- |
+| `health` | ok, sandbox, both tokens set, provider row present |
+| `catalog_refresh` | 1,910 fetched, 1,828 kept inside the county bounds; 820 facilities, 52 hotel types |
+| Gulch, Fri 2 to Sun 4 Oct, 2 adults, 1 km | 40 rates; 7 editorial hotels present and pinned first by `rankMarketplace` |
+| Same call again inside the TTL | `cached: true`, `ingestion_runs` count unchanged (7 before, 7 after) |
+| Cached rows outside Davidson County | 0 |
+| Rentals preset (East Nashville, 3.5 km, one unit for 8) | 2 rates, none of a rental type. A 2-adult probe of the same area returned 106 rates with only 2 apartments, so sandbox rental supply is thin; the rail renders nothing rather than an empty partner state. Re-run on the production key. |
+
+### Acceptance checks (repeat on production)
+
+1. `health` via probe token (SQL below) returns `configured: true`, `sourceRow: true`.
+2. Fire `catalog_refresh` once (service key from a trusted machine, or the cron token from SQL). Expect `kept` in the hundreds and `lookup_liteapi_hotel_types` populated. Then the weekly job keeps it fresh.
+3. Load `/hotels/?neighborhood=the-gulch&checkin=<Fri>&checkout=<Sun>` on a deploy with the env set. Expect editorial rows with prices and at least one live card below.
+4. Reload inside 3 hours. `select count(*) from ingestion_runs where job_type like 'liteapi_%' and started_at > now() - interval '5 minutes'` (statuses are running, succeeded, partial or failed) must be 0.
+5. `select count(*) from hotel_rate_cache r, jsonb_array_elements(r.payload) h where (h->>'lat')::float not between 35.97 and 36.41 or (h->>'lng')::float not between -87.06 and -86.52` must be 0.
+6. `/where-to-stay/group-rentals-bachelor-bachelorette/` shows the rentals rail and no Vrbo link.
+
 ## Analytics
 
-`HOTEL_AFFILIATE_CLICKED` keeps its name. Payload: `partner` (`LiteAPI` or `Booking.com`), `placement` (`whitelabel` or `affiliate`), `client_reference`, `hotel_id`, `nightly_shown` (Phase 2). `HOTEL_MARKET_VIEWED` (Phase 2): area, result count, cached.
+`HOTEL_AFFILIATE_CLICKED` keeps its name. Payload: `partner` (`LiteAPI` or `Booking.com`), `placement` (`whitelabel` or `affiliate`), `client_reference`, `hotel_id`. `HOTEL_MARKET_VIEWED` fires once per rendered rail: `item_id` = `surface:area`, `neighborhood`, `result_count`, `cached`.
 
 ## Phases
 
-1. **Links and leaks** (this PR): env, `stay-links.ts`, `liteApiHotelId` on the 14, white-label CTAs on hotel rows and detail pages, widget and stay search routing on-site to `/hotels/?…`, Booking Demand scaffold deleted, disclosure copy.
-2. **Marketplace**: `liteapi-live` edge function with cache tables and weekly catalog refresh, `hotels-live.ts`, ranking, `HotelMarketCard`, `/hotels/` grid, neighborhood centroids, hub presets including rentals (Vrbo removed), neighborhood rails.
+1. **Links and leaks** (merged, PR #22): env, `stay-links.ts`, `liteApiHotelId` on the 14, white-label CTAs on hotel rows and detail pages, widget and stay search routing on-site to `/hotels/?…`, Booking Demand scaffold deleted, disclosure copy.
+2. **Marketplace** (this PR): `liteapi-live` edge function with cache tables and weekly catalog refresh, `hotels-live.ts`, ranking, `HotelMarketCard`, `/hotels/` rail, neighborhood centroids plus `music-valley-opryland`, hub presets including rentals (Vrbo removed), neighborhood rails, `HOTEL_MARKET_VIEWED`.
 3. **Polish** after Nuitée answers the open items: direct checkout flag, facility filters, reviews if permitted.
 
 ## Verifying a Phase 2 deploy without the service key

@@ -49,6 +49,9 @@ export interface AnalyticsPayload {
   nightly_shown?: number;
   search_term?: string;
   results_count?: number;
+  /** Marketplace rails: how many results rendered and whether the cache answered. */
+  result_count?: number;
+  cached?: boolean;
   trip_type?: string;
   value?: number;
   [key: string]: unknown;

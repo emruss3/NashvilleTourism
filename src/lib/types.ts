@@ -29,7 +29,8 @@ export type NeighborhoodSlug =
   | 'midtown'
   | 'hillsboro-village'
   | 'sylvan-park'
-  | 'green-hills';
+  | 'green-hills'
+  | 'music-valley-opryland';
 
 /** Fields shared by every piece of content we publish. */
 export interface ContentBase {
@@ -199,6 +200,9 @@ export interface Neighborhood {
   broadwayMinutes: { walk?: number; drive: number };
   /** Rough hotel band for visitor planning — not a live rate. */
   typicalHotelPrice: string;
+  /** Planning centroid and radius for the hotel marketplace's area search. Editable, not precise. */
+  center: { lat: number; lng: number };
+  radiusKm: number;
   landmarks: string[];
   gettingThere: string;
   parkingNote: string;
