@@ -169,14 +169,6 @@
     @apply min-h-12 w-full rounded border border-ink-soft bg-paper px-3 py-2.5 text-[15px] text-ink placeholder:text-ink-soft focus:border-ink;
   }
 
-  /* Date fields carry their own calendar button (DateField, StayDatesField);
-     hide the browser's second one so there is a single control to click. */
-  input[type='date']::-webkit-calendar-picker-indicator {
-    display: none;
-    -webkit-appearance: none;
-    appearance: none;
-  }
-
   .prose-editorial {
     @apply max-w-prose text-[17px] leading-[1.7] text-ink;
   }
@@ -217,4 +209,14 @@
       animation: none;
     }
   }
+}
+
+/* Date fields carry their own calendar button (DateField, StayDatesField);
+   hide the browser's second one so there is a single control to click.
+   Outside @layer on purpose: Tailwind drops layered rules it cannot match
+   to a class. */
+input[type='date']::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+  appearance: none;
 }

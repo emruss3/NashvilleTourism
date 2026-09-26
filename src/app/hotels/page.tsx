@@ -6,6 +6,7 @@ import SaveButton from '@/components/SaveButton';
 import { AffiliateDisclosure, HowWeChooseCallout } from '@/components/Trust';
 import { Breadcrumbs, JsonLd } from '@/components/Ui';
 import HotelMarketRail from '@/components/hotels/HotelMarketRail';
+import HotelResultsMap, { type MapPoint } from '@/components/hotels/HotelResultsMap';
 import LivePrice from '@/components/hotels/LivePrice';
 import StaySearch from '@/components/hotels/StaySearch';
 import PageIntro from '@/components/hub/PageIntro';
@@ -16,7 +17,8 @@ import { partners } from '@/lib/partners';
 import { guides, hotels, neighborhoods } from '@/lib/content';
 import { getNeighborhood, neighborhoodName } from '@/lib/content/neighborhoods';
 import { priceBandFromCategory, rankMarketplace, type MarketFilters } from '@/lib/feeds/hotel-marketplace-rank';
-import { getAreaRates, getHotelRates, isHotelsLiveConfigured, type LiveHotelRate, type LiveRatesResult } from '@/lib/feeds/hotels-live';
+import { formatNightly, getAreaRates, getHotelRates, isHotelsLiveConfigured, type LiveHotelRate, type LiveRatesResult } from '@/lib/feeds/hotels-live';
+import { clientReference, stayHotelHref } from '@/lib/stay-links';
 import { LOWER_BROADWAY } from '@/lib/geo';
 import { resolveStayDates, stayDatesLabel } from '@/lib/stay-dates';
 import { neighborhoodImageKey } from '@/lib/media-placements';
@@ -138,8 +140,24 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
     : [undefined, undefined];
   const rateById = new Map<string, LiveHotelRate>((editorialRates?.live ? editorialRates.rates : []).map((r) => [r.hotelId, r]));
   const marketRank = { center, priceBand: area ? priceBandFromCategory(area.typicalHotelPrice) : undefined, excludeIds: rows.map((h) => h.liteApiHotelId).filter((id): id is string => Boolean(id)), filters: stay.filters, limit: 36 };
-  // Counted here so the results heading can say how many live places sit below the editorial rows.
-  const marketCount = areaResult?.live ? rankMarketplace(areaResult.rates, marketRank).length : 0;
+  // Ranked here so the results heading can count the live places and the map can plot them.
+  const marketRanked = areaResult?.live ? rankMarketplace(areaResult.rates, marketRank) : [];
+  const marketCount = marketRanked.length;
+  const mapPoints: MapPoint[] = [
+    ...rows.flatMap((h): MapPoint[] => {
+      const rate = h.liteApiHotelId ? rateById.get(h.liteApiHotelId) : undefined;
+      if (!rate) return [];
+      return [{ id: h.slug, name: h.title, lat: rate.lat, lng: rate.lng, priceLabel: `From ${formatNightly(rate.nightly)} a night`, href: `/hotels/${h.slug}/`, hrefLabel: 'View hotel details', pinned: true }];
+    }),
+    ...marketRanked.map((item): MapPoint => ({
+      id: item.rate.hotelId,
+      name: item.rate.name,
+      lat: item.rate.lat,
+      lng: item.rate.lng,
+      priceLabel: `From ${formatNightly(item.rate.nightly)} a night`,
+      href: stayHotelHref(item.rate.hotelId, { checkin, checkout, adults: stay.adults, clientReference: clientReference('map', item.rate.hotelId) }),
+    })),
+  ];
   const datesLabel = stayDatesLabel(stay.dates);
   const searchBase: HotelSearchParams = { neighborhood: hood, checkin: stay.dates.chosen ? checkin : undefined, checkout: stay.dates.chosen ? checkout : undefined, adults: stay.adults, ...stay.filters, stars: stay.filters.minStars, max: stay.filters.maxNightly, refundable: stay.filters.refundableOnly };
 
@@ -235,6 +253,11 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
             </Link>
           ) : null}
         </div>
+        {mapPoints.length ? (
+          <div className="mt-5">
+            <HotelResultsMap points={mapPoints} center={center} title={area ? `Map of stays in ${area.name}` : 'Map of stays across Nashville'} />
+          </div>
+        ) : null}
         {areaResult?.live ? (
           <div className="mt-4">
             <MarketFilterChips base={searchBase} filters={stay.filters} />
