@@ -19,6 +19,12 @@ function addDays(y: number, m: number, d: number, days: number): string {
   return new Date(t).toISOString().slice(0, 10);
 }
 
+/** Today's date in Nashville, for `min` on date fields. Safe on the server and in the browser. */
+export function todayChicagoISO(now = new Date()): string {
+  const t = chicagoToday(now);
+  return addDays(t.y, t.m, t.d, 0);
+}
+
 export interface StayDates {
   checkin: string;
   checkout: string;

@@ -1,5 +1,7 @@
 import { attractions, restaurants, venues } from '@/lib/content/listings';
 import { neighborhoods, neighborhoodName } from '@/lib/content/neighborhoods';
+import { venues as contentVenues } from '@/lib/content/listings';
+import { normalizeVenueName, venueNeighborhood } from '@/lib/event-neighborhoods';
 import type { LiveEvent } from '@/lib/feeds/ticketmaster';
 import type { ImageRef } from '@/lib/types';
 
@@ -265,12 +267,31 @@ function eventMatchesInterest(event: LiveEvent, interest?: Interest): boolean {
   }
 }
 
-/** Live events matching the query. Events carry no neighborhood, so that filter does not apply. */
+/**
+ * Neighborhood of a live event, from the venue name: our own venue listings
+ * first, then the ticketed-venue map. Undefined when we cannot place it.
+ */
+export function eventNeighborhood(venue: string): string | undefined {
+  const key = normalizeVenueName(venue);
+  if (!key) return undefined;
+  const listed = contentVenues.find((v) => {
+    const title = normalizeVenueName(v.title);
+    return title && (key.includes(title) || title.includes(key));
+  });
+  return listed?.neighborhood ?? venueNeighborhood(venue);
+}
+
+/**
+ * Live events matching the query. A neighborhood filter keeps only events
+ * whose venue we can place in that neighborhood; events at venues we cannot
+ * place are left out rather than shown city-wide under the wrong heading.
+ */
 export function exploreEvents(events: LiveEvent[], query: ExploreQuery, now = new Date()): ExploreItem[] {
   const window = resolveWindow(query, now);
   const q = query.q?.toLowerCase();
   return events
     .filter((e) => (!window.from || e.date >= window.from) && (!window.to || e.date <= window.to))
+    .filter((e) => !query.neighborhood || eventNeighborhood(e.venue) === query.neighborhood)
     .filter((e) => eventMatchesInterest(e, query.interest))
     .filter((e) => !q || e.name.toLowerCase().includes(q) || e.venue.toLowerCase().includes(q))
     .sort((a, b) => a.date.localeCompare(b.date) || (a.time ?? '').localeCompare(b.time ?? ''))
@@ -280,7 +301,7 @@ export function exploreEvents(events: LiveEvent[], query: ExploreQuery, now = ne
       title: e.name,
       href: e.ticketUrl,
       external: /^https?:\/\//i.test(e.ticketUrl),
-      meta: [e.genre || e.segment, e.venue].filter(Boolean).join(' · '),
+      meta: [e.genre || e.segment, e.venue, eventNeighborhood(e.venue) ? neighborhoodName(eventNeighborhood(e.venue)!) : undefined].filter(Boolean).join(' · '),
       date: e.date,
       time: e.time,
       price:

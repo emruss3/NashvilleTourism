@@ -2,6 +2,7 @@
 
 import { useId, useState } from 'react';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
+import DateField from '@/components/DateField';
 import { hotelSearchPath } from '@/lib/hotel-booking';
 import { partners } from '@/lib/partners';
 
@@ -152,24 +153,10 @@ export default function BookingWidget({
           {tab === 'hotels' && (
             <>
               <Field label="Check in" id={`${baseId}-ci`}>
-                <input
-                  id={`${baseId}-ci`}
-                  type="date"
-                  min={todayISO()}
-                  value={checkin}
-                  onChange={(e) => setCheckin(e.target.value)}
-                  className="field-input"
-                />
+                <DateField id={`${baseId}-ci`} min={todayISO()} value={checkin} onChange={setCheckin} label="Open the calendar for check-in" />
               </Field>
               <Field label="Check out" id={`${baseId}-co`}>
-                <input
-                  id={`${baseId}-co`}
-                  type="date"
-                  min={checkin || todayISO()}
-                  value={checkout}
-                  onChange={(e) => setCheckout(e.target.value)}
-                  className="field-input"
-                />
+                <DateField id={`${baseId}-co`} min={checkin || todayISO()} value={checkout} onChange={setCheckout} label="Open the calendar for check-out" />
               </Field>
               <Field label="Guests" id={`${baseId}-ad`}>
                 <select
@@ -207,14 +194,7 @@ export default function BookingWidget({
                 </datalist>
               </Field>
               <Field label="Date (optional)" id={`${baseId}-td`}>
-                <input
-                  id={`${baseId}-td`}
-                  type="date"
-                  min={todayISO()}
-                  value={tourDate}
-                  onChange={(e) => setTourDate(e.target.value)}
-                  className="field-input"
-                />
+                <DateField id={`${baseId}-td`} min={todayISO()} value={tourDate} onChange={setTourDate} label="Open the calendar for the tour date" />
               </Field>
             </>
           )}
@@ -232,14 +212,7 @@ export default function BookingWidget({
                 />
               </Field>
               <Field label="From date" id={`${baseId}-kd`}>
-                <input
-                  id={`${baseId}-kd`}
-                  type="date"
-                  min={todayISO()}
-                  value={ticketDate}
-                  onChange={(e) => setTicketDate(e.target.value)}
-                  className="field-input"
-                />
+                <DateField id={`${baseId}-kd`} min={todayISO()} value={ticketDate} onChange={setTicketDate} label="Open the calendar for the show date" />
               </Field>
             </>
           )}

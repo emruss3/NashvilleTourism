@@ -3,8 +3,10 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
+import DateField from '@/components/DateField';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
 import { INTERESTS, WHEN_OPTIONS, exploreHref, neighborhoodOptions, type ExploreQuery } from '@/lib/explore';
+import { todayChicagoISO } from '@/lib/stay-dates';
 
 /**
  * Discovery module, rendered once and styled for both layouts.
@@ -183,20 +185,31 @@ export default function DiscoveryForm({
               <label htmlFor="explore-from" className={label}>
                 From
               </label>
-              <input
+              <DateField
                 id="explore-from"
                 name="from"
-                type="date"
                 defaultValue={initial?.from ?? ''}
+                min={todayChicagoISO()}
                 disabled={!pickingDates}
                 className={field}
+                iconClassName={dark ? 'text-ink-soft md:text-paper/70' : 'text-ink-soft'}
+                label="Open the calendar for the first day"
               />
             </div>
             <div>
               <label htmlFor="explore-to" className={label}>
                 To
               </label>
-              <input id="explore-to" name="to" type="date" defaultValue={initial?.to ?? ''} disabled={!pickingDates} className={field} />
+              <DateField
+                id="explore-to"
+                name="to"
+                defaultValue={initial?.to ?? ''}
+                min={todayChicagoISO()}
+                disabled={!pickingDates}
+                className={field}
+                iconClassName={dark ? 'text-ink-soft md:text-paper/70' : 'text-ink-soft'}
+                label="Open the calendar for the last day"
+              />
             </div>
           </div>
           <div className="sm:col-span-2 lg:col-span-1">

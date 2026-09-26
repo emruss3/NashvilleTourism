@@ -2,7 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
-import { CalendarIcon, PeopleIcon, PinIcon } from '@/components/Icons';
+import DateField from '@/components/DateField';
+import { PeopleIcon, PinIcon } from '@/components/Icons';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
 import { hotelSearchPath } from '@/lib/hotel-booking';
 import { partners } from '@/lib/partners';
@@ -49,6 +50,7 @@ export default function StaySearch({
   }
 
   const field = 'field-input h-12 pl-11 md:h-14 md:text-base';
+  const dateField = 'field-input h-12 md:h-14 md:text-base';
   const icon = 'pointer-events-none absolute left-3.5 top-[calc(50%+0.55rem)] -translate-y-1/2 text-ink-soft';
   const label = 'mb-1 block text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft';
 
@@ -58,19 +60,13 @@ export default function StaySearch({
         <label htmlFor={`${id}-in`} className={label}>
           Check in
         </label>
-        <span className={icon}>
-          <CalendarIcon size={18} />
-        </span>
-        <input id={`${id}-in`} name="checkin" type="date" min={todayISO()} value={checkin} onChange={(e) => setCheckin(e.target.value)} className={field} />
+        <DateField id={`${id}-in`} name="checkin" min={todayISO()} value={checkin} onChange={setCheckin} className={dateField} label="Open the calendar for check-in" />
       </div>
       <div className="relative">
         <label htmlFor={`${id}-out`} className={label}>
           Check out
         </label>
-        <span className={icon}>
-          <CalendarIcon size={18} />
-        </span>
-        <input id={`${id}-out`} name="checkout" type="date" min={checkin || todayISO()} value={checkout} onChange={(e) => setCheckout(e.target.value)} className={field} />
+        <DateField id={`${id}-out`} name="checkout" min={checkin || todayISO()} value={checkout} onChange={setCheckout} className={dateField} label="Open the calendar for check-out" />
       </div>
       <div className="relative">
         <label htmlFor={`${id}-guests`} className={label}>
