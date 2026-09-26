@@ -43,12 +43,13 @@ export default function HotelMarketCard({
 
   return (
     <article className="card flex h-full flex-col overflow-hidden">
-      <div className="relative aspect-[3/2] bg-paper-sunk">
+      {/* Fixed 3:2 frame. The image is absolutely positioned so a tall provider photo can never stretch the card. */}
+      <div className="relative aspect-[3/2] w-full overflow-hidden bg-paper-sunk">
         {rate.thumbnail ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={rate.thumbnail} alt="" className="h-full w-full object-cover" loading="lazy" referrerPolicy="no-referrer" />
+          <img src={rate.thumbnail} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" referrerPolicy="no-referrer" />
         ) : (
-          <div className="flex h-full items-center justify-center text-sm text-ink-soft">No photo supplied</div>
+          <div className="absolute inset-0 flex items-center justify-center text-sm text-ink-soft">No photo supplied</div>
         )}
         {item.pinned ? (
           <span className="absolute left-3 top-3 rounded bg-ink px-2 py-1 text-2xs font-semibold uppercase tracking-[0.14em] text-paper">Our pick</span>

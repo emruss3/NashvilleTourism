@@ -24,13 +24,13 @@ export function TourProductCard({
 
   return (
     <article className="card flex h-full flex-col overflow-hidden">
-      <Link href={href} className="relative block aspect-[3/2] bg-sky/40">
+      <Link href={href} className="relative block aspect-[3/2] overflow-hidden bg-sky/40">
         {product.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={product.imageUrl}
             alt=""
-            className="h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover"
             loading="lazy"
             referrerPolicy="no-referrer"
           />
