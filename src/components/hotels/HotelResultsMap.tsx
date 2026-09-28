@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { MAP_LANDMARKS } from '@/lib/content/map-landmarks';
 
 /**
  * Map of the stays on /hotels/: our picks and the live marketplace results,
@@ -155,6 +156,32 @@ export default function HotelResultsMap({
         }
         if (center) bounds.extend([center.lat, center.lng]);
         map.fitBounds(bounds.pad(0.15), { maxZoom: Math.min(15, tiles.maxZoom) });
+
+        // Landmarks: Broadway, the arena, the stadium, Vanderbilt and the
+        // rest, so a visitor can read a stay against the places they came
+        // for. Major ones always; district-level ones from zoom 14. They sit
+        // under the price pins and never widen the view.
+        const landmarkColor = variant === 'ink' ? '#FCFBF8' : '#111111';
+        const landmarkBg = variant === 'ink' ? 'rgba(17,17,17,.85)' : 'rgba(252,251,248,.9)';
+        const landmarks = MAP_LANDMARKS.map((l) => {
+          const icon = L.divIcon({
+            className: 'nsvl-landmark',
+            html: `<span style="display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font:600 11px/1.2 Inter,system-ui,sans-serif;letter-spacing:.04em;color:${landmarkColor}"><span style="display:inline-block;width:8px;height:8px;transform:rotate(45deg);background:${landmarkColor};flex:none"></span><span style="background:${landmarkBg};padding:1px 4px;border-radius:2px">${escapeHtml(l.name)}</span></span>`,
+            iconSize: null,
+            iconAnchor: [4, 6],
+          });
+          return { weight: l.weight, marker: L.marker([l.lat, l.lng], { icon, interactive: false, zIndexOffset: -500, keyboard: false }) };
+        });
+        const syncLandmarks = () => {
+          const zoom = map.getZoom();
+          for (const { weight, marker } of landmarks) {
+            const show = weight === 1 || zoom >= 14;
+            if (show && !map.hasLayer(marker)) marker.addTo(map);
+            if (!show && map.hasLayer(marker)) map.removeLayer(marker);
+          }
+        };
+        syncLandmarks();
+        map.on('zoomend', syncLandmarks);
         setState('ready');
       })
       .catch(() => {
@@ -173,7 +200,7 @@ export default function HotelResultsMap({
       <div ref={host} role="region" aria-label={title} data-variant={variant} className="h-[320px] w-full sm:h-[380px]" />
       <figcaption className={`flex flex-wrap items-center justify-between gap-2 px-4 py-2 text-2xs ${variant === 'ink' ? 'bg-paper text-ink-soft' : 'text-ink-soft'}`}>
         <span>
-          Each pin is the nightly rate.
+          Each pin is the nightly rate; the diamonds are landmarks.
           <span aria-hidden="true" className={`ml-2 mr-1 inline-block rounded-full px-1.5 py-0.5 align-middle text-[11px] font-semibold ${variant === 'ink' ? 'border border-ink bg-paper text-ink' : 'bg-ink text-paper'}`}>$</span>
           Our picks
           <span aria-hidden="true" className={`ml-3 mr-1 inline-block rounded-full px-1.5 py-0.5 align-middle text-[11px] font-semibold ${variant === 'ink' ? 'bg-ink text-paper ring-1 ring-paper-edge' : 'border border-ink bg-paper text-ink'}`}>$</span>
