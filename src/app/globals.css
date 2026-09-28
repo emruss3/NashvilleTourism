@@ -231,8 +231,8 @@ input[type='date']::-webkit-calendar-picker-indicator {
   background: #111111;
 }
 .leaflet-container[data-variant='paper'] .leaflet-tile-pane {
-  /* Grey basemaps take a light sepia so they sit on cream without hiding streets. */
-  filter: sepia(0.35) saturate(0.55) brightness(1.03) contrast(0.95);
+  /* Grey basemaps take a light sepia so they sit on cream; contrast is lifted, not dropped, so streets and blocks stay readable. */
+  filter: sepia(0.3) saturate(0.6) contrast(1.18) brightness(0.98);
 }
 .leaflet-container[data-variant='ink'] .leaflet-tile-pane {
   /* Dark basemaps are blue-black; pull them to neutral black and lift the streets a touch. */
