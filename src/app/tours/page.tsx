@@ -217,46 +217,6 @@ export default async function ToursHub(props: { searchParams?: Promise<{ q?: str
         ) : null}
       </section>
 
-      <section className="border-y border-paper-edge bg-paper-sunk" aria-labelledby="formats-title">
-        <div className="shell section">
-          <SectionHead
-            id="formats-title"
-            eyebrow="NSVL guide"
-            title="Choose the right format."
-            size="md"
-            support="Planning notes from the desk. Each link runs a fresh search against live inventory rather than forcing an unrelated product match."
-          />
-          <ul className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {catalog.editorial.map((tour) => (
-              <li key={tour.slug}>
-                <article className="card flex h-full flex-col bg-paper p-5">
-                  <h3 className="font-sans text-[19px] font-bold leading-snug">{tour.name}</h3>
-                  <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">{tour.what}</p>
-                  <dl className="mt-4 space-y-2 border-t border-paper-edge pt-4 text-sm">
-                    {[
-                      ['Group size', tour.groupSize],
-                      ['Plan for', tour.priceGuidance],
-                      ['Best for', tour.bestFor],
-                      ['Watch out', tour.watchOut],
-                    ].map(([label, value]) => (
-                      <div key={label} className="grid grid-cols-[6.5rem_1fr] gap-3">
-                        <dt className="font-semibold text-ink">{label}</dt>
-                        <dd className="text-ink-soft">{value}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                  <div className="mt-auto pt-5">
-                    <Link href={`/tours/?q=${encodeURIComponent(tour.searchHint)}`} className="btn-primary w-full">
-                      Check availability
-                      <span aria-hidden="true">→</span>
-                    </Link>
-                  </div>
-                </article>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
 
       <section className="shell section" aria-labelledby="before-title">
         <h2 id="before-title" className="text-[1.625rem] sm:text-[2rem]">
