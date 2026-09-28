@@ -20,6 +20,8 @@ export interface MapPoint {
   priceLabel?: string;
   /** "$312", drawn on the pin itself. */
   pinLabel?: string;
+  /** Photo shown at the top of the popup. Provider thumbnails are display-only. */
+  image?: string;
   href?: string;
   hrefLabel?: string;
   /** Editorial pick: drawn larger and darker, listed first. */
@@ -145,12 +147,14 @@ export default function HotelResultsMap({
             iconAnchor: [0, 12],
           });
           const marker = L.marker([p.lat, p.lng], { icon, zIndexOffset: p.pinned ? 1000 : 0, riseOnHover: true }).addTo(map);
-          const html = `<div style="font: 14px/1.4 Inter, system-ui, sans-serif; color: #111111; max-width: 220px">
+          const linkLabel = p.hrefLabel ?? (p.pinLabel ? `See rooms from ${p.pinLabel}` : 'Check rates');
+          const html = `<div style="font: 14px/1.4 Inter, system-ui, sans-serif; color: #111111; width: 240px">
+            ${p.image ? `<div style="aspect-ratio:3/2;width:100%;overflow:hidden;background:#EDE2CF;margin-bottom:8px"><img src="${escapeHtml(p.image)}" alt="" referrerpolicy="no-referrer" loading="lazy" style="display:block;width:100%;height:100%;object-fit:cover"></div>` : ''}
             <strong>${escapeHtml(p.name)}</strong>${p.pinned ? ' <span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#5E5E5E">Our pick</span>' : ''}
             ${p.priceLabel ? `<div>${escapeHtml(p.priceLabel)}</div>` : ''}
-            ${p.href ? `<a href="${escapeHtml(p.href)}" ${p.href.startsWith('http') ? 'target="_blank" rel="noopener noreferrer sponsored"' : ''} style="color:#111111;font-weight:600;text-decoration:underline">${escapeHtml(p.hrefLabel ?? 'Check rates')}</a>` : ''}
+            ${p.href ? `<a href="${escapeHtml(p.href)}" ${p.href.startsWith('http') ? 'target="_blank" rel="noopener noreferrer sponsored"' : ''} style="display:inline-block;margin-top:6px;color:#111111;font-weight:600;text-decoration:underline">${escapeHtml(linkLabel)}</a>` : ''}
           </div>`;
-          marker.bindPopup(html, { closeButton: true });
+          marker.bindPopup(html, { closeButton: true, minWidth: 240, maxWidth: 260 });
           marker.bindTooltip(escapeHtml(p.name), { direction: 'top', offset: [0, -14] });
           bounds.extend([p.lat, p.lng]);
         }

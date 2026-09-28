@@ -279,6 +279,9 @@ input[type='date']::-webkit-calendar-picker-indicator {
   border-radius: 2px;
   box-shadow: none;
 }
+.leaflet-container .leaflet-popup-content {
+  margin: 10px 12px 12px;
+}
 .leaflet-container .leaflet-popup-tip {
   background: #fcfbf8;
   border: 1px solid #e3dfd5;

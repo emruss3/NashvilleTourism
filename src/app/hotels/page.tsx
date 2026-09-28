@@ -147,13 +147,14 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
     ...rows.flatMap((h): MapPoint[] => {
       const rate = h.liteApiHotelId ? rateById.get(h.liteApiHotelId) : undefined;
       if (!rate) return [];
-      return [{ id: h.slug, name: h.title, lat: rate.lat, lng: rate.lng, priceLabel: `From ${formatNightly(rate.nightly)} a night`, pinLabel: formatNightly(rate.nightly), href: `/hotels/${h.slug}/`, hrefLabel: 'View hotel details', pinned: true }];
+      return [{ id: h.slug, name: h.title, lat: rate.lat, lng: rate.lng, image: rate.thumbnail, priceLabel: `From ${formatNightly(rate.nightly)} a night`, pinLabel: formatNightly(rate.nightly), href: `/hotels/${h.slug}/`, hrefLabel: 'View hotel details', pinned: true }];
     }),
     ...marketRanked.map((item): MapPoint => ({
       id: item.rate.hotelId,
       name: item.rate.name,
       lat: item.rate.lat,
       lng: item.rate.lng,
+      image: item.rate.thumbnail,
       priceLabel: `From ${formatNightly(item.rate.nightly)} a night`,
       pinLabel: formatNightly(item.rate.nightly),
       href: stayHotelHref(item.rate.hotelId, { checkin, checkout, adults: stay.adults, clientReference: clientReference('map', item.rate.hotelId) }),
