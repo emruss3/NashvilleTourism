@@ -191,6 +191,16 @@ export default function AdvertisingPage() {
             the order we list them in, and we do not verify any rate before you see it on the booking site.
           </p>
           <p>
+            <strong className="font-semibold text-ink">Private events.</strong> When a planner sends a brief through{' '}
+            <Link href="/private-events/">our private events pages</Link> and the event books, the venue pays us 5% of the
+            contracted spend, with a $250 minimum. Planners pay nothing, and the venue&rsquo;s price is the same either way.
+            Three venues on those pages (JBJ&rsquo;s Nashville, Hank Williams Jr.&rsquo;s Boogie Bar and Playdate) are owned by BPH
+            Hospitality, {site.name}&rsquo;s parent company. They are labeled, they pay the same fee, and they are listed on the
+            same terms as every other venue. Which venues we suggest for a brief, and the order we show them in, is a function
+            of fit (capacity, minimum spend, neighborhood, what the planner needs) and editorial priority. Fees, ownership and
+            sponsored placement are not inputs, and we test that in code.
+          </p>
+          <p>
             Affiliate links are only added to places our editorial desk already recommends on the
             merits. Many of our recommendations earn us nothing at all, because no commission program
             exists or because we chose not to join one. Removing a place from a guide because it does

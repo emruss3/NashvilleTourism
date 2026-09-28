@@ -26,6 +26,20 @@ Hourly, `pg_cron` posts to `/api/private-events/sla/` (job `nashroam-events-sla`
 
 Venue reply: the link in the lead email opens `/private-events/reply/{token}/`, a plain form that writes `first_reply_at`, `venue_notes` and a status. Tokens are HMAC-signed with `EVENTS_MAGIC_LINK_SECRET` and expire after 30 days.
 
+## Pages
+
+| Path | What | Indexing |
+| --- | --- | --- |
+| `/private-events/` | Hub: quick brief, browse by occasion / neighborhood / size, venues in editorial order, how it works, big dates, disclosure, the brief | indexable; `noindex` when any of `occasion`, `type`, `guests`, `date`, `v` is in the URL |
+| `/private-events/venues/[slug]/` | Venue page: spaces with both capacities and a "from" price, rights-cleared photos, owned-venue disclosure verbatim, sponsored label, EventVenue JSON-LD | indexable when published and free of placeholders; unpublished venues 404 in production and render in preview with every `TODO` marked |
+| `/private-events/occasions/[slug]/` | Venues ordered by fit for the occasion (`EVENT_OCCASIONS[].needs`) | canonical points at the hub until a person writes `intro` in `src/lib/private-events.ts`; then it stands alone |
+| `/private-events/neighborhoods/[slug]/`, `/private-events/size/[band]/` | Filtered views | canonical points at the hub |
+| `/private-events/reply/[token]/` | Venue reply page | `noindex` |
+
+The shortlist is `?v=slug,slug` (max five), carried across every link on these pages and into the brief; nothing is stored in the browser. Analytics events: `events_brief_started`, `events_brief_sent` (venue_count, occasion, guests_band, client_reference, utm), `events_venue_viewed` (placement `sponsored` or `editorial`), `events_shortlist_added`, `events_package_clicked` (Phase 3).
+
+Preview builds (`VERCEL_ENV !== 'production'`) read unpublished venues so the seed fixture can be checked; every `TODO` renders as a marked placeholder with a preview banner above it. Production reads published venues only, through the `event_venues_public` view.
+
 ## Environment
 
 | Where | Variable | Notes |
