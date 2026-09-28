@@ -1,6 +1,6 @@
 import { getSupabaseServiceClient } from '@/lib/supabase/server';
 import { site } from '@/lib/site';
-import { BUDGET_RANGES, formatBriefDate } from '@/lib/private-events';
+import { BUDGET_RANGES, formatBriefDate, statusHref } from '@/lib/private-events';
 import { detailsUrl, replyUrl } from './magic-link';
 import { eventsEnv, pushToLeadSystem, sendEmail, type NotifyResult } from './notify';
 import { addBusinessHours, formatNashville } from './sla';
@@ -45,6 +45,8 @@ export interface IntakeResult {
   id: string;
   reference: string;
   venues: Array<{ slug: string; name: string; slaHours: number; deadline: string }>;
+  /** Site-relative link to the planner's status page. */
+  statusPath: string;
   warnings: string[];
 }
 
@@ -225,8 +227,8 @@ export async function submitInquiry(input: IntakeInput): Promise<{ ok: true; res
           `Hi ${input.name.split(' ')[0]},`,
           '',
           contacted.length
-            ? `Your brief went to these venues. Each has promised a reply within 24 business hours:\n${contacted.map((v) => `- ${v.name}`).join('\n')}`
-            : 'Our events desk has your brief and will match you by hand within one business day, with spaces that fit.',
+            ? `Your brief went to these venues. Each replies to this address directly, by the time shown:\n${contacted.map((v) => `- ${v.name}: replies by ${formatNashville(new Date(v.deadline))} Nashville time`).join('\n')}\n\nWatch replies come in: ${site.url.replace(/\/$/, '')}${statusHref(reference)}`
+            : `Our events desk has your brief and will match you by hand within one business day, with spaces that fit. Status: ${site.url.replace(/\/$/, '')}${statusHref(reference)}`,
           '',
           `Your reference is ${reference}. Keep it for any follow-up.`,
           details ? `\nWant to add a budget, neighborhoods, what you need or notes? Add detail here any time: ${details}` : '',
@@ -245,5 +247,5 @@ export async function submitInquiry(input: IntakeInput): Promise<{ ok: true; res
   // The desk-side log rides on the inquiry too, so an inquiry with no leads still shows what was sent.
   await supabase.from('event_inquiries').update({ utm: { ...(input.utm ?? {}), notify_log: deskLog } }).eq('id', id);
 
-  return { ok: true, result: { id, reference, venues: contacted, warnings } };
+  return { ok: true, result: { id, reference, venues: contacted, statusPath: statusHref(reference), warnings } };
 }

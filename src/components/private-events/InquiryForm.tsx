@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRef, useState } from 'react';
 import DateField from '@/components/DateField';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
@@ -10,7 +11,7 @@ import { site } from '@/lib/site';
 import { todayChicagoISO } from '@/lib/stay-dates';
 
 type State = 'idle' | 'submitting' | 'done' | 'unavailable' | 'error';
-type Receipt = { reference: string | null; venues: Array<{ slug: string; name: string; slaHours?: number; deadline?: string }> };
+type Receipt = { reference: string | null; statusPath?: string; venues: Array<{ slug: string; name: string; slaHours?: number; deadline?: string }> };
 
 const LEGACY_TO_OCCASION: Record<string, Occasion> = { corporate: 'corporate', holiday: 'holiday', convention: 'convention', celebration: 'celebration', other: 'other' };
 
@@ -145,10 +146,10 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
           clientReference: `nsh:events:${occasion}`,
         }),
       });
-      const json = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; errors?: Record<string, string>; reference?: string | null; venues?: Receipt['venues'] };
+      const json = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; errors?: Record<string, string>; reference?: string | null; statusPath?: string; venues?: Receipt['venues'] };
       if (res.ok && json.ok) {
         track(ANALYTICS_EVENTS.EVENTS_BRIEF_SENT, { occasion, guests_band: guestsBand(guestCount ?? undefined), venue_count: json.venues?.length ?? 0, client_reference: json.reference ?? undefined, utm: readUtm() });
-        setReceipt({ reference: json.reference ?? null, venues: json.venues ?? [] });
+        setReceipt({ reference: json.reference ?? null, statusPath: json.statusPath, venues: json.venues ?? [] });
         setState('done');
         return;
       }
@@ -170,7 +171,7 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
         {receipt.venues.length ? (
           <>
             <p className="mt-2 max-w-prose text-[15px] text-ink-soft">
-              It went to {receipt.venues.length === 1 ? 'one venue' : `${receipt.venues.length} venues`}. Each has promised a reply to {email.trim()} within {receipt.venues[0]?.slaHours ?? 24} business hours:
+              It went to {receipt.venues.length === 1 ? 'one venue' : `${receipt.venues.length} venues`}. Each replies to {email.trim()} directly, by the time shown:
             </p>
             <ul className="mt-2 grid gap-1 text-[15px] text-ink">
               {receipt.venues.map((v) => (
@@ -187,6 +188,14 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
         {receipt.reference ? (
           <p className="mt-3 text-[15px] text-ink">
             Your reference: <strong>{receipt.reference}</strong>. A copy is on its way to your inbox, with a link to add budget, neighborhoods and notes whenever you like.
+          </p>
+        ) : null}
+        {receipt.statusPath ? (
+          <p className="mt-3">
+            <Link href={receipt.statusPath} className="btn-secondary">
+              Watch replies come in
+              <span aria-hidden="true">→</span>
+            </Link>
           </p>
         ) : null}
         <p className="mt-3 max-w-prose text-2xs text-ink-soft">

@@ -176,6 +176,11 @@ export interface BriefPrefill {
   flexible?: boolean;
 }
 
+/** The planner's countdown page for a sent brief. */
+export function statusHref(reference: string): string {
+  return `/private-events/status/${encodeURIComponent(reference)}/`;
+}
+
 /** The brief lives on its own page; every entry point hands its state there. */
 export const BRIEF_PATH = '/private-events/brief/';
 

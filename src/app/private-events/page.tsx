@@ -51,13 +51,14 @@ function hubHref(f: { occasion?: string; hood?: string; size?: string }, shortli
 /**
  * Private events hub (board: "Bring your people. Make it Nashville.").
  *
- * Brief-first. The quick brief's three fields hand off to /private-events/brief/
- * with their values. How it works and the disclosure sit directly under it.
- * While no venue is published the page owns the moment as a concierge: the
- * events desk matches by hand within one business day. Once venues publish,
- * one grid with occasion, neighborhood and size chips takes that place, with
- * the shortlist riding in `?v=`. Preview builds also show unpublished seed
- * venues with their placeholders marked.
+ * Venues first, always: hero, the grid with occasion, neighborhood and size
+ * chips and the shortlist bar (the brief is something you send to venues you
+ * can see; "Send to these N" is the primary action), then how it works and
+ * the disclosure, then the three-field quick brief for planners who would
+ * rather we pick. The empty-state branch, a concierge band in the grid's
+ * place, stays in the code for the case where no venue is published and
+ * should never show once the owned venues have their content. Preview
+ * builds also show unpublished seed venues with their placeholders marked.
  */
 export default async function PrivateEventsPage(props: { searchParams?: Promise<Params> }) {
   const params = (await props.searchParams) ?? {};
@@ -104,7 +105,7 @@ export default async function PrivateEventsPage(props: { searchParams?: Promise<
             Make it Nashville.
           </>
         }
-        support={listed ? 'Venues that publish their numbers. One brief, a reply within 24 business hours. No fee to you.' : 'One brief. A person who knows the rooms matches you within one business day. No fee to you.'}
+        support={listed ? 'Venues that publish their capacities and minimums. Shortlist up to five, send one brief, and each replies within 24 business hours. No fee to you.' : 'One brief. A person who knows the rooms matches you within one business day. No fee to you.'}
         media={
           <div className="overflow-hidden rounded-card bg-ink">
             <SmartImage imageKey="concept/group-toast" ratio="aspect-[4/3] lg:aspect-auto lg:h-[440px]" sizes="(max-width: 1023px) 100vw, 58vw" priority />
@@ -112,100 +113,21 @@ export default async function PrivateEventsPage(props: { searchParams?: Promise<
         }
       >
         <div className="flex flex-wrap items-center gap-4">
-          <Link href={briefHref({ shortlist })} className="btn-primary">
-            Send a brief
-            <span aria-hidden="true">→</span>
-          </Link>
           {showGrid ? (
-            <a href="#venues" className="inline-flex min-h-11 items-center gap-1.5 text-[15px] font-semibold text-ink underline underline-offset-[0.2em]">
+            <a href="#venues" className="btn-primary">
               Browse venues
               <span aria-hidden="true">→</span>
             </a>
           ) : null}
+          <Link href={briefHref({ shortlist })} className={showGrid ? 'inline-flex min-h-11 items-center gap-1.5 text-[15px] font-semibold text-ink underline underline-offset-[0.2em]' : 'btn-primary'}>
+            {showGrid ? 'Or send a brief and we pick' : 'Send a brief'}
+            <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </PageIntro>
 
-      {/* Quick brief: three fields, handed to the brief page with their values. */}
-      <section className="shell" aria-labelledby="brief-title">
-        <form action={BRIEF_PATH} method="get" className="grid gap-5 rounded-card border-2 border-ink bg-paper p-5 lg:grid-cols-[minmax(0,3fr)_minmax(0,9fr)] lg:items-end lg:gap-8 lg:p-6">
-          {shortlist.length ? <input type="hidden" name="v" value={shortlist.join(',')} /> : null}
-          <div className="lg:border-r lg:border-paper-edge lg:pr-6">
-            <h2 id="brief-title" className="font-sans text-2xs font-bold uppercase tracking-[0.14em] text-ink">
-              Start your brief
-            </h2>
-            <p className="mt-1 text-[15px] text-ink-soft">Three details here, two more on the next page. Under a minute.</p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1.1fr_auto_auto] lg:items-end">
-            <div>
-              <label htmlFor="brief-occasion" className="field-label">
-                Occasion
-              </label>
-              <select id="brief-occasion" name="occasion" defaultValue="" className="field-input">
-                <option value="">Select an occasion</option>
-                {EVENT_OCCASIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.title}
-                  </option>
-                ))}
-                <option value="other">Something else</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="brief-guests" className="field-label">
-                Guests
-              </label>
-              <input id="brief-guests" name="guests" type="number" min={1} max={5000} inputMode="numeric" placeholder="e.g. 50" className="field-input" />
-            </div>
-            <div>
-              <label htmlFor="brief-date" className="field-label">
-                Date
-              </label>
-              <DateField id="brief-date" name="date" min={todayChicagoISO()} label="Open the calendar for your event date" />
-            </div>
-            <label className="inline-flex min-h-12 items-center gap-2 text-sm text-ink">
-              <input type="checkbox" name="flexible" value="1" className="h-4 w-4 accent-ink" />
-              Flexible
-            </label>
-            <button type="submit" className="btn-primary sm:col-span-2 lg:col-span-1">
-              Continue
-              <span aria-hidden="true">→</span>
-            </button>
-          </div>
-        </form>
-      </section>
-
-      <section className="shell section" aria-labelledby="process-title">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-12">
-          <div className="lg:border-r lg:border-paper-edge lg:pr-8">
-            <h2 id="process-title" className="text-[1.75rem] sm:text-[2rem]">
-              How it works.
-            </h2>
-            <p className="mt-3 max-w-sm text-[15px] text-ink-soft">{PAID_BY_VENUE}</p>
-          </div>
-          <ol className="grid gap-5 sm:grid-cols-2">
-            {HOW_IT_WORKS.map((step, i) => (
-              <li key={step.title} className="flex gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink font-sans text-sm font-bold text-paper" aria-hidden="true">
-                  {i + 1}
-                </span>
-                <div>
-                  <h3 className="font-sans text-[15px] font-bold text-ink">
-                    <span className="sr-only">Step {i + 1}: </span>
-                    {step.title}
-                  </h3>
-                  <p className="mt-1 text-[14px] leading-snug text-ink-soft">{step.body}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </div>
-        <div className="mt-8">
-          <EventsDisclosure />
-        </div>
-      </section>
-
       {showGrid ? (
-        <section id="venues" className="scroll-mt-20 border-t border-paper-edge" aria-labelledby="venues-title">
+        <section id="venues" className="scroll-mt-20" aria-labelledby="venues-title">
           <div className="shell section">
             <SectionHead id="venues-title" title="Venues that publish their numbers." support="Seated and standing capacity, and what it costs to start, on every listing. In editorial order, or by fit when you filter. Ownership and sponsorship are labeled and never move a venue." />
             {preview ? (
@@ -275,6 +197,85 @@ export default async function PrivateEventsPage(props: { searchParams?: Promise<
           </div>
         </section>
       )}
+
+      <section className="shell section border-t border-paper-edge" aria-labelledby="process-title">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-12">
+          <div className="lg:border-r lg:border-paper-edge lg:pr-8">
+            <h2 id="process-title" className="text-[1.75rem] sm:text-[2rem]">
+              How it works.
+            </h2>
+            <p className="mt-3 max-w-sm text-[15px] text-ink-soft">{PAID_BY_VENUE}</p>
+          </div>
+          <ol className="grid gap-5 sm:grid-cols-2">
+            {HOW_IT_WORKS.map((step, i) => (
+              <li key={step.title} className="flex gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink font-sans text-sm font-bold text-paper" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <div>
+                  <h3 className="font-sans text-[15px] font-bold text-ink">
+                    <span className="sr-only">Step {i + 1}: </span>
+                    {step.title}
+                  </h3>
+                  <p className="mt-1 text-[14px] leading-snug text-ink-soft">{step.body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+        <div className="mt-8">
+          <EventsDisclosure />
+        </div>
+      </section>
+
+      {/* Quick brief: three fields, handed to the brief page with their values. */}
+      <section className="shell" aria-labelledby="brief-title">
+        <form action={BRIEF_PATH} method="get" className="grid gap-5 rounded-card border-2 border-ink bg-paper p-5 lg:grid-cols-[minmax(0,3fr)_minmax(0,9fr)] lg:items-end lg:gap-8 lg:p-6">
+          {shortlist.length ? <input type="hidden" name="v" value={shortlist.join(',')} /> : null}
+          <div className="lg:border-r lg:border-paper-edge lg:pr-6">
+            <h2 id="brief-title" className="font-sans text-2xs font-bold uppercase tracking-[0.14em] text-ink">
+              Prefer we pick?
+            </h2>
+            <p className="mt-1 text-[15px] text-ink-soft">Tell us the basics and the events desk picks venues that fit. Under a minute.</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1.1fr_auto_auto] lg:items-end">
+            <div>
+              <label htmlFor="brief-occasion" className="field-label">
+                Occasion
+              </label>
+              <select id="brief-occasion" name="occasion" defaultValue="" className="field-input">
+                <option value="">Select an occasion</option>
+                {EVENT_OCCASIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.title}
+                  </option>
+                ))}
+                <option value="other">Something else</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="brief-guests" className="field-label">
+                Guests
+              </label>
+              <input id="brief-guests" name="guests" type="number" min={1} max={5000} inputMode="numeric" placeholder="e.g. 50" className="field-input" />
+            </div>
+            <div>
+              <label htmlFor="brief-date" className="field-label">
+                Date
+              </label>
+              <DateField id="brief-date" name="date" min={todayChicagoISO()} label="Open the calendar for your event date" />
+            </div>
+            <label className="inline-flex min-h-12 items-center gap-2 text-sm text-ink">
+              <input type="checkbox" name="flexible" value="1" className="h-4 w-4 accent-ink" />
+              Flexible
+            </label>
+            <button type="submit" className="btn-primary sm:col-span-2 lg:col-span-1">
+              Continue
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </form>
+      </section>
 
       <BigDates shortlist={shortlist} />
 

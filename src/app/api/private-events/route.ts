@@ -135,5 +135,5 @@ export async function POST(req: Request) {
     return Response.json({ ok: false, error: 'storage' }, { status: 502 });
   }
   if (outcome.result.warnings.length) console.warn('[private-events]', outcome.result.reference, outcome.result.warnings.join(' | '));
-  return Response.json({ ok: true, id: outcome.result.id, reference: outcome.result.reference, venues: outcome.result.venues, warnings: outcome.result.warnings });
+  return Response.json({ ok: true, id: outcome.result.id, reference: outcome.result.reference, venues: outcome.result.venues, statusPath: outcome.result.statusPath, warnings: outcome.result.warnings });
 }
