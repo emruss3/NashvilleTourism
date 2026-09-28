@@ -48,14 +48,18 @@ export interface EventVenue {
   website?: string;
   ownedByBph: boolean;
   placeId?: string;
-  leadSystem: LeadSystem;
-  feePct: number;
   slaHours: number;
   published: boolean;
   featuredUntil?: string;
   editorialPriority: number;
   spaces: EventSpace[];
-  /** Sales contact fields are only present when read with the service role. */
+  /**
+   * Commercial and contact fields are present only on a `withContacts` read
+   * (routing, watchdog). Public reads come from the `event_venues_public`
+   * view, which does not carry them, so no page or ranking can see them.
+   */
+  leadSystem?: LeadSystem;
+  feePct?: number;
   salesContactName?: string;
   salesContactEmail?: string;
   salesContactPhone?: string;

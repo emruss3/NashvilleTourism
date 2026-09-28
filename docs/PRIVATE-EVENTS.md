@@ -63,7 +63,14 @@ Verify in Resend, then set `EVENTS_FROM_EMAIL` to an address on that domain. Rep
 
 The seed migration `20260928120100_private_events_seed_owned_venues_v1.sql` loads JBJ's, Hank's and Playdate this way with `TODO` placeholders, unpublished. Replace the placeholders with real content by `update` statements, then publish.
 
-Migrations applied 2026-09-28 with the Supabase connector: `…120000` (schema, triggers, RLS, `event_venues_public` view), `…120100` (seed), `…120200` (cron job), `…120300` (pinned `search_path` on the trigger functions).
+Migrations applied 2026-09-28 with the Supabase connector: `…120000` (schema, triggers, RLS), `…120100` (seed), `…120200` (cron job), `…120300` (pinned `search_path` on the trigger functions), `…120400` (public view).
+
+### Who can read what
+
+| Reader | Venues | Spaces, media, key dates | Inquiries, leads |
+| --- | --- | --- | --- |
+| anon / authenticated | `event_venues_public` view only: published rows, public columns (no contacts, lead system, referral terms or fee terms). No grant on `event_venues` and no policy, so a mistaken grant would still read nothing | published rows only (RLS) | nothing |
+| service role (server) | base table; pages read the view, preview builds read unpublished rows, routing reads contacts (`listVenues({ withContacts: true })`) | all | all |
 
 ## Referral one-pager checklist (signed before publishing)
 

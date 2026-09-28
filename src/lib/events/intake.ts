@@ -189,7 +189,7 @@ export async function submitInquiry(input: IntakeInput): Promise<{ ok: true; res
         `Please reply within ${venue.slaHours} business hours (by ${formatNashville(deadline)} Nashville time). Replying to this email reaches the planner directly.`,
         reply ? `Log your reply here so we can stop the clock: ${reply}` : '',
         '',
-        `Nashville.com is paid by the venue only if this event books: ${venue.feePct}% of contracted spend, $250 minimum, per the referral terms. The planner confirms everything with you directly.`,
+        `Nashville.com is paid by the venue only if this event books: ${venue.feePct ?? 5}% of contracted spend, $250 minimum, per the referral terms. The planner confirms everything with you directly.`,
       ].filter((l) => l !== null).join('\n');
       log.push(await sendEmail({ to: venue.salesContactEmail, replyTo: input.email, subject, text, tags: { kind: 'venue_lead', reference } }, 'venue_lead'));
     } else {
