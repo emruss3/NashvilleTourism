@@ -26,6 +26,7 @@ export default function InquiryForm({ prefill = {} }: { prefill?: BriefPrefill }
   const [budget, setBudget] = useState('');
   const [details, setDetails] = useState('');
   const [needHotelRooms, setNeedHotelRooms] = useState(false);
+  const [receipt, setReceipt] = useState<{ reference: string | null; venues: Array<{ slug: string; name: string }> }>({ reference: null, venues: [] });
 
   const typeLabel = EVENT_TYPES.find((t) => t.value === eventType)?.label ?? 'Private event';
   const mailto = `mailto:${site.org.email}?subject=${encodeURIComponent(`Private event inquiry: ${typeLabel}`)}&body=${encodeURIComponent(
@@ -75,9 +76,10 @@ export default function InquiryForm({ prefill = {} }: { prefill?: BriefPrefill }
           sourcePath: window.location.pathname + window.location.search,
         }),
       });
-      const json = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; errors?: Record<string, string> };
+      const json = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; errors?: Record<string, string>; reference?: string | null; venues?: Array<{ slug: string; name: string }> };
       if (res.ok && json.ok) {
-        track(ANALYTICS_EVENTS.EVENT_INQUIRY_SUBMITTED, { item_type: eventType, value: guests.trim() ? Number(guests) : undefined });
+        track(ANALYTICS_EVENTS.EVENT_INQUIRY_SUBMITTED, { item_type: eventType, value: guests.trim() ? Number(guests) : undefined, results_count: json.venues?.length ?? 0, client_reference: json.reference ?? undefined });
+        setReceipt({ reference: json.reference ?? null, venues: json.venues ?? [] });
         setState('done');
         return;
       }
@@ -95,10 +97,24 @@ export default function InquiryForm({ prefill = {} }: { prefill?: BriefPrefill }
   if (state === 'done') {
     return (
       <div role="status" className="rounded-card border border-ink bg-paper p-6">
-        <p className="text-[1.375rem] font-bold text-ink">Thanks, {name.trim().split(' ')[0]}. Your inquiry is in.</p>
-        <p className="mt-2 max-w-prose text-[15px] text-ink-soft">
-          The events desk will reply to {email.trim()} within three business days with spaces that fit. Submitting an inquiry does not
-          confirm availability or a booking.
+        <p className="text-[1.375rem] font-bold text-ink">Thanks, {name.trim().split(' ')[0]}. Your brief is in.</p>
+        {receipt.venues.length ? (
+          <>
+            <p className="mt-2 max-w-prose text-[15px] text-ink-soft">
+              It went to {receipt.venues.length === 1 ? 'one venue' : `${receipt.venues.length} venues`}, each of which has promised a reply to {email.trim()} within 24 business hours:
+            </p>
+            <ul className="mt-2 list-disc pl-5 text-[15px] text-ink">
+              {receipt.venues.map((v) => (
+                <li key={v.slug}>{v.name}</li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p className="mt-2 max-w-prose text-[15px] text-ink-soft">Our events desk has it and will reply to {email.trim()} with spaces that fit.</p>
+        )}
+        {receipt.reference ? <p className="mt-3 text-[15px] text-ink">Your reference: <strong>{receipt.reference}</strong>. A copy is on its way to your inbox.</p> : null}
+        <p className="mt-3 max-w-prose text-2xs text-ink-soft">
+          You confirm everything with the venue. Nashville.com is paid by the venue only if your event books, and that never changes which venues we suggest. Submitting a brief does not confirm availability or a booking.
         </p>
       </div>
     );
