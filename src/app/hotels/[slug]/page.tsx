@@ -4,6 +4,7 @@ import { Breadcrumbs, Chip, FactTable, JsonLd, MapLink, PageHeader, SectionHeade
 import { HotelCard, PhotoSlot } from '@/components/Cards';
 import { AffiliateDisclosure, PlacementLabel, VerificationBadge, formatDate } from '@/components/Trust';
 import BookingLink from '@/components/BookingLink';
+import TestModeNotice from '@/components/hotels/TestModeNotice';
 import LivePrice from '@/components/hotels/LivePrice';
 import { hotels, getHotel } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
@@ -165,6 +166,7 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
               clientReference={booking.clientReference}
               hotelId={booking.hotelId}
             />
+            {live?.environment === 'sandbox' && booking.placement === 'whitelabel' ? <TestModeNotice compact /> : null}
             <MapLink query={h.mapQuery} label="Directions and map" />
           </div>
 

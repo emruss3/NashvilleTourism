@@ -7,6 +7,7 @@ import { AffiliateDisclosure, HowWeChooseCallout } from '@/components/Trust';
 import { Breadcrumbs, JsonLd } from '@/components/Ui';
 import HotelMarketRail from '@/components/hotels/HotelMarketRail';
 import HotelResultsMap, { type MapPoint } from '@/components/hotels/HotelResultsMap';
+import TestModeNotice from '@/components/hotels/TestModeNotice';
 import LivePrice from '@/components/hotels/LivePrice';
 import StaySearch from '@/components/hotels/StaySearch';
 import PageIntro from '@/components/hub/PageIntro';
@@ -142,6 +143,8 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
   const marketRank = { center, priceBand: area ? priceBandFromCategory(area.typicalHotelPrice) : undefined, excludeIds: rows.map((h) => h.liteApiHotelId).filter((id): id is string => Boolean(id)), filters: stay.filters, limit: 36 };
   // Ranked here so the results heading can count the live places and the map can plot them.
   const marketRanked = areaResult?.live ? rankMarketplace(areaResult.rates, marketRank) : [];
+  // The white label is in test mode while the edge function answers from the LiteAPI sandbox.
+  const testMode = editorialRates?.environment === 'sandbox' || areaResult?.environment === 'sandbox';
   const marketCount = marketRanked.length;
   const mapPoints: MapPoint[] = [
     ...rows.flatMap((h): MapPoint[] => {
@@ -265,6 +268,11 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
             <MarketFilterChips base={searchBase} filters={stay.filters} />
           </div>
         ) : null}
+        {testMode ? (
+          <div className="mt-4">
+            <TestModeNotice />
+          </div>
+        ) : null}
         <div className="mt-3">
           <AffiliateDisclosure compact variant={partners.stay.host ? 'stay' : 'affiliate'} />
         </div>
@@ -272,7 +280,7 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
         <ul className="mt-4 divide-y divide-paper-edge border-y border-paper-edge">
           {rows.map((h) => (
             <li key={h.slug}>
-              <HotelRow hotel={h} stay={{ checkin, checkout, adults: stay.adults }} rate={h.liteApiHotelId ? rateById.get(h.liteApiHotelId) : undefined} datesLabel={datesLabel} />
+              <HotelRow hotel={h} stay={{ checkin, checkout, adults: stay.adults }} rate={h.liteApiHotelId ? rateById.get(h.liteApiHotelId) : undefined} datesLabel={datesLabel} testMode={testMode} />
             </li>
           ))}
         </ul>
@@ -354,7 +362,7 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
   );
 }
 
-function HotelRow({ hotel, stay, rate, datesLabel }: { hotel: Hotel; stay: { checkin: string; checkout: string; adults?: number }; rate?: LiveHotelRate; datesLabel: string }) {
+function HotelRow({ hotel, stay, rate, datesLabel, testMode }: { hotel: Hotel; stay: { checkin: string; checkout: string; adults?: number }; rate?: LiveHotelRate; datesLabel: string; testMode?: boolean }) {
   const booking = hotelBookingHref(hotel, { surface: 'hotel', ...stay });
   return (
     <article className={`grid gap-4 py-5 ${hotel.image ? 'md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-8' : ''}`}>
@@ -401,6 +409,11 @@ function HotelRow({ hotel, stay, rate, datesLabel }: { hotel: Hotel; stay: { che
           </Link>
           <SaveButton item={{ id: `hotel:${hotel.slug}`, kind: 'hotel', title: hotel.title, href: `/hotels/${hotel.slug}/`, meta: neighborhoodName(hotel.neighborhood) }} />
         </div>
+        {testMode && booking.placement === 'whitelabel' ? (
+          <div className="mt-2">
+            <TestModeNotice compact />
+          </div>
+        ) : null}
       </div>
     </article>
   );

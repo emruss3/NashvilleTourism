@@ -145,6 +145,16 @@ export function scoreRate(rate: LiveHotelRate, opts: { center?: LatLng; priceBan
   return { score: Math.round(score * 10_000) / 10_000, distanceKm: distance };
 }
 
+/**
+ * Which editorial hotels get the "Our pick" pin on a rail. On a neighborhood
+ * rail only the editorial hotels in that neighborhood are pinned; a SoBro
+ * hotel browsing The Gulch ranks like everything else. Citywide rails
+ * (`area` undefined) pin every editorial hotel. Editorial order is kept.
+ */
+export function editorialPinIds(editorial: Array<{ liteApiHotelId?: string; neighborhood: string }>, area?: string): string[] {
+  return editorial.filter((h) => h.liteApiHotelId && (!area || h.neighborhood === area)).map((h) => h.liteApiHotelId as string);
+}
+
 export function rankMarketplace(rates: LiveHotelRate[], opts: RankOptions = {}): RankedHotel[] {
   const exclude = new Set(opts.excludeIds ?? []);
   const pinnedOrder = new Map((opts.pinnedIds ?? []).map((id, i) => [id, i]));

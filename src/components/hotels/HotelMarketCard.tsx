@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import BookingLink from '@/components/BookingLink';
+import TestModeNotice from '@/components/hotels/TestModeNotice';
 import { ANALYTICS_EVENTS } from '@/lib/analytics';
 import type { RankedHotel } from '@/lib/feeds/hotel-marketplace-rank';
 import { formatNightly } from '@/lib/feeds/hotels-live';
@@ -21,6 +22,7 @@ export default function HotelMarketCard({
   editorialSlug,
   canDisplayRating,
   fromLabel,
+  testMode = false,
 }: {
   item: RankedHotel;
   checkin: string;
@@ -31,6 +33,8 @@ export default function HotelMarketCard({
   canDisplayRating: boolean;
   /** "from Lower Broadway" */
   fromLabel?: string;
+  /** The rate came from the LiteAPI sandbox; say so next to the button. */
+  testMode?: boolean;
 }) {
   const { rate } = item;
   const slug = editorialSlug ?? rate.hotelId;
@@ -96,6 +100,11 @@ export default function HotelMarketCard({
             hotelId={rate.hotelId}
             className="min-h-11 w-full"
           />
+          {testMode ? (
+            <div className="mt-2">
+              <TestModeNotice compact />
+            </div>
+          ) : null}
         </div>
       </div>
     </article>

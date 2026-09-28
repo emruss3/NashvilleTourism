@@ -3,7 +3,7 @@
  */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { hasFacility, passesFilters, priceBandFromCategory, rankMarketplace, scoreRate } from '../src/lib/feeds/hotel-marketplace-rank.ts';
+import { editorialPinIds, hasFacility, passesFilters, priceBandFromCategory, rankMarketplace, scoreRate } from '../src/lib/feeds/hotel-marketplace-rank.ts';
 import type { LiveHotelRate } from '../src/lib/feeds/hotels-live.ts';
 import { distanceKm, inDavidsonCounty, LOWER_BROADWAY } from '../src/lib/geo.ts';
 import { defaultStayDates, resolveStayDates } from '../src/lib/stay-dates.ts';
@@ -110,4 +110,22 @@ test('default dates are the coming Friday to Sunday in Nashville time', () => {
   const chosen = resolveStayDates('2026-11-06', '2026-11-08');
   assert.deepEqual([chosen.checkin, chosen.checkout, chosen.chosen], ['2026-11-06', '2026-11-08', true]);
   assert.equal(resolveStayDates('2026-11-08', '2026-11-06', new Date('2026-09-23T23:00:00Z')).checkin, '2026-09-25', 'reversed dates fall back');
+});
+
+test('editorial pins apply only in the hotel\'s own neighborhood; citywide pins every editorial hotel', () => {
+  const editorial = [
+    { liteApiHotelId: 'lp-1hotel', neighborhood: 'downtown-broadway' },
+    { liteApiHotelId: 'lp-thompson', neighborhood: 'the-gulch' },
+    { liteApiHotelId: undefined, neighborhood: 'the-gulch' },
+    { liteApiHotelId: 'lp-graduate', neighborhood: 'midtown' },
+  ];
+  assert.deepEqual(editorialPinIds(editorial, 'the-gulch'), ['lp-thompson']);
+  assert.deepEqual(editorialPinIds(editorial, 'east-nashville'), []);
+  assert.deepEqual(editorialPinIds(editorial), ['lp-1hotel', 'lp-thompson', 'lp-graduate']);
+  const rates = [rate({ hotelId: 'lp-1hotel', nightly: { amount: 600, currency: 'USD' } }), rate({ hotelId: 'lp-cheap', nightly: { amount: 120, currency: 'USD' } })];
+  const gulch = rankMarketplace(rates, { pinnedIds: editorialPinIds(editorial, 'the-gulch'), sort: 'price' });
+  assert.equal(gulch[0].rate.hotelId, 'lp-cheap', 'a downtown pick ranks normally on the Gulch rail');
+  assert.equal(gulch.some((r) => r.pinned), false);
+  const city = rankMarketplace(rates, { pinnedIds: editorialPinIds(editorial), sort: 'price' });
+  assert.equal(city[0].rate.hotelId, 'lp-1hotel', 'citywide it is pinned first');
 });

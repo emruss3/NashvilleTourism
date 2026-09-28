@@ -3,7 +3,9 @@ import { AffiliateDisclosure } from '@/components/Trust';
 import HotelMarketCard from '@/components/hotels/HotelMarketCard';
 import MarketViewBeacon from '@/components/hotels/MarketViewBeacon';
 import { hotels } from '@/lib/content';
-import { rankMarketplace, type RankOptions } from '@/lib/feeds/hotel-marketplace-rank';
+import { neighborhoods } from '@/lib/content/neighborhoods';
+import TestModeNotice from '@/components/hotels/TestModeNotice';
+import { editorialPinIds, rankMarketplace, type RankOptions } from '@/lib/feeds/hotel-marketplace-rank';
 import { getAreaRates, type AreaRatesParams, type LiveRatesResult } from '@/lib/feeds/hotels-live';
 import { partners } from '@/lib/partners';
 import { stayDatesLabel } from '@/lib/stay-dates';
@@ -46,7 +48,9 @@ export default async function HotelMarketRail(props: HotelMarketRailProps) {
   if (!result?.live) return null;
 
   const editorialById = new Map(hotels.filter((h) => h.liteApiHotelId).map((h) => [h.liteApiHotelId!, h]));
-  const ranked = rankMarketplace(result.rates, { pinnedIds: hotels.map((h) => h.liteApiHotelId).filter((id): id is string => Boolean(id)), ...props.rank });
+  const area = neighborhoods.some((n) => n.slug === props.areaKey) ? props.areaKey : undefined;
+  const ranked = rankMarketplace(result.rates, { pinnedIds: editorialPinIds(hotels, area), ...props.rank });
+  const testMode = result.environment === 'sandbox';
   const Heading = props.headingLevel ?? 'h2';
   const datesLabel = stayDatesLabel({ checkin: props.checkin, checkout: props.checkout });
 
@@ -70,6 +74,11 @@ export default async function HotelMarketRail(props: HotelMarketRailProps) {
           Change dates or area
         </Link>
       </div>
+      {testMode ? (
+        <div className="mt-4">
+          <TestModeNotice />
+        </div>
+      ) : null}
       {props.controls ? <div className="mt-3">{props.controls}</div> : null}
       {ranked.length ? (
         <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -84,6 +93,7 @@ export default async function HotelMarketRail(props: HotelMarketRailProps) {
                 editorialSlug={editorialById.get(item.rate.hotelId)?.slug}
                 canDisplayRating={result.canDisplayRating}
                 fromLabel={props.fromLabel}
+                testMode={testMode}
               />
             </li>
           ))}
