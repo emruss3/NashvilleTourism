@@ -10,8 +10,8 @@ import { MAP_LANDMARKS, type LandmarkKind } from '@/lib/content/map-landmarks';
  * at the current zoom merge into a count bubble that zooms in when tapped,
  * so downtown never becomes a pile of prices.
  *
- * Leaflet loads in the browser on demand from a CDN; the basemap is a
- * keyless tile service with attribution shown. If they cannot load, the
+ * Leaflet loads in the browser on demand from a CDN; the basemap is Esri's
+ * keyless street map, toned to ink-on-paper in globals.css, with attribution shown. If they cannot load, the
  * block says so instead of leaving a blank box. Leaflet's own chrome is
  * restyled to the NSVL palette in globals.css.
  */
@@ -41,9 +41,11 @@ const LEAFLET_CSS = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leafle
 const TILES: Record<MapProvider, Record<MapVariant, { base: string; labels?: string; subdomains?: string; maxZoom: number; attribution: string }>> = {
   esri: {
     paper: {
-      base: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-      labels: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
-      maxZoom: 16,
+      // The full street map (every street named, blocks, parks, water) toned to
+      // ink-on-paper in globals.css. The light-grey canvas was built as a faint
+      // background and stayed unreadable at neighbourhood zoom whatever the tint.
+      base: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+      maxZoom: 18,
       attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors, and the GIS user community',
     },
     ink: {
@@ -156,17 +158,16 @@ export default function HotelResultsMap({
               pane: 'districts',
               radius: l.radiusM ?? 350,
               color: fg,
-              weight: 1,
-              dashArray: '3 4',
-              opacity: 0.55,
+              weight: 2,
+              opacity: 0.9,
               fillColor: fg,
-              fillOpacity: ink ? 0.08 : 0.05,
+              fillOpacity: ink ? 0.14 : 0.1,
               interactive: false,
             });
             const label = L.marker([l.lat, l.lng], {
               icon: L.divIcon({
                 className: 'nsvl-landmark',
-                html: `<span style="display:inline-block;transform:translate(-50%,-50%);white-space:nowrap;font:700 11px/1 Manrope,Inter,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:${fg};text-shadow:0 0 4px ${bg},0 0 4px ${bg},0 0 6px ${bg}">${escapeHtml(l.name)}</span>`,
+                html: `<span style="display:inline-block;transform:translate(-50%,-50%);white-space:nowrap;font:800 11px/1 Manrope,Inter,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:${bg};background:${fg};padding:4px 7px;border-radius:2px">${escapeHtml(l.name)}</span>`,
                 iconSize: [0, 0],
               }),
               interactive: false,
@@ -180,8 +181,8 @@ export default function HotelResultsMap({
             icon: L.divIcon({
               className: 'nsvl-landmark',
               html: `<span style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transform:translate(-11px,-11px)">
-                <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:${fg};color:${bg};box-shadow:0 0 0 2px ${bg};flex:none"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">${glyph}</svg></span>
-                <span style="font:600 11px/1.2 Inter,system-ui,sans-serif;letter-spacing:.02em;color:${fg};background:${bg};border:1px solid ${fg};padding:2px 6px;border-radius:2px">${escapeHtml(l.name)}</span>
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:${fg};color:${bg};box-shadow:0 0 0 2px ${bg},0 1px 3px rgba(0,0,0,.35);flex:none"><svg width="13" height="13" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">${glyph}</svg></span>
+                <span style="font:700 11px/1.2 Inter,system-ui,sans-serif;letter-spacing:.02em;color:${fg};background:${bg};border:1.5px solid ${fg};padding:3px 7px;border-radius:2px;box-shadow:0 1px 2px rgba(0,0,0,.2)">${escapeHtml(l.name)}</span>
               </span>`,
               iconSize: [0, 0],
             }),
@@ -203,7 +204,8 @@ export default function HotelResultsMap({
         // --- Price pins with overlap merging ----------------------------------
         const pinGroup = L.layerGroup().addTo(map);
         const pinStyle = (pinned: boolean) => (pinned ? `background:${fg};color:${bg};border:1.5px solid ${bg}` : `background:${bg};color:${fg};border:1.5px solid ${fg}`);
-        const cellPx = 46;
+        // A cluster bubble with its "from $" label is ~110px wide, so cells narrower than that overlap.
+        const cellPx = 88;
         const renderPins = () => {
           pinGroup.clearLayers();
           const zoom = map.getZoom();
@@ -250,9 +252,17 @@ export default function HotelResultsMap({
           }
         };
 
-        const bounds = L.latLngBounds(points.map((p) => [p.lat, p.lng]));
-        if (center) bounds.extend([center.lat, center.lng]);
-        map.fitBounds(bounds.pad(0.15), { maxZoom: Math.min(15, tiles.maxZoom) });
+        // Open on the core of the results, not on a box that fits an airport
+        // hotel and the Opry at once: the picks (or every stay) within 3.5 km
+        // of their own median point set the first view. Zooming out finds the rest.
+        const core = points.filter((p) => p.pinned).length >= 3 ? points.filter((p) => p.pinned) : points;
+        const median = (xs: number[]) => xs.slice().sort((a, b) => a - b)[Math.floor(xs.length / 2)];
+        const mid = center ?? { lat: median(core.map((p) => p.lat)), lng: median(core.map((p) => p.lng)) };
+        const near = core.filter((p) => map.distance([p.lat, p.lng], [mid.lat, mid.lng]) <= 3500);
+        const bounds = L.latLngBounds((near.length >= 3 ? near : core).map((p) => [p.lat, p.lng]));
+        bounds.extend([mid.lat, mid.lng]);
+        map.fitBounds(bounds.pad(0.12), { maxZoom: Math.min(15, tiles.maxZoom) });
+        if (map.getZoom() < 13) map.setZoom(13);
         syncLandmarks();
         renderPins();
         map.on('zoomend', () => {

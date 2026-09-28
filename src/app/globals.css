@@ -231,8 +231,10 @@ input[type='date']::-webkit-calendar-picker-indicator {
   background: #111111;
 }
 .leaflet-container[data-variant='paper'] .leaflet-tile-pane {
-  /* Grey basemaps take a light sepia so they sit on cream; contrast is lifted, not dropped, so streets and blocks stay readable. */
-  filter: sepia(0.3) saturate(0.6) contrast(1.18) brightness(0.98);
+  /* The street map is drawn in full colour; pull most of it out, warm it to paper and
+     push contrast so roads, blocks and every street name read as ink on cream while
+     water and parks stay tellable apart. */
+  filter: saturate(0.3) sepia(0.2) contrast(1.22) brightness(1.02);
 }
 .leaflet-container[data-variant='ink'] .leaflet-tile-pane {
   /* Dark basemaps are blue-black; pull them to neutral black and lift the streets a touch. */
