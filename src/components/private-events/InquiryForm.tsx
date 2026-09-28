@@ -1,11 +1,13 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import DateField from '@/components/DateField';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
 import { neighborhoods } from '@/lib/content/neighborhoods';
 import type { Need, Occasion } from '@/lib/events/types';
 import { BUDGET_RANGES, EVENT_OCCASIONS, NEEDS, SHORTLIST_MAX, START_TIME_BANDS, guestsBand, occasionToEventType, type BriefPrefill } from '@/lib/private-events';
 import { site } from '@/lib/site';
+import { todayChicagoISO } from '@/lib/stay-dates';
 
 type State = 'idle' | 'submitting' | 'done' | 'unavailable' | 'error';
 type Receipt = { reference: string | null; venues: Array<{ slug: string; name: string; slaHours?: number; deadline?: string }> };
@@ -237,7 +239,7 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
           <label htmlFor="inq-date" className={labelClass}>
             Preferred date
           </label>
-          <input id="inq-date" name="preferredDate" type="date" value={preferredDate} onChange={(e) => setPreferredDate(e.target.value)} aria-invalid={Boolean(fieldErrors.preferredDate)} aria-describedby={fieldErrors.preferredDate ? 'inq-preferredDate-error' : undefined} className={field} />
+          <DateField id="inq-date" name="preferredDate" value={preferredDate} min={todayChicagoISO()} onChange={setPreferredDate} aria-invalid={Boolean(fieldErrors.preferredDate)} aria-describedby={fieldErrors.preferredDate ? 'inq-preferredDate-error' : undefined} className={field} label="Open the calendar for your preferred date" />
           {err('preferredDate')}
           <label className="mt-2 inline-flex min-h-8 items-center gap-2 text-sm text-ink">
             <input type="checkbox" name="flexibleDates" checked={flexibleDates} onChange={(e) => setFlexibleDates(e.target.checked)} className="h-4 w-4 accent-ink" />

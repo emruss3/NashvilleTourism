@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { PeopleIcon, PinIcon } from '@/components/Icons';
+import DateField from '@/components/DateField';
 import { SmartImage } from '@/components/Media';
 import { Breadcrumbs, JsonLd } from '@/components/Ui';
 import PageIntro from '@/components/hub/PageIntro';
@@ -15,6 +16,7 @@ import { hasPlaceholder } from '@/lib/events/types';
 import { listVenues, showUnpublished } from '@/lib/events/venues';
 import { EVENT_OCCASIONS, HOW_IT_WORKS, PAID_BY_VENUE, SIZE_BANDS, isEventType, isOccasion, occasionByValue, parseShortlist, withShortlist, type BriefPrefill } from '@/lib/private-events';
 import { buildMetadata, serviceSchema } from '@/lib/seo';
+import { todayChicagoISO } from '@/lib/stay-dates';
 
 export const dynamic = 'force-dynamic';
 
@@ -141,7 +143,7 @@ export default async function PrivateEventsPage(props: { searchParams?: Promise<
               <label htmlFor="brief-date" className="field-label">
                 Preferred date
               </label>
-              <input id="brief-date" name="date" type="date" defaultValue={prefill.date ?? ''} className="field-input" />
+              <DateField id="brief-date" name="date" defaultValue={prefill.date ?? ''} min={todayChicagoISO()} label="Open the calendar for your event date" />
             </div>
             <label className="inline-flex min-h-12 items-center gap-2 text-sm text-ink">
               <input type="checkbox" name="flexible" value="1" defaultChecked={prefill.flexible} className="h-4 w-4 accent-ink" />

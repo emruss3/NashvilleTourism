@@ -26,6 +26,8 @@ export default function DateField({
   iconClassName = 'text-ink-soft',
   label = 'Open calendar',
   autoSubmit = false,
+  'aria-invalid': ariaInvalid,
+  'aria-describedby': ariaDescribedBy,
 }: {
   id: string;
   name?: string;
@@ -43,6 +45,8 @@ export default function DateField({
   label?: string;
   /** Submit the enclosing form as soon as a full date is picked. */
   autoSubmit?: boolean;
+  'aria-invalid'?: boolean;
+  'aria-describedby'?: string;
 }) {
   const ref = useRef<HTMLInputElement>(null);
 
@@ -80,6 +84,8 @@ export default function DateField({
         max={max}
         required={required}
         disabled={disabled}
+        aria-invalid={ariaInvalid}
+        aria-describedby={ariaDescribedBy}
         onClick={open}
         onChange={(e) => {
           onChange?.(e.target.value);
