@@ -51,3 +51,39 @@ export function replyUrl(siteUrl: string, leadId: string, opts: { secret?: strin
   const token = createReplyToken(leadId, opts);
   return token ? `${siteUrl.replace(/\/$/, '')}/private-events/reply/${token}/` : undefined;
 }
+
+/**
+ * Planner "add detail" links. Same shape as a reply token but signed in a
+ * separate domain, so one can never be presented as the other. Names one
+ * inquiry; lets its planner add the optional fields of the brief later.
+ */
+const DETAILS_DOMAIN = 'details:';
+const DETAILS_TTL_DAYS = 60;
+
+export function createDetailsToken(inquiryId: string, opts: { secret?: string; now?: Date; ttlDays?: number } = {}): string | undefined {
+  const secret = opts.secret ?? magicLinkSecret();
+  if (!secret) return undefined;
+  const exp = Math.floor((opts.now ?? new Date()).getTime() / 1000) + (opts.ttlDays ?? DETAILS_TTL_DAYS) * 86_400;
+  const payload = `${inquiryId}.${exp}`;
+  return `${payload}.${sign(DETAILS_DOMAIN + payload, secret)}`;
+}
+
+export function verifyDetailsToken(token: string, opts: { secret?: string; now?: Date } = {}): { inquiryId: string } | { error: 'malformed' | 'expired' | 'bad_signature' | 'no_secret' } {
+  const secret = opts.secret ?? magicLinkSecret();
+  if (!secret) return { error: 'no_secret' };
+  const parts = token.split('.');
+  if (parts.length !== 3) return { error: 'malformed' };
+  const [inquiryId, expText, sig] = parts;
+  if (!/^[0-9a-f-]{36}$/.test(inquiryId) || !/^\d+$/.test(expText) || !sig) return { error: 'malformed' };
+  const expected = sign(`${DETAILS_DOMAIN}${inquiryId}.${expText}`, secret);
+  const a = Buffer.from(sig);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return { error: 'bad_signature' };
+  if (Number(expText) * 1000 < (opts.now ?? new Date()).getTime()) return { error: 'expired' };
+  return { inquiryId };
+}
+
+export function detailsUrl(siteUrl: string, inquiryId: string, opts: { secret?: string; now?: Date } = {}): string | undefined {
+  const token = createDetailsToken(inquiryId, opts);
+  return token ? `${siteUrl.replace(/\/$/, '')}/private-events/brief/details/${token}/` : undefined;
+}

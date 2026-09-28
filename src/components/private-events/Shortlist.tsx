@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
-import { SHORTLIST_MAX, parseShortlist, withShortlist } from '@/lib/private-events';
+import { SHORTLIST_MAX, briefHref, parseShortlist } from '@/lib/private-events';
 
 /**
  * The shortlist lives in the URL (`?v=slug,slug`) and nowhere else, so it
@@ -85,7 +85,7 @@ function Bar({ venues }: { venues: { slug: string; name: string }[] }) {
               </li>
             ))}
           </ul>
-          <Link href={withShortlist('/private-events/#inquiry', slugs)} className="btn-primary min-h-11 py-2 sm:ml-auto">
+          <Link href={briefHref({ shortlist: slugs })} className="btn-primary min-h-11 py-2 sm:ml-auto">
             Send a brief to {slugs.length === 1 ? 'this venue' : `these ${slugs.length}`}
             <span aria-hidden="true">→</span>
           </Link>

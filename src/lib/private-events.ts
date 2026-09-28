@@ -175,3 +175,80 @@ export interface BriefPrefill {
   date?: string;
   flexible?: boolean;
 }
+
+/** The brief lives on its own page; every entry point hands its state there. */
+export const BRIEF_PATH = '/private-events/brief/';
+
+export interface BriefParams {
+  prefill: BriefPrefill;
+  shortlist: string[];
+  /** A single venue the planner came from; joins the shortlist on the brief page. */
+  venue?: string;
+}
+
+type Params = Record<string, string | string[] | undefined>;
+function one(params: Params, key: string): string | undefined {
+  const raw = params[key];
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  return value?.trim() || undefined;
+}
+
+/** Read the brief's state from a URL: hub quick brief values, shortlist, single venue. */
+export function readBriefParams(params: Params): BriefParams {
+  const type = one(params, 'type');
+  const occasion = one(params, 'occasion');
+  const guests = Number(one(params, 'guests'));
+  const date = one(params, 'date');
+  const venue = one(params, 'venue');
+  return {
+    prefill: {
+      type: isEventType(type) ? type : undefined,
+      occasion: isOccasion(occasion) ? occasion : undefined,
+      guests: Number.isInteger(guests) && guests > 0 && guests <= 5000 ? guests : undefined,
+      date: date && /^\d{4}-\d{2}-\d{2}$/.test(date) && !Number.isNaN(Date.parse(date)) ? date : undefined,
+      flexible: one(params, 'flexible') === '1',
+    },
+    shortlist: parseShortlist(params.v),
+    venue: venue && SLUG.test(venue) ? venue : undefined,
+  };
+}
+
+/** Link to the brief page carrying whatever state the caller has. */
+export function briefHref(input: { occasion?: string; guests?: number | string; date?: string; flexible?: boolean; shortlist?: string[]; venue?: string } = {}): string {
+  const sp = new URLSearchParams();
+  if (input.occasion) sp.set('occasion', input.occasion);
+  if (input.guests !== undefined && input.guests !== '' && Number(input.guests) > 0) sp.set('guests', String(input.guests));
+  if (input.date) sp.set('date', input.date);
+  if (input.flexible) sp.set('flexible', '1');
+  if (input.shortlist?.length) sp.set('v', input.shortlist.slice(0, SHORTLIST_MAX).join(','));
+  if (input.venue) sp.set('venue', input.venue);
+  const qs = sp.toString();
+  return qs ? `${BRIEF_PATH}?${qs}` : BRIEF_PATH;
+}
+
+/** "Date or month": a month-only answer is stored as the first of that month with flexible_dates set. */
+export function monthOptions(count = 18, now = new Date()): { value: string; label: string }[] {
+  const out: { value: string; label: string }[] = [];
+  const y = now.getUTCFullYear();
+  const m = now.getUTCMonth();
+  for (let i = 0; i < count; i += 1) {
+    const d = new Date(Date.UTC(y, m + i, 1));
+    out.push({ value: `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`, label: d.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' }) });
+  }
+  return out;
+}
+export function monthToDate(ym: string): string | undefined {
+  return /^\d{4}-(0[1-9]|1[0-2])$/.test(ym) ? `${ym}-01` : undefined;
+}
+export function isMonthOnly(date: string | undefined, flexible: boolean): boolean {
+  return Boolean(flexible && date && /^\d{4}-\d{2}-01$/.test(date));
+}
+/** "December 2026 (any date)", "Fri, Dec 31, 2026", "Fri, Dec 31, 2026 (flexible)" or "not set". */
+export function formatBriefDate(date: string | undefined, flexible: boolean): string {
+  if (!date) return flexible ? 'flexible' : 'not set';
+  const [y, mo, d] = date.split('-').map(Number);
+  const utc = new Date(Date.UTC(y, mo - 1, d));
+  if (isMonthOnly(date, flexible)) return `${utc.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })} (any date)`;
+  const day = utc.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+  return flexible ? `${day} (flexible)` : day;
+}

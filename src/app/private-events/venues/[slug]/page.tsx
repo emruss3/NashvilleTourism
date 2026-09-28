@@ -11,7 +11,7 @@ import { neighborhoodName } from '@/lib/content/neighborhoods';
 import { isSponsored, venueCapacity } from '@/lib/events/present';
 import { hasPlaceholder } from '@/lib/events/types';
 import { getVenueBySlug, listMedia, listVenues, showUnpublished } from '@/lib/events/venues';
-import { OWNED_VENUE_DISCLOSURE, SHORTLIST_MAX, VENUE_KIND_LABEL, parseShortlist, withShortlist } from '@/lib/private-events';
+import { OWNED_VENUE_DISCLOSURE, VENUE_KIND_LABEL, briefHref, parseShortlist, withShortlist } from '@/lib/private-events';
 import { buildMetadata, canonical } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
@@ -47,7 +47,6 @@ export default async function VenuePage(props: { params: Promise<{ slug: string 
 
   const [media, all] = await Promise.all([listMedia(venue.id), listVenues()]);
   const shortlist = parseShortlist(query.v);
-  const briefList = shortlist.includes(venue.slug) || shortlist.length >= SHORTLIST_MAX ? shortlist : [...shortlist, venue.slug];
   const sponsored = isSponsored(venue);
   const cap = venueCapacity(venue);
   const hood = neighborhoodName(venue.neighborhoodSlug);
@@ -116,7 +115,7 @@ export default async function VenuePage(props: { params: Promise<{ slug: string 
           ) : null}
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <Link href={withShortlist('/private-events/#inquiry', briefList)} className="btn-primary">
+          <Link href={briefHref({ shortlist, venue: venue.slug })} className="btn-primary">
             Send a brief to {venue.name}
             <span aria-hidden="true">→</span>
           </Link>

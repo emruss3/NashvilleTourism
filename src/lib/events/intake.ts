@@ -1,7 +1,7 @@
 import { getSupabaseServiceClient } from '@/lib/supabase/server';
 import { site } from '@/lib/site';
-import { BUDGET_RANGES } from '@/lib/private-events';
-import { replyUrl } from './magic-link';
+import { BUDGET_RANGES, formatBriefDate } from '@/lib/private-events';
+import { detailsUrl, replyUrl } from './magic-link';
 import { eventsEnv, pushToLeadSystem, sendEmail, type NotifyResult } from './notify';
 import { addBusinessHours, formatNashville } from './sla';
 import type { EventVenue, Need, Occasion } from './types';
@@ -84,7 +84,7 @@ export function briefText(input: IntakeInput, reference: string): string {
     `Reference: ${reference}`,
     `Occasion: ${occasionLabel(input.occasion, input.eventType)}`,
     `Guests: ${input.guests ?? 'not given'}`,
-    `Date: ${input.preferredDate ?? 'not set'}${input.flexibleDates ? ' (flexible)' : ''}${input.startTimeBand ? `, ${input.startTimeBand}` : ''}`,
+    `Date: ${formatBriefDate(input.preferredDate, input.flexibleDates)}${input.startTimeBand ? `, ${input.startTimeBand}` : ''}`,
     `Budget: ${budget ?? 'not given'}`,
     input.neighborhoods?.length ? `Neighborhoods: ${input.neighborhoods.join(', ')}` : '',
     input.needs?.length ? `Needs: ${input.needs.map((n) => NEED_LABEL[n] ?? n).join(', ')}` : '',
@@ -158,7 +158,7 @@ export async function submitInquiry(input: IntakeInput): Promise<{ ok: true; res
   const now = new Date();
   const contacted: IntakeResult['venues'] = [];
   const brief = briefText(input, reference);
-  const subjectDate = input.preferredDate ?? (input.flexibleDates ? 'flexible dates' : 'date TBD');
+  const subjectDate = formatBriefDate(input.preferredDate, input.flexibleDates);
   const subject = `New event inquiry via Nashville.com — ${occasionLabel(input.occasion, input.eventType)}, ${input.guests ?? '?'} guests, ${subjectDate}`;
 
   for (const venue of venues) {
@@ -215,6 +215,7 @@ export async function submitInquiry(input: IntakeInput): Promise<{ ok: true; res
       warnings.push('GROUP_HOTELS_EMAIL not set');
     }
   }
+  const details = detailsUrl(site.url, id);
   deskLog.push(
     await sendEmail(
       {
@@ -225,9 +226,10 @@ export async function submitInquiry(input: IntakeInput): Promise<{ ok: true; res
           '',
           contacted.length
             ? `Your brief went to these venues. Each has promised a reply within 24 business hours:\n${contacted.map((v) => `- ${v.name}`).join('\n')}`
-            : 'Our events desk has your brief and will come back with spaces that fit.',
+            : 'Our events desk has your brief and will match you by hand within one business day, with spaces that fit.',
           '',
           `Your reference is ${reference}. Keep it for any follow-up.`,
+          details ? `\nWant to add a budget, neighborhoods, what you need or notes? Add detail here any time: ${details}` : '',
           '',
           'How this works: the venues reply to you directly and you confirm everything with them. Nashville.com is paid by the venue only if your event books, and that never changes which venues we suggest. Submitting a brief does not confirm availability or a booking.',
           '',

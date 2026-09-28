@@ -5,7 +5,7 @@ import DateField from '@/components/DateField';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
 import { neighborhoods } from '@/lib/content/neighborhoods';
 import type { Need, Occasion } from '@/lib/events/types';
-import { BUDGET_RANGES, EVENT_OCCASIONS, NEEDS, SHORTLIST_MAX, START_TIME_BANDS, guestsBand, occasionToEventType, type BriefPrefill } from '@/lib/private-events';
+import { BUDGET_RANGES, EVENT_OCCASIONS, NEEDS, SHORTLIST_MAX, START_TIME_BANDS, guestsBand, monthOptions, monthToDate, occasionToEventType, type BriefPrefill } from '@/lib/private-events';
 import { site } from '@/lib/site';
 import { todayChicagoISO } from '@/lib/stay-dates';
 
@@ -31,34 +31,39 @@ function formatDeadline(iso?: string): string | undefined {
 }
 
 /**
- * The brief. One form: the event, the venues (a shortlist carried in from
- * `?v=`, or "let Nashville.com suggest"), and the planner. Posts to
- * /api/private-events/, which stores the inquiry, creates one lead per venue
- * and routes each one. Success copy appears only on a confirmed response;
- * when the intake is not connected the form offers a mailto with the same
- * details instead of pretending the brief was received.
+ * The brief. Five required fields (occasion, guests, a date or a month, name,
+ * email) so it sends in under a minute; budget, neighborhoods, needs, phone,
+ * organization and notes sit behind "Add detail" and can also be added later
+ * from the link in the confirmation email. The venues section appears only
+ * once at least one venue is published; until then the desk matches by hand.
+ * Posts to /api/private-events/; success copy appears only on a confirmed
+ * response, and a disconnected intake offers a mailto instead of pretending.
  */
 export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed = false }: { prefill?: BriefPrefill; shortlist?: Array<{ slug: string; name: string }>; venuesListed?: boolean }) {
   const [state, setState] = useState<State>('idle');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [occasion, setOccasion] = useState<string>(prefill.occasion ?? (prefill.type ? LEGACY_TO_OCCASION[prefill.type] : ''));
   const [guests, setGuests] = useState(prefill.guests ? String(prefill.guests) : '');
+  const [dateMode, setDateMode] = useState<'date' | 'month'>('date');
   const [preferredDate, setPreferredDate] = useState(prefill.date ?? '');
+  const [month, setMonth] = useState('');
   const [flexibleDates, setFlexibleDates] = useState(Boolean(prefill.flexible));
-  const [startTimeBand, setStartTimeBand] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [detailOpen, setDetailOpen] = useState(false);
   const [budget, setBudget] = useState('');
   const [hoods, setHoods] = useState<string[]>([]);
   const [needs, setNeeds] = useState<Need[]>([]);
-  const [details, setDetails] = useState('');
-  const [picked, setPicked] = useState<Array<{ slug: string; name: string }>>(shortlist.slice(0, SHORTLIST_MAX));
-  const [suggest, setSuggest] = useState(shortlist.length === 0);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [startTimeBand, setStartTimeBand] = useState('');
   const [company, setCompany] = useState('');
   const [phone, setPhone] = useState('');
+  const [details, setDetails] = useState('');
   const [howHeard, setHowHeard] = useState('');
+  const [picked, setPicked] = useState<Array<{ slug: string; name: string }>>(shortlist.slice(0, SHORTLIST_MAX));
+  const [suggest, setSuggest] = useState(true);
   const [receipt, setReceipt] = useState<Receipt>({ reference: null, venues: [] });
   const started = useRef(false);
+  const months = useRef(monthOptions()).current;
 
   const occasionTitle = EVENT_OCCASIONS.find((o) => o.value === occasion)?.title ?? 'Private event';
   const needHotelRooms = needs.includes('rooms');
@@ -73,18 +78,21 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
     set(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
   }
 
+  const effectiveDate = dateMode === 'month' ? monthToDate(month) : preferredDate || undefined;
+  const effectiveFlexible = dateMode === 'month' ? true : flexibleDates;
+
   const mailto = `mailto:${site.org.eventsEmail}?subject=${encodeURIComponent(`Private event brief: ${occasionTitle}`)}&body=${encodeURIComponent(
     [
       `Name: ${name}`,
-      `Organization: ${company || '-'}`,
-      `Phone: ${phone || '-'}`,
       `Occasion: ${occasionTitle}`,
       `Guests: ${guests || '-'}`,
-      `Date: ${preferredDate || '-'}${flexibleDates ? ' (flexible)' : ''}${startTimeBand ? `, ${startTimeBand}` : ''}`,
+      `Date: ${effectiveDate ?? '-'}${effectiveFlexible ? ' (flexible)' : ''}`,
       `Budget: ${BUDGET_RANGES.find((b) => b.value === budget)?.label ?? '-'}`,
       `Neighborhoods: ${hoods.join(', ') || '-'}`,
       `Needs: ${needs.join(', ') || '-'}`,
-      `Venues: ${picked.map((v) => v.name).join(', ') || (suggest ? 'suggest for me' : '-')}`,
+      `Venues: ${picked.map((v) => v.name).join(', ') || 'suggest for me'}`,
+      `Organization: ${company || '-'}`,
+      `Phone: ${phone || '-'}`,
       '',
       details,
     ].join('\n'),
@@ -93,10 +101,13 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const local: Record<string, string> = {};
+    const guestCount = guests.trim() ? Number(guests) : null;
     if (!occasion) local.occasion = 'Choose an occasion.';
+    if (guestCount === null || !Number.isInteger(guestCount) || guestCount < 1 || guestCount > 5000) local.guests = 'How many people, roughly? A whole number up to 5,000.';
+    if (dateMode === 'date' && !preferredDate) local.preferredDate = 'Pick a date, or switch to "I only know the month".';
+    if (dateMode === 'month' && !monthToDate(month)) local.preferredDate = 'Pick a month.';
     if (name.trim().length < 2) local.name = 'Enter your name.';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) local.email = 'Enter a valid work email.';
-    if (!picked.length && !suggest) local.venues = 'Pick at least one venue, or let Nashville.com suggest.';
     setFieldErrors(local);
     if (Object.keys(local).length) {
       setState('idle');
@@ -105,7 +116,6 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
     setState('submitting');
     const form = e.currentTarget;
     const honeypot = (form.elements.namedItem('website') as HTMLInputElement | null)?.value ?? '';
-    const guestCount = guests.trim() ? Number(guests) : null;
     try {
       const res = await fetch('/api/private-events/', {
         method: 'POST',
@@ -118,8 +128,8 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
           eventType: occasionToEventType(occasion),
           occasion,
           guests: guestCount,
-          preferredDate: preferredDate || null,
-          flexibleDates,
+          preferredDate: effectiveDate ?? null,
+          flexibleDates: effectiveFlexible,
           startTimeBand: startTimeBand || null,
           budget: budget || null,
           neighborhoods: hoods,
@@ -127,7 +137,7 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
           details: details.trim() || null,
           needHotelRooms,
           venueSlugs: picked.map((v) => v.slug),
-          suggest,
+          suggest: picked.length ? suggest : true,
           howHeard: howHeard.trim() || null,
           website: honeypot,
           sourcePath: window.location.pathname + window.location.search,
@@ -172,11 +182,11 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
             </ul>
           </>
         ) : (
-          <p className="mt-2 max-w-prose text-[15px] text-ink-soft">Our events desk has it and will reply to {email.trim()} with spaces that fit.</p>
+          <p className="mt-2 max-w-prose text-[15px] text-ink-soft">Our events desk has it and will match you by hand within one business day, replying to {email.trim()} with spaces that fit.</p>
         )}
         {receipt.reference ? (
           <p className="mt-3 text-[15px] text-ink">
-            Your reference: <strong>{receipt.reference}</strong>. A copy is on its way to your inbox.
+            Your reference: <strong>{receipt.reference}</strong>. A copy is on its way to your inbox, with a link to add budget, neighborhoods and notes whenever you like.
           </p>
         ) : null}
         <p className="mt-3 max-w-prose text-2xs text-ink-soft">
@@ -197,9 +207,8 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
   const chip = (on: boolean) => `inline-flex min-h-11 cursor-pointer items-center gap-2 rounded border px-3 text-sm ${on ? 'border-ink bg-paper-sunk font-semibold text-ink' : 'border-paper-edge bg-paper text-ink'}`;
 
   return (
-    <form onSubmit={onSubmit} onFocus={touch} noValidate aria-label="Private event brief" className="grid gap-8">
-      <fieldset className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <legend className="mb-3 font-sans text-2xs font-bold uppercase tracking-[0.14em] text-ink">1. The event</legend>
+    <form onSubmit={onSubmit} onFocus={touch} noValidate aria-label="Private event brief" className="grid gap-6">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="inq-occasion" className={labelClass}>
             Occasion
@@ -217,119 +226,40 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
         </div>
         <div>
           <label htmlFor="inq-guests" className={labelClass}>
-            Estimated guests
+            Guests
           </label>
-          <input id="inq-guests" name="guests" type="number" min={1} max={5000} inputMode="numeric" value={guests} onChange={(e) => setGuests(e.target.value)} placeholder="e.g. 50" aria-invalid={Boolean(fieldErrors.guests)} aria-describedby={fieldErrors.guests ? 'inq-guests-error' : undefined} className={field} />
+          <input id="inq-guests" name="guests" type="number" min={1} max={5000} inputMode="numeric" required value={guests} onChange={(e) => setGuests(e.target.value)} placeholder="e.g. 50" aria-invalid={Boolean(fieldErrors.guests)} aria-describedby={fieldErrors.guests ? 'inq-guests-error' : undefined} className={field} />
           {err('guests')}
         </div>
-        <div>
-          <label htmlFor="inq-budget" className={labelClass}>
-            Budget range
-          </label>
-          <select id="inq-budget" name="budget" value={budget} onChange={(e) => setBudget(e.target.value)} className={field}>
-            <option value="">Select a range</option>
-            {BUDGET_RANGES.map((b) => (
-              <option key={b.value} value={b.value}>
-                {b.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="inq-date" className={labelClass}>
-            Preferred date
-          </label>
-          <DateField id="inq-date" name="preferredDate" value={preferredDate} min={todayChicagoISO()} onChange={setPreferredDate} aria-invalid={Boolean(fieldErrors.preferredDate)} aria-describedby={fieldErrors.preferredDate ? 'inq-preferredDate-error' : undefined} className={field} label="Open the calendar for your preferred date" />
+        <div className="sm:col-span-2">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4">
+            <label htmlFor={dateMode === 'date' ? 'inq-date' : 'inq-month'} className={labelClass}>
+              {dateMode === 'date' ? 'Date' : 'Month'}
+            </label>
+            <button type="button" onClick={() => setDateMode(dateMode === 'date' ? 'month' : 'date')} className="text-sm font-semibold text-ink underline underline-offset-[0.2em]">
+              {dateMode === 'date' ? 'I only know the month' : 'I have a date'}
+            </button>
+          </div>
+          {dateMode === 'date' ? (
+            <>
+              <DateField id="inq-date" name="preferredDate" value={preferredDate} min={todayChicagoISO()} required onChange={setPreferredDate} aria-invalid={Boolean(fieldErrors.preferredDate)} aria-describedby={fieldErrors.preferredDate ? 'inq-preferredDate-error' : undefined} className={field} label="Open the calendar for your event date" />
+              <label className="mt-2 inline-flex min-h-8 items-center gap-2 text-sm text-ink">
+                <input type="checkbox" name="flexibleDates" checked={flexibleDates} onChange={(e) => setFlexibleDates(e.target.checked)} className="h-4 w-4 accent-ink" />
+                A day or two either side works
+              </label>
+            </>
+          ) : (
+            <select id="inq-month" name="month" required value={month} onChange={(e) => setMonth(e.target.value)} aria-invalid={Boolean(fieldErrors.preferredDate)} aria-describedby={fieldErrors.preferredDate ? 'inq-preferredDate-error' : undefined} className={field}>
+              <option value="">Select a month</option>
+              {months.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+          )}
           {err('preferredDate')}
-          <label className="mt-2 inline-flex min-h-8 items-center gap-2 text-sm text-ink">
-            <input type="checkbox" name="flexibleDates" checked={flexibleDates} onChange={(e) => setFlexibleDates(e.target.checked)} className="h-4 w-4 accent-ink" />
-            Flexible dates
-          </label>
         </div>
-        <div>
-          <label htmlFor="inq-start" className={labelClass}>
-            Start time
-          </label>
-          <select id="inq-start" name="startTimeBand" value={startTimeBand} onChange={(e) => setStartTimeBand(e.target.value)} className={field}>
-            <option value="">Not sure yet</option>
-            {START_TIME_BANDS.map((b) => (
-              <option key={b.value} value={b.value}>
-                {b.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="sm:col-span-2 lg:col-span-3">
-          <p className={labelClass}>Neighborhoods you would consider</p>
-          <ul className="mt-1 flex flex-wrap gap-2">
-            {neighborhoods.map((n) => {
-              const on = hoods.includes(n.slug);
-              return (
-                <li key={n.slug}>
-                  <label className={chip(on)}>
-                    <input type="checkbox" name="neighborhoods" value={n.slug} checked={on} onChange={() => toggle(hoods, n.slug, setHoods)} className="sr-only" />
-                    {n.name}
-                  </label>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-        <div className="sm:col-span-2 lg:col-span-3">
-          <p className={labelClass}>What you need</p>
-          <ul className="mt-1 flex flex-wrap gap-2">
-            {NEEDS.map((n) => {
-              const on = needs.includes(n.value);
-              return (
-                <li key={n.value}>
-                  <label className={chip(on)}>
-                    <input type="checkbox" name="needs" value={n.value} checked={on} onChange={() => toggle(needs, n.value, setNeeds)} className="sr-only" />
-                    {n.label}
-                  </label>
-                </li>
-              );
-            })}
-          </ul>
-          {needHotelRooms ? <p className="mt-2 text-sm text-ink-soft">Our group hotels desk gets a copy and follows up on a room block separately.</p> : null}
-        </div>
-        <div className="sm:col-span-2 lg:col-span-3">
-          <label htmlFor="inq-details" className={labelClass}>
-            Notes for the venues
-          </label>
-          <textarea id="inq-details" name="details" rows={4} maxLength={4000} value={details} onChange={(e) => setDetails(e.target.value)} placeholder="The shape of the evening, must-haves, anything a venue should know before replying." className={`${field} min-h-[7rem] resize-y`} />
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend className="mb-3 font-sans text-2xs font-bold uppercase tracking-[0.14em] text-ink">2. Venues</legend>
-        {picked.length ? (
-          <ul className="grid gap-2">
-            {picked.map((v) => (
-              <li key={v.slug} className="flex items-center justify-between gap-3 rounded border border-paper-edge bg-paper px-3 py-2 text-[15px] text-ink">
-                <span className="font-semibold">{v.name}</span>
-                <button type="button" onClick={() => setPicked(picked.filter((p) => p.slug !== v.slug))} className="inline-flex min-h-9 items-center text-sm text-ink-soft underline underline-offset-[0.2em] hover:text-ink">
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-[15px] text-ink-soft">
-            No shortlist yet. {venuesListed ? 'Browse the venues above and add up to five, or let Nashville.com pick for fit.' : 'Nashville.com will match your brief by hand until the first venues are published.'}
-          </p>
-        )}
-        {picked.length < SHORTLIST_MAX ? (
-          <label className="mt-3 inline-flex min-h-11 items-center gap-2 text-[15px] text-ink">
-            <input type="checkbox" name="suggest" checked={suggest} onChange={(e) => setSuggest(e.target.checked)} className="h-4 w-4 accent-ink" />
-            {picked.length ? `Let Nashville.com add venues that fit, up to ${SHORTLIST_MAX} in total` : 'Let Nashville.com suggest up to five venues that fit'}
-          </label>
-        ) : null}
-        {err('venues')}
-        <p className="mt-2 text-2xs text-ink-soft">Suggestions are ranked by fit: capacity, minimum spend, neighborhood and what you need. Ownership, fees and sponsorship are not inputs.</p>
-      </fieldset>
-
-      <fieldset className="grid gap-4 sm:grid-cols-2">
-        <legend className="mb-3 font-sans text-2xs font-bold uppercase tracking-[0.14em] text-ink">3. You</legend>
         <div>
           <label htmlFor="inq-name" className={labelClass}>
             Name
@@ -344,25 +274,128 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
           <input id="inq-email" name="email" type="email" autoComplete="email" inputMode="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" aria-invalid={Boolean(fieldErrors.email)} aria-describedby={fieldErrors.email ? 'inq-email-error' : undefined} className={field} />
           {err('email')}
         </div>
-        <div>
-          <label htmlFor="inq-company" className={labelClass}>
-            Organization <span className="font-normal text-ink-soft">(optional)</span>
-          </label>
-          <input id="inq-company" name="company" autoComplete="organization" value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company or group" className={field} />
+      </div>
+
+      {venuesListed ? (
+        <fieldset className="rounded-card border border-paper-edge bg-paper p-4">
+          <legend className="px-1 font-sans text-2xs font-bold uppercase tracking-[0.14em] text-ink">Venues</legend>
+          {picked.length ? (
+            <ul className="grid gap-2">
+              {picked.map((v) => (
+                <li key={v.slug} className="flex items-center justify-between gap-3 text-[15px] text-ink">
+                  <span className="font-semibold">{v.name}</span>
+                  <button type="button" onClick={() => setPicked(picked.filter((p) => p.slug !== v.slug))} className="inline-flex min-h-9 items-center text-sm text-ink-soft underline underline-offset-[0.2em] hover:text-ink">
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-[15px] text-ink-soft">Nashville.com will pick up to five venues that fit. Prefer to choose? Add venues to your shortlist from their pages and come back.</p>
+          )}
+          {picked.length && picked.length < SHORTLIST_MAX ? (
+            <label className="mt-3 inline-flex min-h-11 items-center gap-2 text-[15px] text-ink">
+              <input type="checkbox" name="suggest" checked={suggest} onChange={(e) => setSuggest(e.target.checked)} className="h-4 w-4 accent-ink" />
+              Let Nashville.com add venues that fit, up to {SHORTLIST_MAX} in total
+            </label>
+          ) : null}
+          <p className="mt-2 text-2xs text-ink-soft">Suggestions are ranked by fit: capacity, minimum spend, neighborhood and what you need. Ownership, fees and sponsorship are not inputs.</p>
+        </fieldset>
+      ) : null}
+
+      <div className="rounded-card border border-paper-edge bg-paper">
+        <button type="button" aria-expanded={detailOpen} aria-controls="inq-detail" onClick={() => setDetailOpen(!detailOpen)} className="flex min-h-12 w-full items-center justify-between gap-3 px-4 text-left text-[15px] font-semibold text-ink">
+          <span>
+            Add detail <span className="font-normal text-ink-soft">(optional: budget, neighborhoods, needs, notes)</span>
+          </span>
+          <span aria-hidden="true">{detailOpen ? '−' : '+'}</span>
+        </button>
+        <div id="inq-detail" hidden={!detailOpen} className="grid gap-4 border-t border-paper-edge p-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="inq-budget" className={labelClass}>
+              Budget range
+            </label>
+            <select id="inq-budget" name="budget" value={budget} onChange={(e) => setBudget(e.target.value)} className={field}>
+              <option value="">Select a range</option>
+              {BUDGET_RANGES.map((b) => (
+                <option key={b.value} value={b.value}>
+                  {b.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="inq-start" className={labelClass}>
+              Start time
+            </label>
+            <select id="inq-start" name="startTimeBand" value={startTimeBand} onChange={(e) => setStartTimeBand(e.target.value)} className={field}>
+              <option value="">Not sure yet</option>
+              {START_TIME_BANDS.map((b) => (
+                <option key={b.value} value={b.value}>
+                  {b.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="sm:col-span-2">
+            <p className={labelClass}>Neighborhoods you would consider</p>
+            <ul className="mt-1 flex flex-wrap gap-2">
+              {neighborhoods.map((n) => {
+                const on = hoods.includes(n.slug);
+                return (
+                  <li key={n.slug}>
+                    <label className={chip(on)}>
+                      <input type="checkbox" name="neighborhoods" value={n.slug} checked={on} onChange={() => toggle(hoods, n.slug, setHoods)} className="sr-only" />
+                      {n.name}
+                    </label>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          <div className="sm:col-span-2">
+            <p className={labelClass}>What you need</p>
+            <ul className="mt-1 flex flex-wrap gap-2">
+              {NEEDS.map((n) => {
+                const on = needs.includes(n.value);
+                return (
+                  <li key={n.value}>
+                    <label className={chip(on)}>
+                      <input type="checkbox" name="needs" value={n.value} checked={on} onChange={() => toggle(needs, n.value, setNeeds)} className="sr-only" />
+                      {n.label}
+                    </label>
+                  </li>
+                );
+              })}
+            </ul>
+            {needHotelRooms ? <p className="mt-2 text-sm text-ink-soft">Our group hotels desk gets a copy and follows up on a room block separately.</p> : null}
+          </div>
+          <div>
+            <label htmlFor="inq-company" className={labelClass}>
+              Organization
+            </label>
+            <input id="inq-company" name="company" autoComplete="organization" value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company or group" className={field} />
+          </div>
+          <div>
+            <label htmlFor="inq-phone" className={labelClass}>
+              Phone
+            </label>
+            <input id="inq-phone" name="phone" type="tel" autoComplete="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="For venues that would rather call" className={field} />
+          </div>
+          <div className="sm:col-span-2">
+            <label htmlFor="inq-details" className={labelClass}>
+              Notes for the venues
+            </label>
+            <textarea id="inq-details" name="details" rows={4} maxLength={4000} value={details} onChange={(e) => setDetails(e.target.value)} placeholder="The shape of the evening, must-haves, anything a venue should know before replying." className={`${field} min-h-[7rem] resize-y`} />
+          </div>
+          <div className="sm:col-span-2">
+            <label htmlFor="inq-heard" className={labelClass}>
+              How did you hear about us?
+            </label>
+            <input id="inq-heard" name="howHeard" value={howHeard} onChange={(e) => setHowHeard(e.target.value)} maxLength={120} className={field} />
+          </div>
         </div>
-        <div>
-          <label htmlFor="inq-phone" className={labelClass}>
-            Phone <span className="font-normal text-ink-soft">(optional)</span>
-          </label>
-          <input id="inq-phone" name="phone" type="tel" autoComplete="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="For venues that would rather call" className={field} />
-        </div>
-        <div className="sm:col-span-2">
-          <label htmlFor="inq-heard" className={labelClass}>
-            How did you hear about us? <span className="font-normal text-ink-soft">(optional)</span>
-          </label>
-          <input id="inq-heard" name="howHeard" value={howHeard} onChange={(e) => setHowHeard(e.target.value)} maxLength={120} className={field} />
-        </div>
-      </fieldset>
+      </div>
 
       {/* Honeypot: hidden from people, filled by bots. */}
       <div className="hidden" aria-hidden="true">
@@ -372,7 +405,7 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
 
       <div className="flex flex-wrap items-center gap-4">
         <button type="submit" className="btn-primary" disabled={state === 'submitting'}>
-          {state === 'submitting' ? 'Sending…' : picked.length ? `Send to ${picked.length} ${picked.length === 1 ? 'venue' : 'venues'}${suggest ? ' and more' : ''}` : 'Send my brief'}
+          {state === 'submitting' ? 'Sending…' : picked.length ? `Send to ${picked.length} ${picked.length === 1 ? 'venue' : 'venues'}${suggest && picked.length < SHORTLIST_MAX ? ' and more' : ''}` : 'Send my brief'}
           <span aria-hidden="true">→</span>
         </button>
         <p className="text-2xs text-ink-soft">Sending a brief does not confirm availability or a booking. You confirm with the venue.</p>

@@ -3,7 +3,7 @@ import { CalendarIcon } from '@/components/Icons';
 import SectionHead from '@/components/hub/SectionHead';
 import { formatKeyDate } from '@/lib/events/present';
 import { listKeyDates } from '@/lib/events/venues';
-import { withShortlist } from '@/lib/private-events';
+import { briefHref } from '@/lib/private-events';
 
 /**
  * The dates venues fill first, from `event_key_dates` (content, kept by hand).
@@ -25,7 +25,7 @@ export default async function BigDates({ shortlist }: { shortlist: string[] }) {
             <div className="min-w-0">
               <p className="font-sans text-[15px] font-bold text-ink">{d.label}</p>
               <p className="text-sm text-ink-soft">{formatKeyDate(d.date)}</p>
-              <Link href={withShortlist(`/private-events/?date=${d.date}#inquiry`, shortlist)} className="mt-1 inline-flex min-h-8 items-center text-sm font-semibold text-ink underline underline-offset-[0.2em]">
+              <Link href={briefHref({ date: d.date, shortlist })} className="mt-1 inline-flex min-h-8 items-center text-sm font-semibold text-ink underline underline-offset-[0.2em]">
                 Ask venues about this date
               </Link>
             </div>

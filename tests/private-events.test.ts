@@ -4,7 +4,7 @@
  */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { EVENT_OCCASIONS, SIZE_BANDS, guestsBand, isEventType, occasionToEventType, parseShortlist, sizeBandBySlug, spaceFitsBand, venueFitsBand, withShortlist } from '../src/lib/private-events.ts';
+import { EVENT_OCCASIONS, SIZE_BANDS, briefHref, formatBriefDate, guestsBand, isEventType, monthToDate, occasionToEventType, parseShortlist, readBriefParams, sizeBandBySlug, spaceFitsBand, venueFitsBand, withShortlist } from '../src/lib/private-events.ts';
 
 test('shortlist parsing keeps at most five valid, distinct slugs', () => {
   assert.deepEqual(parseShortlist('jbjs-nashville,playdate-nashville'), ['jbjs-nashville', 'playdate-nashville']);
@@ -40,4 +40,25 @@ test('every occasion stores a legal event_type and guest bands share the browse 
   assert.equal(guestsBand(75), '25-75');
   assert.equal(guestsBand(900), '200-plus');
   assert.equal(guestsBand(undefined), undefined);
+});
+
+test('the brief page reads its state from the URL and every entry point can build that URL', () => {
+  const read = readBriefParams({ occasion: 'bachelorette', guests: '24', date: '2026-12-31', flexible: '1', v: 'jbjs-nashville,playdate-nashville', venue: 'hank-williams-jr-boogie-bar' });
+  assert.deepEqual(read.prefill, { type: undefined, occasion: 'bachelorette', guests: 24, date: '2026-12-31', flexible: true });
+  assert.deepEqual(read.shortlist, ['jbjs-nashville', 'playdate-nashville']);
+  assert.equal(read.venue, 'hank-williams-jr-boogie-bar');
+  const bad = readBriefParams({ occasion: 'wedding', guests: '-3', date: '2026-13-40', venue: '../etc' });
+  assert.deepEqual(bad.prefill, { type: undefined, occasion: undefined, guests: undefined, date: undefined, flexible: false });
+  assert.equal(bad.venue, undefined);
+  assert.equal(briefHref(), '/private-events/brief/');
+  assert.equal(briefHref({ occasion: 'corporate', guests: 40, date: '2026-12-31', flexible: true, shortlist: ['a-b'], venue: 'c-d' }), '/private-events/brief/?occasion=corporate&guests=40&date=2026-12-31&flexible=1&v=a-b&venue=c-d');
+});
+
+test('a month-only answer is stored as the first of the month with flexible dates, and reads back as the month', () => {
+  assert.equal(monthToDate('2026-12'), '2026-12-01');
+  assert.equal(monthToDate('2026-13'), undefined);
+  assert.equal(formatBriefDate('2026-12-01', true), 'December 2026 (any date)');
+  assert.equal(formatBriefDate('2026-12-31', true), 'Thu, Dec 31, 2026 (flexible)');
+  assert.equal(formatBriefDate('2026-12-31', false), 'Thu, Dec 31, 2026');
+  assert.equal(formatBriefDate(undefined, false), 'not set');
 });

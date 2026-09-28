@@ -4,7 +4,7 @@ import { PinIcon, PeopleIcon } from '@/components/Icons';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
 import { isSponsored, venueCapacity, venueChips, venueFromPrice } from '@/lib/events/present';
 import { formatUsd, type EventVenue } from '@/lib/events/types';
-import { VENUE_KIND_LABEL, withShortlist } from '@/lib/private-events';
+import { VENUE_KIND_LABEL, briefHref, withShortlist } from '@/lib/private-events';
 import { PreviewText } from './Preview';
 import { ShortlistButton } from './Shortlist';
 
@@ -99,10 +99,10 @@ export function VenueGrid({ venues, shortlist, empty }: { venues: EventVenue[]; 
       <div className="rounded-card border border-dashed border-paper-edge bg-paper-card px-6 py-12 text-center">
         <h3 className="font-display text-xl">{empty.title}</h3>
         <p className="mx-auto mt-2 max-w-md text-[15px] text-ink-soft">{empty.description}</p>
-        <a href="#inquiry" className="btn-primary mt-5">
+        <Link href={briefHref({ shortlist })} className="btn-primary mt-5">
           Send a brief anyway
           <span aria-hidden="true">→</span>
-        </a>
+        </Link>
       </div>
     );
   }
