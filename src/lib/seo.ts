@@ -63,6 +63,8 @@ interface MetaArgs {
   authorName?: string;
   /** Set true on thin or duplicative pages we do not want indexed. */
   noindex?: boolean;
+  /** Canonical a filtered view at another path (e.g. a browse page whose editorial intro is not written yet points at its hub). */
+  canonicalPath?: string;
 }
 
 /** Builds a complete, unique metadata object including OG and Twitter cards. */
@@ -75,8 +77,10 @@ export function buildMetadata({
   modifiedTime,
   authorName,
   noindex,
+  canonicalPath,
 }: MetaArgs): Metadata {
   const url = canonical(path);
+  const canonicalUrl = canonical(canonicalPath ?? path);
   const fullTitle = title.includes(site.titleSuffix) ? title : `${title} | ${site.titleSuffix}`;
   const ogImage = {
     url: canonical('/media/social/og-default.jpg'),
@@ -90,7 +94,7 @@ export function buildMetadata({
     // brand a second time.
     title: { absolute: fullTitle },
     description,
-    alternates: { canonical: url },
+    alternates: { canonical: canonicalUrl },
     // Omit robots when indexable — indexing/following are the HTML default.
     // Only emit an explicit directive when we must block indexing.
     ...(blockIndexing ? { robots: { index: false, follow: true } } : {}),

@@ -23,6 +23,12 @@ export const ANALYTICS_EVENTS = {
   RESTAURANT_RESERVATION_CLICKED: 'restaurant_reservation_clicked',
   NEWSLETTER_SIGNUP: 'newsletter_signup',
   EVENT_INQUIRY_SUBMITTED: 'event_inquiry_submitted',
+  /** Private events marketplace (docs/PRIVATE-EVENTS.md). */
+  EVENTS_BRIEF_STARTED: 'events_brief_started',
+  EVENTS_BRIEF_SENT: 'events_brief_sent',
+  EVENTS_VENUE_VIEWED: 'events_venue_viewed',
+  EVENTS_SHORTLIST_ADDED: 'events_shortlist_added',
+  EVENTS_PACKAGE_CLICKED: 'events_package_clicked',
   SPONSOR_CLICKED: 'sponsor_clicked',
   MAP_OPENED: 'map_opened',
   PHONE_CLICKED: 'phone_clicked',
@@ -54,6 +60,11 @@ export interface AnalyticsPayload {
   cached?: boolean;
   trip_type?: string;
   value?: number;
+  /** Private events: how many venues a brief went to, and the planner's guest band. */
+  venue_count?: number;
+  occasion?: string;
+  guests_band?: string;
+  utm?: Record<string, string>;
   [key: string]: unknown;
 }
 
