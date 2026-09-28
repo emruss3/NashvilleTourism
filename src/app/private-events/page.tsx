@@ -4,7 +4,6 @@ import { SmartImage } from '@/components/Media';
 import { Breadcrumbs, JsonLd } from '@/components/Ui';
 import PageIntro from '@/components/hub/PageIntro';
 import SectionHead from '@/components/hub/SectionHead';
-import BigDates from '@/components/private-events/BigDates';
 import EventsDisclosure from '@/components/private-events/EventsDisclosure';
 import { PreviewBanner } from '@/components/private-events/Preview';
 import ShortlistBar from '@/components/private-events/Shortlist';
@@ -276,8 +275,6 @@ export default async function PrivateEventsPage(props: { searchParams?: Promise<
           </div>
         </form>
       </section>
-
-      <BigDates shortlist={shortlist} />
 
       <div className="pb-24" />
       {showGrid ? <ShortlistBar venues={venues.map((v) => ({ slug: v.slug, name: v.name }))} /> : null}
