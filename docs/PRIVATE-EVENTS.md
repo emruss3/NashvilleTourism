@@ -38,6 +38,8 @@ Venue reply: the link in the lead email opens `/private-events/reply/{token}/`, 
 | `/private-events/brief/details/[token]/` | Planner "add detail" page from the signed link in the confirmation email (60-day HMAC token in its own signing domain); posts to `/api/private-events/details/`, updates the inquiry, emails the desk | `noindex` |
 | `/private-events/status/[reference]/` | Planner countdown: every venue on the brief as waiting, overdue, replied, proposal, unavailable or booked, with "replies by" in Nashville time from `event_leads.sla_deadline_at`. Looked up by reference only; shows venue names and statuses, never the planner's contact details. Linked from the confirmation and the receipt | `noindex` |
 | `/private-events/reply/[token]/` | Venue reply page | `noindex` |
+| `/venues/` | Venue dashboard (listing editor) behind Supabase magic-link auth | `noindex` |
+| `/admin/events/` | Desk view: members, publish blockers, first-publish approval | admin session |
 
 **Hub order.** Venues first, always: hero, the grid with occasion, neighborhood and size chips (`?occasion=`, `?hood=`, `?size=`) and the shortlist bar, then how it works and the disclosure, then the three-field quick brief ("Prefer we pick?") which hands off to `/private-events/brief/`. "Send to these N" from the shortlist is the primary action; "let Nashville.com suggest" is the fallback.
 
@@ -92,6 +94,22 @@ Migrations applied 2026-09-28 with the Supabase connector: `…120000` (schema, 
 | --- | --- | --- | --- |
 | anon / authenticated | `event_venues_public` view only: published rows, public columns (no contacts, lead system, referral terms or fee terms). No grant on `event_venues` and no policy, so a mistaken grant would still read nothing | published rows only (RLS) | nothing |
 | service role (server) | base table; pages read the view, preview builds read unpublished rows, routing reads contacts (`listVenues({ withContacts: true })`) | all | all |
+
+## Venue dashboard (/venues/)
+
+Venues edit their own listing at `/venues/`: venue fields, spaces (exact minimum in, public band preview), features, hours, virtual tour link, packages, and photos with a required rights box and credit. Sign-in is a Supabase magic link; no password. Everything the dashboard does runs in the browser against Supabase as the signed-in user, and row level security (`is_venue_member()`, `event_venue_users`) limits every read and write to venues that user's email is attached to. The service role is never in the browser.
+
+Setup once in Supabase Auth (human step): enable the Email provider with magic links (OTP), set Site URL to `https://nashroam.com` (later `https://nashville.com`), and add `https://nashroam.com/venues/` and the Vercel preview pattern `https://*-bobs-projects-d150ad75.vercel.app/venues/` to Redirect URLs. Sending from Supabase's default mailer is fine for a handful of venues; switch the Auth SMTP to Resend when the volume grows.
+
+Giving a venue access: `/admin/events/` → the venue card → "Add by email" (or insert into `event_venue_users`). The seed migration attached `TODO-events@example.com` as owner of the three BPH venues; replace it with the real events inbox. A user who signs in with an email that is on no venue sees a "not attached" message.
+
+First publish: the venue completes its details and at least one space, then presses "Request approval". The desk sees the request on `/admin/events/`, checks the listing and the signed referral terms, and approves (optionally publishing in the same step; the publish triggers still run and any refusal is shown). After approval the venue publishes and unpublishes itself; spaces and packages publish from their own forms. The plain-language rules in `src/lib/events/publish-check.ts` mirror the triggers, and the triggers stay the guard.
+
+Photos land in the `venue-media` storage bucket at `{venue_id}/{uuid}.{ext}` (public read; members write inside their own folder). A row cannot be inserted without `rights_cleared` and a credit.
+
+Packages (`event_packages`) are the one place "From $X" shows. The button goes to the venue's own `book_url` with `?ref=nashville&client_reference=nsh:package:{venue}:{package}`; the click is `events_package_clicked`. No payment or deposit here.
+
+Next PR: the leads inbox (open leads, SLA countdown, one-click reply, outcome and booked value) in the same dashboard.
 
 ## Referral one-pager checklist (signed before publishing)
 

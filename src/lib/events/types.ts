@@ -53,6 +53,9 @@ export interface EventVenue {
   published: boolean;
   featuredUntil?: string;
   editorialPriority: number;
+  tourUrl?: string;
+  hoursNote?: string;
+  features: string[];
   spaces: EventSpace[];
   /**
    * Commercial and contact fields are present only on a `withContacts` read
@@ -61,10 +64,31 @@ export interface EventVenue {
    */
   leadSystem?: LeadSystem;
   feePct?: number;
+  approvedAt?: string;
+  publishRequestedAt?: string;
   salesContactName?: string;
   salesContactEmail?: string;
   salesContactPhone?: string;
   leadSystemEndpoint?: string;
+}
+
+export interface EventPackage {
+  id: string;
+  venueId: string;
+  spaceId?: string;
+  slug: string;
+  name: string;
+  summary?: string;
+  forOccasions: string[];
+  minGuests?: number;
+  maxGuests?: number;
+  priceCents: number;
+  priceBasis: 'total' | 'per_person';
+  includes: string[];
+  depositNote?: string;
+  bookUrl?: string;
+  sortOrder: number;
+  published: boolean;
 }
 
 export interface EventMedia {
@@ -85,7 +109,7 @@ export interface KeyDate {
 
 /** True when any text on the venue or its spaces still carries a placeholder. */
 export function hasPlaceholder(venue: EventVenue): boolean {
-  const texts = [venue.name, venue.summary, venue.description, venue.address, ...venue.spaces.flatMap((s) => [s.name, s.summary, s.pricingNote, s.avNote, s.hoursNote, s.blackoutNote])];
+  const texts = [venue.name, venue.summary, venue.description, venue.address, venue.hoursNote, ...venue.spaces.flatMap((s) => [s.name, s.summary, s.pricingNote, s.avNote, s.hoursNote, s.blackoutNote])];
   return texts.some((t) => typeof t === 'string' && /TODO/.test(t));
 }
 

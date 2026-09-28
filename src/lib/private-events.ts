@@ -263,3 +263,22 @@ export function formatBriefDate(date: string | undefined, flexible: boolean): st
   const day = utc.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
   return flexible ? `${day} (flexible)` : day;
 }
+
+/** Venue-level features a venue can tick in the dashboard; chips on the venue page. */
+export const VENUE_FEATURES: { value: string; label: string }[] = [
+  { value: 'stage', label: 'Stage' },
+  { value: 'house_sound', label: 'House sound system' },
+  { value: 'dance_floor', label: 'Dance floor' },
+  { value: 'full_bar', label: 'Full bar' },
+  { value: 'in_house_catering', label: 'In-house catering' },
+  { value: 'outside_catering', label: 'Outside catering allowed' },
+  { value: 'rooftop', label: 'Rooftop' },
+  { value: 'parking', label: 'Parking on site' },
+  { value: 'valet', label: 'Valet' },
+  { value: 'step_free', label: 'Step-free access' },
+  { value: 'late_license', label: 'Late license' },
+  { value: 'kids_ok', label: 'Kids welcome' },
+];
+export function featureLabel(value: string): string {
+  return VENUE_FEATURES.find((f) => f.value === value)?.label ?? value.replace(/_/g, ' ');
+}

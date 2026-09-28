@@ -1,5 +1,5 @@
 import { getSupabaseServiceClient } from '@/lib/supabase/server';
-import type { EventMedia, EventSpace, EventVenue, KeyDate } from './types';
+import type { EventMedia, EventPackage, EventSpace, EventVenue, KeyDate } from './types';
 
 /**
  * Server-side reads for the private events marketplace.
@@ -76,11 +76,16 @@ function mapVenue(r: VenueRow, spaces: EventSpace[], withContacts: boolean): Eve
     published: 'published' in r ? Boolean(r.published) : true,
     featuredUntil: str(r.featured_until),
     editorialPriority: num(r.editorial_priority) ?? 0,
+    tourUrl: str(r.tour_url),
+    hoursNote: str(r.hours_note),
+    features: Array.isArray(r.features) ? (r.features as unknown[]).map(String) : [],
     spaces: spaces.filter((s) => s.venueId === String(r.id)).sort((a, b) => a.sortOrder - b.sortOrder),
     ...(withContacts
       ? {
           leadSystem: (r.lead_system as EventVenue['leadSystem']) ?? 'email',
           feePct: num(r.fee_pct) ?? 5,
+          approvedAt: str(r.approved_at),
+          publishRequestedAt: str(r.publish_requested_at),
           salesContactName: str(r.sales_contact_name),
           salesContactEmail: str(r.sales_contact_email),
           salesContactPhone: str(r.sales_contact_phone),
@@ -91,11 +96,11 @@ function mapVenue(r: VenueRow, spaces: EventSpace[], withContacts: boolean): Eve
 }
 
 /** Columns of the `event_venues_public` view, the anon surface. */
-const VIEW_COLUMNS = 'id,slug,name,kind,neighborhood_slug,address,lat,lng,summary,description,website,owned_by_bph,place_id,sla_hours,featured_until,editorial_priority';
+const VIEW_COLUMNS = 'id,slug,name,kind,neighborhood_slug,address,lat,lng,summary,description,website,owned_by_bph,place_id,sla_hours,featured_until,editorial_priority,tour_url,hours_note,features';
 /** Base-table columns for preview reads: the view's columns plus `published`. */
 const PREVIEW_COLUMNS = `${VIEW_COLUMNS},published`;
 /** Base-table columns for routing: everything the marketplace needs to reach and pay a venue. */
-const CONTACT_COLUMNS = `${PREVIEW_COLUMNS},lead_system,fee_pct,sales_contact_name,sales_contact_email,sales_contact_phone,lead_system_endpoint`;
+const CONTACT_COLUMNS = `${PREVIEW_COLUMNS},lead_system,fee_pct,approved_at,publish_requested_at,sales_contact_name,sales_contact_email,sales_contact_phone,lead_system_endpoint`;
 
 export async function listVenues(opts: { includeUnpublished?: boolean; withContacts?: boolean; ids?: string[]; slugs?: string[] } = {}): Promise<EventVenue[]> {
   const supabase = getSupabaseServiceClient();
@@ -131,6 +136,37 @@ export async function listMedia(venueId: string): Promise<EventMedia[]> {
   if (!supabase) return [];
   const { data } = await supabase.from('event_media').select('id,venue_id,space_id,url,alt,credit,sort_order').eq('venue_id', venueId).eq('rights_cleared', true).order('sort_order');
   return (data ?? []).map((r) => ({ id: String(r.id), venueId: String(r.venue_id), spaceId: str(r.space_id), url: String(r.url), alt: String(r.alt ?? ''), credit: str(r.credit), sortOrder: num(r.sort_order) ?? 0 }));
+}
+
+export function mapPackage(r: VenueRow): EventPackage {
+  return {
+    id: String(r.id),
+    venueId: String(r.venue_id),
+    spaceId: str(r.space_id),
+    slug: String(r.slug),
+    name: String(r.name),
+    summary: str(r.summary),
+    forOccasions: Array.isArray(r.for_occasions) ? (r.for_occasions as unknown[]).map(String) : [],
+    minGuests: num(r.min_guests),
+    maxGuests: num(r.max_guests),
+    priceCents: num(r.price_cents) ?? 0,
+    priceBasis: r.price_basis === 'per_person' ? 'per_person' : 'total',
+    includes: Array.isArray(r.includes) ? (r.includes as unknown[]).map(String) : [],
+    depositNote: str(r.deposit_note),
+    bookUrl: str(r.book_url),
+    sortOrder: num(r.sort_order) ?? 0,
+    published: Boolean(r.published),
+  };
+}
+
+/** Published packages for a venue (every package in preview builds). */
+export async function listPackages(venueId: string): Promise<EventPackage[]> {
+  const supabase = getSupabaseServiceClient();
+  if (!supabase) return [];
+  let q = supabase.from('event_packages').select('*').eq('venue_id', venueId).order('sort_order');
+  if (!showUnpublished()) q = q.eq('published', true);
+  const { data } = await q;
+  return (data ?? []).map((r) => mapPackage(r as VenueRow));
 }
 
 export async function listKeyDates(opts: { from?: string; limit?: number } = {}): Promise<KeyDate[]> {

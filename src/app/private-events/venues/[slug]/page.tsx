@@ -5,13 +5,14 @@ import { Breadcrumbs, Chip, JsonLd, MapLink } from '@/components/Ui';
 import EventsDisclosure from '@/components/private-events/EventsDisclosure';
 import { PreviewBanner, PreviewText } from '@/components/private-events/Preview';
 import ShortlistBar, { ShortlistButton } from '@/components/private-events/Shortlist';
+import PackageCard from '@/components/private-events/PackageCard';
 import SpaceCard from '@/components/private-events/SpaceCard';
 import VenueViewBeacon from '@/components/private-events/VenueViewBeacon';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
 import { isSponsored, venueCapacity } from '@/lib/events/present';
 import { hasPlaceholder } from '@/lib/events/types';
-import { getVenueBySlug, listMedia, listVenues, showUnpublished } from '@/lib/events/venues';
-import { OWNED_VENUE_DISCLOSURE, VENUE_KIND_LABEL, briefHref, parseShortlist, withShortlist } from '@/lib/private-events';
+import { getVenueBySlug, listMedia, listPackages, listVenues, showUnpublished } from '@/lib/events/venues';
+import { OWNED_VENUE_DISCLOSURE, VENUE_KIND_LABEL, briefHref, featureLabel, parseShortlist, withShortlist } from '@/lib/private-events';
 import { buildMetadata, canonical } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
@@ -45,7 +46,7 @@ export default async function VenuePage(props: { params: Promise<{ slug: string 
   const placeholder = hasPlaceholder(venue);
   if ((placeholder || !venue.published) && !showUnpublished()) notFound();
 
-  const [media, all] = await Promise.all([listMedia(venue.id), listVenues()]);
+  const [media, all, packages] = await Promise.all([listMedia(venue.id), listVenues(), listPackages(venue.id)]);
   const shortlist = parseShortlist(query.v);
   const sponsored = isSponsored(venue);
   const cap = venueCapacity(venue);
@@ -113,7 +114,26 @@ export default async function VenuePage(props: { params: Promise<{ slug: string 
               Venue website<span className="sr-only"> (opens in a new tab)</span>
             </a>
           ) : null}
+          {venue.tourUrl ? (
+            <a href={venue.tourUrl} target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-[0.2em]">
+              Virtual tour<span className="sr-only"> (opens in a new tab)</span>
+            </a>
+          ) : null}
         </p>
+        {venue.hoursNote ? (
+          <p className="mt-2 text-[15px] text-ink-soft">
+            Hours for private events: <PreviewText text={venue.hoursNote} />
+          </p>
+        ) : null}
+        {venue.features.length ? (
+          <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Venue features">
+            {venue.features.map((f) => (
+              <li key={f}>
+                <Chip>{featureLabel(f)}</Chip>
+              </li>
+            ))}
+          </ul>
+        ) : null}
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Link href={briefHref({ shortlist, venue: venue.slug })} className="btn-primary">
             Send a brief to {venue.name}
@@ -133,6 +153,22 @@ export default async function VenuePage(props: { params: Promise<{ slug: string 
                   <img src={m.url} alt={m.alt} loading={i === 0 ? 'eager' : 'lazy'} className="h-full w-full object-cover aspect-[4/3]" />
                   {m.credit ? <figcaption className="px-2 py-1 text-2xs text-paper/80">Photo: {m.credit}</figcaption> : null}
                 </figure>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {packages.length ? (
+        <section className="shell pt-8" aria-labelledby="packages-title">
+          <h2 id="packages-title" className="text-[1.75rem] sm:text-[2rem]">
+            Book now
+          </h2>
+          <p className="mt-2 max-w-prose text-[15px] text-ink-soft">Fixed offers with a price, booked on the venue&rsquo;s own page. An instant answer for smaller groups.</p>
+          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {packages.map((p) => (
+              <li key={p.id}>
+                <PackageCard pkg={p} venueName={venue.name} venueSlug={venue.slug} />
               </li>
             ))}
           </ul>
