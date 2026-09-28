@@ -145,7 +145,7 @@ export default async function VenuePage(props: { params: Promise<{ slug: string 
         </h2>
         <p className="mt-2 max-w-prose text-[15px] text-ink-soft">
           {cap.seated || cap.standing ? `Up to ${cap.seated.toLocaleString('en-US')} seated or ${cap.standing.toLocaleString('en-US')} standing across ${spaces.length} ${spaces.length === 1 ? 'space' : 'spaces'}. ` : ''}
-          Prices are where each space starts; the venue confirms the rest with you.
+          Price bands show the scale of each space; the venue quotes exact numbers when it replies.
         </p>
         {spaces.length ? (
           <ul className="mt-6 grid gap-4 lg:grid-cols-2">

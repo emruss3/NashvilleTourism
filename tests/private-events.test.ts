@@ -5,6 +5,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { EVENT_OCCASIONS, SIZE_BANDS, briefHref, formatBriefDate, guestsBand, isEventType, monthToDate, occasionToEventType, parseShortlist, readBriefParams, sizeBandBySlug, spaceFitsBand, venueFitsBand, withShortlist } from '../src/lib/private-events.ts';
+import { formatPerPerson, perPersonRange, priceBandForAmount, spacePriceBand } from '../src/lib/events/types.ts';
 
 test('shortlist parsing keeps at most five valid, distinct slugs', () => {
   assert.deepEqual(parseShortlist('jbjs-nashville,playdate-nashville'), ['jbjs-nashville', 'playdate-nashville']);
@@ -61,4 +62,19 @@ test('a month-only answer is stored as the first of the month with flexible date
   assert.equal(formatBriefDate('2026-12-31', true), 'Thu, Dec 31, 2026 (flexible)');
   assert.equal(formatBriefDate('2026-12-31', false), 'Thu, Dec 31, 2026');
   assert.equal(formatBriefDate(undefined, false), 'not set');
+});
+
+test('price bands derive from the stored minimum and never expose it', () => {
+  assert.equal(priceBandForAmount(0), '$');
+  assert.equal(priceBandForAmount(2499), '$');
+  assert.equal(priceBandForAmount(2500), '$$');
+  assert.equal(priceBandForAmount(9999), '$$$');
+  assert.equal(priceBandForAmount(10000), '$$$$');
+  assert.equal(priceBandForAmount(25000), '$$$$$');
+  assert.deepEqual(spacePriceBand({ pricingModel: 'min_spend', minSpendCents: 750000 }), { band: '$$$', basis: 'minimum spend' });
+  assert.deepEqual(spacePriceBand({ pricingModel: 'buyout', buyoutFromCents: 3000000, minSpendCents: 100000 }), { band: '$$$$$', basis: 'buyout' });
+  assert.equal(spacePriceBand({ pricingModel: 'per_person' }), undefined, 'per-person only spaces carry no event band');
+  assert.deepEqual(perPersonRange({ perPersonCents: 4500, perPersonMaxCents: 8000 }), { min: 45, max: 80 });
+  assert.equal(formatPerPerson({ min: 45, max: 80 }), '$45 to $80 a person');
+  assert.equal(formatPerPerson({ min: 45 }), 'about $45 a person');
 });

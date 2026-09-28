@@ -15,11 +15,17 @@ export const EVENT_TYPES = [
 ] as const;
 export type EventType = (typeof EVENT_TYPES)[number]['value'];
 
+/**
+ * The brief's budget, in the same bands the venue pages show. Stored on
+ * event_inquiries.budget_range; the older dollar-range values stay legal in
+ * the check constraint for rows written before the bands.
+ */
 export const BUDGET_RANGES = [
-  { value: 'under-5k', label: 'Under $5,000' },
-  { value: '5k-15k', label: '$5,000 to $15,000' },
-  { value: '15k-50k', label: '$15,000 to $50,000' },
-  { value: 'over-50k', label: 'Over $50,000' },
+  { value: '$', label: '$ · under $2,500' },
+  { value: '$$', label: '$$ · $2,500 to $5,000' },
+  { value: '$$$', label: '$$$ · $5,000 to $10,000' },
+  { value: '$$$$', label: '$$$$ · $10,000 to $25,000' },
+  { value: '$$$$$', label: '$$$$$ · $25,000 and up' },
   { value: 'undecided', label: 'Not sure yet' },
 ] as const;
 export type BudgetRange = (typeof BUDGET_RANGES)[number]['value'];

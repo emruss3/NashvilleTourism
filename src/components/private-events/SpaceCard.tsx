@@ -1,6 +1,6 @@
 import { Chip } from '@/components/Ui';
 import { spaceChips } from '@/lib/events/present';
-import { formatUsd, spaceFromPrice, type EventSpace } from '@/lib/events/types';
+import { formatPerPerson, perPersonRange, priceBandLabel, spacePriceBand, type EventSpace } from '@/lib/events/types';
 import { PreviewText } from './Preview';
 
 const MODEL_LABEL: Record<EventSpace['pricingModel'], string> = {
@@ -10,9 +10,13 @@ const MODEL_LABEL: Record<EventSpace['pricingModel'], string> = {
   buyout: 'Buyout',
 };
 
-/** A bookable space: both capacities, the price it starts from, and the notes the venue supplied. */
+/**
+ * A bookable space: both capacities, its price band (never the stored
+ * minimum), an optional per-person range, and the notes the venue supplied.
+ */
 export default function SpaceCard({ space }: { space: EventSpace }) {
-  const price = spaceFromPrice(space);
+  const band = spacePriceBand(space);
+  const perPerson = perPersonRange(space);
   const chips = spaceChips(space);
   return (
     <article className="rounded-card border border-paper-edge bg-paper p-5">
@@ -43,16 +47,16 @@ export default function SpaceCard({ space }: { space: EventSpace }) {
           </div>
         ) : null}
         <div>
-          <dt className="text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">From</dt>
+          <dt className="text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">Price band</dt>
           <dd className="text-ink">
-            {price ? (
+            {band ? (
               <>
-                <strong className="font-semibold">{formatUsd(price.amount)}</strong> {price.basis}
+                <strong className="font-semibold tracking-[0.08em]">{band.band}</strong> <span className="text-ink-soft">{priceBandLabel(band.band)} {band.basis}</span>
               </>
-            ) : (
+            ) : perPerson ? null : (
               <PreviewText text="TODO pricing" />
             )}
-            {space.fbMinimumCents ? <span className="text-ink-soft"> · F&amp;B minimum {formatUsd(space.fbMinimumCents / 100)}</span> : null}
+            {perPerson ? <span className={band ? 'block text-ink-soft' : ''}>{formatPerPerson(perPerson)}</span> : null}
           </dd>
         </div>
       </dl>

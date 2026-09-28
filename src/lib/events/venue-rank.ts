@@ -34,8 +34,13 @@ export interface RankQuery {
   needs?: Need[] | string[];
 }
 
-/** Budget band ceilings in dollars, from src/lib/private-events.ts values. */
+/** Budget ceilings in dollars: the public price bands, plus the older dollar ranges still on early inquiries. */
 const BUDGET_CEILING: Record<string, number | undefined> = {
+  $: 2500,
+  $$: 5000,
+  $$$: 10000,
+  $$$$: 25000,
+  $$$$$: undefined,
   'under-5k': 5000,
   '5k-15k': 15000,
   '15k-50k': 50000,

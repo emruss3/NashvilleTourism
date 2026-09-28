@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { Chip } from '@/components/Ui';
 import { PinIcon, PeopleIcon } from '@/components/Icons';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
-import { isSponsored, venueCapacity, venueChips, venueFromPrice } from '@/lib/events/present';
-import { formatUsd, type EventVenue } from '@/lib/events/types';
+import { formatBandRange, isSponsored, venueBandRange, venueCapacity, venueChips, venuePerPerson } from '@/lib/events/present';
+import { formatPerPerson, priceBandLabel, type EventVenue } from '@/lib/events/types';
 import { VENUE_KIND_LABEL, briefHref, withShortlist } from '@/lib/private-events';
 import { PreviewText } from './Preview';
 import { ShortlistButton } from './Shortlist';
@@ -15,7 +15,8 @@ import { ShortlistButton } from './Shortlist';
  */
 export default function VenueCard({ venue, shortlist }: { venue: EventVenue; shortlist: string[] }) {
   const cap = venueCapacity(venue);
-  const price = venueFromPrice(venue);
+  const bands = venueBandRange(venue);
+  const perPerson = venuePerPerson(venue);
   const chips = venueChips(venue);
   const sponsored = isSponsored(venue);
   const href = withShortlist(`/private-events/venues/${venue.slug}/`, shortlist);
@@ -63,10 +64,16 @@ export default function VenueCard({ venue, shortlist }: { venue: EventVenue; sho
             $
           </span>
           <dd>
-            {price ? (
+            {bands ? (
               <>
-                From <strong className="font-semibold">{formatUsd(price.amount)}</strong> {price.basis}
+                <strong className="font-semibold tracking-[0.08em]" title={bands.min === bands.max ? priceBandLabel(bands.min) : `${priceBandLabel(bands.min)} to ${priceBandLabel(bands.max).replace(/^\$[\d,]+ to /, '')}`}>
+                  {formatBandRange(bands)}
+                </strong>
+                <span className="text-ink-soft"> {bands.min === bands.max ? priceBandLabel(bands.min) : 'across its spaces'}</span>
+                {perPerson ? <span className="block text-sm text-ink-soft">{formatPerPerson(perPerson)}</span> : null}
               </>
+            ) : perPerson ? (
+              formatPerPerson(perPerson)
             ) : (
               <PreviewText text="TODO pricing" />
             )}

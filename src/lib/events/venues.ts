@@ -40,6 +40,7 @@ function mapSpace(r: VenueRow): EventSpace {
     minSpendCents: num(r.min_spend_cents),
     roomFeeCents: num(r.room_fee_cents),
     perPersonCents: num(r.per_person_cents),
+    perPersonMaxCents: num(r.per_person_max_cents),
     buyoutFromCents: num(r.buyout_from_cents),
     fbMinimumCents: num(r.fb_minimum_cents),
     pricingNote: str(r.pricing_note),
