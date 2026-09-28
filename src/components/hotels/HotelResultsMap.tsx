@@ -64,16 +64,52 @@ function escapeHtml(text: string): string {
 }
 
 /**
- * Two looks, both in the site palette:
- *  - `ink`: black basemap (CARTO Dark Matter), paper price pins. Echoes the
- *    site's black discovery band and footer. Default.
- *  - `paper`: near-white basemap (CARTO Positron) tinted toward cream, ink
- *    price pins.
- * Switch with the `variant` prop; nothing else changes.
+ * Two looks, both in the site palette, from either of two keyless tile
+ * providers:
+ *  - `paper` (default): light grey basemap tinted toward cream, ink price pins.
+ *  - `ink`: dark basemap pulled to neutral black, paper price pins.
+ *  - provider `esri` (default): Esri "Canvas" light/dark grey with a
+ *    separate label layer; clean and quiet, max zoom 16.
+ *  - provider `carto`: CARTO Positron / Dark Matter over OpenStreetMap data.
+ * Switch with the `variant` and `provider` props; nothing else changes.
  */
 export type MapVariant = 'ink' | 'paper';
+export type MapProvider = 'esri' | 'carto';
 
-export default function HotelResultsMap({ points, center, title = 'Map of these stays', variant = 'ink' }: { points: MapPoint[]; center?: { lat: number; lng: number }; title?: string; variant?: MapVariant }) {
+const TILES: Record<MapProvider, Record<MapVariant, { base: string; labels?: string; subdomains?: string; maxZoom: number; attribution: string }>> = {
+  esri: {
+    paper: {
+      base: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+      labels: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+      maxZoom: 16,
+      attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors, and the GIS user community',
+    },
+    ink: {
+      base: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+      labels: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+      maxZoom: 16,
+      attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors, and the GIS user community',
+    },
+  },
+  carto: {
+    paper: { base: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', subdomains: 'abcd', maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>' },
+    ink: { base: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', subdomains: 'abcd', maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>' },
+  },
+};
+
+export default function HotelResultsMap({
+  points,
+  center,
+  title = 'Map of these stays',
+  variant = 'paper',
+  provider = 'esri',
+}: {
+  points: MapPoint[];
+  center?: { lat: number; lng: number };
+  title?: string;
+  variant?: MapVariant;
+  provider?: MapProvider;
+}) {
   const host = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<'idle' | 'ready' | 'failed'>('idle');
 
@@ -85,13 +121,10 @@ export default function HotelResultsMap({ points, center, title = 'Map of these 
       .then((L) => {
         if (cancelled || !host.current) return;
         map = L.map(host.current, { scrollWheelZoom: false, attributionControl: true });
-        // CARTO basemaps over OpenStreetMap data: Dark Matter for the ink look,
-        // Positron (tinted toward paper in globals.css) for the paper look.
-        L.tileLayer(`https://{s}.basemaps.cartocdn.com/${variant === 'ink' ? 'dark_all' : 'light_all'}/{z}/{x}/{y}{r}.png`, {
-          subdomains: 'abcd',
-          maxZoom: 19,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        }).addTo(map);
+        const tiles = TILES[provider][variant];
+        L.tileLayer(tiles.base, { subdomains: tiles.subdomains ?? 'abc', maxZoom: tiles.maxZoom, attribution: tiles.attribution }).addTo(map);
+        // Labels ride above the tinted base so they stay crisp.
+        if (tiles.labels) L.tileLayer(tiles.labels, { maxZoom: tiles.maxZoom, pane: 'shadowPane', attribution: '' }).addTo(map);
         const bounds = L.latLngBounds([]);
         for (const p of [...points].sort((a, b) => Number(Boolean(a.pinned)) - Number(Boolean(b.pinned)))) {
           // The nightly rate is the pin. Picks are the solid pin, the rest the outlined one, in whichever palette the basemap needs.
@@ -121,7 +154,7 @@ export default function HotelResultsMap({ points, center, title = 'Map of these 
           bounds.extend([p.lat, p.lng]);
         }
         if (center) bounds.extend([center.lat, center.lng]);
-        map.fitBounds(bounds.pad(0.15), { maxZoom: 15 });
+        map.fitBounds(bounds.pad(0.15), { maxZoom: Math.min(15, tiles.maxZoom) });
         setState('ready');
       })
       .catch(() => {
@@ -131,7 +164,7 @@ export default function HotelResultsMap({ points, center, title = 'Map of these 
       cancelled = true;
       if (map) map.remove();
     };
-  }, [points, center]);
+  }, [points, center, variant, provider]);
 
   if (!points.length) return null;
 

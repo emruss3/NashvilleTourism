@@ -231,12 +231,19 @@ input[type='date']::-webkit-calendar-picker-indicator {
   background: #111111;
 }
 .leaflet-container[data-variant='paper'] .leaflet-tile-pane {
-  /* Positron is grey; a light sepia pulls it toward paper without hiding streets. */
+  /* Grey basemaps take a light sepia so they sit on cream without hiding streets. */
   filter: sepia(0.35) saturate(0.55) brightness(1.03) contrast(0.95);
 }
 .leaflet-container[data-variant='ink'] .leaflet-tile-pane {
-  /* Dark Matter is blue-black; pull it to neutral black and lift the streets a touch. */
+  /* Dark basemaps are blue-black; pull them to neutral black and lift the streets a touch. */
   filter: saturate(0) contrast(1.05) brightness(1.08);
+}
+.leaflet-container[data-variant='paper'] .leaflet-shadow-pane {
+  /* The label layer rides in this pane and takes the same tint as the base. */
+  filter: sepia(0.35) saturate(0.55);
+}
+.leaflet-container[data-variant='ink'] .leaflet-shadow-pane {
+  filter: saturate(0);
 }
 .leaflet-container[data-variant='ink'] .leaflet-control-attribution {
   background: rgba(17, 17, 17, 0.85);
