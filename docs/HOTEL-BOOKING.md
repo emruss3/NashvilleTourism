@@ -183,6 +183,9 @@ from http((
 
 ## Open items (block production launch, not Phase 1 or 2)
 
+While the edge function runs on the sandbox key, every rates response reports `environment: "sandbox"` and the site shows a "Booking site in test mode" notice on the hotels page, the market rail, each market card and the hotel detail CTA (`src/components/hotels/TestModeNotice.tsx`). It needs no flag and goes away on its own once the production key is live. Production switch: add the card in the Nuitée console, click Go Live, store the production key in Supabase, switch the edge function's environment to production, set the white-label markup (5% to start).
+
+
 1. SSP pricing: ask Nuitée how to price at `suggestedSellingPrice` automatically (their managed dynamic pricing). A flat markup is not acceptable across hundreds of hotels.
 2. Chargebacks: confirm whether the partner-liability clause governs white-label bookings and what the account card can be charged for.
 3. Payout trigger: check-in vs check-out (their docs disagree).
