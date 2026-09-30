@@ -3,8 +3,11 @@ import { notFound } from 'next/navigation';
 import { AffiliateDisclosure } from '@/components/Trust';
 import { Breadcrumbs, MapLink } from '@/components/Ui';
 import RoomOptions, { type RoomsPayload } from '@/components/hotels/RoomOptions';
+import HotelGallery from '@/components/hotels/HotelGallery';
+import GuestReviews from '@/components/hotels/GuestReviews';
 import { hotels } from '@/lib/content';
-import { getHotelRooms } from '@/lib/feeds/hotel-rooms';
+import { getHotelReviews, getHotelRooms } from '@/lib/feeds/hotel-rooms';
+import { scoreOutOfTen, scoreWord } from '@/lib/hotel-reviews';
 import { isHotelsLiveConfigured } from '@/lib/feeds/hotels-live';
 import { hotelSearchPath } from '@/lib/hotel-booking';
 import { partners } from '@/lib/partners';
@@ -44,13 +47,13 @@ export default async function StayRoomsPage(props: { params: Promise<{ hotelId: 
   const adultsRaw = Number(one(query, 'adults'));
   const adults = Number.isInteger(adultsRaw) && adultsRaw >= 1 && adultsRaw <= 20 ? adultsRaw : 2;
   const ready = Boolean(partners.stay.host && isHotelsLiveConfigured());
-  const rooms = ready ? await getHotelRooms({ hotelId, checkin: dates.checkin, checkout: dates.checkout, adults, campaign: 'hotels-stay-rooms' }) : undefined;
+  const [rooms, reviewsResult] = ready ? await Promise.all([getHotelRooms({ hotelId, checkin: dates.checkin, checkout: dates.checkout, adults, campaign: 'hotels-stay-rooms' }), getHotelReviews(hotelId)]) : [undefined, undefined];
+  const reviews = reviewsResult?.canDisplayRating ? reviewsResult.reviews : undefined;
   const detail = rooms?.detail;
   // Booking site not configured, unknown hotel id, or the provider down with
   // nothing cached: no page to show, and no partner-branded empty state.
   if (!rooms || (!rooms.live && !detail)) notFound();
   const name = detail?.name ?? 'This hotel';
-  const gallery = detail?.images.slice(0, 5) ?? [];
   const initial: RoomsPayload | undefined = rooms
     ? {
         ok: rooms.live,
@@ -69,7 +72,6 @@ export default async function StayRoomsPage(props: { params: Promise<{ hotelId: 
       }
     : undefined;
   const showRating = Boolean(rooms?.canDisplayRating && detail?.rating !== undefined && (detail?.reviewCount ?? 0) > 0);
-  const ratingOutOf = detail?.rating !== undefined && detail.rating > 5 ? 10 : 5;
   const backHref = hotelSearchPath({ checkin: dates.chosen ? dates.checkin : undefined, checkout: dates.chosen ? dates.checkout : undefined, adults: adults !== 2 ? adults : undefined });
 
   return (
@@ -89,9 +91,12 @@ export default async function StayRoomsPage(props: { params: Promise<{ hotelId: 
         <h1 className="mt-2 text-3xl md:text-4xl">{name}</h1>
         {detail?.address ? <p className="mt-2 text-sm text-ink-soft">{detail.address}</p> : null}
         {showRating && detail ? (
-          <p className="mt-1 text-sm text-ink-soft">
-            <span className="font-semibold text-ink">{detail.rating!.toFixed(1)}</span>
-            <span className="sr-only"> out of {ratingOutOf}</span> · {detail.reviewCount!.toLocaleString()} guest reviews
+          <p className="mt-2 flex items-center gap-2 text-sm">
+            <span className="rounded bg-ink px-2 py-0.5 font-bold text-paper">{scoreOutOfTen(detail.rating!).toFixed(1)}</span>
+            <span className="font-semibold text-ink">{scoreWord(scoreOutOfTen(detail.rating!))}</span>
+            <a href="#reviews" className="text-ink-soft underline underline-offset-2">
+              {detail.reviewCount!.toLocaleString()} guest reviews
+            </a>
           </p>
         ) : null}
         {editorial ? (
@@ -103,20 +108,16 @@ export default async function StayRoomsPage(props: { params: Promise<{ hotelId: 
         ) : null}
       </header>
 
-      {gallery.length ? (
-        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-5" aria-label={`${name} photos`}>
-          {gallery.map((img, i) => (
-            <li key={img.url} className={`relative overflow-hidden rounded-card bg-paper-sunk ${i === 0 ? 'col-span-2 aspect-[3/2] sm:col-span-2 sm:row-span-2 sm:aspect-auto' : 'aspect-[3/2]'}`}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={img.url} alt={img.caption || ''} className="absolute inset-0 h-full w-full object-cover" loading={i === 0 ? 'eager' : 'lazy'} referrerPolicy="no-referrer" />
-            </li>
-          ))}
-        </ul>
-      ) : null}
+      {detail?.images.length ? <HotelGallery images={detail.images} name={name} attribution={rooms?.attribution} /> : null}
 
       <div className="grid gap-10 py-10 lg:grid-cols-[1.6fr_1fr]">
         <div>
           <RoomOptions hotelId={hotelId} hotelName={name} slug={editorial?.slug ?? hotelId} surface={editorial ? 'hotel' : 'stay'} initial={initial} initialCheckin={dates.checkin} initialCheckout={dates.checkout} adults={adults} />
+          {reviews ? (
+            <div id="reviews" className="scroll-mt-24 border-t border-paper-edge pt-8">
+              <GuestReviews data={reviews} score={showRating ? detail?.rating : undefined} reviewCount={showRating ? detail?.reviewCount : undefined} name={name} />
+            </div>
+          ) : null}
         </div>
         <aside className="space-y-5">
           {detail?.description ? (

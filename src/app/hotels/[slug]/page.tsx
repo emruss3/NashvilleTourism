@@ -7,10 +7,13 @@ import BookingLink from '@/components/BookingLink';
 import TestModeNotice from '@/components/hotels/TestModeNotice';
 import LivePrice from '@/components/hotels/LivePrice';
 import RoomOptions, { type RoomsPayload } from '@/components/hotels/RoomOptions';
+import HotelGallery from '@/components/hotels/HotelGallery';
+import GuestReviews from '@/components/hotels/GuestReviews';
 import { hotels, getHotel } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
 import { formatNightly, getHotelRates, isHotelsLiveConfigured } from '@/lib/feeds/hotels-live';
-import { getHotelRooms } from '@/lib/feeds/hotel-rooms';
+import { getHotelReviews, getHotelRooms } from '@/lib/feeds/hotel-rooms';
+import { scoreOutOfTen, scoreWord } from '@/lib/hotel-reviews';
 import { hotelBookingHref } from '@/lib/hotel-booking';
 import { partners } from '@/lib/partners';
 import { resolveStayDates, stayDatesLabel } from '@/lib/stay-dates';
@@ -58,12 +61,17 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
   const adultsRaw = Number(one(query, 'adults'));
   const adults = Number.isInteger(adultsRaw) && adultsRaw >= 1 && adultsRaw <= 20 ? adultsRaw : 2;
   const liveReady = Boolean(h.liteApiHotelId && partners.stay.host && isHotelsLiveConfigured());
-  const [live, rooms] = liveReady && h.liteApiHotelId
+  const [live, rooms, reviewsResult] = liveReady && h.liteApiHotelId
     ? await Promise.all([
         getHotelRates({ hotelIds: [h.liteApiHotelId], checkin: dates.checkin, checkout: dates.checkout, adults, campaign: 'hotels-detail' }),
         getHotelRooms({ hotelId: h.liteApiHotelId, checkin: dates.checkin, checkout: dates.checkout, adults, campaign: 'hotels-detail-rooms' }),
+        getHotelReviews(h.liteApiHotelId),
       ])
-    : [undefined, undefined];
+    : [undefined, undefined, undefined];
+  const detail = rooms?.detail;
+  // Provider guest score (0 to 10) and count, shown only when the source permits it.
+  const showScore = Boolean((rooms?.canDisplayRating || reviewsResult?.canDisplayRating) && detail?.rating !== undefined && (detail?.reviewCount ?? 0) > 0);
+  const reviews = reviewsResult?.canDisplayRating ? reviewsResult.reviews : undefined;
   const rate = live?.live ? live.rates.find((r) => r.hotelId === h.liteApiHotelId) : undefined;
   const booking = hotelBookingHref(h, { surface: 'hotel', checkin: rate ? dates.checkin : undefined, checkout: rate ? dates.checkout : undefined, adults });
   const roomsInitial: RoomsPayload | undefined = rooms
@@ -122,7 +130,11 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
 
       <div className="grid gap-10 py-10 lg:grid-cols-[1.6fr_1fr]">
         <div>
-          <PhotoSlot label={h.title} neighborhood={h.neighborhood} ratio="aspect-[16/9]" className="rounded-card" />
+          {detail?.images.length ? (
+            <HotelGallery images={detail.images} name={h.title} attribution={rooms?.attribution} />
+          ) : (
+            <PhotoSlot label={h.title} neighborhood={h.neighborhood} ratio="aspect-[16/9]" className="rounded-card" />
+          )}
 
           <section className="py-8">
             <h2 className="text-2xl">Why we recommend it</h2>
@@ -155,6 +167,12 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
           {liveReady && h.liteApiHotelId ? (
             <div id="rooms" className="scroll-mt-24 border-t border-paper-edge py-8">
               <RoomOptions hotelId={h.liteApiHotelId} hotelName={h.title} slug={h.slug} surface="hotel" initial={roomsInitial} initialCheckin={dates.checkin} initialCheckout={dates.checkout} adults={adults} />
+            </div>
+          ) : null}
+
+          {reviews ? (
+            <div id="reviews" className="scroll-mt-24 border-t border-paper-edge py-8">
+              <GuestReviews data={reviews} score={showScore ? detail?.rating : undefined} reviewCount={showScore ? detail?.reviewCount : undefined} name={h.title} />
             </div>
           ) : null}
 
@@ -195,6 +213,15 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
           />
 
           <div className="space-y-3 rounded-card border border-paper-edge bg-white p-4">
+            {showScore && detail ? (
+              <p className="flex items-center gap-2 text-sm">
+                <span className="rounded bg-ink px-2 py-0.5 font-bold text-paper">{scoreOutOfTen(detail.rating!).toFixed(1)}</span>
+                <span className="font-semibold text-ink">{scoreWord(scoreOutOfTen(detail.rating!))}</span>
+                <a href="#reviews" className="text-ink-soft underline underline-offset-2">
+                  {detail.reviewCount!.toLocaleString()} guest reviews
+                </a>
+              </p>
+            ) : null}
             <LivePrice rate={rate} datesLabel={stayDatesLabel(dates)} />
             <BookingLink
               url={booking.url}

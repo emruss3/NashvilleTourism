@@ -41,8 +41,13 @@ export interface StayListingOptions extends StayLinkOptions {
 
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 
-function env(key: string): string {
-  return (process.env[key] || '').trim();
+// Read with the literal `process.env.NEXT_PUBLIC_*` form: Next.js inlines only
+// literal references into client bundles, so a `process.env[key]` lookup is
+// empty in the browser and every client-side booking link went missing.
+// Read at call time (the tests set these while running), one literal per key.
+function env(key: 'NEXT_PUBLIC_STAY_HOST' | 'NEXT_PUBLIC_NASHVILLE_PLACE_ID' | 'NEXT_PUBLIC_STAY_DIRECT_CHECKOUT'): string {
+  const raw = key === 'NEXT_PUBLIC_STAY_HOST' ? process.env.NEXT_PUBLIC_STAY_HOST : key === 'NEXT_PUBLIC_NASHVILLE_PLACE_ID' ? process.env.NEXT_PUBLIC_NASHVILLE_PLACE_ID : process.env.NEXT_PUBLIC_STAY_DIRECT_CHECKOUT;
+  return (raw || '').trim();
 }
 
 /** Host of the white-label site without scheme or trailing slash, or undefined when unset. */

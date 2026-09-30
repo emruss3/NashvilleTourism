@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import StayDatesField from '@/components/StayDatesField';
 import TestModeNotice from '@/components/hotels/TestModeNotice';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
-import type { RoomGroup, RoomRate } from '@/lib/hotel-rooms';
+import { normalizedName, type RoomGroup, type RoomRate } from '@/lib/hotel-rooms';
 import { clientReference, stayCheckoutHref, stayHotelHref } from '@/lib/stay-links';
 
 /**
@@ -32,6 +32,9 @@ export interface RoomsPayload {
   groups: RoomGroup[];
   error?: string;
 }
+
+/** Cards shown before "Show all"; a big hotel has twenty room types and nobody reads past six. */
+const VISIBLE_CARDS = 6;
 
 function usd(amount: number, currency = 'USD'): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount);
@@ -86,6 +89,7 @@ export default function RoomOptions({
   const [loading, setLoading] = useState(!initial);
   const [error, setError] = useState<string | undefined>(initial && !initial.ok ? initial.error : undefined);
   const [open, setOpen] = useState<Record<string, boolean>>({});
+  const [showAll, setShowAll] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const firstRun = useRef(true);
 
@@ -107,6 +111,7 @@ export default function RoomOptions({
         const body = (await res.json()) as RoomsPayload;
         if (!res.ok || !body.ok) throw new Error(body.error || 'Rates are not available right now.');
         setData(body);
+        setShowAll(false);
         track(ANALYTICS_EVENTS.HOTEL_ROOMS_VIEWED, { item_id: slug, item_name: hotelName, hotel_id: hotelId, result_count: body.groups.length, cached: body.cached });
       })
       .catch((err: unknown) => {
@@ -153,7 +158,7 @@ export default function RoomOptions({
             Rooms and rates
           </h2>
           <p className="mt-1 text-sm text-ink-soft">
-            {data?.groups.length ? `${data.groups.length} room ${data.groups.length === 1 ? 'option' : 'options'} for ${nights} ${nights === 1 ? 'night' : 'nights'}` : 'Pick your dates to see every room'}
+            {data?.groups.length ? `${data.groups.length} room ${data.groups.length === 1 ? 'type' : 'types'}${data.rateCount && data.rateCount > data.groups.length ? ` from ${data.rateCount} rates` : ''} for ${nights} ${nights === 1 ? 'night' : 'nights'}` : 'Pick your dates to see every room'}
             {fetched ? ` · prices fetched ${fetched} Nashville time` : ''}
           </p>
         </div>
@@ -195,7 +200,7 @@ export default function RoomOptions({
         </div>
       ) : (
         <ul className="space-y-4">
-          {data.groups.map((group) => {
+          {(showAll ? data.groups : data.groups.slice(0, VISIBLE_CARDS)).map((group) => {
             const more = group.variants.slice(1);
             const isOpen = Boolean(open[group.key]);
             const photo = group.photos[0];
@@ -256,7 +261,7 @@ export default function RoomOptions({
                       )}
                       {more.length ? (
                         <button type="button" className="text-sm font-semibold text-clay underline underline-offset-2" aria-expanded={isOpen} aria-controls={`${id}-${group.key.replace(/[^a-z0-9]+/gi, '-')}`} onClick={() => setOpen((o) => ({ ...o, [group.key]: !isOpen }))}>
-                          {isOpen ? 'Fewer rates' : `${more.length} more ${more.length === 1 ? 'rate' : 'rates'} for this room`}
+                          {isOpen ? 'Fewer options' : `${more.length} more ${more.length === 1 ? 'option' : 'options'}`}
                         </button>
                       ) : null}
                     </div>
@@ -270,6 +275,7 @@ export default function RoomOptions({
                         <li key={rate.rateId ?? rate.offerId ?? i} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
                           <div>
                             <p className="text-ink">{[boardLine(rate) ?? 'Room only', cancellationLine(rate)].join(' · ')}</p>
+                            {rate.roomName && normalizedName(rate.roomName) !== normalizedName(group.cheapest.roomName) ? <p className="text-2xs text-ink-soft">Listed by the supplier as “{rate.roomName}”</p> : null}
                             {rate.perks.length ? <p className="text-2xs text-ink-soft">{rate.perks.join(' · ')}</p> : null}
                           </div>
                           <div className="flex items-center gap-3">
@@ -294,6 +300,11 @@ export default function RoomOptions({
           })}
         </ul>
       )}
+      {!loading && !error && data && data.groups.length > VISIBLE_CARDS && !showAll ? (
+        <button type="button" className="btn-secondary" onClick={() => setShowAll(true)}>
+          Show all {data.groups.length} room types
+        </button>
+      ) : null}
 
       {data?.attribution ? <p className="text-2xs text-ink-soft">{data.attribution}</p> : null}
       {data?.hotel?.checkinTime || data?.hotel?.checkoutTime ? (

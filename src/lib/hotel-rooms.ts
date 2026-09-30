@@ -1,8 +1,9 @@
 /**
  * Room options for one hotel and one stay, grouped for display the way
- * KindredTrips does it: one card per (room name, board), the cheapest rate
- * on the card and the rest as variants, photos matched to the hotel's room
- * catalog by normalized name. Pure functions and types only, so the
+ * KindredTrips does it, then further: one card per room type (every supplier
+ * spelling bucketed by the catalog room it matches), the cheapest rate on the
+ * card and one option line per board and cancellation kind, photos matched to
+ * the hotel's room catalog by normalized name. Pure functions and types only, so the
  * `hotel-rooms` test can load this file without the Next.js alias; the
  * fetch lives in `src/lib/feeds/hotel-rooms.ts`.
  */
@@ -77,19 +78,32 @@ export interface RoomGroup {
   photos: { url: string; caption?: string }[];
   photosSource: 'matched' | 'hotel' | 'none';
   cheapest: RoomRate;
+  /** Cheapest rate per (board, refundable) kind, cheapest first; the card's option lines. */
   variants: RoomRate[];
+  /** How many raw rates fell into this card. */
+  rateCount: number;
   refundableAvailable: boolean;
 }
 
-const STOP = new Set(['room', 'rooms', 'with', 'the', 'and', 'a', 'an', 'of', 'in', 'or', 'to', 'for', 'non', 'smoking', 'nonsmoking']);
+/**
+ * Words that carry no room identity. Suppliers spell the same room a dozen
+ * ways ("Classic Room, 1 King Bed, Non Smoking", "CLASSIC, KING BED",
+ * "Classic King, Guest room, 1 King"); once these go, all three are
+ * {classic, king}.
+ */
+const STOP = new Set(['room', 'rooms', 'guest', 'guestroom', 'bed', 'beds', 'with', 'the', 'and', 'a', 'an', 'of', 'in', 'or', 'to', 'for', 'non', 'smoking', 'nonsmoking', '1', 'one', 'size', 'sized', 'type']);
+const SYNONYM: Record<string, string> = { two: '2', queens: 'queen', kings: 'king', doubles: 'double', twins: 'twin', accessibility: 'accessible', ada: 'accessible' };
+/** Tokens that make a different room; a match must agree on every one of these. */
+const DISTINCT = new Set(['accessible', 'suite', 'corner', 'view', 'skyline', 'terrace', 'balcony', 'penthouse', 'studio', 'connecting', 'apartment', 'villa', 'loft']);
 
-/** Lowercase tokens with noise words removed, so "Deluxe King Room, Non Smoking" and "Deluxe King" match. */
+/** Lowercase identity tokens, sorted and unique, with noise words and supplier filler removed. */
 export function nameTokens(name: string): string[] {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .split(' ')
-    .filter((t) => t && !STOP.has(t));
+  const seen = new Set<string>();
+  for (const raw of name.toLowerCase().replace(/[^a-z0-9]+/g, ' ').split(' ')) {
+    const t = SYNONYM[raw] ?? raw;
+    if (t && !STOP.has(t)) seen.add(t);
+  }
+  return [...seen].sort();
 }
 
 export function normalizedName(name: string): string {
@@ -105,16 +119,31 @@ export function jaccard(a: string[], b: string[]): number {
   return inter / (sa.size + sb.size - inter);
 }
 
-/** Exact normalized match first, then the best token overlap at 0.5 or above. */
+function distinctAgree(a: string[], b: string[]): boolean {
+  const da = a.filter((t) => DISTINCT.has(t)).join(' ');
+  const db = b.filter((t) => DISTINCT.has(t)).join(' ');
+  return da === db;
+}
+
+/**
+ * Exact normalized match first, then the best token overlap at 0.5 or above
+ * among catalog rooms that agree on the distinguishing words (a corner room
+ * never matches a plain one, an accessible room never matches a standard
+ * one). Ties go to the catalog room with fewer extra words.
+ */
 export function matchCatalogRoom(name: string, rooms: CatalogRoom[]): CatalogRoom | undefined {
-  const norm = normalizedName(name);
+  const tokens = nameTokens(name);
+  if (!tokens.length) return undefined;
+  const norm = tokens.join(' ');
   const exact = rooms.find((r) => normalizedName(r.name) === norm);
   if (exact) return exact;
-  const tokens = nameTokens(name);
-  let best: { room: CatalogRoom; score: number } | undefined;
+  let best: { room: CatalogRoom; score: number; extra: number } | undefined;
   for (const room of rooms) {
-    const score = jaccard(tokens, nameTokens(room.name));
-    if (score >= 0.5 && (!best || score > best.score)) best = { room, score };
+    const rt = nameTokens(room.name);
+    if (!distinctAgree(tokens, rt)) continue;
+    const score = jaccard(tokens, rt);
+    const extra = rt.length - tokens.length;
+    if (score >= 0.5 && (!best || score > best.score || (score === best.score && extra < best.extra))) best = { room, score, extra };
   }
   return best?.room;
 }
@@ -123,26 +152,53 @@ function boardKey(rate: RoomRate): string {
   return (rate.boardType ?? rate.boardName ?? 'RO').toLowerCase();
 }
 
+/** Supplier names arrive in every case; show them as titles. */
+export function displayRoomName(name: string): string {
+  const cleaned = name.replace(/\s*\(\s*/g, ' (').replace(/\s*,\s*/g, ', ').replace(/\s+/g, ' ').trim();
+  if (cleaned === cleaned.toUpperCase() || cleaned === cleaned.toLowerCase()) {
+    return cleaned.toLowerCase().replace(/(^|[\s(,/-])([a-z])/g, (m, pre, ch) => `${pre}${ch.toUpperCase()}`);
+  }
+  return cleaned;
+}
+
 /**
- * One card per (room name, board). Groups are ordered by their cheapest
- * total; variants inside a group by total. Photos come from the matched
- * catalog room; when several groups share one catalog room the photo order
- * rotates so the first image differs; with no match the hotel gallery
- * stands in.
+ * One card per room type. Rates are bucketed by the catalog room they match
+ * (so every supplier spelling of "Classic King" lands together) or, with no
+ * match, by their identity tokens. Each card shows its cheapest rate, plus
+ * one variant per (board, refundable) combination: the cheapest of that kind,
+ * so a card never lists forty near-identical lines. Cards are ordered by
+ * their cheapest total. Photos come from the matched catalog room; when
+ * several cards share one catalog room the photo order rotates; with no
+ * match the hotel gallery stands in.
  */
 export function groupRooms(rates: RoomRate[], detail?: Pick<HotelDetail, 'rooms' | 'images'>): RoomGroup[] {
-  const byKey = new Map<string, RoomRate[]>();
+  const buckets = new Map<string, { rates: RoomRate[]; room?: CatalogRoom }>();
+  const matchMemo = new Map<string, CatalogRoom | undefined>();
   for (const rate of rates) {
     if (!rate.roomName) continue;
-    const key = `${normalizedName(rate.roomName)}|${boardKey(rate)}`;
-    byKey.set(key, [...(byKey.get(key) ?? []), rate]);
+    const norm = normalizedName(rate.roomName);
+    if (!norm) continue;
+    let room = matchMemo.get(norm);
+    if (!matchMemo.has(norm)) {
+      room = detail ? matchCatalogRoom(rate.roomName, detail.rooms) : undefined;
+      matchMemo.set(norm, room);
+    }
+    const key = room ? `catalog:${normalizedName(room.name)}` : `name:${norm}`;
+    const bucket = buckets.get(key) ?? { rates: [], room };
+    bucket.rates.push(rate);
+    buckets.set(key, bucket);
   }
   const matchedUse = new Map<CatalogRoom, number>();
   const groups: RoomGroup[] = [];
-  for (const [key, list] of byKey) {
-    const variants = list.slice().sort((a, b) => a.total.amount - b.total.amount);
-    const cheapest = variants[0];
-    const room = detail ? matchCatalogRoom(cheapest.roomName, detail.rooms) : undefined;
+  for (const [key, { rates: list, room }] of buckets) {
+    const sorted = list.slice().sort((a, b) => a.total.amount - b.total.amount);
+    const cheapest = sorted[0];
+    const perKind = new Map<string, RoomRate>();
+    for (const rate of sorted) {
+      const kind = `${boardKey(rate)}|${rate.refundable ?? 'unknown'}`;
+      if (!perKind.has(kind)) perKind.set(kind, rate);
+    }
+    const variants = [...perKind.values()].sort((a, b) => a.total.amount - b.total.amount);
     let photos: RoomGroup['photos'] = [];
     let photosSource: RoomGroup['photosSource'] = 'none';
     if (room && room.photos.length) {
@@ -156,10 +212,10 @@ export function groupRooms(rates: RoomRate[], detail?: Pick<HotelDetail, 'rooms'
     }
     groups.push({
       key,
-      name: cheapest.roomName,
+      name: room ? displayRoomName(room.name) : displayRoomName(cheapest.roomName),
       boardName: cheapest.boardName,
       boardType: cheapest.boardType,
-      maxOccupancy: cheapest.maxOccupancy ?? room?.maxOccupancy,
+      maxOccupancy: room?.maxOccupancy ?? cheapest.maxOccupancy,
       bedTypes: room?.bedTypes ?? [],
       size: room?.size ? `${Math.round(room.size)} ${room.sizeUnit === 'm2' || room.sizeUnit === 'sqm' ? 'm²' : room.sizeUnit ?? 'sq ft'}` : undefined,
       amenities: room?.amenities ?? [],
@@ -167,7 +223,8 @@ export function groupRooms(rates: RoomRate[], detail?: Pick<HotelDetail, 'rooms'
       photosSource,
       cheapest,
       variants,
-      refundableAvailable: variants.some((v) => v.refundable === 'RFN'),
+      rateCount: list.length,
+      refundableAvailable: list.some((v) => v.refundable === 'RFN'),
     });
   }
   groups.sort((a, b) => a.cheapest.total.amount - b.cheapest.total.amount || a.name.localeCompare(b.name));

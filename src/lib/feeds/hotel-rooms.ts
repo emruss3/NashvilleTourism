@@ -1,5 +1,6 @@
 import { invokeEdgeFunction, isSupabaseConfigured } from '@/lib/supabase/server';
 import { groupRooms, mapDetail, mapRoomRate, type HotelDetail, type RoomGroup, type RoomRate } from '@/lib/hotel-rooms';
+import { mapReviews, type HotelReviews } from '@/lib/hotel-reviews';
 
 /**
  * Server-side fetch of room options for one hotel and one stay.
@@ -90,4 +91,15 @@ export async function getHotelDetail(hotelId: string): Promise<{ detail?: HotelD
   const data = result.data;
   if (!result.ok || !data?.ok) return { environment: data?.environment, error: typeof data?.error === 'string' ? data.error : `liteapi-live hotel_detail failed (${result.status})` };
   return { detail: mapDetail(data.detail), environment: data.environment, attribution: data.attribution ?? undefined };
+}
+
+type ReviewsEnvelope = { ok?: boolean; cached?: boolean; environment?: string; fetchedAt?: string; attribution?: string | null; canDisplayRating?: boolean; error?: string } & Record<string, unknown>;
+
+/** Guest reviews and the provider's sentiment summary; a week in cache. Display gated by `canDisplayRating`. */
+export async function getHotelReviews(hotelId: string): Promise<{ reviews?: HotelReviews; canDisplayRating: boolean; environment?: string; attribution?: string; error?: string }> {
+  if (!isSupabaseConfigured()) return { canDisplayRating: false, error: 'Supabase service role not configured' };
+  const result = await invokeEdgeFunction<ReviewsEnvelope>('liteapi-live', { mode: 'hotel_reviews', hotelId }, { timeoutMs: 30_000 });
+  const data = result.data;
+  if (!result.ok || !data?.ok) return { canDisplayRating: false, environment: data?.environment, error: typeof data?.error === 'string' ? data.error : `liteapi-live hotel_reviews failed (${result.status})` };
+  return { reviews: mapReviews(data), canDisplayRating: Boolean(data.canDisplayRating), environment: data.environment, attribution: data.attribution ?? undefined };
 }

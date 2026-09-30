@@ -10,6 +10,8 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
  *                                 for its room list (hotel_rooms)
  * - GET  /data/hotel?hotelId=     display-only detail (images, facilities,
  *                                 room catalog with photos)
+ * - GET  /data/reviews?hotelId=   guest reviews and the provider's sentiment
+ *                                 summary, display only
  * - GET  /data/hotels             weekly catalog by coordinates (cron only)
  * - GET  /data/facilities, /data/hoteltypes   lookups (cron only)
  *
@@ -45,7 +47,10 @@ const DEFAULT_TTL_MINUTES = 180;
 const DETAIL_TTL_MINUTES = 7 * 24 * 60;
 /** Room-level offers move faster than a hotel's cheapest rate; keep them an hour. */
 const ROOMS_TTL_MINUTES = 60;
-const MAX_ROOM_RATE_ROWS = 150;
+const MAX_ROOM_RATE_ROWS = 400;
+/** Reviews change slowly; a week, like the detail. */
+const REVIEWS_TTL_MINUTES = 7 * 24 * 60;
+const MAX_REVIEWS = 40;
 const CATALOG_TTL_MINUTES = 8 * 24 * 60;
 const MAX_RATE_ROWS = 400;
 
@@ -694,6 +699,92 @@ async function modeHotelRooms(body: Record<string, unknown>): Promise<Response> 
   return json({ ok: true, cached: false, environment: LITEAPI_ENV, hotelId, fetchedAt, expiresAt, attribution: source.attribution_text, canDisplayRating: source.can_display_rating ?? false, rates, detail });
 }
 
+function str(value: unknown, max = 2000): string | null {
+  return typeof value === "string" && value.trim() ? value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, max) : null;
+}
+
+/** The provider does not keep one vocabulary for traveller type across sources; fold it to a short list. */
+function travellerType(value: unknown): string | null {
+  const t = typeof value === "string" ? value.toLowerCase() : "";
+  if (!t) return null;
+  if (/family|child|kid/.test(t)) return "family";
+  if (/couple|partner|honeymoon|romantic/.test(t)) return "couple";
+  if (/solo|alone|single/.test(t)) return "solo";
+  if (/friend/.test(t)) return "friends";
+  if (/group/.test(t)) return "group";
+  if (/business|work/.test(t)) return "business";
+  return "other";
+}
+
+/**
+ * Guest reviews and the provider's sentiment summary for one hotel, cached a
+ * week under reviews:<id>. Reviewer names are reduced to a first name or
+ * initial before they are stored; nothing else identifying is kept.
+ */
+async function modeHotelReviews(body: Record<string, unknown>): Promise<Response> {
+  const hotelId = typeof body.hotelId === "string" && /^lp[a-z0-9]{3,16}$/.test(body.hotelId) ? body.hotelId : null;
+  if (!hotelId) return json({ ok: false, error: "hotelId required" }, 400);
+  const source = await liteapiSource();
+  const areaKey = `reviews:${hotelId}`;
+  const cached = await restSelect<{ payload: any; fetched_at: string; expires_at: string }>(
+    `hotel_rate_cache?select=payload,fetched_at,expires_at&area_key=eq.${areaKey}&checkin=eq.2000-01-01&checkout=eq.2000-01-02&occupancy_key=eq.reviews&expires_at=gt.${encodeURIComponent(new Date().toISOString())}&limit=1`,
+  );
+  if (cached.length && !body.refresh) {
+    return json({ ok: true, cached: true, environment: LITEAPI_ENV, hotelId, fetchedAt: cached[0].fetched_at, attribution: source.attribution_text, canDisplayRating: source.can_display_rating ?? false, ...cached[0].payload });
+  }
+  const runId = await logRun(source, "liteapi_hotel_reviews", { hotelId });
+  const res = await liteapiFetch(`/data/reviews?hotelId=${encodeURIComponent(hotelId)}&limit=${MAX_REVIEWS}&getSentiment=true`);
+  if (!res.ok) {
+    await finishRun(runId, "failed", { error_message: `HTTP ${res.status}`, metadata: { environment: LITEAPI_ENV, status: res.status, ms: res.ms, providerError: res.data?.error ?? null } });
+    return json({ ok: false, environment: LITEAPI_ENV, error: `LiteAPI /data/reviews failed (${res.status})` }, res.status === 429 ? 429 : 502);
+  }
+  const raw = res.data ?? {};
+  const list: any[] = Array.isArray(raw.data) ? raw.data : Array.isArray(raw.reviews) ? raw.reviews : Array.isArray(raw) ? raw : [];
+  const reviews = list
+    .map((r: any) => {
+      const nameRaw = str(r?.name ?? r?.reviewerName ?? r?.reviewer, 80);
+      const first = nameRaw ? nameRaw.split(/\s+/)[0] : null;
+      return {
+        score: num(r?.averageScore ?? r?.average_score ?? r?.score ?? r?.rating),
+        name: first ? (first.length > 1 ? first : `${first}.`) : null,
+        country: str(r?.country, 40),
+        type: travellerType(r?.type ?? r?.travelerType ?? r?.traveller_type),
+        date: str(r?.date ?? r?.reviewDate, 40),
+        headline: str(r?.headline ?? r?.title, 200),
+        language: str(r?.language, 10),
+        pros: str(r?.pros ?? r?.positive, 1200),
+        cons: str(r?.cons ?? r?.negative, 1200),
+        source: str(r?.source, 40),
+      };
+    })
+    .filter((r: any) => r.pros || r.cons || r.headline)
+    .sort((a: any, b: any) => (b.date ?? "").localeCompare(a.date ?? ""))
+    .slice(0, MAX_REVIEWS);
+  const sa = raw.sentimentAnalysis ?? raw.sentiment_analysis ?? raw.sentiment ?? null;
+  const categories = (Array.isArray(sa?.categories) ? sa.categories : sa?.categories && typeof sa.categories === "object" ? Object.entries(sa.categories).map(([name, v]: [string, any]) => ({ name, rating: typeof v === "object" ? v?.rating ?? v?.score : v, description: typeof v === "object" ? v?.description : null })) : [])
+    .map((c: any) => ({ name: str(c?.name, 60), rating: num(c?.rating ?? c?.score), description: str(c?.description, 300) }))
+    .filter((c: any) => c.name && c.rating != null)
+    .slice(0, 12);
+  const sentiment = sa
+    ? {
+        totalReviews: num(sa.totalReviews ?? sa.total_reviews ?? sa.count),
+        pros: (Array.isArray(sa.pros) ? sa.pros : []).map((p: unknown) => str(p, 200)).filter(Boolean).slice(0, 8),
+        cons: (Array.isArray(sa.cons) ? sa.cons : []).map((p: unknown) => str(p, 200)).filter(Boolean).slice(0, 8),
+        categories,
+      }
+    : null;
+  const payload = { reviews, sentiment, reviewCount: reviews.length, providerTotal: num(raw.total ?? raw.totalCount ?? raw.count) };
+  const fetchedAt = new Date().toISOString();
+  const expiresAt = new Date(Date.now() + REVIEWS_TTL_MINUTES * 60_000).toISOString();
+  try {
+    await restUpsert("hotel_rate_cache", [{ area_key: areaKey, checkin: "2000-01-01", checkout: "2000-01-02", occupancy_key: "reviews", payload, fetched_at: fetchedAt, expires_at: expiresAt, source_id: source.id }], "area_key,checkin,checkout,occupancy_key");
+  } catch {
+    // Serve uncached.
+  }
+  await finishRun(runId, "succeeded", { records_fetched: list.length, records_upserted: reviews.length, metadata: { environment: LITEAPI_ENV, ms: res.ms, hotelId, categories: categories.length, rawKeys: Object.keys(raw).slice(0, 10), sampleKeys: list[0] && typeof list[0] === "object" ? Object.keys(list[0]).slice(0, 20) : [], sentimentKeys: sa && typeof sa === "object" ? Object.keys(sa).slice(0, 12) : [] } });
+  return json({ ok: true, cached: false, environment: LITEAPI_ENV, hotelId, fetchedAt, attribution: source.attribution_text, canDisplayRating: source.can_display_rating ?? false, ...payload, ...(body.debug ? { debugSample: list[0] ?? null, debugSentiment: sa ?? null } : {}) });
+}
+
 /**
  * LiteAPI's lookup endpoints have not kept one field naming: facilities use
  * `facility_id`/`facility`, hotel types have shipped as `hotel_type_id`/
@@ -897,8 +988,10 @@ Deno.serve(async (req: Request) => {
         return await modeHotelDetail(body);
       case "hotel_rooms":
         return await modeHotelRooms(body);
+      case "hotel_reviews":
+        return await modeHotelReviews(body);
       default:
-        return json({ ok: false, error: "Unknown mode. Use area_rates, hotel_rates, hotel_rooms, hotel_detail, catalog_refresh, lookups_refresh or health." }, 400);
+        return json({ ok: false, error: "Unknown mode. Use area_rates, hotel_rates, hotel_rooms, hotel_detail, hotel_reviews, catalog_refresh, lookups_refresh or health." }, 400);
     }
   } catch (error) {
     return json({ ok: false, environment: LITEAPI_ENV, error: String(error).slice(0, 300) }, 500);

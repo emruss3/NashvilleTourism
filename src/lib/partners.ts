@@ -11,7 +11,9 @@
 
 import { STAY_MERCHANT, STAY_PARTNER, stayHost } from './stay-links';
 
-const env = (k: string) => process.env[k] || '';
+// Literal `process.env.NEXT_PUBLIC_*` reads only: Next.js inlines those into
+// client bundles; a `process.env[key]` lookup is empty in the browser.
+const env = (k: 'NEXT_PUBLIC_TM_AFFILIATE') => (k === 'NEXT_PUBLIC_TM_AFFILIATE' ? process.env.NEXT_PUBLIC_TM_AFFILIATE || '' : '');
 
 export const partners = {
   stay: {
