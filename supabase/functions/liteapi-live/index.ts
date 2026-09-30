@@ -6,8 +6,10 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
  * Allowed provider calls from this function:
  * - POST /hotels/rates            live rates for an area (lat/lng/radius) or a
  *                                 list of hotel ids; includeHotelData, one
- *                                 rate per hotel
- * - GET  /data/hotel?hotelId=     display-only detail (images, facilities)
+ *                                 rate per hotel; or every rate of one hotel
+ *                                 for its room list (hotel_rooms)
+ * - GET  /data/hotel?hotelId=     display-only detail (images, facilities,
+ *                                 room catalog with photos)
  * - GET  /data/hotels             weekly catalog by coordinates (cron only)
  * - GET  /data/facilities, /data/hoteltypes   lookups (cron only)
  *
@@ -41,6 +43,9 @@ const API_TIMEOUT_MS = 120_000;
 const PROVIDER_TIMEOUT_SECONDS = 18;
 const DEFAULT_TTL_MINUTES = 180;
 const DETAIL_TTL_MINUTES = 7 * 24 * 60;
+/** Room-level offers move faster than a hotel's cheapest rate; keep them an hour. */
+const ROOMS_TTL_MINUTES = 60;
+const MAX_ROOM_RATE_ROWS = 150;
 const CATALOG_TTL_MINUTES = 8 * 24 * 60;
 const MAX_RATE_ROWS = 400;
 
@@ -515,32 +520,61 @@ async function modeHotelRates(body: Record<string, unknown>): Promise<Response> 
   );
 }
 
-async function modeHotelDetail(body: Record<string, unknown>): Promise<Response> {
-  const hotelId = typeof body.hotelId === "string" && /^lp[a-z0-9]{3,16}$/.test(body.hotelId) ? body.hotelId : null;
-  if (!hotelId) return json({ ok: false, error: "hotelId required" }, 400);
-  const source = await liteapiSource();
+type DetailResult = { detail: any; cached: boolean; fetchedAt: string } | { error: string; status: number };
+
+/**
+ * Hotel detail from /data/hotel, cached a week. Carries the room catalog
+ * (names, beds, size, amenities, photos) so room offers can be matched to
+ * photos by name; a cached payload from before rooms were kept is refetched.
+ */
+async function loadDetail(hotelId: string, source: Source): Promise<DetailResult> {
   const areaKey = `detail:${hotelId}`;
   const cached = await restSelect<{ payload: any; fetched_at: string; expires_at: string }>(
     `hotel_rate_cache?select=payload,fetched_at,expires_at&area_key=eq.${areaKey}&checkin=eq.2000-01-01&checkout=eq.2000-01-02&occupancy_key=eq.detail&expires_at=gt.${encodeURIComponent(new Date().toISOString())}&limit=1`,
   );
-  if (cached.length) return json({ ok: true, cached: true, environment: LITEAPI_ENV, fetchedAt: cached[0].fetched_at, attribution: source.attribution_text, detail: cached[0].payload });
+  if (cached.length && Array.isArray(cached[0].payload?.rooms)) return { detail: cached[0].payload, cached: true, fetchedAt: cached[0].fetched_at };
 
   const runId = await logRun(source, "liteapi_hotel_detail", { hotelId });
   const res = await liteapiFetch(`/data/hotel?hotelId=${encodeURIComponent(hotelId)}`);
   if (!res.ok) {
     await finishRun(runId, "failed", { error_message: `HTTP ${res.status}` });
-    return json({ ok: false, environment: LITEAPI_ENV, error: `LiteAPI /data/hotel failed (${res.status})` }, 502);
+    return { error: `LiteAPI /data/hotel failed (${res.status})`, status: 502 };
   }
   const d = res.data?.data ?? {};
   const images = (Array.isArray(d.hotelImages) ? d.hotelImages : [])
     .map((image: any) => ({ url: typeof image?.urlHd === "string" ? image.urlHd : typeof image?.url === "string" ? image.url : null, caption: typeof image?.caption === "string" ? image.caption : null, isDefault: Boolean(image?.defaultImage) }))
     .filter((image: any) => image.url)
     .slice(0, 12);
+  const rooms = (Array.isArray(d.rooms) ? d.rooms : [])
+    .slice(0, 60)
+    .map((room: any) => ({
+      id: room?.id ?? null,
+      name: typeof room?.roomName === "string" ? room.roomName.trim() : null,
+      maxAdults: num(room?.maxAdults),
+      maxChildren: num(room?.maxChildren),
+      maxOccupancy: num(room?.maxOccupancy),
+      size: num(room?.roomSizeSquare),
+      sizeUnit: typeof room?.roomSizeUnit === "string" ? room.roomSizeUnit : null,
+      bedTypes: (Array.isArray(room?.bedTypes) ? room.bedTypes : [])
+        .map((b: any) => (typeof b === "string" ? b : [num(b?.quantity) ? `${Math.trunc(num(b.quantity)!)}` : null, typeof b?.bedType === "string" ? b.bedType : null].filter(Boolean).join(" ")))
+        .filter((b: string) => b)
+        .slice(0, 4),
+      amenities: (Array.isArray(room?.roomAmenities) ? room.roomAmenities : [])
+        .map((a: any) => (typeof a === "string" ? a : typeof a?.name === "string" ? a.name : null))
+        .filter((a: unknown) => typeof a === "string")
+        .slice(0, 12),
+      photos: (Array.isArray(room?.photos) ? room.photos : [])
+        .map((photo: any) => ({ url: typeof photo?.hd_url === "string" ? photo.hd_url : typeof photo?.url === "string" ? photo.url : null, caption: typeof photo?.imageDescription === "string" ? photo.imageDescription : null }))
+        .filter((photo: any) => photo.url)
+        .slice(0, 6),
+    }))
+    .filter((room: any) => room.name);
   const detail = {
     hotelId,
     name: typeof d.name === "string" ? d.name : hotelId,
     description: typeof d.hotelDescription === "string" ? d.hotelDescription.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 1200) : null,
     images,
+    rooms,
     facilities: (Array.isArray(d.hotelFacilities) ? d.hotelFacilities : Array.isArray(d.facilities) ? d.facilities.map((f: any) => f?.name) : []).filter((f: unknown) => typeof f === "string").slice(0, 40),
     stars: num(d.starRating) ?? num(d.stars),
     rating: num(d.rating),
@@ -558,8 +592,106 @@ async function modeHotelDetail(body: Record<string, unknown>): Promise<Response>
   } catch {
     // Serve uncached.
   }
-  await finishRun(runId, "succeeded", { records_fetched: 1, records_upserted: 1, metadata: { environment: LITEAPI_ENV, ms: res.ms, hotelId } });
-  return json({ ok: true, cached: false, environment: LITEAPI_ENV, fetchedAt, attribution: source.attribution_text, detail });
+  await finishRun(runId, "succeeded", { records_fetched: 1, records_upserted: 1, metadata: { environment: LITEAPI_ENV, ms: res.ms, hotelId, rooms: rooms.length } });
+  return { detail, cached: false, fetchedAt };
+}
+
+async function modeHotelDetail(body: Record<string, unknown>): Promise<Response> {
+  const hotelId = typeof body.hotelId === "string" && /^lp[a-z0-9]{3,16}$/.test(body.hotelId) ? body.hotelId : null;
+  if (!hotelId) return json({ ok: false, error: "hotelId required" }, 400);
+  const source = await liteapiSource();
+  const result = await loadDetail(hotelId, source);
+  if ("error" in result) return json({ ok: false, environment: LITEAPI_ENV, error: result.error }, result.status);
+  return json({ ok: true, cached: result.cached, environment: LITEAPI_ENV, fetchedAt: result.fetchedAt, attribution: source.attribution_text, detail: result.detail });
+}
+
+/** Every rate of every room type for one hotel, flat. Grouping and photo matching happen on the site. */
+function flattenRoomRates(data: any, nights: number, fetchedAt: string, expiresAt: string) {
+  const rows: any[] = [];
+  for (const entry of Array.isArray(data?.data) ? data.data : []) {
+    for (const roomType of Array.isArray(entry?.roomTypes) ? entry.roomTypes : []) {
+      for (const rate of Array.isArray(roomType?.rates) ? roomType.rates : []) {
+        const total = money(rate?.retailRate?.total);
+        if (!total) continue;
+        const infos = Array.isArray(rate?.cancellationPolicies?.cancelPolicyInfos) ? rate.cancellationPolicies.cancelPolicyInfos : [];
+        const cancelBy = infos.map((i: any) => (typeof i?.cancelTime === "string" ? i.cancelTime : null)).filter(Boolean).sort()[0] ?? null;
+        const refundableTag = rate?.cancellationPolicies?.refundableTag;
+        const ssp = money(rate?.retailRate?.suggestedSellingPrice);
+        rows.push({
+          offerId: typeof roomType?.offerId === "string" ? roomType.offerId : null,
+          rateId: typeof rate?.rateId === "string" ? rate.rateId : null,
+          roomTypeId: typeof roomType?.roomTypeId === "string" ? roomType.roomTypeId : null,
+          roomName: typeof rate?.name === "string" ? rate.name.trim() : null,
+          boardType: typeof rate?.boardType === "string" ? rate.boardType : null,
+          boardName: typeof rate?.boardName === "string" ? rate.boardName : null,
+          maxOccupancy: num(rate?.maxOccupancy),
+          adultCount: num(rate?.adultCount),
+          childCount: num(rate?.childCount),
+          refundable: refundableTag === "RFN" || refundableTag === "NRFN" ? refundableTag : null,
+          cancelBy,
+          total,
+          nightly: { amount: Math.round((total.amount / nights) * 100) / 100, currency: total.currency },
+          nights,
+          ssp: ssp ? { amount: ssp.amount } : null,
+          perks: (Array.isArray(rate?.perks) ? rate.perks : []).map((p: any) => (typeof p === "string" ? p : typeof p?.name === "string" ? p.name : typeof p?.description === "string" ? p.description : null)).filter(Boolean).slice(0, 4),
+          remarks: typeof rate?.remarks === "string" ? rate.remarks.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300) : null,
+          paymentTypes: Array.isArray(rate?.paymentTypes) ? rate.paymentTypes.map(String).slice(0, 3) : [],
+          fetchedAt,
+          expiresAt,
+        });
+        if (rows.length >= MAX_ROOM_RATE_ROWS) return rows;
+      }
+    }
+  }
+  return rows;
+}
+
+/**
+ * Room options for one hotel and one stay: every room type and rate the
+ * provider offers (not just the cheapest), plus the hotel detail with its
+ * room catalog and photos. Cached an hour per hotel, dates and occupancy.
+ */
+async function modeHotelRooms(body: Record<string, unknown>): Promise<Response> {
+  const hotelId = typeof body.hotelId === "string" && /^lp[a-z0-9]{3,16}$/.test(body.hotelId) ? body.hotelId : null;
+  const checkin = isoDay(body.checkin);
+  const checkout = isoDay(body.checkout);
+  if (!hotelId) return json({ ok: false, error: "hotelId required" }, 400);
+  if (!checkin || !checkout || checkout <= checkin) return json({ ok: false, error: "checkin/checkout (YYYY-MM-DD, checkout after checkin) required" }, 400);
+  const occupancies = normalizeOccupancies(body);
+  const occKey = occupancyKey(occupancies);
+  const areaKey = `rooms:${hotelId}`;
+  const campaign = typeof body.campaign === "string" ? body.campaign : "hotels-rooms";
+  const source = await liteapiSource();
+  const detailRes = await loadDetail(hotelId, source);
+  const detail = "detail" in detailRes ? detailRes.detail : null;
+
+  const cached = await restSelect<{ payload: any; fetched_at: string; expires_at: string }>(
+    `hotel_rate_cache?select=payload,fetched_at,expires_at&area_key=eq.${encodeURIComponent(areaKey)}&checkin=eq.${checkin}&checkout=eq.${checkout}&occupancy_key=eq.${encodeURIComponent(occKey)}&expires_at=gt.${encodeURIComponent(new Date().toISOString())}&limit=1`,
+  );
+  if (cached.length) {
+    return json({ ok: true, cached: true, environment: LITEAPI_ENV, hotelId, fetchedAt: cached[0].fetched_at, expiresAt: cached[0].expires_at, attribution: source.attribution_text, canDisplayRating: source.can_display_rating ?? false, rates: cached[0].payload, detail });
+  }
+
+  const runId = await logRun(source, "liteapi_hotel_rooms", { hotelId, checkin, checkout, occupancyKey: occKey, campaign });
+  const res = await liteapiFetch("/hotels/rates", {
+    method: "POST",
+    body: JSON.stringify({ hotelIds: [hotelId], checkin, checkout, occupancies, currency: "USD", guestNationality: "US", includeHotelData: false, timeout: PROVIDER_TIMEOUT_SECONDS }),
+  });
+  if (!res.ok) {
+    await finishRun(runId, "failed", { error_message: `HTTP ${res.status}`, metadata: { environment: LITEAPI_ENV, status: res.status, ms: res.ms, requestId: res.requestId, providerError: res.data?.error ?? null } });
+    return json({ ok: false, environment: LITEAPI_ENV, error: typeof res.data?.error?.description === "string" ? res.data.error.description : typeof res.data?.error === "string" ? res.data.error : `LiteAPI /hotels/rates failed (${res.status})`, status: res.status }, res.status === 0 ? 502 : res.status === 429 ? 429 : 502);
+  }
+  const fetchedAt = new Date().toISOString();
+  const expiresAt = new Date(Date.now() + ROOMS_TTL_MINUTES * 60_000).toISOString();
+  const rates = flattenRoomRates(res.data, Math.max(nightsBetween(checkin, checkout), 1), fetchedAt, expiresAt);
+  try {
+    await restUpsert("hotel_rate_cache", [{ area_key: areaKey, checkin, checkout, occupancy_key: occKey, payload: rates, fetched_at: fetchedAt, expires_at: expiresAt, source_id: source.id }], "area_key,checkin,checkout,occupancy_key");
+  } catch (error) {
+    await finishRun(runId, "failed", { records_fetched: rates.length, error_message: `cache write failed: ${String(error).slice(0, 200)}` });
+    return json({ ok: true, cached: false, environment: LITEAPI_ENV, hotelId, fetchedAt, expiresAt, attribution: source.attribution_text, canDisplayRating: source.can_display_rating ?? false, rates, detail, warning: "cache write failed" });
+  }
+  await finishRun(runId, "succeeded", { records_fetched: rates.length, records_upserted: rates.length, metadata: { environment: LITEAPI_ENV, status: res.status, ms: res.ms, requestId: res.requestId, hotelId, campaign } });
+  return json({ ok: true, cached: false, environment: LITEAPI_ENV, hotelId, fetchedAt, expiresAt, attribution: source.attribution_text, canDisplayRating: source.can_display_rating ?? false, rates, detail });
 }
 
 /**
@@ -763,8 +895,10 @@ Deno.serve(async (req: Request) => {
         return await modeHotelRates(body);
       case "hotel_detail":
         return await modeHotelDetail(body);
+      case "hotel_rooms":
+        return await modeHotelRooms(body);
       default:
-        return json({ ok: false, error: "Unknown mode. Use area_rates, hotel_rates, hotel_detail, catalog_refresh, lookups_refresh or health." }, 400);
+        return json({ ok: false, error: "Unknown mode. Use area_rates, hotel_rates, hotel_rooms, hotel_detail, catalog_refresh, lookups_refresh or health." }, 400);
     }
   } catch (error) {
     return json({ ok: false, environment: LITEAPI_ENV, error: String(error).slice(0, 300) }, 500);

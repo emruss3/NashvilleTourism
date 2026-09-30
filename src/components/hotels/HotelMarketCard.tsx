@@ -5,12 +5,15 @@ import { ANALYTICS_EVENTS } from '@/lib/analytics';
 import type { RankedHotel } from '@/lib/feeds/hotel-marketplace-rank';
 import { formatNightly } from '@/lib/feeds/hotels-live';
 import { distanceLabel } from '@/lib/geo';
+import { hotelRoomsPath } from '@/lib/hotel-booking';
 import { clientReference, stayHotelHref } from '@/lib/stay-links';
 
 /**
  * One marketplace result. Provider photo, name and rating are display-only
  * (the surface is noindex); the price always carries its fetch time; the
- * single CTA opens the white-label hotel page with the searched dates. An
+ * single CTA opens our own room list for the hotel with the searched dates
+ * (`/hotels/stay/{id}/`, or the editorial page's room section), where every
+ * room and rate is shown before the hand-off to the booking site. An
  * editorial hotel is badged "Our pick" and also links to our own page.
  */
 export default function HotelMarketCard({
@@ -39,8 +42,9 @@ export default function HotelMarketCard({
   const { rate } = item;
   const slug = editorialSlug ?? rate.hotelId;
   const reference = clientReference(surface, slug);
-  const href = stayHotelHref(rate.hotelId, { checkin, checkout, adults, clientReference: reference });
-  if (!href) return null;
+  // The white label must be configured for any room to be bookable; without it the card renders nothing.
+  if (!stayHotelHref(rate.hotelId, { checkin, checkout, adults, clientReference: reference })) return null;
+  const href = hotelRoomsPath({ hotelId: rate.hotelId, editorialSlug, checkin, checkout, adults });
   const fetched = new Date(rate.fetchedAt).toLocaleString('en-US', { timeZone: 'America/Chicago' });
   const showRating = canDisplayRating && rate.rating !== undefined && (rate.reviewCount ?? 0) > 0;
   const ratingOutOf = rate.rating !== undefined && rate.rating > 5 ? 10 : 5;

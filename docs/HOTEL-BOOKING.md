@@ -1,6 +1,6 @@
 # Hotel booking: LiteAPI marketplace + Nuitée white-label checkout
 
-Last updated 2026-09-26. Supersedes every Booking.com affiliate note in this repo.
+Last updated 2026-09-30. Supersedes every Booking.com affiliate note in this repo.
 
 ## Architecture
 
@@ -104,7 +104,8 @@ Modes of `liteapi-live` (POST JSON `{ mode, ... }`, `apikey` = service key):
 | --- | --- | --- | --- |
 | `area_rates` | service | `lat, lng, radiusKm, checkin, checkout, adults \| occupancies[], areaKey?` | `areaKey` (neighborhood slug, `hub-<slug>`, `nashville`) or `geo:{lat4}:{lng4}:{r}` + dates + occupancy |
 | `hotel_rates` | service | `hotelIds[], checkin, checkout, adults` | `ids:<hash of sorted ids>` + dates + occupancy |
-| `hotel_detail` | service | `hotelId` | `detail:<id>`, 7 days |
+| `hotel_rooms` | service | `hotelId, checkin, checkout, adults \| occupancies[]` | `rooms:<id>` + dates + occupancy, 60 minutes; every rate of every room type, flat, plus the hotel detail |
+| `hotel_detail` | service | `hotelId` | `detail:<id>`, 7 days; carries the room catalog (`rooms[]`: name, beds, size, amenities, up to 6 photos). Rows cached before the catalog was kept are refetched once |
 | `catalog_refresh` | service or cron token | `maxPages?, radiusKm?` | `hotel_catalog_cache`, lookups; weekly Monday 09:20 UTC |
 | `lookups_refresh` | service or cron token | none | facility and hotel-type lookups only (`/data/facilities`, `/data/hotelTypes`) |
 | `health` | service, cron token or probe token | none | reports env, cache and catalog row counts, last catalog refresh, which tokens are set |
@@ -129,10 +130,21 @@ Rate limiting inside the function: at most 3 concurrent provider calls, 400 ms s
 | --- | --- | --- |
 | `/hotels/` | Editorial rows with live "from" price, then "More places to stay" rail (editorial ids excluded, filter chips) | URL or next Fri–Sun |
 | `/hotels/?neighborhood=…` | Same, scoped to the neighborhood's centroid and radius (`src/lib/content/neighborhoods.ts`) | same |
-| `/hotels/[slug]/` | "From $X a night" for the coming weekend; CTA carries those dates | next Fri–Sun |
+| `/hotels/[slug]/` | "From $X a night" plus the "Rooms and rates" section (below); rendered per request, dates from the query or next Fri–Sun | URL or next Fri–Sun |
+| `/hotels/stay/[hotelId]/` | Room list for a marketplace hotel without an editorial page: provider name, photos and facts (display only), then every room and rate. Every market card and map popup links here (or to the editorial page's room section) instead of straight to the booking site | URL or next Fri–Sun |
 | `/where-to-stay/[slug]/` | Preset rail from `src/lib/content/stay-search-presets.ts`; rentals hub searches whole homes for 8 in one unit, no Vrbo | next Fri–Sun |
 | `/where-to-stay/` | "See rates" per area row | none |
 | `/neighborhoods/[slug]/` | "Stay in …" rail, top 6 | next Fri–Sun |
+
+### Room options (the click after the card)
+
+Modelled on KindredTrips' `get_hotel_offers`. `hotel_rooms` asks the provider for every rate of one hotel (no `maxRatesPerHotel`), keeps up to 150 flat rows (`roomName`, `boardType`, `boardName`, `refundable`, `cancelBy` = earliest free-cancel deadline, retail `total` and `nightly`, `ssp`, `maxOccupancy`, `perks`, `offerId`, `rateId`, `roomTypeId`) and returns the hotel detail with it. `src/lib/hotel-rooms.ts` (pure, tested in `tests/hotel-rooms.test.ts`) then:
+
+1. groups rates by normalized room name (noise words such as "room", "non smoking" dropped) and board type, one card per group, the cheapest rate on the card and the others under "More rates", groups ordered by cheapest total;
+2. matches each group to a catalog room by exact normalized name, else the best token Jaccard overlap at 0.5 or above; the matched room's photos, beds, size and amenities go on the card, and when several groups share one catalog room the photo order rotates so each card leads with a different image; with no match the hotel gallery stands in, labelled "Hotel photo";
+3. never truncates or rewrites `offerId` (LiteAPI ids are long base64). `roomTypeId` from `/hotels/rates` does not join the catalog room `id` from `/data/hotel`; only the name does.
+
+`RoomOptions` (client) renders the list with a `StayDatesField`; a date change refetches from `/api/hotels/rooms/` (GET `hotelId, checkin, checkout, adults`; server side, service role, 400 on a bad id, 502/503 when the provider or the config is down). "Book this room" opens the booking site on the hotel with the same dates (`stayHotelHref`), or the offer's checkout when `NEXT_PUBLIC_STAY_DIRECT_CHECKOUT` is on. Nothing is prebooked or held. Sandbox rates show the test-mode notice above the list. Analytics: `hotel_rooms_viewed` (`result_count`, `cached`) once per list, `hotel_room_clicked` (`room_name`, `board`, `refundable`, `nightly_shown`) per CTA.
 
 Every rail renders nothing when `NEXT_PUBLIC_STAY_HOST` is unset, the service key is missing, or the provider fails. No empty state carries partner branding. Any `/hotels/` view with a query string is `noindex`.
 
@@ -158,7 +170,7 @@ Every rail renders nothing when `NEXT_PUBLIC_STAY_HOST` is unset, the service ke
 
 ## Analytics
 
-`HOTEL_AFFILIATE_CLICKED` keeps its name. Payload: `partner` (`LiteAPI` or `Booking.com`), `placement` (`whitelabel` or `affiliate`), `client_reference`, `hotel_id`. `HOTEL_MARKET_VIEWED` fires once per rendered rail: `item_id` = `surface:area`, `neighborhood`, `result_count`, `cached`.
+`HOTEL_AFFILIATE_CLICKED` keeps its name. Payload: `partner` (`LiteAPI` or `Booking.com`), `placement` (`whitelabel` or `affiliate`), `client_reference`, `hotel_id`. `HOTEL_MARKET_VIEWED` fires once per rendered rail: `item_id` = `surface:area`, `neighborhood`, `result_count`, `cached`. `HOTEL_ROOMS_VIEWED` and `HOTEL_ROOM_CLICKED` cover the room list (see Room options).
 
 ## Phases
 

@@ -6,18 +6,21 @@ import { AffiliateDisclosure, PlacementLabel, VerificationBadge, formatDate } fr
 import BookingLink from '@/components/BookingLink';
 import TestModeNotice from '@/components/hotels/TestModeNotice';
 import LivePrice from '@/components/hotels/LivePrice';
+import RoomOptions, { type RoomsPayload } from '@/components/hotels/RoomOptions';
 import { hotels, getHotel } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
 import { formatNightly, getHotelRates, isHotelsLiveConfigured } from '@/lib/feeds/hotels-live';
+import { getHotelRooms } from '@/lib/feeds/hotel-rooms';
 import { hotelBookingHref } from '@/lib/hotel-booking';
 import { partners } from '@/lib/partners';
-import { defaultStayDates, stayDatesLabel } from '@/lib/stay-dates';
+import { resolveStayDates, stayDatesLabel } from '@/lib/stay-dates';
 import { ANALYTICS_EVENTS } from '@/lib/analytics';
 import { buildMetadata, hotelSchema, isIndexableRecord } from '@/lib/seo';
 
-export function generateStaticParams() {
-  return hotels.map((h) => ({ slug: h.slug }));
-}
+// Rendered per request: the room list and the "from" price follow the
+// dates in the query, and both come from the Postgres rate cache, so a
+// request inside the TTL makes no provider call.
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
@@ -33,21 +36,53 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   });
 }
 
-export default async function HotelPage(props: { params: Promise<{ slug: string }> }) {
+type Query = Record<string, string | string[] | undefined>;
+function one(q: Query, key: string): string | undefined {
+  const raw = q[key];
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  return value?.trim() || undefined;
+}
+
+export default async function HotelPage(props: { params: Promise<{ slug: string }>; searchParams?: Promise<Query> }) {
   const params = await props.params;
+  const query = (await props.searchParams) ?? {};
   const h = getHotel(params.slug);
   if (!h) notFound();
 
   const hood = neighborhoodName(h.neighborhood);
   const related = h.relatedSlugs.map((s) => getHotel(s)).filter((x): x is NonNullable<typeof x> => Boolean(x));
-  // Live "from" price for the coming weekend; the CTA carries the same dates
-  // so the booking site opens on the stay that was quoted.
-  const dates = defaultStayDates();
-  const live = h.liteApiHotelId && partners.stay.host && isHotelsLiveConfigured()
-    ? await getHotelRates({ hotelIds: [h.liteApiHotelId], checkin: dates.checkin, checkout: dates.checkout, campaign: 'hotels-detail' })
-    : undefined;
+  // Live "from" price for the searched dates (or the coming weekend), and
+  // every room and rate for the same stay in the "Rooms and rates" section;
+  // the CTAs carry those dates so the booking site opens on the stay quoted.
+  const dates = resolveStayDates(one(query, 'checkin'), one(query, 'checkout'));
+  const adultsRaw = Number(one(query, 'adults'));
+  const adults = Number.isInteger(adultsRaw) && adultsRaw >= 1 && adultsRaw <= 20 ? adultsRaw : 2;
+  const liveReady = Boolean(h.liteApiHotelId && partners.stay.host && isHotelsLiveConfigured());
+  const [live, rooms] = liveReady && h.liteApiHotelId
+    ? await Promise.all([
+        getHotelRates({ hotelIds: [h.liteApiHotelId], checkin: dates.checkin, checkout: dates.checkout, adults, campaign: 'hotels-detail' }),
+        getHotelRooms({ hotelId: h.liteApiHotelId, checkin: dates.checkin, checkout: dates.checkout, adults, campaign: 'hotels-detail-rooms' }),
+      ])
+    : [undefined, undefined];
   const rate = live?.live ? live.rates.find((r) => r.hotelId === h.liteApiHotelId) : undefined;
-  const booking = hotelBookingHref(h, { surface: 'hotel', checkin: rate ? dates.checkin : undefined, checkout: rate ? dates.checkout : undefined });
+  const booking = hotelBookingHref(h, { surface: 'hotel', checkin: rate ? dates.checkin : undefined, checkout: rate ? dates.checkout : undefined, adults });
+  const roomsInitial: RoomsPayload | undefined = rooms
+    ? {
+        ok: rooms.live,
+        hotelId: rooms.hotelId,
+        checkin: dates.checkin,
+        checkout: dates.checkout,
+        adults,
+        cached: rooms.cached,
+        environment: rooms.environment,
+        fetchedAt: rooms.fetchedAt,
+        attribution: rooms.attribution,
+        rateCount: rooms.rateCount,
+        hotel: rooms.detail ? { name: rooms.detail.name, checkinTime: rooms.detail.checkinTime, checkoutTime: rooms.detail.checkoutTime } : null,
+        groups: rooms.groups,
+        error: rooms.live ? undefined : 'Rates are not available right now.',
+      }
+    : undefined;
 
   return (
     <div className="shell pb-16">
@@ -117,6 +152,12 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
             </ul>
           </section>
 
+          {liveReady && h.liteApiHotelId ? (
+            <div id="rooms" className="scroll-mt-24 border-t border-paper-edge py-8">
+              <RoomOptions hotelId={h.liteApiHotelId} hotelName={h.title} slug={h.slug} surface="hotel" initial={roomsInitial} initialCheckin={dates.checkin} initialCheckout={dates.checkout} adults={adults} />
+            </div>
+          ) : null}
+
           <section className="py-4">
             <h2 className="text-2xl">Getting around</h2>
             <div className="prose-editorial mt-3">
@@ -157,7 +198,7 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
             <LivePrice rate={rate} datesLabel={stayDatesLabel(dates)} />
             <BookingLink
               url={booking.url}
-              label={rate ? `See rooms from ${formatNightly(rate.nightly)}` : 'Check rates'}
+              label={rate ? `Book from ${formatNightly(rate.nightly)} a night` : 'Check rates'}
               name={h.title}
               slug={h.slug}
               event={ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED}

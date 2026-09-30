@@ -56,3 +56,29 @@ export function hotelSearchPath(params: HotelSearchParams = {}, hash?: string): 
   const qs = u.toString();
   return `${qs ? `/hotels/?${qs}` : '/hotels/'}${hash ? `#${hash}` : ''}`;
 }
+
+export interface HotelRoomsPathParams {
+  hotelId: string;
+  /** When the hotel has an editorial page, the room list lives there. */
+  editorialSlug?: string;
+  checkin?: string;
+  checkout?: string;
+  adults?: number;
+}
+
+/**
+ * Our own room list for one hotel, with the searched dates carried in the
+ * query: the editorial page's "Rooms and rates" section for the curated
+ * hotels, `/hotels/stay/{id}/` for every other marketplace hotel. Every
+ * marketplace CTA and map popup goes here first; the booking site comes
+ * after a room is chosen.
+ */
+export function hotelRoomsPath(params: HotelRoomsPathParams): string {
+  const u = new URLSearchParams();
+  if (params.checkin) u.set('checkin', params.checkin);
+  if (params.checkout) u.set('checkout', params.checkout);
+  if (params.adults && params.adults !== 2) u.set('adults', String(params.adults));
+  const qs = u.toString();
+  const base = params.editorialSlug ? `/hotels/${params.editorialSlug}/` : `/hotels/stay/${encodeURIComponent(params.hotelId)}/`;
+  return `${base}${qs ? `?${qs}` : ''}${params.editorialSlug ? '#rooms' : ''}`;
+}

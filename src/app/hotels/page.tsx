@@ -13,13 +13,12 @@ import StaySearch from '@/components/hotels/StaySearch';
 import PageIntro from '@/components/hub/PageIntro';
 import SectionHead from '@/components/hub/SectionHead';
 import { ANALYTICS_EVENTS } from '@/lib/analytics';
-import { hotelBookingHref, hotelSearchPath, type HotelSearchParams } from '@/lib/hotel-booking';
+import { hotelBookingHref, hotelRoomsPath, hotelSearchPath, type HotelSearchParams } from '@/lib/hotel-booking';
 import { partners } from '@/lib/partners';
 import { guides, hotels, neighborhoods } from '@/lib/content';
 import { getNeighborhood, neighborhoodName } from '@/lib/content/neighborhoods';
 import { priceBandFromCategory, rankMarketplace, type MarketFilters } from '@/lib/feeds/hotel-marketplace-rank';
 import { formatNightly, getAreaRates, getHotelRates, isHotelsLiveConfigured, type LiveHotelRate, type LiveRatesResult } from '@/lib/feeds/hotels-live';
-import { clientReference, stayHotelHref } from '@/lib/stay-links';
 import { LOWER_BROADWAY } from '@/lib/geo';
 import { resolveStayDates, stayDatesLabel } from '@/lib/stay-dates';
 import { neighborhoodImageKey } from '@/lib/media-placements';
@@ -160,7 +159,7 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
       image: item.rate.thumbnail,
       priceLabel: `From ${formatNightly(item.rate.nightly)} a night`,
       pinLabel: formatNightly(item.rate.nightly),
-      href: stayHotelHref(item.rate.hotelId, { checkin, checkout, adults: stay.adults, clientReference: clientReference('map', item.rate.hotelId) }),
+      href: hotelRoomsPath({ hotelId: item.rate.hotelId, checkin, checkout, adults: stay.adults }),
     })),
   ];
   const datesLabel = stayDatesLabel(stay.dates);

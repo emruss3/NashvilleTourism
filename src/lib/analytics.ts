@@ -18,6 +18,9 @@ export const ANALYTICS_EVENTS = {
   ITINERARY_EMAILED: 'itinerary_emailed',
   HOTEL_AFFILIATE_CLICKED: 'hotel_affiliate_clicked',
   HOTEL_MARKET_VIEWED: 'hotel_market_viewed',
+  /** Room list rendered for one hotel (result_count, cached) and a room's own CTA clicked (room_name, board, refundable). */
+  HOTEL_ROOMS_VIEWED: 'hotel_rooms_viewed',
+  HOTEL_ROOM_CLICKED: 'hotel_room_clicked',
   TICKET_AFFILIATE_CLICKED: 'ticket_affiliate_clicked',
   ACTIVITY_AFFILIATE_CLICKED: 'activity_affiliate_clicked',
   RESTAURANT_RESERVATION_CLICKED: 'restaurant_reservation_clicked',
