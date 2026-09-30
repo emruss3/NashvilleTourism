@@ -263,9 +263,16 @@ export default function HotelResultsMap({
         bounds.extend([mid.lat, mid.lng]);
         map.fitBounds(bounds.pad(0.12), { maxZoom: Math.min(15, tiles.maxZoom) });
         if (map.getZoom() < 13) map.setZoom(13);
+        // The paper tint that reads at neighbourhood zoom washes the tiles out at
+        // block zoom; globals.css keeps more colour when this says "close".
+        const syncZoomBand = () => {
+          if (host.current) host.current.dataset.zoom = map.getZoom() >= 16 ? 'close' : 'wide';
+        };
+        syncZoomBand();
         syncLandmarks();
         renderPins();
         map.on('zoomend', () => {
+          syncZoomBand();
           syncLandmarks();
           renderPins();
         });

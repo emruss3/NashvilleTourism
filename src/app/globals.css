@@ -236,6 +236,12 @@ input[type='date']::-webkit-calendar-picker-indicator {
      water and parks stay tellable apart. */
   filter: saturate(0.3) sepia(0.2) contrast(1.22) brightness(1.02);
 }
+.leaflet-container[data-variant='paper'][data-zoom='close'] .leaflet-tile-pane {
+  /* Zoomed to a few blocks (16+), the street map is mostly thin casings, block
+     outlines and house numbers; the paper tint washes those out. Keep most of
+     the colour and the contrast so roads and names stay legible up close. */
+  filter: saturate(0.85) sepia(0.06) contrast(1.18) brightness(0.99);
+}
 .leaflet-container[data-variant='ink'] .leaflet-tile-pane {
   /* Dark basemaps are blue-black; pull them to neutral black and lift the streets a touch. */
   filter: saturate(0) contrast(1.05) brightness(1.08);
