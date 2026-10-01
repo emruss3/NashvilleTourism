@@ -124,12 +124,15 @@ export default function HotelResultsMap({
   title = 'Map of these stays',
   variant = 'paper',
   provider = 'esri',
+  legend = true,
 }: {
   points: MapPoint[];
   center?: { lat: number; lng: number };
   title?: string;
   variant?: MapVariant;
   provider?: MapProvider;
+  /** The picks / other stays / clusters key; off for a single-hotel map. */
+  legend?: boolean;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<'idle' | 'ready' | 'failed'>('idle');
@@ -294,7 +297,7 @@ export default function HotelResultsMap({
     <figure className={`overflow-hidden rounded-card border border-paper-edge ${ink ? 'bg-ink' : 'bg-paper-sunk'}`}>
       <div ref={host} role="region" aria-label={title} data-variant={variant} className="h-[360px] w-full sm:h-[440px]" />
       <figcaption className={`flex flex-wrap items-center justify-between gap-2 px-4 py-2 text-2xs text-ink-soft ${ink ? 'bg-paper' : ''}`}>
-        <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span className={legend ? 'flex flex-wrap items-center gap-x-3 gap-y-1' : 'hidden'}>
           <span>
             <span aria-hidden="true" className={`mr-1 inline-block rounded-full px-1.5 py-0.5 align-middle text-[11px] font-semibold ${ink ? 'border border-ink bg-paper text-ink' : 'bg-ink text-paper'}`}>$</span>
             Our picks

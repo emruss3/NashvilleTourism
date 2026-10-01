@@ -6,6 +6,7 @@ import HotelGallery from '@/components/hotels/HotelGallery';
 import HotelBookingBox from '@/components/hotels/HotelBookingBox';
 import HotelSectionTabs from '@/components/hotels/HotelSectionTabs';
 import GuestReviews from '@/components/hotels/GuestReviews';
+import HotelResultsMap from '@/components/hotels/HotelResultsMap';
 import { hotels } from '@/lib/content';
 import { getHotelReviews, getHotelRooms } from '@/lib/feeds/hotel-rooms';
 import { isHotelsLiveConfigured } from '@/lib/feeds/hotels-live';
@@ -173,11 +174,16 @@ export default async function StayRoomsPage(props: { params: Promise<{ hotelId: 
             <h2 className="text-2xl">Location</h2>
             {detail?.address ? (
               <p className="mt-3 text-[15px] text-ink">
-                {detail.address} · <MapLink query={`${name}, ${detail.address}`} label="Directions and map" />
+                {detail.address} · <MapLink query={`${name}, ${detail.address}`} label="Directions" />
               </p>
             ) : (
               <p className="mt-3 text-[15px] text-ink-soft">Address on the booking site.</p>
             )}
+            {detail?.lat !== undefined && detail?.lng !== undefined ? (
+              <div className="mt-4">
+                <HotelResultsMap points={[{ id: hotelId, name, lat: detail.lat, lng: detail.lng, image: detail.images[0]?.url, pinned: true, pinLabel: name, hrefLabel: 'Directions', href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name}, ${detail.address ?? 'Nashville'}`)}` }]} center={{ lat: detail.lat, lng: detail.lng }} title={`Map of ${name}`} legend={false} />
+              </div>
+            ) : null}
             <p className="mt-4 text-sm">
               <Link href={backHref} className="font-semibold text-ink underline underline-offset-2">
                 Back to all Nashville hotels

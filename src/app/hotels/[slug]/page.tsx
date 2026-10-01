@@ -8,6 +8,7 @@ import HotelGallery from '@/components/hotels/HotelGallery';
 import HotelBookingBox from '@/components/hotels/HotelBookingBox';
 import HotelSectionTabs from '@/components/hotels/HotelSectionTabs';
 import GuestReviews from '@/components/hotels/GuestReviews';
+import HotelResultsMap from '@/components/hotels/HotelResultsMap';
 import { hotels, getHotel } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
 import { getHotelRates, isHotelsLiveConfigured } from '@/lib/feeds/hotels-live';
@@ -194,10 +195,6 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
                 <dt className="text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">Fitness centre</dt>
                 <dd className="text-ink">{h.hasFitness ? 'Yes' : 'No'}</dd>
               </div>
-              <div>
-                <dt className="text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">Family friendly</dt>
-                <dd className="text-ink">{h.familyFriendly ? 'Yes' : 'Check with the hotel'}</dd>
-              </div>
             </dl>
           </section>
 
@@ -216,8 +213,13 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
           <section id="location" className="scroll-mt-32 border-t border-paper-edge py-8">
             <h2 className="text-2xl">Location</h2>
             <p className="mt-3 text-[15px] text-ink">
-              {h.address} · <MapLink query={h.mapQuery} label="Directions and map" />
+              {h.address} · <MapLink query={h.mapQuery} label="Directions" />
             </p>
+            {detail?.lat !== undefined && detail?.lng !== undefined ? (
+              <div className="mt-4">
+                <HotelResultsMap points={[{ id: h.slug, name: h.title, lat: detail.lat, lng: detail.lng, image: detail.images[0]?.url, pinned: true, pinLabel: h.title, hrefLabel: 'Directions', href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.mapQuery)}` }]} center={{ lat: detail.lat, lng: detail.lng }} title={`Map of ${h.title}`} legend={false} />
+              </div>
+            ) : null}
             <div className="prose-editorial mt-3">
               <p>{h.walkabilityNote}</p>
               <p>
