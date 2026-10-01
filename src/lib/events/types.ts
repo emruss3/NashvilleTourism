@@ -33,6 +33,50 @@ export interface EventSpace {
   blackoutNote?: string;
   sortOrder: number;
   published: boolean;
+  /** Layout capacities (Phase 2); any may be unset. */
+  cocktailCapacity?: number;
+  banquetCapacity?: number;
+  theaterCapacity?: number;
+  classroomCapacity?: number;
+  boardroomCapacity?: number;
+}
+
+/** Plain-text terms a venue states up front; all optional, public on the Terms tab. */
+export interface VenueTerms {
+  depositTerms?: string;
+  cancellationTerms?: string;
+  gratuityNote?: string;
+  minimumNotice?: string;
+  outsideCatering?: string;
+  noiseCurfew?: string;
+  insuranceNote?: string;
+  parkingNote?: string;
+  transitNote?: string;
+}
+
+export const TERMS_LABELS: Array<[keyof VenueTerms, string]> = [
+  ['depositTerms', 'Deposit'],
+  ['cancellationTerms', 'Cancellation'],
+  ['minimumNotice', 'Minimum notice'],
+  ['gratuityNote', 'Service charge and gratuity'],
+  ['outsideCatering', 'Outside catering'],
+  ['noiseCurfew', 'Noise and curfew'],
+  ['insuranceNote', 'Insurance'],
+  ['parkingNote', 'Parking'],
+  ['transitNote', 'Getting there'],
+];
+
+export type MediaKind = 'photo' | 'floor_plan' | 'video' | 'menu_pdf' | 'tour_poster';
+export type AvailabilityStatus = 'open' | 'limited' | 'booked';
+
+/** One availability row: a month (YYYY-MM) or a single day (YYYY-MM-DD) for one space. */
+export interface SpaceAvailability {
+  spaceId: string;
+  venueId: string;
+  month?: string;
+  day?: string;
+  status: AvailabilityStatus;
+  note?: string;
 }
 
 export interface EventVenue {
@@ -56,6 +100,9 @@ export interface EventVenue {
   tourUrl?: string;
   hoursNote?: string;
   features: string[];
+  terms: VenueTerms;
+  /** Set by the desk after a visit or a call; the badge shows only when set. */
+  verifiedAt?: string;
   spaces: EventSpace[];
   /**
    * Commercial and contact fields are present only on a `withContacts` read
@@ -99,6 +146,9 @@ export interface EventMedia {
   alt: string;
   credit?: string;
   sortOrder: number;
+  kind: MediaKind;
+  /** Floor plans: "Floor 3" or "Rooftop". */
+  floorLabel?: string;
 }
 
 export interface KeyDate {

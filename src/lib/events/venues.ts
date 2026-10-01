@@ -1,5 +1,5 @@
 import { getSupabaseServiceClient } from '@/lib/supabase/server';
-import type { EventMedia, EventPackage, EventSpace, EventVenue, KeyDate } from './types';
+import type { EventMedia, EventPackage, EventSpace, EventVenue, KeyDate, SpaceAvailability } from './types';
 
 /**
  * Server-side reads for the private events marketplace.
@@ -53,6 +53,11 @@ function mapSpace(r: VenueRow): EventSpace {
     blackoutNote: str(r.blackout_note),
     sortOrder: num(r.sort_order) ?? 0,
     published: Boolean(r.published),
+    cocktailCapacity: num(r.cocktail_capacity),
+    banquetCapacity: num(r.banquet_capacity),
+    theaterCapacity: num(r.theater_capacity),
+    classroomCapacity: num(r.classroom_capacity),
+    boardroomCapacity: num(r.boardroom_capacity),
   };
 }
 
@@ -79,6 +84,18 @@ function mapVenue(r: VenueRow, spaces: EventSpace[], withContacts: boolean): Eve
     tourUrl: str(r.tour_url),
     hoursNote: str(r.hours_note),
     features: Array.isArray(r.features) ? (r.features as unknown[]).map(String) : [],
+    terms: {
+      depositTerms: str(r.deposit_terms),
+      cancellationTerms: str(r.cancellation_terms),
+      gratuityNote: str(r.gratuity_note),
+      minimumNotice: str(r.minimum_notice),
+      outsideCatering: str(r.outside_catering),
+      noiseCurfew: str(r.noise_curfew),
+      insuranceNote: str(r.insurance_note),
+      parkingNote: str(r.parking_note),
+      transitNote: str(r.transit_note),
+    },
+    verifiedAt: str(r.verified_at),
     spaces: spaces.filter((s) => s.venueId === String(r.id)).sort((a, b) => a.sortOrder - b.sortOrder),
     ...(withContacts
       ? {
@@ -96,7 +113,7 @@ function mapVenue(r: VenueRow, spaces: EventSpace[], withContacts: boolean): Eve
 }
 
 /** Columns of the `event_venues_public` view, the anon surface. */
-const VIEW_COLUMNS = 'id,slug,name,kind,neighborhood_slug,address,lat,lng,summary,description,website,owned_by_bph,place_id,sla_hours,featured_until,editorial_priority,tour_url,hours_note,features';
+const VIEW_COLUMNS = 'id,slug,name,kind,neighborhood_slug,address,lat,lng,summary,description,website,owned_by_bph,place_id,sla_hours,featured_until,editorial_priority,tour_url,hours_note,features,deposit_terms,cancellation_terms,gratuity_note,minimum_notice,outside_catering,noise_curfew,insurance_note,parking_note,transit_note,verified_at';
 /** Base-table columns for preview reads: the view's columns plus `published`. */
 const PREVIEW_COLUMNS = `${VIEW_COLUMNS},published`;
 /** Base-table columns for routing: everything the marketplace needs to reach and pay a venue. */
@@ -134,8 +151,41 @@ export async function getVenueBySlug(slug: string, opts: { withContacts?: boolea
 export async function listMedia(venueId: string): Promise<EventMedia[]> {
   const supabase = getSupabaseServiceClient();
   if (!supabase) return [];
-  const { data } = await supabase.from('event_media').select('id,venue_id,space_id,url,alt,credit,sort_order').eq('venue_id', venueId).eq('rights_cleared', true).order('sort_order');
-  return (data ?? []).map((r) => ({ id: String(r.id), venueId: String(r.venue_id), spaceId: str(r.space_id), url: String(r.url), alt: String(r.alt ?? ''), credit: str(r.credit), sortOrder: num(r.sort_order) ?? 0 }));
+  const { data } = await supabase.from('event_media').select('id,venue_id,space_id,url,alt,credit,sort_order,kind,floor_label').eq('venue_id', venueId).eq('rights_cleared', true).order('sort_order');
+  return (data ?? []).map((r) => ({ id: String(r.id), venueId: String(r.venue_id), spaceId: str(r.space_id), url: String(r.url), alt: String(r.alt ?? ''), credit: str(r.credit), sortOrder: num(r.sort_order) ?? 0, kind: (str(r.kind) as EventMedia['kind']) ?? 'photo', floorLabel: str(r.floor_label) }));
+}
+
+/**
+ * Availability rows for the given venues from `fromMonth` (YYYY-MM) for
+ * `months` months, day overrides included. Published spaces only unless the
+ * preview gate is open.
+ */
+export async function listAvailability(venueIds: string[], fromMonth: string, months = 3, opts: { includeUnpublished?: boolean } = {}): Promise<SpaceAvailability[]> {
+  const supabase = getSupabaseServiceClient();
+  if (!supabase || !venueIds.length) return [];
+  const [y, m] = fromMonth.split('-').map(Number);
+  const start = new Date(Date.UTC(y, m - 1, 1)).toISOString().slice(0, 10);
+  const end = new Date(Date.UTC(y, m - 1 + months, 1)).toISOString().slice(0, 10);
+  const { data } = await supabase
+    .from('event_availability')
+    .select('space_id,venue_id,month,day,status,note')
+    .in('venue_id', venueIds)
+    .or(`and(month.gte.${start},month.lt.${end}),and(day.gte.${start},day.lt.${end})`);
+  const includeUnpublished = opts.includeUnpublished ?? showUnpublished();
+  let rows = data ?? [];
+  if (!includeUnpublished) {
+    const { data: published } = await supabase.from('event_spaces').select('id').in('venue_id', venueIds).eq('published', true);
+    const ok = new Set((published ?? []).map((r) => String(r.id)));
+    rows = rows.filter((r) => ok.has(String(r.space_id)));
+  }
+  return rows.map((r) => ({
+    spaceId: String(r.space_id),
+    venueId: String(r.venue_id),
+    month: r.month ? String(r.month).slice(0, 7) : undefined,
+    day: r.day ? String(r.day).slice(0, 10) : undefined,
+    status: r.status as SpaceAvailability['status'],
+    note: str(r.note),
+  }));
 }
 
 export function mapPackage(r: VenueRow): EventPackage {

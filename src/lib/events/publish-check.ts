@@ -68,10 +68,11 @@ export function venueProblems(venue: VenueForCheck): string[] {
 /** Problems that stop one space from being published. */
 export function spaceProblems(space: SpaceForCheck): string[] {
   const out: string[] = [];
-  if (!(space.seatedCapacity > 0)) out.push('Seated capacity is missing');
-  if (!(space.standingCapacity > 0)) out.push('Standing capacity is missing');
+  const who = space.name?.trim() && !TODO.test(space.name) ? space.name.trim() : 'This space';
+  if (!(space.seatedCapacity > 0)) out.push(`${who} needs a seated capacity`);
+  if (!(space.standingCapacity > 0)) out.push(`${who} needs a standing capacity`);
   const prices = [space.minSpendCents, space.roomFeeCents, space.perPersonCents, space.buyoutFromCents];
-  if (!prices.some((p) => typeof p === 'number' && p > 0)) out.push('A price is missing: minimum spend, room fee, per person or buyout');
+  if (!prices.some((p) => typeof p === 'number' && p > 0)) out.push(`${who} needs a price: minimum spend, room fee, per person or buyout`);
   out.push(
     ...placeholderFields([
       ['The space name', space.name],

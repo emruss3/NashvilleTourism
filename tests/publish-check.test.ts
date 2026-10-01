@@ -12,12 +12,13 @@ test('a venue needs no TODO, a sales email and desk approval', () => {
   assert.ok(venueProblems({ name: 'X', salesContactEmail: '', approvedAt: '2026-09-29T00:00:00Z' }).includes('A sales contact email is required; leads are sent there'));
 });
 
-test('a space needs both capacities and one price, and no TODO anywhere', () => {
+test('a space needs both capacities and one price, and no TODO anywhere; problems name the space', () => {
+  assert.deepEqual(spaceProblems({ name: 'Rooftop patio', seatedCapacity: 60, standingCapacity: 0, pricingModel: 'min_spend', minSpendCents: 500000 }), ['Rooftop patio needs a standing capacity']);
   assert.deepEqual(spaceProblems({ name: 'Rooftop', seatedCapacity: 80, standingCapacity: 150, pricingModel: 'min_spend', minSpendCents: 500000 }), []);
   assert.deepEqual(spaceProblems({ name: 'Rooftop', seatedCapacity: 0, standingCapacity: 0, pricingModel: 'min_spend', pricingNote: 'TODO: pricing' }), [
-    'Seated capacity is missing',
-    'Standing capacity is missing',
-    'A price is missing: minimum spend, room fee, per person or buyout',
+    'Rooftop needs a seated capacity',
+    'Rooftop needs a standing capacity',
+    'Rooftop needs a price: minimum spend, room fee, per person or buyout',
     'The pricing note still says TODO',
   ]);
 });

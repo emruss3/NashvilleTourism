@@ -17,6 +17,16 @@ export interface VenueRow {
   tour_url: string | null;
   hours_note: string | null;
   features: string[];
+  deposit_terms: string | null;
+  cancellation_terms: string | null;
+  gratuity_note: string | null;
+  minimum_notice: string | null;
+  outside_catering: string | null;
+  noise_curfew: string | null;
+  insurance_note: string | null;
+  parking_note: string | null;
+  transit_note: string | null;
+  verified_at: string | null;
   owned_by_bph: boolean;
   sales_contact_name: string | null;
   sales_contact_email: string | null;
@@ -57,6 +67,11 @@ export interface SpaceRow {
   blackout_note: string | null;
   sort_order: number;
   published: boolean;
+  cocktail_capacity: number | null;
+  banquet_capacity: number | null;
+  theater_capacity: number | null;
+  classroom_capacity: number | null;
+  boardroom_capacity: number | null;
 }
 
 export interface PackageRow {
@@ -88,9 +103,24 @@ export interface MediaRow {
   rights_cleared: boolean;
   sort_order: number;
   storage_path: string | null;
+  kind: 'photo' | 'floor_plan' | 'video' | 'menu_pdf' | 'tour_poster';
+  floor_label: string | null;
 }
 
-export const VENUE_EDITABLE = ['name', 'kind', 'neighborhood_slug', 'address', 'lat', 'lng', 'summary', 'description', 'website', 'tour_url', 'hours_note', 'features', 'sales_contact_name', 'sales_contact_email', 'sales_contact_phone', 'lead_system', 'lead_system_endpoint'] as const;
+export interface AvailabilityRow {
+  id: string;
+  venue_id: string;
+  space_id: string;
+  month: string | null;
+  day: string | null;
+  status: 'open' | 'limited' | 'booked';
+  note: string | null;
+}
+
+export const TERMS_COLUMNS = ['deposit_terms', 'cancellation_terms', 'gratuity_note', 'minimum_notice', 'outside_catering', 'noise_curfew', 'insurance_note', 'parking_note', 'transit_note'] as const;
+export const TERMS_MAX: Record<(typeof TERMS_COLUMNS)[number], number> = { deposit_terms: 600, cancellation_terms: 600, gratuity_note: 300, minimum_notice: 200, outside_catering: 300, noise_curfew: 200, insurance_note: 300, parking_note: 300, transit_note: 300 };
+
+export const VENUE_EDITABLE = ['name', 'kind', 'neighborhood_slug', 'address', 'lat', 'lng', 'summary', 'description', 'website', 'tour_url', 'hours_note', 'features', 'sales_contact_name', 'sales_contact_email', 'sales_contact_phone', 'lead_system', 'lead_system_endpoint', ...TERMS_COLUMNS] as const;
 
 export function slugify(text: string): string {
   return text
