@@ -537,7 +537,8 @@ async function loadDetail(hotelId: string, source: Source): Promise<DetailResult
   const cached = await restSelect<{ payload: any; fetched_at: string; expires_at: string }>(
     `hotel_rate_cache?select=payload,fetched_at,expires_at&area_key=eq.${areaKey}&checkin=eq.2000-01-01&checkout=eq.2000-01-02&occupancy_key=eq.detail&expires_at=gt.${encodeURIComponent(new Date().toISOString())}&limit=1`,
   );
-  if (cached.length && Array.isArray(cached[0].payload?.rooms)) return { detail: cached[0].payload, cached: true, fetchedAt: cached[0].fetched_at };
+  const cachedRooms = cached[0]?.payload?.rooms;
+  if (cached.length && Array.isArray(cachedRooms) && (cachedRooms.length === 0 || "description" in cachedRooms[0])) return { detail: cached[0].payload, cached: true, fetchedAt: cached[0].fetched_at };
 
   const runId = await logRun(source, "liteapi_hotel_detail", { hotelId });
   const res = await liteapiFetch(`/data/hotel?hotelId=${encodeURIComponent(hotelId)}`);
@@ -555,6 +556,8 @@ async function loadDetail(hotelId: string, source: Source): Promise<DetailResult
     .map((room: any) => ({
       id: room?.id ?? null,
       name: typeof room?.roomName === "string" ? room.roomName.trim() : null,
+      description: typeof room?.description === "string" ? room.description.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 700) : null,
+      childAllowed: typeof room?.childAllowed === "boolean" ? room.childAllowed : null,
       maxAdults: num(room?.maxAdults),
       maxChildren: num(room?.maxChildren),
       maxOccupancy: num(room?.maxOccupancy),
@@ -626,6 +629,8 @@ function flattenRoomRates(data: any, nights: number, fetchedAt: string, expiresA
           offerId: typeof roomType?.offerId === "string" ? roomType.offerId : null,
           rateId: typeof rate?.rateId === "string" ? rate.rateId : null,
           roomTypeId: typeof roomType?.roomTypeId === "string" ? roomType.roomTypeId : null,
+          // Joins /data/hotel rooms[].id when the provider supplies it; the name match is the fallback.
+          mappedRoomId: rate?.mappedRoomId ?? roomType?.mappedRoomId ?? null,
           roomName: typeof rate?.name === "string" ? rate.name.trim() : null,
           boardType: typeof rate?.boardType === "string" ? rate.boardType : null,
           boardName: typeof rate?.boardName === "string" ? rate.boardName : null,
@@ -638,6 +643,12 @@ function flattenRoomRates(data: any, nights: number, fetchedAt: string, expiresA
           nightly: { amount: Math.round((total.amount / nights) * 100) / 100, currency: total.currency },
           nights,
           ssp: ssp ? { amount: ssp.amount } : null,
+          // What the total does and does not include (resort fees payable at the property, taxes).
+          taxesAndFees: (Array.isArray(rate?.retailRate?.taxesAndFees) ? rate.retailRate.taxesAndFees : [])
+            .map((t: any) => ({ included: Boolean(t?.included), description: typeof t?.description === "string" ? t.description.slice(0, 120) : null, amount: num(t?.amount), currency: typeof t?.currency === "string" ? t.currency : total.currency }))
+            .filter((t: any) => t.amount != null)
+            .slice(0, 8),
+          priceType: typeof rate?.priceType === "string" ? rate.priceType : null,
           perks: (Array.isArray(rate?.perks) ? rate.perks : []).map((p: any) => (typeof p === "string" ? p : typeof p?.name === "string" ? p.name : typeof p?.description === "string" ? p.description : null)).filter(Boolean).slice(0, 4),
           remarks: typeof rate?.remarks === "string" ? rate.remarks.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300) : null,
           paymentTypes: Array.isArray(rate?.paymentTypes) ? rate.paymentTypes.map(String).slice(0, 3) : [],

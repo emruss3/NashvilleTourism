@@ -24,9 +24,11 @@ function rate(over: Partial<Omit<RoomRate, 'total'>> & { roomName: string; total
     nightly: { amount: over.total / 2, currency: 'USD' },
     nights: 2,
     ssp: over.ssp,
+    taxesAndFees: over.taxesAndFees ?? [],
     perks: over.perks ?? [],
     remarks: over.remarks,
     paymentTypes: over.paymentTypes ?? [],
+    mappedRoomId: over.mappedRoomId,
   };
 }
 
@@ -97,6 +99,14 @@ test('photos: matched catalog photos, rotated when two cards share a room; hotel
   assert.equal(shared[1].photos[0].url, 'https://static.cupid.travel/k1.jpg', 'different catalog rooms keep their own first photo');
   const bare = groupRooms([rate({ roomName: 'Penthouse Loft', total: 900 })]);
   assert.equal(bare[0].photosSource, 'none');
+});
+
+test('a provider room mapping beats the name match', () => {
+  const rooms: CatalogRoom[] = [{ id: 11, name: 'Skyline Corner One King Bed', bedTypes: [], amenities: [], photos: [{ url: 'https://static.cupid.travel/s1.jpg' }] }, ...catalog];
+  const groups = groupRooms([rate({ roomName: 'King Bed', total: 400, mappedRoomId: '11' }), rate({ roomName: 'King Bed', total: 450 })], { rooms, images: [] });
+  assert.equal(groups[0].name, 'Skyline Corner One King Bed');
+  assert.equal(groups[0].photos[0].url, 'https://static.cupid.travel/s1.jpg');
+  assert.equal(groups.length, 2, 'the unmapped spelling still goes by name');
 });
 
 test('display names: catalog name when matched, title case for shouting suppliers', () => {

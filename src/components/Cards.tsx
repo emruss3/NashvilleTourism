@@ -108,10 +108,11 @@ export function HotelCard({ item }: { item: Hotel }) {
             <span className="font-semibold text-ink-soft">Best for:</span> {item.bestFor.slice(0, 3).join(', ')}
           </p>
         )}
-        <div className="mt-1 flex flex-wrap items-center gap-2">
-          <VerificationBadge status={item.dataStatus} date={item.dateChecked} />
-          <PlacementLabel placement={item.placement} sponsorName={item.sponsorName} />
-        </div>
+        {item.placement === 'sponsored' ? (
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <PlacementLabel placement={item.placement} sponsorName={item.sponsorName} />
+          </div>
+        ) : null}
       </div>
     </article>
   );

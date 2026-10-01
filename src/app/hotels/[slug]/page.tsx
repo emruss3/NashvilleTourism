@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Breadcrumbs, Chip, FactTable, JsonLd, MapLink, PageHeader, SectionHeader } from '@/components/Ui';
 import { HotelCard, PhotoSlot } from '@/components/Cards';
-import { AffiliateDisclosure, PlacementLabel, VerificationBadge, formatDate } from '@/components/Trust';
+import { AffiliateDisclosure, PlacementLabel } from '@/components/Trust';
 import BookingLink from '@/components/BookingLink';
 import TestModeNotice from '@/components/hotels/TestModeNotice';
 import LivePrice from '@/components/hotels/LivePrice';
@@ -109,12 +109,7 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
         eyebrow={`${hood} · ${h.priceCategory}`}
         title={h.title}
         intro={h.summary}
-        meta={
-          <div className="flex flex-wrap items-center gap-2">
-            <VerificationBadge status={h.dataStatus} date={h.dateChecked} />
-            <PlacementLabel placement={h.placement} sponsorName={h.sponsorName} />
-          </div>
-        }
+        meta={h.placement === 'sponsored' ? <PlacementLabel placement={h.placement} sponsorName={h.sponsorName} /> : undefined}
       />
 
       {h.placement === 'sponsored' && (
@@ -208,7 +203,6 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
               { label: 'Pool', value: h.hasPool ? 'Yes' : 'No' },
               { label: 'Fitness centre', value: h.hasFitness ? 'Yes' : 'No' },
               { label: 'Family friendly', value: h.familyFriendly ? 'Yes' : 'Check with the hotel' },
-              { label: 'Last checked', value: <time dateTime={h.dateChecked}>{formatDate(h.dateChecked)}</time> },
             ]}
           />
 

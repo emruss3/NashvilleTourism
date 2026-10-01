@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import StayDatesField from '@/components/StayDatesField';
+import PhotoFlipper from '@/components/hotels/PhotoFlipper';
 import TestModeNotice from '@/components/hotels/TestModeNotice';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
 import { normalizedName, type RoomGroup, type RoomRate } from '@/lib/hotel-rooms';
@@ -50,6 +51,31 @@ function cancellationLine(rate: RoomRate): string {
   return 'Cancellation terms on the booking site';
 }
 
+/** "Includes $62 taxes and fees" and "plus $45 resort fee at the hotel", from the provider's breakdown. */
+function feesLine(rate: RoomRate): string | undefined {
+  if (!rate.taxesAndFees.length) return undefined;
+  const sum = (items: typeof rate.taxesAndFees) => items.reduce((n, t) => n + t.amount, 0);
+  const inc = rate.taxesAndFees.filter((t) => t.included);
+  const exc = rate.taxesAndFees.filter((t) => !t.included);
+  const parts: string[] = [];
+  if (inc.length) parts.push(`includes ${usd(sum(inc), inc[0].currency)} taxes and fees`);
+  if (exc.length) parts.push(`plus ${usd(sum(exc), exc[0].currency)} ${exc.length === 1 && exc[0].description ? exc[0].description.toLowerCase() : 'in fees'} paid at the hotel`);
+  return parts.length ? `Total ${parts.join(', ')}` : undefined;
+}
+
+function sleepsLine(group: RoomGroup): string | undefined {
+  const r = group.cheapest;
+  if (r.adultCount && (r.childCount ?? 0) > 0) return `Sleeps ${r.adultCount} ${r.adultCount === 1 ? 'adult' : 'adults'} and ${r.childCount} ${r.childCount === 1 ? 'child' : 'children'}`;
+  if (group.maxOccupancy) return `Sleeps ${group.maxOccupancy}`;
+  return undefined;
+}
+
+function payLine(rate: RoomRate): string | undefined {
+  const t = rate.paymentTypes.map((p) => p.toLowerCase());
+  if (t.some((p) => /pay_later|pay at|property/.test(p))) return 'Pay at the hotel';
+  return undefined;
+}
+
 function boardLine(rate: RoomRate): string | undefined {
   if (!rate.boardName || /room only/i.test(rate.boardName)) return undefined;
   return rate.boardName;
@@ -90,6 +116,7 @@ export default function RoomOptions({
   const [error, setError] = useState<string | undefined>(initial && !initial.ok ? initial.error : undefined);
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [showAll, setShowAll] = useState(false);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const abortRef = useRef<AbortController | null>(null);
   const firstRun = useRef(true);
 
@@ -208,12 +235,11 @@ export default function RoomOptions({
             return (
               <li key={group.key} className="card overflow-hidden">
                 <div className="grid gap-0 sm:grid-cols-[220px_1fr]">
-                  <div className="relative aspect-[3/2] w-full overflow-hidden bg-paper-sunk sm:aspect-auto sm:min-h-[180px]">
+                  <div className="relative">
                     {photo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={photo.url} alt={photo.caption || (group.photosSource === 'matched' ? group.name : `${hotelName} photo`)} className="absolute inset-0 h-full w-full object-cover" loading="lazy" referrerPolicy="no-referrer" />
+                      <PhotoFlipper images={group.photos.map((p) => ({ url: p.url, caption: p.caption || (group.photosSource === 'matched' ? group.name : `${hotelName} photo`) }))} name={group.name} ratio="aspect-[3/2] sm:aspect-[4/3]" rounded={false} className="sm:h-full" />
                     ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-sm text-ink-soft">No room photo supplied</div>
+                      <div className="flex aspect-[3/2] items-center justify-center bg-paper-sunk text-sm text-ink-soft">No room photo supplied</div>
                     )}
                     {group.photosSource === 'hotel' && photo ? <span className="absolute bottom-2 left-2 rounded bg-ink/80 px-1.5 py-0.5 text-2xs text-paper">Hotel photo</span> : null}
                   </div>
@@ -223,7 +249,7 @@ export default function RoomOptions({
                         <h3 className="font-sans text-[17px] font-bold leading-snug text-ink">{group.name}</h3>
                         <p className="mt-1 text-sm text-ink-soft">
                           {[
-                            group.maxOccupancy ? `Sleeps ${group.maxOccupancy}` : undefined,
+                            sleepsLine(group),
                             group.bedTypes.length ? group.bedTypes.slice(0, 2).join(', ') : undefined,
                             group.size,
                             boardLine(group.cheapest),
@@ -239,15 +265,29 @@ export default function RoomOptions({
                         </span>
                       </p>
                     </div>
-                    <p className="mt-2 text-2xs text-ink-soft">{cancellationLine(group.cheapest)}</p>
+                    <p className="mt-2 text-2xs text-ink-soft">{[cancellationLine(group.cheapest), payLine(group.cheapest)].filter(Boolean).join(' · ')}</p>
+                    {feesLine(group.cheapest) ? <p className="mt-0.5 text-2xs text-ink-soft">{feesLine(group.cheapest)}</p> : null}
                     {group.cheapest.perks.length ? <p className="mt-1 text-2xs text-ink-soft">{group.cheapest.perks.join(' · ')}</p> : null}
+                    {group.description ? (
+                      <p className="mt-2 text-sm text-ink-soft">
+                        {isOpen || group.description.length <= 160 ? group.description : `${group.description.slice(0, 157).trimEnd()}…`}
+                      </p>
+                    ) : null}
+                    {group.cheapest.remarks ? <p className="mt-1 text-2xs text-ink-soft">Hotel note: {group.cheapest.remarks}</p> : null}
                     {group.amenities.length ? (
-                      <ul className="mt-2 flex flex-wrap gap-1.5">
-                        {group.amenities.slice(0, 5).map((a) => (
+                      <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Room amenities">
+                        {(expanded[group.key] ? group.amenities : group.amenities.slice(0, 5)).map((a) => (
                           <li key={a} className="rounded-full border border-paper-edge px-2 py-0.5 text-2xs text-ink-soft">
                             {a}
                           </li>
                         ))}
+                        {group.amenities.length > 5 ? (
+                          <li>
+                            <button type="button" className="rounded-full border border-ink px-2 py-0.5 text-2xs font-semibold text-ink" aria-expanded={Boolean(expanded[group.key])} onClick={() => setExpanded((x) => ({ ...x, [group.key]: !x[group.key] }))}>
+                              {expanded[group.key] ? 'Fewer' : `+${group.amenities.length - 5} more`}
+                            </button>
+                          </li>
+                        ) : null}
                       </ul>
                     ) : null}
                     <div className="mt-auto flex flex-wrap items-center gap-3 pt-4">
@@ -275,6 +315,7 @@ export default function RoomOptions({
                         <li key={rate.rateId ?? rate.offerId ?? i} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
                           <div>
                             <p className="text-ink">{[boardLine(rate) ?? 'Room only', cancellationLine(rate)].join(' · ')}</p>
+                            {feesLine(rate) ? <p className="text-2xs text-ink-soft">{feesLine(rate)}</p> : null}
                             {rate.roomName && normalizedName(rate.roomName) !== normalizedName(group.cheapest.roomName) ? <p className="text-2xs text-ink-soft">Listed by the supplier as “{rate.roomName}”</p> : null}
                             {rate.perks.length ? <p className="text-2xs text-ink-soft">{rate.perks.join(' · ')}</p> : null}
                           </div>

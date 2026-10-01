@@ -13,10 +13,19 @@ export interface LiveMoney {
   currency: string;
 }
 
+export interface TaxOrFee {
+  included: boolean;
+  description?: string;
+  amount: number;
+  currency: string;
+}
+
 export interface RoomRate {
   offerId?: string;
   rateId?: string;
   roomTypeId?: string;
+  /** The catalog room id when the provider maps the rate to one. */
+  mappedRoomId?: string;
   roomName: string;
   boardType?: string;
   boardName?: string;
@@ -30,6 +39,9 @@ export interface RoomRate {
   nightly: LiveMoney;
   nights: number;
   ssp?: { amount: number };
+  /** Taxes and fees the total includes, and any the property charges on site. */
+  taxesAndFees: TaxOrFee[];
+  priceType?: string;
   perks: string[];
   remarks?: string;
   paymentTypes: string[];
@@ -38,6 +50,8 @@ export interface RoomRate {
 export interface CatalogRoom {
   id?: string | number;
   name: string;
+  description?: string;
+  childAllowed?: boolean;
   maxAdults?: number;
   maxChildren?: number;
   maxOccupancy?: number;
@@ -72,6 +86,7 @@ export interface RoomGroup {
   boardType?: string;
   maxOccupancy?: number;
   /** From the catalog room when matched. */
+  description?: string;
   bedTypes: string[];
   size?: string;
   amenities: string[];
@@ -174,14 +189,20 @@ export function displayRoomName(name: string): string {
 export function groupRooms(rates: RoomRate[], detail?: Pick<HotelDetail, 'rooms' | 'images'>): RoomGroup[] {
   const buckets = new Map<string, { rates: RoomRate[]; room?: CatalogRoom }>();
   const matchMemo = new Map<string, CatalogRoom | undefined>();
+  const byId = new Map<string, CatalogRoom>();
+  for (const room of detail?.rooms ?? []) if (room.id !== undefined) byId.set(String(room.id), room);
   for (const rate of rates) {
     if (!rate.roomName) continue;
     const norm = normalizedName(rate.roomName);
     if (!norm) continue;
-    let room = matchMemo.get(norm);
-    if (!matchMemo.has(norm)) {
-      room = detail ? matchCatalogRoom(rate.roomName, detail.rooms) : undefined;
-      matchMemo.set(norm, room);
+    // The provider's own mapping wins; the name match covers rates without one.
+    let room = rate.mappedRoomId ? byId.get(String(rate.mappedRoomId)) : undefined;
+    if (!room) {
+      room = matchMemo.get(norm);
+      if (!matchMemo.has(norm)) {
+        room = detail ? matchCatalogRoom(rate.roomName, detail.rooms) : undefined;
+        matchMemo.set(norm, room);
+      }
     }
     const key = room ? `catalog:${normalizedName(room.name)}` : `name:${norm}`;
     const bucket = buckets.get(key) ?? { rates: [], room };
@@ -216,6 +237,7 @@ export function groupRooms(rates: RoomRate[], detail?: Pick<HotelDetail, 'rooms'
       boardName: cheapest.boardName,
       boardType: cheapest.boardType,
       maxOccupancy: room?.maxOccupancy ?? cheapest.maxOccupancy,
+      description: room?.description,
       bedTypes: room?.bedTypes ?? [],
       size: room?.size ? `${Math.round(room.size)} ${room.sizeUnit === 'm2' || room.sizeUnit === 'sqm' ? 'm²' : room.sizeUnit ?? 'sq ft'}` : undefined,
       amenities: room?.amenities ?? [],
@@ -252,6 +274,7 @@ export function mapRoomRate(raw: Record<string, unknown>): RoomRate | undefined 
     offerId: str(raw.offerId),
     rateId: str(raw.rateId),
     roomTypeId: str(raw.roomTypeId),
+    mappedRoomId: typeof raw.mappedRoomId === 'number' ? String(raw.mappedRoomId) : str(raw.mappedRoomId),
     roomName,
     boardType: str(raw.boardType),
     boardName: str(raw.boardName),
@@ -264,6 +287,11 @@ export function mapRoomRate(raw: Record<string, unknown>): RoomRate | undefined 
     nightly,
     nights: num(raw.nights) ?? 1,
     ssp: ssp && typeof ssp.amount === 'number' ? { amount: ssp.amount } : undefined,
+    taxesAndFees: (Array.isArray(raw.taxesAndFees) ? raw.taxesAndFees : [])
+      .map((t) => t as Record<string, unknown>)
+      .filter((t) => typeof t.amount === 'number')
+      .map((t) => ({ included: Boolean(t.included), description: str(t.description), amount: t.amount as number, currency: str(t.currency) ?? total.currency })),
+    priceType: str(raw.priceType),
     perks: Array.isArray(raw.perks) ? raw.perks.map(String) : [],
     remarks: str(raw.remarks),
     paymentTypes: Array.isArray(raw.paymentTypes) ? raw.paymentTypes.map(String) : [],
@@ -281,6 +309,8 @@ export function mapDetail(raw: Record<string, unknown> | null | undefined): Hote
     .map((r) => ({
       id: typeof r.id === 'number' || typeof r.id === 'string' ? r.id : undefined,
       name: String(r.name),
+      description: str(r.description),
+      childAllowed: typeof r.childAllowed === 'boolean' ? r.childAllowed : undefined,
       maxAdults: num(r.maxAdults),
       maxChildren: num(r.maxChildren),
       maxOccupancy: num(r.maxOccupancy),
