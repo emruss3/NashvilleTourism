@@ -21,7 +21,7 @@ const PRODUCT_CARD_FIELDS = `
     id
     handle
     title
-    description(truncateAt: 240)
+    description
     productType
     vendor
     availableForSale
