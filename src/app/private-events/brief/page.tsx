@@ -51,7 +51,7 @@ export default async function BriefPage(props: { searchParams?: Promise<Params> 
   );
   const eventDef = finderEventType(finder.eventType);
   const finderQs = finderParams(finder).toString();
-  const backHref = `/private-events/${finderQs ? `?${finderQs}` : ''}#plan`;
+  const backHref = `/private-events/${finderQs ? `?${finderQs}` : ''}#venues`;
 
   return (
     <>

@@ -60,7 +60,7 @@ function Cta({ targets }: { targets: string[] }) {
   );
 }
 
-export default function StickyPlanCta({ targets = ['plan'] }: { targets?: string[] }) {
+export default function StickyPlanCta({ targets = ['venues'] }: { targets?: string[] }) {
   return (
     <Suspense fallback={null}>
       <Cta targets={targets} />

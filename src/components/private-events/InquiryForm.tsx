@@ -240,7 +240,7 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
     }
   }
 
-  const finderHref = `/private-events/?${finderParams({ eventType: eventDef?.value, size: prefill.size, area, priorities }).toString()}#plan`;
+  const finderHref = `/private-events/?${finderParams({ eventType: eventDef?.value, size: prefill.size, area, priorities }).toString()}#venues`;
 
   if (step === 'done') {
     const first = name.trim().split(' ')[0];

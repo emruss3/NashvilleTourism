@@ -457,3 +457,47 @@ export function recommend(input: FinderInput, venues: FinderVenue[]): Recommenda
 
 /** Group-size options in the finder: the browse bands, in order. */
 export const GROUP_SIZES = SIZE_BANDS;
+
+/* ------------------------------ Venue grid ------------------------------- */
+
+export interface VenueFit {
+  venue: FinderVenue;
+  /** True when at least one published space fits the size band and the venue is in the chosen area (or no area was chosen). */
+  fits: boolean;
+  /** Published spaces that fit the size band on the capacity the layout needs. */
+  spaces: number;
+  /** Chosen priorities at least one fitting space meets on its own facts. */
+  meets: Priority[];
+  /** Fit score, 0 to 1, for ordering the fitting venues; ownership, fee and sponsorship are not inputs. */
+  score: number;
+}
+
+/**
+ * The grid is the recommendation: every listed venue, fitting ones first
+ * (best fit first, ties by name), then the ones with no matching space,
+ * which the page shows faded rather than hiding. With no filters every
+ * venue fits and the order is the content order handed in.
+ */
+export function browseVenues(input: FinderInput, venues: FinderVenue[]): VenueFit[] {
+  const layout = chooseLayout(input);
+  const band = sizeBand(input);
+  const areaChosen = Boolean(input.area && input.area !== ANY_AREA);
+  const rows: VenueFit[] = venues.map((venue) => {
+    const spaces = venue.spaces.filter((s) => {
+      if (!s.published || /TODO/.test(`${s.name} ${s.summary ?? ''}`)) return false;
+      const capacity = layout === 'seated' ? s.seatedCapacity : layout === 'standing' ? s.standingCapacity : Math.max(s.seatedCapacity, s.standingCapacity);
+      if (capacity <= 0) return false;
+      if (!band) return true;
+      return spaceFitsBand(s, band) && capacity >= band.min;
+    });
+    const inArea = !areaChosen || venue.neighborhoodSlug === input.area;
+    const meets: Priority[] = [];
+    for (const s of spaces) for (const p of spaceMeets(venue, s, input.priorities)) if (!meets.includes(p)) meets.push(p);
+    let score = spaces.length ? 1 : 0;
+    for (const p of input.priorities) if (!meets.includes(p)) score *= MISS;
+    return { venue, fits: inArea && spaces.length > 0, spaces: inArea ? spaces.length : 0, meets, score: Math.round(score * 1000) / 1000 };
+  });
+  const anyFilter = Boolean(input.eventType || band || areaChosen || input.priorities.length);
+  if (!anyFilter) return rows;
+  return rows.sort((a, b) => Number(b.fits) - Number(a.fits) || b.score - a.score || b.spaces - a.spaces || a.venue.name.localeCompare(b.venue.name));
+}
