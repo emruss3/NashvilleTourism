@@ -218,6 +218,48 @@ from http((
 )::http_request);
 ```
 
+## Rate parity: our page versus the white label (2026-10-01)
+
+Question: 1 Hotel Nashville (`lp65576337`), Oct 2 to 4, 2 adults. Our hotel page showed $590 a night ($1,180 for the stay, "plus $67 resort at the hotel"); the white label showed "from US$547". Which figure is pre-tax, which includes resort fees, and which margin does each path use?
+
+Method: `rate_diag` against the same hotel and stay (request `QRu-2KjSHOQ2g_EukfLB2`, sandbox, 76 rates). Every rate carries `retailRate.total`, `retailRate.initialPrice`, `retailRate.suggestedSellingPrice` (`source: providerDirect`), `retailRate.taxesAndFees[]` with an `included` flag, `priceType: commission`, `commission`, `paymentTypes: [NUITEE_PAY]`.
+
+What the numbers are:
+
+| Figure | Where it comes from | Taxes | Resort fee |
+| --- | --- | --- | --- |
+| White label "from US$547" | cheapest rate's `retailRate.total` ÷ nights: $1,092.42 ÷ 2 = $546.21, rounded up | excludes the rate's `included: false` items ($10.69 mandatory tax) | excludes the $63.82 mandatory fee, payable at the property |
+| Our "$590 / night", "$1,180" | a different rate's `retailRate.total` ÷ nights: $1,179.86 ÷ 2 = $589.93 | same basis | the $66.84 "RESORT" line is `included: false`, so we print "plus $67 resort at the hotel" |
+| `suggestedSellingPrice` | the hotel's own direct price, about $1,500 for the stay on every rate | n/a | n/a. Neither path shows it; it is the floor we must not sell below |
+| `initialPrice` | equals `total` on every rate in this sample | | |
+| `commission` | $61.83 on the $1,092.42 rate: about 6% of the net ($1,030.59), 5.7% of retail | | |
+
+Findings:
+
+1. **Both paths show the same kind of number.** Ours and the white label's are `retailRate.total ÷ nights` for one rate: the price Nuitée charges the card (`NUITEE_PAY`), which already includes the margin for this API key (`priceType: commission`; the dashboard markup is baked into `retailRate.total` and `commission` is what the key earns on it). Neither figure includes taxes or fees flagged `included: false`; both include taxes flagged `included: true` (some supplier rates carry VAT and a resort fee inside the total, others carry the same items outside it, which is why two rates for the same room differ by about $70 to $250).
+2. **The $43 gap is a different rate, not a different formula.** The white label quotes the cheapest of the 76 rates for the stay; our page showed a rate $87 higher for the same room name. Two causes: the `hotel_rooms` response is cached for 60 minutes per hotel and dates, so our page can hold an older snapshot than the white label's live call (sandbox rates also drift between calls), and the room grouper keeps the cheapest rate per (board, refundable) **within a group**, so a cheaper rate filed under a slightly different supplier spelling ("Alcove King Bed Room", "Alcove King") can land in a neighboring group. On production both effects shrink (stable rates, one supplier spelling per room) but do not vanish.
+3. **Margin:** one setting for both paths. The white label and `liteapi-live` use the same API key, so the markup configured for that key in the Nuitée dashboard is in every `retailRate.total` both of us read. There is no second margin applied at checkout; the checkout total equals `retailRate.total` for the chosen rate.
+4. **Pay-at-property items are never in the card total.** `included: false` lines (resort fee, mandatory tax or fee, city tax) are collected by the hotel. The white label lists them on the rate; our rate card prints them as "Total plus $N at the hotel" and the room list's fees line.
+
+What "match to the dollar" therefore requires, in order:
+
+- Show the same rate the white label would charge: when a `/booking?offerId=` link is used (`test` or `on`), the checkout total is that offer's `retailRate.total`, which is the figure on our card. When the link lands on the hotel page, the white label re-quotes live and may show a cheaper or newer rate than our cached one.
+- Keep the figure as the card charge (`retailRate.total`, `included: true` items inside) and always print the `included: false` items beside it. That is what the page does now; no change to the computation is being made on the strength of this sample.
+- Shorten the `hotel_rooms` cache (60 minutes) or re-fetch on the hotel page when the snapshot is older than a few minutes, so the "from" figure and the checkout quote come from the same window. Decide after the production key is live, where rates do not drift between calls.
+- Re-run `rate_diag` on production with the same stay and compare against the white label's checkout screen for the same `offerId`; record the two totals here.
+
+How to re-run from SQL (cron token from Vault; the gateway needs the publishable key in `apikey` and `Authorization` as well):
+
+```sql
+select net.http_post(
+  url := 'https://aeomrsutkhwmnscvvfur.supabase.co/functions/v1/liteapi-live',
+  headers := jsonb_build_object('Content-Type','application/json','apikey','<publishable key>','Authorization','Bearer <publishable key>',
+    'x-nashroam-cron-token',(select decrypted_secret from vault.decrypted_secrets where name='nashroam_cron_token')),
+  body := '{"mode":"rate_diag","hotelId":"lp65576337","checkin":"2026-10-02","checkout":"2026-10-04","adults":2}'::jsonb,
+  timeout_milliseconds := 60000);
+-- then: select status_code, content::jsonb from net._http_response where id = <request_id>;
+```
+
 ## Open items (block production launch, not Phase 1 or 2)
 
 While the edge function runs on the sandbox key, every rates response reports `environment: "sandbox"` and the site shows a "Booking site in test mode" banner in two places: above the hotels page results (and the market rail on other pages) and above the room list on hotel pages (`src/components/hotels/TestModeNotice.tsx`). The per-card and booking-box lines were dropped on 2026-10-01. It needs no flag and goes away on its own once the production key is live. Production switch: add the card in the Nuitée console, click Go Live, store the production key in Supabase, switch the edge function's environment to production, set the white-label markup (5% to start).
