@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import './globals.css';
+import CartProvider from '@/components/commerce/CartProvider';
+import CartDrawer from '@/components/commerce/CartDrawer';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { JsonLd } from '@/components/Ui';
@@ -88,10 +90,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to main content
         </a>
         <JsonLd data={[organizationSchema(), websiteSchema(), onlineStoreSchema()]} />
+        <CartProvider>
         <Header />
         <main id="main">{children}</main>
         <Footer />
         <BottomNav />
+        <CartDrawer />
+        </CartProvider>
       </body>
     </html>
   );

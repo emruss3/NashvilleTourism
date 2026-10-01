@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { planNav, primaryNav, secondaryNav, site, tripNav } from '@/lib/site';
+import { useCart } from './commerce/CartProvider';
 import { BagIcon } from './Icons';
 import Wordmark, { NsvlMark } from './Wordmark';
 
@@ -22,9 +23,7 @@ import Wordmark, { NsvlMark } from './Wordmark';
  * and the NSVL / NASHVILLE lockup. The menu lists the same seven sections, then
  * My trip and Plan your trip, then the secondary links.
  *
- * The bag sits top right in every variant and opens the bag page. No
- * commerce provider is connected yet, so it shows no count; the bag page
- * says the store is not taking orders and lists saved places.
+ * The bag shows the current Shopify item count and opens the shopping bag.
  */
 export default function Header() {
   const pathname = usePathname();
@@ -263,14 +262,16 @@ function PlanBox({ active, compact = false, tabbable = true }: { active: boolean
 
 /** Shopping bag, top right on every header variant. Opens the bag page. */
 function BagLink({ tabbable = true }: { tabbable?: boolean }) {
+  const { itemCount } = useCart();
   return (
     <Link
       href="/bag/"
       className="inline-flex h-11 w-11 items-center justify-center rounded text-ink transition-colors hover:bg-ink/5"
-      aria-label="Your bag"
+      aria-label={`Your bag${itemCount ? `, ${itemCount} items` : ''}`}
       tabIndex={tabbable ? 0 : -1}
     >
       <BagIcon size={22} />
+      {itemCount > 0 && <span className="ml-1 text-xs font-bold">{itemCount}</span>}
     </Link>
   );
 }
