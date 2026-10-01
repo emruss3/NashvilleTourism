@@ -1,28 +1,26 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Breadcrumbs, Chip, FactTable, JsonLd, MapLink, PageHeader, SectionHeader } from '@/components/Ui';
+import { Breadcrumbs, Chip, JsonLd, MapLink, SectionHeader } from '@/components/Ui';
 import { HotelCard, PhotoSlot } from '@/components/Cards';
-import { AffiliateDisclosure, PlacementLabel } from '@/components/Trust';
-import BookingLink from '@/components/BookingLink';
-import TestModeNotice from '@/components/hotels/TestModeNotice';
-import LivePrice from '@/components/hotels/LivePrice';
+import { PlacementLabel } from '@/components/Trust';
 import RoomOptions, { type RoomsPayload } from '@/components/hotels/RoomOptions';
 import HotelGallery from '@/components/hotels/HotelGallery';
+import HotelBookingBox from '@/components/hotels/HotelBookingBox';
+import HotelSectionTabs from '@/components/hotels/HotelSectionTabs';
 import GuestReviews from '@/components/hotels/GuestReviews';
 import { hotels, getHotel } from '@/lib/content';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
-import { formatNightly, getHotelRates, isHotelsLiveConfigured } from '@/lib/feeds/hotels-live';
+import { getHotelRates, isHotelsLiveConfigured } from '@/lib/feeds/hotels-live';
 import { getHotelReviews, getHotelRooms } from '@/lib/feeds/hotel-rooms';
 import { scoreOutOfTen, scoreWord } from '@/lib/hotel-reviews';
 import { hotelBookingHref } from '@/lib/hotel-booking';
 import { partners } from '@/lib/partners';
-import { resolveStayDates, stayDatesLabel } from '@/lib/stay-dates';
-import { ANALYTICS_EVENTS } from '@/lib/analytics';
+import { resolveStayDates } from '@/lib/stay-dates';
 import { buildMetadata, hotelSchema, isIndexableRecord } from '@/lib/seo';
 
-// Rendered per request: the room list and the "from" price follow the
-// dates in the query, and both come from the Postgres rate cache, so a
-// request inside the TTL makes no provider call.
+// Rendered per request: the room list and the live rate follow the dates
+// in the query, and both come from the Postgres rate cache, so a request
+// inside the TTL makes no provider call.
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
@@ -46,6 +44,13 @@ function one(q: Query, key: string): string | undefined {
   return value?.trim() || undefined;
 }
 
+/**
+ * Hotel page: photo mosaic across the top, the name with its guest score
+ * and stars, a sticky row of section links (Overview, Rooms, Reviews,
+ * Location), the sections down the left, and the booking box pinned on the
+ * right (and as a bar above the bottom navigation on phones) so Book is
+ * always one click away.
+ */
 export default async function HotelPage(props: { params: Promise<{ slug: string }>; searchParams?: Promise<Query> }) {
   const params = await props.params;
   const query = (await props.searchParams) ?? {};
@@ -54,9 +59,6 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
 
   const hood = neighborhoodName(h.neighborhood);
   const related = h.relatedSlugs.map((s) => getHotel(s)).filter((x): x is NonNullable<typeof x> => Boolean(x));
-  // Live "from" price for the searched dates (or the coming weekend), and
-  // every room and rate for the same stay in the "Rooms and rates" section;
-  // the CTAs carry those dates so the booking site opens on the stay quoted.
   const dates = resolveStayDates(one(query, 'checkin'), one(query, 'checkout'));
   const adultsRaw = Number(one(query, 'adults'));
   const adults = Number.isInteger(adultsRaw) && adultsRaw >= 1 && adultsRaw <= 20 ? adultsRaw : 2;
@@ -69,11 +71,18 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
       ])
     : [undefined, undefined, undefined];
   const detail = rooms?.detail;
-  // Provider guest score (0 to 10) and count, shown only when the source permits it.
   const showScore = Boolean((rooms?.canDisplayRating || reviewsResult?.canDisplayRating) && detail?.rating !== undefined && (detail?.reviewCount ?? 0) > 0);
   const reviews = reviewsResult?.canDisplayRating ? reviewsResult.reviews : undefined;
-  const rate = live?.live ? live.rates.find((r) => r.hotelId === h.liteApiHotelId) : undefined;
-  const booking = hotelBookingHref(h, { surface: 'hotel', checkin: rate ? dates.checkin : undefined, checkout: rate ? dates.checkout : undefined, adults });
+  // The live rate for the stay: the cheapest room in the list, else the "from" rate.
+  const cheapest = rooms?.groups[0]?.cheapest;
+  const fromRate = live?.live ? live.rates.find((r) => r.hotelId === h.liteApiHotelId) : undefined;
+  const rate = cheapest
+    ? { nightly: cheapest.nightly, total: cheapest.total, nights: cheapest.nights, refundable: cheapest.refundable, fetchedAt: rooms?.fetchedAt ?? new Date().toISOString() }
+    : fromRate
+      ? { nightly: fromRate.nightly, total: fromRate.total, nights: fromRate.nights, refundable: fromRate.refundable, fetchedAt: fromRate.fetchedAt }
+      : undefined;
+  const booking = hotelBookingHref(h, { surface: 'hotel', checkin: dates.checkin, checkout: dates.checkout, adults });
+  const testMode = rooms?.environment === 'sandbox' || live?.environment === 'sandbox';
   const roomsInitial: RoomsPayload | undefined = rooms
     ? {
         ok: rooms.live,
@@ -91,12 +100,16 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
         error: rooms.live ? undefined : 'Rates are not available right now.',
       }
     : undefined;
+  const tabs = [
+    { id: 'overview', label: 'Overview' },
+    ...(liveReady && h.liteApiHotelId ? [{ id: 'rooms', label: 'Rooms' }] : []),
+    ...(reviews ? [{ id: 'reviews', label: 'Reviews' }] : []),
+    { id: 'location', label: 'Location' },
+  ];
 
   return (
-    <div className="shell pb-16">
-      {isIndexableRecord(h) && (
-        <JsonLd data={hotelSchema(h, hood, `/hotels/${h.slug}/`)} />
-      )}
+    <div className="shell pb-28 lg:pb-16">
+      {isIndexableRecord(h) && <JsonLd data={hotelSchema(h, hood, `/hotels/${h.slug}/`)} />}
       <Breadcrumbs
         trail={[
           { name: 'Where to Stay', href: '/where-to-stay/' },
@@ -105,51 +118,66 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
         ]}
       />
 
-      <PageHeader
-        eyebrow={`${hood} · ${h.priceCategory}`}
-        title={h.title}
-        intro={h.summary}
-        meta={h.placement === 'sponsored' ? <PlacementLabel placement={h.placement} sponsorName={h.sponsorName} /> : undefined}
-      />
+      <div className="mt-2">
+        {detail?.images.length ? <HotelGallery images={detail.images} name={h.title} attribution={rooms?.attribution} /> : <PhotoSlot label={h.title} neighborhood={h.neighborhood} ratio="aspect-[16/9]" className="rounded-card" />}
+      </div>
+
+      <header className="pt-6">
+        <h1 className="text-[2.25rem] leading-[0.98] sm:text-[3rem]">{h.title}</h1>
+        <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[15px] text-ink-soft">
+          {showScore && detail ? (
+            <span className="inline-flex items-center gap-1.5">
+              <span className="rounded bg-ink px-1.5 py-0.5 text-sm font-bold text-paper">{scoreOutOfTen(detail.rating!).toFixed(1)}</span>
+              <span className="font-semibold text-ink">{scoreWord(scoreOutOfTen(detail.rating!))}</span>
+              <a href="#reviews" className="underline underline-offset-2">
+                {detail.reviewCount!.toLocaleString()} reviews
+              </a>
+            </span>
+          ) : null}
+          {detail?.stars ? (
+            <span>
+              <span aria-hidden="true">{'★'.repeat(Math.round(detail.stars))}</span> {Math.round(detail.stars)}-star hotel
+            </span>
+          ) : null}
+          <Link href={`/neighborhoods/${h.neighborhood}/`} className="underline underline-offset-2">
+            {hood}
+          </Link>
+          <span>{h.priceCategory}</span>
+          {h.hasPool ? <Chip>Pool</Chip> : null}
+          {h.placement === 'sponsored' ? <PlacementLabel placement={h.placement} sponsorName={h.sponsorName} /> : null}
+        </p>
+        <p className="mt-3 max-w-prose text-[17px] leading-relaxed text-ink-soft">{h.summary}</p>
+      </header>
 
       {h.placement === 'sponsored' && (
         <div className="mt-6 rounded border border-gold/30 bg-gold-wash p-4 text-sm text-ink-soft">
-          <strong className="font-semibold text-gold">Paid partnership.</strong> This listing is a
-          paid placement. It is not an editorial recommendation and it does not affect how we rank
-          other hotels.{' '}
+          <strong className="font-semibold text-gold">Paid partnership.</strong> This listing is a paid placement. It is not an editorial recommendation and it does not affect how we rank other hotels.{' '}
           <Link href="/advertising/#disclosure" className="underline">
             Our advertising policy
           </Link>
         </div>
       )}
 
-      <div className="grid gap-10 py-10 lg:grid-cols-[1.6fr_1fr]">
-        <div>
-          {detail?.images.length ? (
-            <HotelGallery images={detail.images} name={h.title} attribution={rooms?.attribution} />
-          ) : (
-            <PhotoSlot label={h.title} neighborhood={h.neighborhood} ratio="aspect-[16/9]" className="rounded-card" />
-          )}
+      <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-12">
+        <div className="min-w-0">
+          <HotelSectionTabs tabs={tabs} />
 
-          <section className="py-8">
-            <h2 className="text-2xl">Why we recommend it</h2>
+          <section id="overview" className="scroll-mt-32 py-8">
+            <h2 className="text-2xl">Overview</h2>
             <div className="prose-editorial mt-3">
-              <p>{h.whyWeRecommend}</p>
+              <p>
+                <strong className="text-ink">Why we recommend it. </strong>
+                {h.whyWeRecommend}
+              </p>
             </div>
-          </section>
-
-          <section className="py-4">
-            <h2 className="text-2xl">Best for</h2>
-            <div className="mt-3 flex flex-wrap gap-2">
+            <h3 className="mt-6 font-sans text-lg font-bold">Best for</h3>
+            <div className="mt-2 flex flex-wrap gap-2">
               {h.bestFor.map((b) => (
                 <Chip key={b}>{b}</Chip>
               ))}
             </div>
-          </section>
-
-          <section className="py-6">
-            <h2 className="text-2xl">Amenities</h2>
-            <ul className="mt-3 grid gap-1.5 text-[15px] text-ink-soft sm:grid-cols-2">
+            <h3 className="mt-6 font-sans text-lg font-bold">Amenities</h3>
+            <ul className="mt-2 grid gap-1.5 text-[15px] text-ink-soft sm:grid-cols-2">
               {h.amenities.map((a) => (
                 <li key={a} className="flex gap-2.5">
                   <span aria-hidden="true" className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-clay" />
@@ -157,22 +185,39 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
                 </li>
               ))}
             </ul>
+            <dl className="mt-6 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-3">
+              <div>
+                <dt className="text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">Pool</dt>
+                <dd className="text-ink">{h.hasPool ? 'Yes' : 'No'}</dd>
+              </div>
+              <div>
+                <dt className="text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">Fitness centre</dt>
+                <dd className="text-ink">{h.hasFitness ? 'Yes' : 'No'}</dd>
+              </div>
+              <div>
+                <dt className="text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">Family friendly</dt>
+                <dd className="text-ink">{h.familyFriendly ? 'Yes' : 'Check with the hotel'}</dd>
+              </div>
+            </dl>
           </section>
 
           {liveReady && h.liteApiHotelId ? (
-            <div id="rooms" className="scroll-mt-24 border-t border-paper-edge py-8">
+            <section id="rooms" className="scroll-mt-32 border-t border-paper-edge py-8">
               <RoomOptions hotelId={h.liteApiHotelId} hotelName={h.title} slug={h.slug} surface="hotel" initial={roomsInitial} initialCheckin={dates.checkin} initialCheckout={dates.checkout} adults={adults} />
-            </div>
+            </section>
           ) : null}
 
           {reviews ? (
-            <div id="reviews" className="scroll-mt-24 border-t border-paper-edge py-8">
+            <section id="reviews" className="scroll-mt-32 border-t border-paper-edge py-8">
               <GuestReviews data={reviews} score={showScore ? detail?.rating : undefined} reviewCount={showScore ? detail?.reviewCount : undefined} name={h.title} />
-            </div>
+            </section>
           ) : null}
 
-          <section className="py-4">
-            <h2 className="text-2xl">Getting around</h2>
+          <section id="location" className="scroll-mt-32 border-t border-paper-edge py-8">
+            <h2 className="text-2xl">Location</h2>
+            <p className="mt-3 text-[15px] text-ink">
+              {h.address} · <MapLink query={h.mapQuery} label="Directions and map" />
+            </p>
             <div className="prose-editorial mt-3">
               <p>{h.walkabilityNote}</p>
               <p>
@@ -194,46 +239,9 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
           </section>
         </div>
 
-        <aside className="space-y-5">
-          <FactTable
-            rows={[
-              { label: 'Neighborhood', value: <Link href={`/neighborhoods/${h.neighborhood}/`} className="text-clay underline underline-offset-2">{hood}</Link> },
-              { label: 'Price category', value: h.priceCategory },
-              { label: 'Address', value: h.address },
-              { label: 'Pool', value: h.hasPool ? 'Yes' : 'No' },
-              { label: 'Fitness centre', value: h.hasFitness ? 'Yes' : 'No' },
-              { label: 'Family friendly', value: h.familyFriendly ? 'Yes' : 'Check with the hotel' },
-            ]}
-          />
-
-          <div className="space-y-3 rounded-card border border-paper-edge bg-white p-4">
-            {showScore && detail ? (
-              <p className="flex items-center gap-2 text-sm">
-                <span className="rounded bg-ink px-2 py-0.5 font-bold text-paper">{scoreOutOfTen(detail.rating!).toFixed(1)}</span>
-                <span className="font-semibold text-ink">{scoreWord(scoreOutOfTen(detail.rating!))}</span>
-                <a href="#reviews" className="text-ink-soft underline underline-offset-2">
-                  {detail.reviewCount!.toLocaleString()} guest reviews
-                </a>
-              </p>
-            ) : null}
-            <LivePrice rate={rate} datesLabel={stayDatesLabel(dates)} />
-            <BookingLink
-              url={booking.url}
-              label={rate ? `Book from ${formatNightly(rate.nightly)} a night` : 'Check rates'}
-              name={h.title}
-              slug={h.slug}
-              event={ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED}
-              partner={booking.partner}
-              placement={booking.placement}
-              clientReference={booking.clientReference}
-              hotelId={booking.hotelId}
-            />
-            {live?.environment === 'sandbox' && booking.placement === 'whitelabel' ? <TestModeNotice compact /> : null}
-            <MapLink query={h.mapQuery} label="Directions and map" />
-          </div>
-
-          {booking.placement === 'whitelabel' ? <AffiliateDisclosure variant="stay" /> : (h.placement === 'affiliate' || h.placement === 'sponsored') && <AffiliateDisclosure />}
-        </aside>
+        <div className="lg:pt-14">
+          <HotelBookingBox name={h.title} slug={h.slug} rate={rate} checkin={dates.checkin} checkout={dates.checkout} adults={adults} link={booking} testMode={testMode && booking.placement === 'whitelabel'} score={showScore ? detail?.rating : undefined} reviewCount={showScore ? detail?.reviewCount : undefined} />
+        </div>
       </div>
 
       {related.length > 0 && (
