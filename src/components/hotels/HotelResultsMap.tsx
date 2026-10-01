@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { MAP_LANDMARKS, type LandmarkKind } from '@/lib/content/map-landmarks';
+import { isStayHref } from '@/lib/stay-links';
 
 /**
  * Map of the stays on /hotels/: our picks and the live marketplace results as
@@ -114,7 +115,7 @@ function popupHtml(p: MapPoint): string {
     ${p.image ? `<div style="aspect-ratio:3/2;width:100%;overflow:hidden;background:#EDE2CF;margin-bottom:8px"><img src="${escapeHtml(p.image)}" alt="" referrerpolicy="no-referrer" loading="lazy" style="display:block;width:100%;height:100%;object-fit:cover"></div>` : ''}
     <strong>${escapeHtml(p.name)}</strong>${p.pinned ? ' <span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#5E5E5E">Our pick</span>' : ''}
     ${p.priceLabel ? `<div>${escapeHtml(p.priceLabel)}</div>` : ''}
-    ${p.href ? `<a href="${escapeHtml(p.href)}" ${p.href.startsWith('http') ? 'target="_blank" rel="noopener noreferrer sponsored"' : ''} style="display:inline-block;margin-top:6px;color:#111111;font-weight:600;text-decoration:underline">${escapeHtml(linkLabel)}</a>` : ''}
+    ${p.href ? `<a href="${escapeHtml(p.href)}" ${p.href.startsWith('http') ? (isStayHref(p.href) ? 'rel="noopener noreferrer sponsored"' : 'target="_blank" rel="noopener noreferrer sponsored"') : ''} style="display:inline-block;margin-top:6px;color:#111111;font-weight:600;text-decoration:underline">${escapeHtml(linkLabel)}</a>` : ''}
   </div>`;
 }
 

@@ -17,12 +17,12 @@ Doctrine (`system_documents.data_refresh_strategy` v3): we own identity, editori
 | --- | --- | --- | --- |
 | Vercel (public) | `NEXT_PUBLIC_STAY_HOST` | `stay.nashroam.com` → `stay.nashville.com` | Unset = every hotel CTA falls back to its search link |
 | Vercel (public) | `NEXT_PUBLIC_NASHVILLE_PLACE_ID` | `ChIJPZDrEzLsZIgRoNrpodC5P30` | Google Place ID for Nashville, TN (36.1627, -86.7816). White-label listing fallback only |
-| Vercel (public) | `NEXT_PUBLIC_STAY_DIRECT_CHECKOUT` | `false` | Experimental `/booking?offerId=` links |
+| Vercel (public) | `NEXT_PUBLIC_STAY_DIRECT_CHECKOUT` | `off` | Tri-state, see "Direct checkout" below: `off` (hotel page everywhere), `test` (room-level Select buttons go to `/booking?offerId=`), `on` (the booking box too). Legacy `true` reads as `test` |
 | Vercel (server) | `SUPABASE_SERVICE_ROLE_KEY` | existing | Used by `invokeEdgeFunction`, same as tours |
 | Supabase secrets | `LITEAPI_SANDBOX_KEY` | set | `sand_…` |
 | Supabase secrets | `LITEAPI_PRODUCTION_API_KEY` | when issued | `prod_…` |
 | Supabase secrets | `LITEAPI_ENV` | `sandbox` \| `production` | default production |
-| Supabase secrets | `LITEAPI_PROBE_TOKEN` | random | Accepted by `liteapi-live` for `health` mode only, so deploys can be verified from SQL without the service key |
+| Supabase secrets | `LITEAPI_PROBE_TOKEN` | random | Accepted by `liteapi-live` for `health` and `rate_diag` only, so deploys can be verified and rates reconciled from SQL without the service key |
 | Supabase secrets | `NASHROAM_CRON_TOKEN` | must equal Vault secret `nashroam_cron_token` | Accepted by `liteapi-live` for every mode; the weekly pg_cron job and SQL smoke tests send it |
 
 Removed: `NEXT_PUBLIC_BOOKING_AID`, `BOOKING_DEMAND_API_KEY`, `BOOKING_DEMAND_AFFILIATE_ID`, `NEXT_PUBLIC_VRBO_AID` (the rentals hub now uses marketplace inventory).
@@ -36,8 +36,22 @@ Base `https://{NEXT_PUBLIC_STAY_HOST}`; every link carries `language=en`, `curre
 - Hotel page: `/hotels/{liteApiHotelId}?checkin=YYYY-MM-DD&checkout=YYYY-MM-DD&occupancies={b64}&clientReference={ref}` plus optional `needFreeCancellation=1`, `needBreakfast=1`.
 - `occupancies` = base64 of `[{ "adults": N, "children": [] }]`, one object per room.
 - Listing page (fallback only): `/hotels?placeId=…&checkin&checkout&occupancies&clientReference` plus optional `stars`, `min_price`, `max_price`, `freeCancellation=2`, `facilities`, `sorting`.
-- Direct checkout (flagged off): `/booking?offerId=…`.
+- Direct checkout (see below): `/booking?offerId=…&checkin&checkout&occupancies&clientReference`, the same stay parameters as the hotel page.
 - Dates absent → params omitted; the white label prompts.
+- Every white-label link opens in the **same tab**: `BookingLink` (whitelabel placement or any URL on the stay host), the hotel-page Select buttons and booking box, the map popup, the widget and Stay Search (both already in-app). No `target="_blank"` and no "(opens in a new tab)" copy on these; `rel="noopener noreferrer sponsored"` stays. Other partners (tickets, Viator) still open a new tab.
+- `?return=` back link: not added. Nuitée's deep-linking page could not be checked from this environment (docs.liteapi.travel is blocked by the sandbox network policy), so whether an unknown parameter is tolerated is unverified. If the doc says extra parameters are ignored, set `return` to the page URL in `applyCommon()` in `src/lib/stay-links.ts`.
+
+### Direct checkout (`NEXT_PUBLIC_STAY_DIRECT_CHECKOUT`)
+
+`directCheckoutMode()` in `src/lib/stay-links.ts` reads the flag as `off` | `test` | `on`:
+
+| Value | Room-level **Select** on `/hotels/[slug]/` and `/hotels/stay/[hotelId]/` | Booking box ("Book this stay"), market cards, map, widget, Stay Search |
+| --- | --- | --- |
+| `off` (default, and any unknown value) | hotel page on the white label with the same dates | hotel page |
+| `test` (and legacy `true`) | `/booking?offerId=` for that rate (Phase 1 brief §3.4), same dates, occupancies and `clientReference` | hotel page |
+| `on` | `/booking?offerId=` | booking box deep-links the cheapest offer's checkout (`hotelBookingHref(..., { offerId })`); cards, map, widget and search keep the hotel page |
+
+`stayCheckoutHref(offerId, { surface: 'room' | 'box', ...stay })` enforces the table: `box` callers get `undefined` in `test` and fall back to the hotel page. Nothing on our side detects a white label that bounces a checkout URL back to its hotel page; flip the flag by hand after testing a Select button on `stay.nashroam.com`.
 - `clientReference` = `nsh:{surface}:{slug}`: `nsh:hotel:w-nashville`, `nsh:market:the-gulch`, `nsh:hub:hotels-with-pools`, `nsh:widget:home`, `nsh:guide:where-to-stay-nashville`. Short, no PII, no dates.
 
 `hotelBookingHref(hotel, opts)` in `src/lib/hotel-booking.ts` is the single entry point for every surface. It returns the white-label link when the host and the hotel's `liteApiHotelId` are both known, otherwise the hotel's `fallbackUrl` with `placement: 'affiliate'`. Never both buttons.
@@ -110,6 +124,7 @@ Modes of `liteapi-live` (POST JSON `{ mode, ... }`, `apikey` = service key):
 | `catalog_refresh` | service or cron token | `maxPages?, radiusKm?` | `hotel_catalog_cache`, lookups; weekly Monday 09:20 UTC |
 | `lookups_refresh` | service or cron token | none | facility and hotel-type lookups only (`/data/facilities`, `/data/hotelTypes`) |
 | `health` | service, cron token or probe token | none | reports env, cache and catalog row counts, last catalog refresh, which tokens are set |
+| `rate_diag` | service, cron token or probe token | `hotelId, checkin, checkout, adults \| occupancies[]` | not cached, not logged as a run; every rate for the stay with `retailTotal`, `suggestedSellingPrice`, `initialPrice`, `taxesAndFees[]` (`included` true = in the total, false = payable at the property), `priceType`, `paymentTypes`, `commission`, `nightlyFromTotal`, plus a raw `sample` rate for field discovery. For the parity write-up below |
 
 The cron token unlocks every mode, not only `catalog_refresh`: it lives in Vault (database admins only) and in function secrets, so SQL smoke tests can exercise `area_rates` without the service key. The probe token stays health-only. That is the same `nashroam_cron_token` the other scheduled jobs use, so anyone holding it can pull rates through the function. Acceptable for a server-only secret; it must never reach a client bundle, a browser, or a shared notebook, and if it ever does, rotate it in three places at once: Vault (`select vault.update_secret(id, '<new>')` on the `nashroam_cron_token` row), function secrets (`NASHROAM_CRON_TOKEN`), and any other function that checks `x-nashroam-cron-token`. The provider rejects an area radius under 1 km, so the function and the feed both clamp to 1 km; small neighborhoods still rank by their own center.
 
@@ -148,7 +163,7 @@ Modelled on KindredTrips' `get_hotel_offers`, then grouped harder because Nashvi
 5. photos, beds, size and amenities from the matched catalog room; when two cards share one catalog room the photo order rotates; with no match the hotel gallery stands in, labelled "Hotel photo";
 6. never truncates or rewrites `offerId` (LiteAPI ids are long base64). `roomTypeId` from `/hotels/rates` does not join the catalog room `id` from `/data/hotel`; only the name does.
 
-`RoomOptions` (client) renders the list with a `StayDatesField`; a date change refetches from `/api/hotels/rooms/` (GET `hotelId, checkin, checkout, adults`; server side, service role, 400 on a bad id, 502/503 when the provider or the config is down). "Book this room" opens the booking site on the hotel with the same dates (`stayHotelHref`), or the offer's checkout when `NEXT_PUBLIC_STAY_DIRECT_CHECKOUT` is on. Nothing is prebooked or held. Sandbox rates show the test-mode notice above the list. Analytics: `hotel_rooms_viewed` (`result_count`, `cached`) once per list, `hotel_room_clicked` (`room_name`, `board`, `refundable`, `nightly_shown`) per CTA.
+`RoomOptions` (client) renders the list with a `StayDatesField`; a date change refetches from `/api/hotels/rooms/` (GET `hotelId, checkin, checkout, adults`; server side, service role, 400 on a bad id, 502/503 when the provider or the config is down). "Select" opens the booking site in the same tab, on the hotel with the same dates (`stayHotelHref`), or at the offer's checkout when `NEXT_PUBLIC_STAY_DIRECT_CHECKOUT` is `test` or `on`. Rate cards lead with the nightly figure; the stay total is secondary on the card and primary in the booking box. Nothing is prebooked or held. Sandbox rates show the test-mode notice above the list. Analytics: `hotel_rooms_viewed` (`result_count`, `cached`) once per list, `hotel_room_clicked` (`room_name`, `board`, `refundable`, `nightly_shown`) per CTA.
 
 ### Photos, guest score and reviews on the hotel pages
 
@@ -205,7 +220,7 @@ from http((
 
 ## Open items (block production launch, not Phase 1 or 2)
 
-While the edge function runs on the sandbox key, every rates response reports `environment: "sandbox"` and the site shows a "Booking site in test mode" notice on the hotels page, the market rail, each market card and the hotel detail CTA (`src/components/hotels/TestModeNotice.tsx`). It needs no flag and goes away on its own once the production key is live. Production switch: add the card in the Nuitée console, click Go Live, store the production key in Supabase, switch the edge function's environment to production, set the white-label markup (5% to start).
+While the edge function runs on the sandbox key, every rates response reports `environment: "sandbox"` and the site shows a "Booking site in test mode" banner in two places: above the hotels page results (and the market rail on other pages) and above the room list on hotel pages (`src/components/hotels/TestModeNotice.tsx`). The per-card and booking-box lines were dropped on 2026-10-01. It needs no flag and goes away on its own once the production key is live. Production switch: add the card in the Nuitée console, click Go Live, store the production key in Supabase, switch the edge function's environment to production, set the white-label markup (5% to start).
 
 
 1. SSP pricing: ask Nuitée how to price at `suggestedSellingPrice` automatically (their managed dynamic pricing). A flat markup is not acceptable across hundreds of hotels.

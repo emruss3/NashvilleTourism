@@ -62,8 +62,26 @@ export function nashvillePlaceId(): string | undefined {
   return env('NEXT_PUBLIC_NASHVILLE_PLACE_ID') || undefined;
 }
 
+export type DirectCheckoutMode = 'off' | 'test' | 'on';
+
+/**
+ * NEXT_PUBLIC_STAY_DIRECT_CHECKOUT: `off` (default) sends every link to the
+ * hotel page on the white label; `test` sends only the room-level Select
+ * buttons on hotel detail pages to the offer's checkout (`/booking?offerId=`)
+ * and everything else to the hotel page; `on` also lets the booking box
+ * deep-link the cheapest offer's checkout. The legacy `true` reads as `test`.
+ * If the white label bounces a checkout URL back to its hotel page, nothing
+ * here detects it; the flag is set by hand after a manual test.
+ */
+export function directCheckoutMode(): DirectCheckoutMode {
+  const raw = env('NEXT_PUBLIC_STAY_DIRECT_CHECKOUT').toLowerCase();
+  if (raw === 'on') return 'on';
+  if (raw === 'test' || raw === 'true') return 'test';
+  return 'off';
+}
+
 export function directCheckoutEnabled(): boolean {
-  return env('NEXT_PUBLIC_STAY_DIRECT_CHECKOUT').toLowerCase() === 'true';
+  return directCheckoutMode() !== 'off';
 }
 
 /** Card statement descriptor, quoted in every disclosure. */
@@ -149,17 +167,31 @@ export function stayListingHref(opts: StayListingOptions = {}): string | undefin
 }
 
 /**
- * Direct checkout for an offer the white label will prebook itself.
- * Experimental: LiteAPI's docs say checkout should be reached from the hotel
- * page, so this stays behind NEXT_PUBLIC_STAY_DIRECT_CHECKOUT (default off).
+ * Direct checkout for an offer the white label will prebook itself
+ * (Phase 1 brief §3.4). Carries the same dates, occupancies and
+ * clientReference as the hotel-page link so the two paths are comparable.
+ * `surface` says which caller is asking: room-level Select buttons are
+ * allowed in `test` and `on`; anything else only in `on`. Otherwise
+ * undefined, and the caller falls back to the hotel page.
  */
-export function stayCheckoutHref(offerId: string, opts: Pick<StayLinkOptions, 'clientReference'> = {}): string | undefined {
+export function stayCheckoutHref(offerId: string, opts: StayLinkOptions & { surface?: 'room' | 'box' } = {}): string | undefined {
   const host = stayHost();
-  if (!host || !offerId || !directCheckoutEnabled()) return undefined;
+  const mode = directCheckoutMode();
+  const allowed = mode === 'on' || (mode === 'test' && (opts.surface ?? 'room') === 'room');
+  if (!host || !offerId || !allowed) return undefined;
   const u = new URL(`https://${host}/booking`);
   u.searchParams.set('offerId', offerId);
-  u.searchParams.set('language', 'en');
-  u.searchParams.set('currency', 'USD');
-  if (opts.clientReference) u.searchParams.set('clientReference', opts.clientReference);
+  applyCommon(u, opts);
   return u.toString();
+}
+
+/** True when a URL points at the white label, which opens in the same tab as part of one site. */
+export function isStayHref(url: string | undefined): boolean {
+  const host = stayHost();
+  if (!url || !host) return false;
+  try {
+    return new URL(url).host.toLowerCase() === host;
+  } catch {
+    return false;
+  }
 }

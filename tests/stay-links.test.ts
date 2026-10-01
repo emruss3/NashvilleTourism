@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
-import { clientReference, occupanciesParam, splitOccupancy, stayCheckoutHref, stayHotelHref, stayListingHref, stayHost } from '../src/lib/stay-links.ts';
+import { clientReference, directCheckoutMode, isStayHref, occupanciesParam, splitOccupancy, stayCheckoutHref, stayHotelHref, stayListingHref, stayHost } from '../src/lib/stay-links.ts';
 
 const HOST = 'stay.nashroam.com';
 
@@ -101,12 +101,28 @@ test('no host means no white-label link; direct checkout stays behind its flag',
     assert.equal(stayListingHref(), undefined);
   });
   withEnv({ NEXT_PUBLIC_STAY_HOST: HOST, NEXT_PUBLIC_STAY_DIRECT_CHECKOUT: 'false' }, () => {
+    assert.equal(directCheckoutMode(), 'off');
     assert.equal(stayCheckoutHref('offer-1'), undefined);
   });
-  withEnv({ NEXT_PUBLIC_STAY_HOST: HOST, NEXT_PUBLIC_STAY_DIRECT_CHECKOUT: 'true' }, () => {
-    const url = new URL(stayCheckoutHref('offer-1', { clientReference: 'nsh:hotel:x' })!);
+  withEnv({ NEXT_PUBLIC_STAY_HOST: HOST, NEXT_PUBLIC_STAY_DIRECT_CHECKOUT: 'test' }, () => {
+    assert.equal(directCheckoutMode(), 'test');
+    const url = new URL(stayCheckoutHref('offer-1', { surface: 'room', checkin: '2026-10-02', checkout: '2026-10-04', adults: 2, clientReference: 'nsh:hotel:x' })!);
     assert.equal(url.pathname, '/booking');
     assert.equal(url.searchParams.get('offerId'), 'offer-1');
+    assert.equal(url.searchParams.get('checkin'), '2026-10-02');
+    assert.equal(url.searchParams.get('checkout'), '2026-10-04');
+    assert.equal(url.searchParams.get('occupancies'), occupanciesParam({ adults: 2 }));
+    assert.equal(url.searchParams.get('clientReference'), 'nsh:hotel:x');
+    assert.equal(stayCheckoutHref('offer-1', { surface: 'box' }), undefined, 'test: only room-level Select buttons');
+  });
+  withEnv({ NEXT_PUBLIC_STAY_HOST: HOST, NEXT_PUBLIC_STAY_DIRECT_CHECKOUT: 'true' }, () => {
+    assert.equal(directCheckoutMode(), 'test', 'legacy true reads as test');
+  });
+  withEnv({ NEXT_PUBLIC_STAY_HOST: HOST, NEXT_PUBLIC_STAY_DIRECT_CHECKOUT: 'on' }, () => {
+    assert.equal(directCheckoutMode(), 'on');
+    assert.ok(stayCheckoutHref('offer-1', { surface: 'box' }));
+    assert.ok(isStayHref(stayCheckoutHref('offer-1')));
+    assert.equal(isStayHref('https://example.com/x'), false);
   });
 });
 

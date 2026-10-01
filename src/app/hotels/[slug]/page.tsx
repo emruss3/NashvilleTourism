@@ -82,7 +82,7 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
     : fromRate
       ? { nightly: fromRate.nightly, total: fromRate.total, nights: fromRate.nights, refundable: fromRate.refundable, fetchedAt: fromRate.fetchedAt }
       : undefined;
-  const booking = hotelBookingHref(h, { surface: 'hotel', checkin: dates.checkin, checkout: dates.checkout, adults });
+  const booking = hotelBookingHref(h, { surface: 'hotel', checkin: dates.checkin, checkout: dates.checkout, adults, offerId: cheapest?.offerId });
   const testMode = rooms?.environment === 'sandbox' || live?.environment === 'sandbox';
   const roomsInitial: RoomsPayload | undefined = rooms
     ? {

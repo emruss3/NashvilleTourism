@@ -15,7 +15,7 @@ import { scoreOutOfTen, scoreWord } from '@/lib/hotel-reviews';
 import { partners } from '@/lib/partners';
 import { buildMetadata } from '@/lib/seo';
 import { resolveStayDates } from '@/lib/stay-dates';
-import { STAY_PARTNER, clientReference, stayHotelHref } from '@/lib/stay-links';
+import { STAY_PARTNER, clientReference, stayCheckoutHref, stayHotelHref } from '@/lib/stay-links';
 
 /**
  * A marketplace hotel without an editorial page: provider photos, name,
@@ -76,7 +76,9 @@ export default async function StayRoomsPage(props: { params: Promise<{ hotelId: 
   const cheapest = rooms.groups[0]?.cheapest;
   const rate = cheapest ? { nightly: cheapest.nightly, total: cheapest.total, nights: cheapest.nights, refundable: cheapest.refundable, fetchedAt: rooms.fetchedAt } : undefined;
   const reference = clientReference(editorial ? 'hotel' : 'stay', slug);
-  const link = { url: stayHotelHref(hotelId, { checkin: dates.checkin, checkout: dates.checkout, adults, clientReference: reference }), partner: STAY_PARTNER, placement: 'whitelabel' as const, clientReference: reference, hotelId };
+  // Direct checkout `on`: the box deep-links the cheapest offer's checkout; otherwise the hotel page.
+  const url = (cheapest?.offerId ? stayCheckoutHref(cheapest.offerId, { surface: 'box', checkin: dates.checkin, checkout: dates.checkout, adults, clientReference: reference }) : undefined) ?? stayHotelHref(hotelId, { checkin: dates.checkin, checkout: dates.checkout, adults, clientReference: reference });
+  const link = { url, partner: STAY_PARTNER, placement: 'whitelabel' as const, clientReference: reference, hotelId };
   const backHref = hotelSearchPath({ checkin: dates.chosen ? dates.checkin : undefined, checkout: dates.chosen ? dates.checkout : undefined, adults: adults !== 2 ? adults : undefined });
   const tabs = [{ id: 'overview', label: 'Overview' }, { id: 'rooms', label: 'Rooms' }, ...(reviews ? [{ id: 'reviews', label: 'Reviews' }] : []), { id: 'location', label: 'Location' }];
 

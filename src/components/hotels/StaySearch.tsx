@@ -6,7 +6,7 @@ import StayDatesField from '@/components/StayDatesField';
 import { PeopleIcon, PinIcon } from '@/components/Icons';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
 import { hotelSearchPath } from '@/lib/hotel-booking';
-import { partners } from '@/lib/partners';
+import { STAY_DISCLOSURE } from '@/components/Trust';
 
 /** Nashville-local today in YYYY-MM-DD, the minimum selectable check-in. */
 function todayISO(): string {
@@ -110,7 +110,7 @@ export default function StaySearch({
           <span aria-hidden="true">→</span>
         </button>
         <p className="mt-2 text-2xs text-ink-soft">
-          Your dates carry through to every hotel below. Rates and checkout are on our booking site, run with Nuitée; “{partners.stay.merchant}” appears on your card statement. Room prices include our margin; it never changes which hotels we recommend.
+          Your dates carry through to every hotel below. {STAY_DISCLOSURE}
         </p>
       </div>
     </form>

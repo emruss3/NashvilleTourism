@@ -1,4 +1,4 @@
-import { STAY_PARTNER, clientReference, stayHotelHref, type StayLinkOptions } from '@/lib/stay-links';
+import { STAY_PARTNER, clientReference, stayCheckoutHref, stayHotelHref, type StayLinkOptions } from '@/lib/stay-links';
 import type { Hotel } from '@/lib/types';
 
 export type HotelBookingPlacement = 'whitelabel' | 'affiliate';
@@ -14,16 +14,18 @@ export interface HotelBookingLink {
 
 /**
  * The one way any surface links a hotel to a booking. White-label hotel page
- * when the host and the hotel's LiteAPI id are both known; otherwise the
+ * when the host and the hotel's LiteAPI id are both known (or, with direct
+ * checkout `on` and an `offerId`, that offer's checkout); otherwise the
  * hotel's affiliate/search fallback. Never both.
  */
 export function hotelBookingHref(
   hotel: Pick<Hotel, 'slug' | 'liteApiHotelId' | 'fallbackUrl'>,
-  opts: Omit<StayLinkOptions, 'clientReference'> & { surface?: string } = {},
+  opts: Omit<StayLinkOptions, 'clientReference'> & { surface?: string; offerId?: string } = {},
 ): HotelBookingLink {
   const reference = clientReference(opts.surface ?? 'hotel', hotel.slug);
-  const { surface: _surface, ...linkOpts } = opts;
-  const whitelabel = hotel.liteApiHotelId ? stayHotelHref(hotel.liteApiHotelId, { ...linkOpts, clientReference: reference }) : undefined;
+  const { surface: _surface, offerId, ...linkOpts } = opts;
+  const checkout = hotel.liteApiHotelId && offerId ? stayCheckoutHref(offerId, { ...linkOpts, surface: 'box', clientReference: reference }) : undefined;
+  const whitelabel = checkout ?? (hotel.liteApiHotelId ? stayHotelHref(hotel.liteApiHotelId, { ...linkOpts, clientReference: reference }) : undefined);
   if (whitelabel) {
     return { url: whitelabel, partner: STAY_PARTNER, placement: 'whitelabel', clientReference: reference, hotelId: hotel.liteApiHotelId };
   }

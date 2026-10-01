@@ -4,6 +4,7 @@ import { useId, useState } from 'react';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
 import DateField from '@/components/DateField';
 import StayDatesField from '@/components/StayDatesField';
+import { STAY_DISCLOSURE } from '@/components/Trust';
 import { hotelSearchPath } from '@/lib/hotel-booking';
 import { partners } from '@/lib/partners';
 
@@ -242,7 +243,7 @@ export default function BookingWidget({
         {tab === 'tours'
           ? 'Live products and starting prices from Viator. Final availability and checkout are confirmed on Viator.'
           : tab === 'hotels'
-            ? `Rates and checkout are on our booking site, run with Nuitée; “${partners.stay.merchant}” appears on your card statement, and Nuitée handles booking support. Room prices include our margin; it never changes which hotels we recommend.`
+            ? STAY_DISCLOSURE
             : 'We earn a commission on bookings made through these partners. It never changes what we recommend.'}
       </p>
     </div>

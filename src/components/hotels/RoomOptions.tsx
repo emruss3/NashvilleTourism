@@ -16,8 +16,8 @@ import { clientReference, stayCheckoutHref, stayHotelHref } from '@/lib/stay-lin
  * button. Dates change in place and refetch from /api/hotels/rooms/ (the
  * service role stays on the server). Every price carries its fetch time.
  * Select opens our booking site on this hotel with the same dates, or
- * straight at the offer when direct checkout is enabled; nothing is booked
- * or held from here.
+ * straight at the offer when direct checkout is in test or on, in the same
+ * tab (checkout is part of one site); nothing is booked or held from here.
  */
 
 export interface RoomsPayload {
@@ -167,8 +167,9 @@ export default function RoomOptions({
   const nights = data?.groups[0]?.cheapest.nights ?? Math.max(1, Math.round((Date.parse(`${checkout}T00:00:00Z`) - Date.parse(`${checkin}T00:00:00Z`)) / 86_400_000));
   const fetched = data?.fetchedAt ? chicago(data.fetchedAt) : undefined;
 
+  // Room-level Select: the offer's checkout when direct checkout is in test or on, else the hotel page. Same dates, party and reference either way.
   function cta(rate: RoomRate): string | undefined {
-    return (rate.offerId ? stayCheckoutHref(rate.offerId, { clientReference: reference }) : undefined) ?? hotelHref;
+    return (rate.offerId ? stayCheckoutHref(rate.offerId, { surface: 'room', checkin, checkout, adults, clientReference: reference }) : undefined) ?? hotelHref;
   }
 
   function onSelect(group: RoomGroup, rate: RoomRate) {
@@ -233,7 +234,7 @@ export default function RoomOptions({
         <div role="alert" className="rounded-card border border-paper-edge bg-paper-sunk px-4 py-6 text-sm text-ink">
           <p>{error}</p>
           {hotelHref ? (
-            <a href={hotelHref} target="_blank" rel="noopener noreferrer sponsored" className="btn-secondary mt-3 inline-flex">
+            <a href={hotelHref} rel="noopener noreferrer sponsored" className="btn-secondary mt-3 inline-flex">
               Check rates on our booking site
             </a>
           ) : null}
@@ -334,9 +335,15 @@ export default function RoomOptions({
                         <div key={rate.rateId ?? rate.offerId ?? i} className="rounded-card border border-paper-edge bg-white p-3">
                           <div className="flex items-start justify-between gap-3">
                             <p className="min-w-0 font-sans text-[15px] font-bold leading-snug text-ink">{board.text}</p>
+                            {/* Nightly leads; the stay total lives in the booking box on the right of the page. */}
                             <p className="shrink-0 text-right">
-                              <span className="block font-sans text-lg font-extrabold leading-none text-ink">{usd(rate.total.amount, rate.total.currency)}</span>
-                              <span className="block text-2xs text-ink-soft">{usd(rate.nightly.amount, rate.nightly.currency)} / night</span>
+                              <span className="block font-sans text-lg font-extrabold leading-none text-ink">
+                                {usd(rate.nightly.amount, rate.nightly.currency)}
+                                <span className="text-xs font-semibold text-ink-soft"> / night</span>
+                              </span>
+                              <span className="block text-2xs text-ink-soft">
+                                {usd(rate.total.amount, rate.total.currency)} for {rate.nights} {rate.nights === 1 ? 'night' : 'nights'}
+                              </span>
                             </p>
                           </div>
                           <div className="mt-2 flex flex-wrap gap-1.5">
@@ -347,11 +354,11 @@ export default function RoomOptions({
                           {fees ? <p className="mt-1.5 text-2xs text-ink-soft">{fees}</p> : null}
                           {rate.perks.length ? <p className="mt-1 text-2xs text-ink-soft">{rate.perks.join(' · ')}</p> : null}
                           {href ? (
-                            <a href={href} target="_blank" rel="noopener noreferrer sponsored" className="btn-primary mt-3 min-h-10 w-full py-2" onClick={() => onSelect(group, rate)}>
+                            <a href={href} rel="noopener noreferrer sponsored" className="btn-primary mt-3 min-h-10 w-full py-2" onClick={() => onSelect(group, rate)}>
                               Select
                               <span className="sr-only">
                                 {' '}
-                                {group.name}, {board.text}, {usd(rate.total.amount, rate.total.currency)} (opens our booking site in a new tab)
+                                {group.name}, {board.text}, {usd(rate.total.amount, rate.total.currency)}
                               </span>
                             </a>
                           ) : (

@@ -2,11 +2,14 @@
 
 import Link from 'next/link';
 import { ANALYTICS_EVENTS, track, type AnalyticsEvent } from '@/lib/analytics';
+import { isStayHref } from '@/lib/stay-links';
 
 /**
- * Commercial clickout used for hotels, tickets, and activities. External
- * links open in a new tab with `rel="sponsored"`. Site-relative URLs render
- * as an in-app link (the hotel marketplace) and are tracked the same way.
+ * Commercial clickout used for hotels, tickets, and activities. Our booking
+ * site (white-label placement, or any URL on the stay host) opens in the
+ * same tab: checkout is part of one site. Other partners open in a new tab
+ * with `rel="sponsored"`. Site-relative URLs render as an in-app link (the
+ * hotel marketplace) and are tracked the same way.
  */
 export default function BookingLink({
   url,
@@ -44,6 +47,14 @@ export default function BookingLink({
       <Link href={url} className={classes} onClick={() => track(event, payload)}>
         {label}
       </Link>
+    );
+  }
+
+  if (placement === 'whitelabel' || isStayHref(url)) {
+    return (
+      <a href={url} rel="noopener noreferrer sponsored" className={classes} onClick={() => track(event, payload)}>
+        {label}
+      </a>
     );
   }
 

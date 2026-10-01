@@ -28,7 +28,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
  * cron token (NASHROAM_CRON_TOKEN, mirrored in Vault as nashroam_cron_token
  * and only readable by database admins) is equivalent, so pg_cron and SQL
  * smoke tests work without the service key. The probe token unlocks health
- * only.
+ * and rate_diag only.
  */
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "https://aeomrsutkhwmnscvvfur.supabase.co";
@@ -928,6 +928,60 @@ async function modeCatalogRefresh(body: Record<string, unknown>): Promise<Respon
   }
 }
 
+/**
+ * Rate parity diagnostic: every rate the provider returns for one hotel
+ * and one stay, with the price fields the white label could be showing
+ * (retail total, suggested selling price, each tax or fee and whether it
+ * is included in the total or payable at the property), so the figure on
+ * our page can be reconciled with the white label's checkout total. Probe
+ * token or service access, like health. Never cached, never logged as a
+ * run, never read by a page.
+ */
+async function modeRateDiag(body: Record<string, unknown>): Promise<Response> {
+  const hotelId = typeof body.hotelId === "string" && /^lp[a-z0-9]{3,16}$/.test(body.hotelId) ? body.hotelId : null;
+  const checkin = isoDay(body.checkin);
+  const checkout = isoDay(body.checkout);
+  if (!hotelId) return json({ ok: false, error: "hotelId required" }, 400);
+  if (!checkin || !checkout || checkout <= checkin) return json({ ok: false, error: "checkin/checkout (YYYY-MM-DD, checkout after checkin) required" }, 400);
+  const occupancies = normalizeOccupancies(body);
+  const nights = Math.max(1, Math.round((Date.parse(`${checkout}T00:00:00Z`) - Date.parse(`${checkin}T00:00:00Z`)) / 86_400_000));
+  const res = await liteapiFetch("/hotels/rates", {
+    method: "POST",
+    body: JSON.stringify({ hotelIds: [hotelId], checkin, checkout, occupancies, currency: "USD", guestNationality: "US", includeHotelData: false, timeout: PROVIDER_TIMEOUT_SECONDS }),
+  });
+  if (!res.ok) {
+    return json({ ok: false, environment: LITEAPI_ENV, status: res.status, requestId: res.requestId, error: res.data?.error ?? `LiteAPI /hotels/rates failed (${res.status})` }, res.status === 0 ? 502 : 502);
+  }
+  const rates: any[] = [];
+  let sample: any = null;
+  for (const entry of Array.isArray(res.data?.data) ? res.data.data : []) {
+    for (const roomType of Array.isArray(entry?.roomTypes) ? entry.roomTypes : []) {
+      for (const rate of Array.isArray(roomType?.rates) ? roomType.rates : []) {
+        if (!sample) sample = { roomTypeKeys: Object.keys(roomType ?? {}), rateKeys: Object.keys(rate ?? {}), retailRateKeys: Object.keys(rate?.retailRate ?? {}), rate };
+        const retail = rate?.retailRate ?? {};
+        rates.push({
+          offerId: typeof roomType?.offerId === "string" ? roomType.offerId : null,
+          rateId: typeof rate?.rateId === "string" ? rate.rateId : null,
+          roomName: typeof rate?.name === "string" ? rate.name.trim() : null,
+          boardType: rate?.boardType ?? null,
+          boardName: rate?.boardName ?? null,
+          refundable: rate?.cancellationPolicies?.refundableTag ?? null,
+          priceType: rate?.priceType ?? null,
+          paymentTypes: Array.isArray(rate?.paymentTypes) ? rate.paymentTypes : null,
+          commission: rate?.commission ?? null,
+          retailTotal: retail?.total ?? null,
+          suggestedSellingPrice: retail?.suggestedSellingPrice ?? null,
+          initialPrice: retail?.initialPrice ?? null,
+          taxesAndFees: (Array.isArray(retail?.taxesAndFees) ? retail.taxesAndFees : []).map((t: any) => ({ included: t?.included ?? null, description: t?.description ?? null, amount: t?.amount ?? null, currency: t?.currency ?? null })),
+          nightlyFromTotal: money(retail?.total) ? Math.round((money(retail?.total)!.amount / nights) * 100) / 100 : null,
+        });
+        if (rates.length >= 80) break;
+      }
+    }
+  }
+  return json({ ok: true, environment: LITEAPI_ENV, hotelId, checkin, checkout, nights, occupancies, requestId: res.requestId, ms: res.ms, rateCount: rates.length, rates, sample });
+}
+
 async function modeHealth(): Promise<Response> {
   let cacheRows: number | null = null;
   let catalogRows: number | null = null;
@@ -979,9 +1033,9 @@ Deno.serve(async (req: Request) => {
   const service = cron || (await hasServiceAccess(req));
   const probe = hasProbeAccess(req);
 
-  if (mode === "health") {
+  if (mode === "health" || mode === "rate_diag") {
     if (!service && !probe) return json({ ok: false, error: "Unauthorized" }, 401);
-    return modeHealth();
+    return mode === "health" ? modeHealth() : modeRateDiag(body);
   }
   if (!service) return json({ ok: false, error: "Unauthorized" }, 401);
 
@@ -1002,7 +1056,7 @@ Deno.serve(async (req: Request) => {
       case "hotel_reviews":
         return await modeHotelReviews(body);
       default:
-        return json({ ok: false, error: "Unknown mode. Use area_rates, hotel_rates, hotel_rooms, hotel_detail, hotel_reviews, catalog_refresh, lookups_refresh or health." }, 400);
+        return json({ ok: false, error: "Unknown mode. Use area_rates, hotel_rates, hotel_rooms, hotel_detail, hotel_reviews, catalog_refresh, lookups_refresh, rate_diag or health." }, 400);
     }
   } catch (error) {
     return json({ ok: false, environment: LITEAPI_ENV, error: String(error).slice(0, 300) }, 500);

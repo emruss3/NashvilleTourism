@@ -1,7 +1,6 @@
 'use client';
 
 import { AffiliateDisclosure } from '@/components/Trust';
-import TestModeNotice from '@/components/hotels/TestModeNotice';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
 import { formatNightly, type LiveMoney } from '@/lib/feeds/hotels-live';
 import { scoreOutOfTen, scoreWord } from '@/lib/hotel-reviews';
@@ -31,8 +30,9 @@ function dayLabel(iso: string): string {
  * and one Book button. On wide screens it sticks to the right while the
  * page scrolls; under the tablet width it also repeats as a fixed bar above
  * the bottom navigation, so the button is always one tap away. The button
- * opens our booking site on this hotel with the same dates; nothing is
- * booked or held here.
+ * opens our booking site on this hotel with the same dates, in the same
+ * tab (checkout is part of one site); nothing is booked or held here. The
+ * sandbox notice lives on the room list, not here.
  */
 export default function HotelBookingBox({
   name,
@@ -42,7 +42,7 @@ export default function HotelBookingBox({
   checkout,
   adults,
   link,
-  testMode = false,
+  testMode: _testMode = false,
   score,
   reviewCount,
   roomsHref = '#rooms',
@@ -64,9 +64,8 @@ export default function HotelBookingBox({
   const fetched = rate ? new Date(rate.fetchedAt).toLocaleString('en-US', { timeZone: 'America/Chicago' }) : undefined;
 
   const button = link.url ? (
-    <a href={link.url} target="_blank" rel="noopener noreferrer sponsored" className="btn-primary min-h-12 w-full" onClick={() => track(ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED, payload)}>
+    <a href={link.url} rel="noopener noreferrer sponsored" className="btn-primary min-h-12 w-full" onClick={() => track(ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED, payload)}>
       {label}
-      <span className="sr-only"> (opens our booking site in a new tab)</span>
     </a>
   ) : (
     <p className="text-sm text-ink-soft">Booking is not available right now.</p>
@@ -119,7 +118,6 @@ export default function HotelBookingBox({
         <a href={roomsHref} className="block text-center text-sm font-semibold text-ink underline underline-offset-2">
           Compare rooms and rates
         </a>
-        {testMode ? <TestModeNotice compact /> : null}
         {link.placement === 'whitelabel' ? <AffiliateDisclosure variant="stay" compact /> : null}
       </aside>
 
@@ -141,7 +139,7 @@ export default function HotelBookingBox({
             )}
           </div>
           {link.url ? (
-            <a href={link.url} target="_blank" rel="noopener noreferrer sponsored" className="btn-primary min-h-11 shrink-0 px-5" onClick={() => track(ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED, { ...payload, placement: link.placement })}>
+            <a href={link.url} rel="noopener noreferrer sponsored" className="btn-primary min-h-11 shrink-0 px-5" onClick={() => track(ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED, { ...payload, placement: link.placement })}>
               {rate ? 'Book' : 'Check rates'}
             </a>
           ) : null}
