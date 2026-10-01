@@ -17,7 +17,7 @@ export async function generateMetadata({
   const { handle } = await params;
   if (!isShopifyConfigured()) {
     return buildMetadata({
-      title: 'NashRoam Goods',
+      title: 'NSVL goods',
       description: 'NashRoam shop setup in progress.',
       path: `/shop/${handle}/`,
       noindex: true,
@@ -37,14 +37,14 @@ export async function generateMetadata({
 
     return buildMetadata({
       title: product.title,
-      description: product.description || 'NashRoam apparel and goods.',
+      description: product.description || 'NSVL apparel and goods.',
       path: `/shop/${product.handle}/`,
       noindex: false,
     });
   } catch {
     return buildMetadata({
-      title: 'NashRoam Goods',
-      description: 'NashRoam apparel and goods.',
+      title: 'NSVL goods',
+      description: 'NSVL apparel and goods.',
       path: `/shop/${handle}/`,
       noindex: true,
     });
@@ -84,12 +84,12 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
         <ProductGallery images={images} title={product.title} />
 
         <div className="lg:sticky lg:top-28 lg:self-start">
-          {product.productType && <p className="eyebrow text-clay">{product.productType}</p>}
+          {product.productType && <p className="eyebrow text-ink">{product.productType}</p>}
           <h1 className="mt-2 font-sans text-3xl font-bold tracking-tight text-ink sm:text-4xl">
             {product.title}
           </h1>
           {product.vendor && product.vendor.toLowerCase() !== 'nashroam' && (
-            <p className="mt-2 text-sm text-ink-faint">By {product.vendor}</p>
+            <p className="mt-2 text-sm text-ink-soft">By {product.vendor}</p>
           )}
 
           {product.description && (

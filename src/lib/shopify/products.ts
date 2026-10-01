@@ -6,6 +6,9 @@ import {
 } from './queries';
 import type { Product, ProductCard } from './types';
 
+const EXCLUDED_HANDLES = new Set(['the-neighborhoods-map-print']);
+const launchProducts = (products: ProductCard[]) => products.filter(product => !EXCLUDED_HANDLES.has(product.handle));
+
 interface ProductsResponse {
   products: {
     nodes: ProductCard[];
@@ -38,7 +41,7 @@ export async function getProducts(first = 24): Promise<ProductCard[]> {
     });
 
     if (collectionData.collection) {
-      return collectionData.collection.products.nodes;
+      return launchProducts(collectionData.collection.products.nodes);
     }
     return [];
   }
@@ -49,10 +52,11 @@ export async function getProducts(first = 24): Promise<ProductCard[]> {
     revalidate: 300,
   });
 
-  return data.products.nodes;
+  return launchProducts(data.products.nodes);
 }
 
 export async function getProductByHandle(handle: string): Promise<Product | null> {
+  if (EXCLUDED_HANDLES.has(handle)) return null;
   const data = await shopifyFetch<ProductResponse>({
     query: PRODUCT_QUERY,
     variables: { handle },
