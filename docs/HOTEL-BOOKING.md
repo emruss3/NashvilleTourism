@@ -17,7 +17,7 @@ Doctrine (`system_documents.data_refresh_strategy` v3): we own identity, editori
 | --- | --- | --- | --- |
 | Vercel (public) | `NEXT_PUBLIC_STAY_HOST` | `stay.nashroam.com` → `stay.nashville.com` | Unset = every hotel CTA falls back to its search link |
 | Vercel (public) | `NEXT_PUBLIC_NASHVILLE_PLACE_ID` | `ChIJPZDrEzLsZIgRoNrpodC5P30` | Google Place ID for Nashville, TN (36.1627, -86.7816). White-label listing fallback only |
-| Vercel (public) | `NEXT_PUBLIC_STAY_DIRECT_CHECKOUT` | `off` | Tri-state, see "Direct checkout" below: `off` (hotel page everywhere), `test` (room-level Select buttons go to `/booking?offerId=`), `on` (the booking box too). Legacy `true` reads as `test` |
+| Vercel (public) | `NEXT_PUBLIC_STAY_DIRECT_CHECKOUT` | unset (= `on`) | Tri-state, see "Direct checkout" below: `on` (default: "Book this stay" and every room Select go to `/booking?offerId=`), `test` (room-level Select only), `off` (hotel page everywhere). Legacy `true` reads as `on` |
 | Vercel (server) | `SUPABASE_SERVICE_ROLE_KEY` | existing | Used by `invokeEdgeFunction`, same as tours |
 | Supabase secrets | `LITEAPI_SANDBOX_KEY` | set | `sand_…` |
 | Supabase secrets | `LITEAPI_PRODUCTION_API_KEY` | when issued | `prod_…` |
@@ -47,11 +47,11 @@ Base `https://{NEXT_PUBLIC_STAY_HOST}`; every link carries `language=en`, `curre
 
 | Value | Room-level **Select** on `/hotels/[slug]/` and `/hotels/stay/[hotelId]/` | Booking box ("Book this stay"), market cards, map, widget, Stay Search |
 | --- | --- | --- |
-| `off` (default, and any unknown value) | hotel page on the white label with the same dates | hotel page |
-| `test` (and legacy `true`) | `/booking?offerId=` for that rate (Phase 1 brief §3.4), same dates, occupancies and `clientReference` | hotel page |
-| `on` | `/booking?offerId=` | booking box deep-links the cheapest offer's checkout (`hotelBookingHref(..., { offerId })`); cards, map, widget and search keep the hotel page |
+| `off` (or `false`) | hotel page on the white label with the same dates | hotel page |
+| `test` | `/booking?offerId=` for that rate (Phase 1 brief §3.4), same dates, occupancies and `clientReference` | hotel page |
+| `on` (default when unset; also legacy `true` and any unknown value) | `/booking?offerId=` | booking box deep-links the cheapest offer's checkout (`hotelBookingHref(..., { offerId })`); cards, map, widget and search keep the hotel page |
 
-`stayCheckoutHref(offerId, { surface: 'room' | 'box', ...stay })` enforces the table: `box` callers get `undefined` in `test` and fall back to the hotel page. Nothing on our side detects a white label that bounces a checkout URL back to its hotel page; flip the flag by hand after testing a Select button on `stay.nashroam.com`.
+`stayCheckoutHref(offerId, { surface: 'room' | 'box', ...stay })` enforces the table: `box` callers get `undefined` in `test` and fall back to the hotel page. Nothing on our side detects a white label that bounces a checkout URL back to its hotel page; if that happens, set the flag to `off` and redeploy. Decision 2026-10-01: a guest who picks dates and presses "Book this stay" lands on the Nuitée checkout, not on the white label's hotel page, so `on` is the default and needs no env var.
 - `clientReference` = `nsh:{surface}:{slug}`: `nsh:hotel:w-nashville`, `nsh:market:the-gulch`, `nsh:hub:hotels-with-pools`, `nsh:widget:home`, `nsh:guide:where-to-stay-nashville`. Short, no PII, no dates.
 
 `hotelBookingHref(hotel, opts)` in `src/lib/hotel-booking.ts` is the single entry point for every surface. It returns the white-label link when the host and the hotel's `liteApiHotelId` are both known, otherwise the hotel's `fallbackUrl` with `placement: 'affiliate'`. Never both buttons.

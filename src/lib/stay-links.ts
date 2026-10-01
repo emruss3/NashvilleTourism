@@ -75,9 +75,10 @@ export type DirectCheckoutMode = 'off' | 'test' | 'on';
  */
 export function directCheckoutMode(): DirectCheckoutMode {
   const raw = env('NEXT_PUBLIC_STAY_DIRECT_CHECKOUT').toLowerCase();
-  if (raw === 'on') return 'on';
-  if (raw === 'test' || raw === 'true') return 'test';
-  return 'off';
+  if (raw === 'off' || raw === 'false') return 'off';
+  if (raw === 'test') return 'test';
+  // Unset, `on` or legacy `true`: "Book this stay" and every room Select land on the offer's checkout.
+  return 'on';
 }
 
 export function directCheckoutEnabled(): boolean {

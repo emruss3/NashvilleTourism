@@ -116,7 +116,11 @@ test('no host means no white-label link; direct checkout stays behind its flag',
     assert.equal(stayCheckoutHref('offer-1', { surface: 'box' }), undefined, 'test: only room-level Select buttons');
   });
   withEnv({ NEXT_PUBLIC_STAY_HOST: HOST, NEXT_PUBLIC_STAY_DIRECT_CHECKOUT: 'true' }, () => {
-    assert.equal(directCheckoutMode(), 'test', 'legacy true reads as test');
+    assert.equal(directCheckoutMode(), 'on', 'legacy true reads as on');
+  });
+  withEnv({ NEXT_PUBLIC_STAY_HOST: HOST, NEXT_PUBLIC_STAY_DIRECT_CHECKOUT: undefined }, () => {
+    assert.equal(directCheckoutMode(), 'on', 'unset means direct checkout');
+    assert.ok(stayCheckoutHref('offer-1', { surface: 'box' }), 'Book this stay reaches checkout by default');
   });
   withEnv({ NEXT_PUBLIC_STAY_HOST: HOST, NEXT_PUBLIC_STAY_DIRECT_CHECKOUT: 'on' }, () => {
     assert.equal(directCheckoutMode(), 'on');
