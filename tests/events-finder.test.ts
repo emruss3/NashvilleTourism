@@ -4,7 +4,7 @@
  */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { ANY_AREA, FINDER_EVENT_TYPES, MAX_PRIORITIES, PRIORITIES, chooseLayout, finderParams, matchSpaces, maxGuestsFor, parsePriorities, prioritiesToNeeds, readFinderParams, recommend, sizesFor, type FinderVenue } from '../src/lib/events/finder.ts';
+import { ANY_AREA, FINDER_EVENT_TYPES, MAX_PRIORITIES, PRIORITIES, browseVenues, chooseLayout, finderParams, matchSpaces, maxGuestsFor, parsePriorities, prioritiesToNeeds, readFinderParams, recommend, sizesFor, type FinderVenue } from '../src/lib/events/finder.ts';
 import type { EventSpace } from '../src/lib/events/types.ts';
 import { isOccasion } from '../src/lib/private-events.ts';
 
@@ -148,6 +148,22 @@ test('a chosen area ranks its own venues first but still shows a better fit else
   const out = rec.spaces.find((m) => !m.inArea);
   assert.ok(out, 'rooftops downtown appear even though the Gulch was chosen');
   assert.ok(rec.spaces.some((m) => m.inArea));
+});
+
+test('the grid keeps every venue: fitting ones first by fit, the rest marked as not fitting', () => {
+  const all = browseVenues({ priorities: [] }, [jbjs, gulchDining]);
+  assert.deepEqual(all.map((r) => r.venue.slug), ['jbjs-nashville', 'gulch-dining'], 'no filters: content order');
+  assert.ok(all.every((r) => r.fits));
+  assert.equal(all[0].spaces, 7, 'every published, sized space counts');
+
+  const big = browseVenues({ eventType: 'convention', size: '200-plus', area: ANY_AREA, priorities: ['music'] }, [gulchDining, jbjs]);
+  assert.deepEqual(big.map((r) => [r.venue.slug, r.fits]), [['jbjs-nashville', true], ['gulch-dining', false]]);
+  assert.equal(big[1].spaces, 0);
+  assert.deepEqual(big[0].meets, ['music']);
+
+  const gulch = browseVenues({ eventType: 'corporate', size: '25-75', area: 'the-gulch', priorities: ['talk'] }, [jbjs, gulchDining]);
+  assert.deepEqual(gulch.map((r) => [r.venue.slug, r.fits]), [['gulch-dining', true], ['jbjs-nashville', false]], 'outside the chosen area does not fit');
+  assert.equal(gulch.reduce((n, r) => n + r.spaces, 0), 1);
 });
 
 test('ownership never changes the order', () => {

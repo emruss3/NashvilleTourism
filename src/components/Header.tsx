@@ -96,7 +96,7 @@ export default function Header() {
   // as the boxed action; the two-row masthead and its scroll-away bar are
   // for every other page and keep their behavior there.
   const eventsPage = pathname.startsWith('/private-events');
-  const cta = eventsPage ? { label: 'Plan an event', href: '/private-events/#plan' } : planNav;
+  const cta = eventsPage ? { label: 'Plan an event', href: '/private-events/#venues' } : planNav;
 
   const linkClass = (active: boolean, compact: boolean) =>
     `inline-flex items-center whitespace-nowrap border-b-2 font-sans font-semibold text-ink transition-colors ${
