@@ -13,7 +13,7 @@ function space(over: Partial<EventSpace> = {}): EventSpace {
   return { id: `s${n}`, venueId: 'v', slug: `space-${n}`, name: `Space ${n}`, seatedCapacity: 60, standingCapacity: 100, pricingModel: 'min_spend', minSpendCents: 800_000, avIncluded: false, outdoor: false, accessible: true, privateEntrance: false, sortOrder: 0, published: true, ...over };
 }
 function venue(slug: string, over: Partial<EventVenue> = {}, spaces: EventSpace[] = [space()]): EventVenue {
-  return { id: `id-${slug}`, slug, name: slug, kind: 'restaurant', neighborhoodSlug: 'the-gulch', address: 'x', summary: 'x', ownedByBph: false, leadSystem: 'email', feePct: 5, slaHours: 24, published: true, editorialPriority: 0, spaces: spaces.map((s) => ({ ...s, venueId: `id-${slug}` })), ...over };
+  return { id: `id-${slug}`, slug, name: slug, kind: 'restaurant', neighborhoodSlug: 'the-gulch', address: 'x', summary: 'x', ownedByBph: false, leadSystem: 'email', feePct: 5, slaHours: 24, published: true, editorialPriority: 0, features: [], terms: {}, spaces: spaces.map((s) => ({ ...s, venueId: `id-${slug}` })), ...over };
 }
 
 const pool = [
@@ -34,6 +34,7 @@ test('capacity fit rewards rooms sized to the party and never returns zero', () 
 
 test('a 60-person Gulch reception ranks the Gulch room first and the over-budget rooftop last', () => {
   const order = rankVenues(pool, { guests: 60, budgetRange: '5k-15k', neighborhoods: ['the-gulch'] }).map((r) => r.venue.slug);
+  assert.equal(rankVenues(pool, { guests: 60, budgetRange: '$$$', neighborhoods: ['the-gulch'] }).map((r) => r.venue.slug).at(-1), 'broadway-rooftop', 'the $$$ band treats a $20k rooftop as over budget too');
   assert.equal(order[0], 'gulch-room');
   assert.equal(order[order.length - 1], 'broadway-rooftop', 'a $20k minimum against a $15k ceiling sinks it below the oversized but affordable hall');
 });

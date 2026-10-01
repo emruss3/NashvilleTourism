@@ -1,4 +1,4 @@
-import { spaceFromPrice, type EventSpace, type EventVenue } from './types';
+import { PRICE_BANDS, perPersonRange, spacePriceBand, type EventSpace, type EventVenue, type PriceBand } from './types';
 
 /** Presentation helpers shared by the venue cards and the venue page. */
 
@@ -6,14 +6,25 @@ export function venueCapacity(venue: Pick<EventVenue, 'spaces'>): { seated: numb
   return venue.spaces.reduce((acc, s) => ({ seated: Math.max(acc.seated, s.seatedCapacity), standing: Math.max(acc.standing, s.standingCapacity) }), { seated: 0, standing: 0 });
 }
 
-/** The lowest "from" price across a venue's spaces, with its basis. */
-export function venueFromPrice(venue: Pick<EventVenue, 'spaces'>): ReturnType<typeof spaceFromPrice> {
-  let best: ReturnType<typeof spaceFromPrice>;
-  for (const space of venue.spaces) {
-    const p = spaceFromPrice(space);
-    if (p && (!best || p.amount < best.amount)) best = p;
-  }
-  return best;
+/** The span of price bands across a venue's spaces, e.g. "$$" or "$$ to $$$$". Never a number. */
+export function venueBandRange(venue: Pick<EventVenue, 'spaces'>): { min: PriceBand; max: PriceBand } | undefined {
+  const bands = venue.spaces.map((s) => spacePriceBand(s)?.band).filter((b): b is PriceBand => Boolean(b));
+  if (!bands.length) return undefined;
+  const order = PRICE_BANDS.map((b) => b.band);
+  const sorted = bands.slice().sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  return { min: sorted[0], max: sorted[sorted.length - 1] };
+}
+export function formatBandRange(range: { min: PriceBand; max: PriceBand }): string {
+  return range.min === range.max ? range.min : `${range.min} to ${range.max}`;
+}
+/** The widest per-person range across a venue's spaces, when any prices that way. */
+export function venuePerPerson(venue: Pick<EventVenue, 'spaces'>): { min: number; max?: number } | undefined {
+  const ranges = venue.spaces.map((s) => perPersonRange(s)).filter((r): r is NonNullable<typeof r> => Boolean(r));
+  if (!ranges.length) return undefined;
+  const min = Math.min(...ranges.map((r) => r.min));
+  const tops = ranges.map((r) => r.max ?? r.min);
+  const max = Math.max(...tops);
+  return { min, max: max > min ? max : undefined };
 }
 
 export function spaceChips(space: EventSpace): string[] {

@@ -81,6 +81,7 @@ export default async function AdminHomePage() {
             <Link href="/admin/places/canonical" className="text-navy hover:text-clay">Approve places</Link>
             <Link href="/admin/places" className="text-navy hover:text-clay">Discovery</Link>
             <Link href="/admin/sources" className="text-navy hover:text-clay">Sources</Link>
+            <Link href="/admin/events" className="text-navy hover:text-clay">Private events venues</Link>
             <a href="/api/data-platform-status" className="text-navy hover:text-clay">Status JSON</a>
           </div>
         </div>

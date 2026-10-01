@@ -1,5 +1,5 @@
 import { getSupabaseServiceClient } from '@/lib/supabase/server';
-import type { EventMedia, EventSpace, EventVenue, KeyDate } from './types';
+import type { EventMedia, EventPackage, EventSpace, EventVenue, KeyDate, SpaceAvailability } from './types';
 
 /**
  * Server-side reads for the private events marketplace.
@@ -18,6 +18,34 @@ export function showUnpublished(): boolean {
 }
 
 type VenueRow = Record<string, unknown>;
+
+/**
+ * Local builds without a service role can read a synthetic fixture
+ * (`EVENTS_FIXTURE_FILE`, a JSON file shaped like the rows; see
+ * tests/fixtures/events-venues.json) so the pages render for browser
+ * checks. Never consulted in production, and never when Supabase is
+ * configured.
+ */
+interface Fixture {
+  venues: VenueRow[];
+  spaces: VenueRow[];
+  availability?: VenueRow[];
+}
+let fixtureCache: Fixture | null | undefined;
+function fixture(): Fixture | null {
+  if (fixtureCache !== undefined) return fixtureCache;
+  fixtureCache = null;
+  const file = process.env.EVENTS_FIXTURE_FILE;
+  if (!file || !showUnpublished() || getSupabaseServiceClient()) return null;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const fs = require('node:fs') as typeof import('node:fs');
+    fixtureCache = JSON.parse(fs.readFileSync(file, 'utf8')) as Fixture;
+  } catch {
+    fixtureCache = null;
+  }
+  return fixtureCache;
+}
 
 function num(v: unknown): number | undefined {
   return typeof v === 'number' && Number.isFinite(v) ? v : typeof v === 'string' && v.trim() && Number.isFinite(Number(v)) ? Number(v) : undefined;
@@ -40,6 +68,7 @@ function mapSpace(r: VenueRow): EventSpace {
     minSpendCents: num(r.min_spend_cents),
     roomFeeCents: num(r.room_fee_cents),
     perPersonCents: num(r.per_person_cents),
+    perPersonMaxCents: num(r.per_person_max_cents),
     buyoutFromCents: num(r.buyout_from_cents),
     fbMinimumCents: num(r.fb_minimum_cents),
     pricingNote: str(r.pricing_note),
@@ -52,6 +81,11 @@ function mapSpace(r: VenueRow): EventSpace {
     blackoutNote: str(r.blackout_note),
     sortOrder: num(r.sort_order) ?? 0,
     published: Boolean(r.published),
+    cocktailCapacity: num(r.cocktail_capacity),
+    banquetCapacity: num(r.banquet_capacity),
+    theaterCapacity: num(r.theater_capacity),
+    classroomCapacity: num(r.classroom_capacity),
+    boardroomCapacity: num(r.boardroom_capacity),
   };
 }
 
@@ -75,11 +109,28 @@ function mapVenue(r: VenueRow, spaces: EventSpace[], withContacts: boolean): Eve
     published: 'published' in r ? Boolean(r.published) : true,
     featuredUntil: str(r.featured_until),
     editorialPriority: num(r.editorial_priority) ?? 0,
+    tourUrl: str(r.tour_url),
+    hoursNote: str(r.hours_note),
+    features: Array.isArray(r.features) ? (r.features as unknown[]).map(String) : [],
+    terms: {
+      depositTerms: str(r.deposit_terms),
+      cancellationTerms: str(r.cancellation_terms),
+      gratuityNote: str(r.gratuity_note),
+      minimumNotice: str(r.minimum_notice),
+      outsideCatering: str(r.outside_catering),
+      noiseCurfew: str(r.noise_curfew),
+      insuranceNote: str(r.insurance_note),
+      parkingNote: str(r.parking_note),
+      transitNote: str(r.transit_note),
+    },
+    verifiedAt: str(r.verified_at),
     spaces: spaces.filter((s) => s.venueId === String(r.id)).sort((a, b) => a.sortOrder - b.sortOrder),
     ...(withContacts
       ? {
           leadSystem: (r.lead_system as EventVenue['leadSystem']) ?? 'email',
           feePct: num(r.fee_pct) ?? 5,
+          approvedAt: str(r.approved_at),
+          publishRequestedAt: str(r.publish_requested_at),
           salesContactName: str(r.sales_contact_name),
           salesContactEmail: str(r.sales_contact_email),
           salesContactPhone: str(r.sales_contact_phone),
@@ -90,17 +141,24 @@ function mapVenue(r: VenueRow, spaces: EventSpace[], withContacts: boolean): Eve
 }
 
 /** Columns of the `event_venues_public` view, the anon surface. */
-const VIEW_COLUMNS = 'id,slug,name,kind,neighborhood_slug,address,lat,lng,summary,description,website,owned_by_bph,place_id,sla_hours,featured_until,editorial_priority';
+const VIEW_COLUMNS = 'id,slug,name,kind,neighborhood_slug,address,lat,lng,summary,description,website,owned_by_bph,place_id,sla_hours,featured_until,editorial_priority,tour_url,hours_note,features,deposit_terms,cancellation_terms,gratuity_note,minimum_notice,outside_catering,noise_curfew,insurance_note,parking_note,transit_note,verified_at';
 /** Base-table columns for preview reads: the view's columns plus `published`. */
 const PREVIEW_COLUMNS = `${VIEW_COLUMNS},published`;
 /** Base-table columns for routing: everything the marketplace needs to reach and pay a venue. */
-const CONTACT_COLUMNS = `${PREVIEW_COLUMNS},lead_system,fee_pct,sales_contact_name,sales_contact_email,sales_contact_phone,lead_system_endpoint`;
+const CONTACT_COLUMNS = `${PREVIEW_COLUMNS},lead_system,fee_pct,approved_at,publish_requested_at,sales_contact_name,sales_contact_email,sales_contact_phone,lead_system_endpoint`;
 
 export async function listVenues(opts: { includeUnpublished?: boolean; withContacts?: boolean; ids?: string[]; slugs?: string[] } = {}): Promise<EventVenue[]> {
   const supabase = getSupabaseServiceClient();
-  if (!supabase) return [];
   const includeUnpublished = opts.includeUnpublished ?? showUnpublished();
   const withContacts = Boolean(opts.withContacts);
+  if (!supabase) {
+    const fx = fixture();
+    if (!fx || withContacts) return [];
+    const spaces = fx.spaces.map(mapSpace).filter((s) => includeUnpublished || s.published);
+    return fx.venues
+      .filter((v) => (includeUnpublished || v.published) && (!opts.slugs?.length || opts.slugs.includes(String(v.slug))) && (!opts.ids?.length || opts.ids.includes(String(v.id))))
+      .map((v) => mapVenue(v, spaces, false));
+  }
   const fromBase = withContacts || includeUnpublished;
   let q = supabase
     .from(fromBase ? 'event_venues' : 'event_venues_public')
@@ -128,8 +186,77 @@ export async function getVenueBySlug(slug: string, opts: { withContacts?: boolea
 export async function listMedia(venueId: string): Promise<EventMedia[]> {
   const supabase = getSupabaseServiceClient();
   if (!supabase) return [];
-  const { data } = await supabase.from('event_media').select('id,venue_id,space_id,url,alt,credit,sort_order').eq('venue_id', venueId).eq('rights_cleared', true).order('sort_order');
-  return (data ?? []).map((r) => ({ id: String(r.id), venueId: String(r.venue_id), spaceId: str(r.space_id), url: String(r.url), alt: String(r.alt ?? ''), credit: str(r.credit), sortOrder: num(r.sort_order) ?? 0 }));
+  const { data } = await supabase.from('event_media').select('id,venue_id,space_id,url,alt,credit,sort_order,kind,floor_label').eq('venue_id', venueId).eq('rights_cleared', true).order('sort_order');
+  return (data ?? []).map((r) => ({ id: String(r.id), venueId: String(r.venue_id), spaceId: str(r.space_id), url: String(r.url), alt: String(r.alt ?? ''), credit: str(r.credit), sortOrder: num(r.sort_order) ?? 0, kind: (str(r.kind) as EventMedia['kind']) ?? 'photo', floorLabel: str(r.floor_label) }));
+}
+
+/**
+ * Availability rows for the given venues from `fromMonth` (YYYY-MM) for
+ * `months` months, day overrides included. Published spaces only unless the
+ * preview gate is open.
+ */
+export async function listAvailability(venueIds: string[], fromMonth: string, months = 3, opts: { includeUnpublished?: boolean } = {}): Promise<SpaceAvailability[]> {
+  const supabase = getSupabaseServiceClient();
+  if (!venueIds.length) return [];
+  if (!supabase) {
+    return (fixture()?.availability ?? [])
+      .filter((r) => venueIds.includes(String(r.venue_id)))
+      .map((r) => ({ spaceId: String(r.space_id), venueId: String(r.venue_id), month: r.month ? String(r.month).slice(0, 7) : undefined, day: r.day ? String(r.day).slice(0, 10) : undefined, status: r.status as SpaceAvailability['status'], note: str(r.note) }));
+  }
+  const [y, m] = fromMonth.split('-').map(Number);
+  const start = new Date(Date.UTC(y, m - 1, 1)).toISOString().slice(0, 10);
+  const end = new Date(Date.UTC(y, m - 1 + months, 1)).toISOString().slice(0, 10);
+  const { data } = await supabase
+    .from('event_availability')
+    .select('space_id,venue_id,month,day,status,note')
+    .in('venue_id', venueIds)
+    .or(`and(month.gte.${start},month.lt.${end}),and(day.gte.${start},day.lt.${end})`);
+  const includeUnpublished = opts.includeUnpublished ?? showUnpublished();
+  let rows = data ?? [];
+  if (!includeUnpublished) {
+    const { data: published } = await supabase.from('event_spaces').select('id').in('venue_id', venueIds).eq('published', true);
+    const ok = new Set((published ?? []).map((r) => String(r.id)));
+    rows = rows.filter((r) => ok.has(String(r.space_id)));
+  }
+  return rows.map((r) => ({
+    spaceId: String(r.space_id),
+    venueId: String(r.venue_id),
+    month: r.month ? String(r.month).slice(0, 7) : undefined,
+    day: r.day ? String(r.day).slice(0, 10) : undefined,
+    status: r.status as SpaceAvailability['status'],
+    note: str(r.note),
+  }));
+}
+
+export function mapPackage(r: VenueRow): EventPackage {
+  return {
+    id: String(r.id),
+    venueId: String(r.venue_id),
+    spaceId: str(r.space_id),
+    slug: String(r.slug),
+    name: String(r.name),
+    summary: str(r.summary),
+    forOccasions: Array.isArray(r.for_occasions) ? (r.for_occasions as unknown[]).map(String) : [],
+    minGuests: num(r.min_guests),
+    maxGuests: num(r.max_guests),
+    priceCents: num(r.price_cents) ?? 0,
+    priceBasis: r.price_basis === 'per_person' ? 'per_person' : 'total',
+    includes: Array.isArray(r.includes) ? (r.includes as unknown[]).map(String) : [],
+    depositNote: str(r.deposit_note),
+    bookUrl: str(r.book_url),
+    sortOrder: num(r.sort_order) ?? 0,
+    published: Boolean(r.published),
+  };
+}
+
+/** Published packages for a venue (every package in preview builds). */
+export async function listPackages(venueId: string): Promise<EventPackage[]> {
+  const supabase = getSupabaseServiceClient();
+  if (!supabase) return [];
+  let q = supabase.from('event_packages').select('*').eq('venue_id', venueId).order('sort_order');
+  if (!showUnpublished()) q = q.eq('published', true);
+  const { data } = await q;
+  return (data ?? []).map((r) => mapPackage(r as VenueRow));
 }
 
 export async function listKeyDates(opts: { from?: string; limit?: number } = {}): Promise<KeyDate[]> {

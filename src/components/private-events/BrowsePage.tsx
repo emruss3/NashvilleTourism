@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Breadcrumbs } from '@/components/Ui';
 import type { EventVenue } from '@/lib/events/types';
-import { briefHref, withShortlist } from '@/lib/private-events';
+import { REPLY_PROMISE_SHORT, briefHref, withShortlist } from '@/lib/private-events';
 import EventsDisclosure from './EventsDisclosure';
 import ShortlistBar from './Shortlist';
 import { VenueGrid } from './VenueCard';
@@ -66,7 +66,7 @@ export default function BrowsePage({
         <div className="grid gap-4 rounded-card border-2 border-ink bg-paper p-5 sm:grid-cols-[1fr_auto] sm:items-center">
           <div>
             <h2 className="font-display text-[1.5rem] font-extrabold tracking-[-0.03em]">Send one brief to up to five venues.</h2>
-            <p className="mt-1 text-[15px] text-ink-soft">They reply within 24 business hours. You confirm with the venue.</p>
+            <p className="mt-1 text-[15px] text-ink-soft">{REPLY_PROMISE_SHORT} You confirm with the venue.</p>
           </div>
           <Link href={briefHref({ shortlist })} className="btn-primary">
             Start a brief

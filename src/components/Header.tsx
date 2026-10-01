@@ -92,6 +92,12 @@ export default function Header() {
     setOpen(false);
   }, [pathname]);
 
+  // Private events pages open on the compact single row with "Plan an event"
+  // as the boxed action; the two-row masthead and its scroll-away bar are
+  // for every other page and keep their behavior there.
+  const eventsPage = pathname.startsWith('/private-events');
+  const cta = eventsPage ? { label: 'Plan an event', href: '/private-events/#plan' } : planNav;
+
   const linkClass = (active: boolean, compact: boolean) =>
     `inline-flex items-center whitespace-nowrap border-b-2 font-sans font-semibold text-ink transition-colors ${
       compact ? 'min-h-11 px-2.5 text-[14px]' : 'min-h-16 px-2 text-[17px]'
@@ -114,42 +120,61 @@ export default function Header() {
 
   return (
     <header>
-      {/* Desktop masthead: lockup and utilities on cream, then the flat navigation row */}
-      <div ref={mastheadRef} className="hidden lg:block">
-        <div className="bg-paper-sunk">
-          <div className="shell flex items-center justify-between gap-6 py-5">
-            <Wordmark width={220} />
-            <div className="flex items-center gap-4">
-              <TripLink active={isActive(tripNav.href)} />
-              <PlanBox active={isActive(planNav.href)} />
-              <BagLink />
-            </div>
+      {eventsPage ? (
+        /* Private events: the compact row from the start, sticky, no masthead above it. */
+        <div className="sticky top-0 z-50 hidden border-b border-paper-edge bg-paper-sunk/95 backdrop-blur lg:block">
+          <div className="shell flex h-14 items-center gap-6">
+            <Link href="/" aria-label={`${site.name} home`} className="inline-flex shrink-0">
+              <NsvlMark width={96} decorative />
+            </Link>
+            <nav aria-label="Primary" className="min-w-0 flex-1">
+              {navRow(true, true)}
+            </nav>
+            <TripLink active={isActive(tripNav.href)} compact />
+            <PlanBox active={false} compact cta={cta} />
+            <BagLink />
           </div>
         </div>
-        <nav aria-label="Primary" className="border-t border-ink/15 bg-paper-sunk">
-          <div className="shell">{navRow(false, true)}</div>
-        </nav>
-      </div>
+      ) : (
+        <>
+          {/* Desktop masthead: lockup and utilities on cream, then the flat navigation row */}
+          <div ref={mastheadRef} className="hidden lg:block">
+            <div className="bg-paper-sunk">
+              <div className="shell flex items-center justify-between gap-6 py-5">
+                <Wordmark width={220} />
+                <div className="flex items-center gap-4">
+                  <TripLink active={isActive(tripNav.href)} />
+                  <PlanBox active={isActive(planNav.href)} />
+                  <BagLink />
+                </div>
+              </div>
+            </div>
+            <nav aria-label="Primary" className="border-t border-ink/15 bg-paper-sunk">
+              <div className="shell">{navRow(false, true)}</div>
+            </nav>
+          </div>
 
-      {/* Desktop condensed bar, visible only after the masthead scrolls away */}
-      <div
-        className={`fixed inset-x-0 top-0 z-50 hidden border-b border-paper-edge bg-paper-sunk/95 backdrop-blur transition-transform lg:block ${
-          condensed ? 'translate-y-0' : 'pointer-events-none invisible -translate-y-full'
-        }`}
-        aria-hidden={!condensed}
-      >
-        <div className="shell flex h-14 items-center gap-6">
-          <Link href="/" aria-label={`${site.name} home`} className="inline-flex shrink-0" tabIndex={condensed ? 0 : -1}>
-            <NsvlMark width={96} decorative />
-          </Link>
-          <nav aria-label="Primary, condensed" className="min-w-0 flex-1">
-            {navRow(true, condensed)}
-          </nav>
-          <TripLink active={isActive(tripNav.href)} compact tabbable={condensed} />
-          <PlanBox active={isActive(planNav.href)} compact tabbable={condensed} />
-          <BagLink tabbable={condensed} />
-        </div>
-      </div>
+          {/* Desktop condensed bar, visible only after the masthead scrolls away */}
+          <div
+            className={`fixed inset-x-0 top-0 z-50 hidden border-b border-paper-edge bg-paper-sunk/95 backdrop-blur transition-transform lg:block ${
+              condensed ? 'translate-y-0' : 'pointer-events-none invisible -translate-y-full'
+            }`}
+            aria-hidden={!condensed}
+          >
+            <div className="shell flex h-14 items-center gap-6">
+              <Link href="/" aria-label={`${site.name} home`} className="inline-flex shrink-0" tabIndex={condensed ? 0 : -1}>
+                <NsvlMark width={96} decorative />
+              </Link>
+              <nav aria-label="Primary, condensed" className="min-w-0 flex-1">
+                {navRow(true, condensed)}
+              </nav>
+              <TripLink active={isActive(tripNav.href)} compact tabbable={condensed} />
+              <PlanBox active={isActive(planNav.href)} compact tabbable={condensed} />
+              <BagLink tabbable={condensed} />
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Phone and tablet header: 64px, menu + mark */}
       <div className="sticky top-0 z-50 bg-paper-sunk/95 backdrop-blur lg:hidden">
@@ -169,6 +194,11 @@ export default function Header() {
           <div className="flex min-w-0 flex-1 justify-center">
             <Wordmark width={140} />
           </div>
+          {eventsPage ? (
+            <Link href={cta.href} className="inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded border border-ink bg-ink px-3 font-sans text-[13px] font-semibold text-paper">
+              {cta.label}
+            </Link>
+          ) : null}
           <BagLink />
         </div>
 
@@ -185,7 +215,7 @@ export default function Header() {
             >
               <nav aria-label="Menu" className="shell py-3">
                 <ul className="divide-y divide-paper-edge">
-                  {[...primaryNav, tripNav, planNav].map((item) => {
+                  {[...primaryNav, tripNav, cta].map((item) => {
                     const active = isActive(item.href);
                     return (
                       <li key={item.href}>
@@ -245,18 +275,18 @@ function TripLink({ active, compact = false, tabbable = true }: { active: boolea
   );
 }
 
-/** Boxed "Plan your trip" call to action in the top-right utilities. */
-function PlanBox({ active, compact = false, tabbable = true }: { active: boolean; compact?: boolean; tabbable?: boolean }) {
+/** Boxed call to action in the top-right utilities: "Plan your trip", or the page family's own action. */
+function PlanBox({ active, compact = false, tabbable = true, cta = planNav }: { active: boolean; compact?: boolean; tabbable?: boolean; cta?: { label: string; href: string } }) {
   return (
     <Link
-      href={planNav.href}
+      href={cta.href}
       aria-current={active ? 'page' : undefined}
       className={`inline-flex items-center justify-center whitespace-nowrap rounded border font-sans font-semibold transition-colors ${
         compact ? 'h-9 px-3.5 text-[13px]' : 'h-11 px-4 text-[15px]'
       } ${active ? 'border-ink bg-paper text-ink' : 'border-ink bg-ink text-paper hover:bg-navy-deep'}`}
       tabIndex={tabbable ? 0 : -1}
     >
-      {planNav.label}
+      {cta.label}
     </Link>
   );
 }
