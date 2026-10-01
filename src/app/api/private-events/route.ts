@@ -1,3 +1,4 @@
+import { inquiryDeliveryEnabled } from '@/lib/events/delivery';
 import { submitInquiry, type IntakeInput } from '@/lib/events/intake';
 import type { Need, Occasion } from '@/lib/events/types';
 import { isBudgetRange, isEventType } from '@/lib/private-events';
@@ -101,6 +102,11 @@ export async function POST(req: Request) {
   if (budget && !isBudgetRange(budget)) errors.budget = 'Choose a budget range.';
   if (startTimeBand && !START_BANDS.has(startTimeBand)) errors.startTimeBand = 'Choose a start time.';
   if (Object.keys(errors).length) return Response.json({ ok: false, error: 'validation', errors }, { status: 400 });
+
+  // Private preview (every non-production build, or delivery switched off):
+  // the brief is validated and acknowledged as not sent. Nothing is stored,
+  // no venue, lead system or inbox is contacted. See src/lib/events/delivery.ts.
+  if (!inquiryDeliveryEnabled()) return Response.json({ ok: true, preview: true, delivered: false, id: null, reference: null, venues: [], warnings: ['delivery off: preview build'] });
 
   const needHotelRooms = body.needHotelRooms === true || needs.includes('rooms');
   const input: IntakeInput = {

@@ -19,6 +19,34 @@ export function showUnpublished(): boolean {
 
 type VenueRow = Record<string, unknown>;
 
+/**
+ * Local builds without a service role can read a synthetic fixture
+ * (`EVENTS_FIXTURE_FILE`, a JSON file shaped like the rows; see
+ * tests/fixtures/events-venues.json) so the pages render for browser
+ * checks. Never consulted in production, and never when Supabase is
+ * configured.
+ */
+interface Fixture {
+  venues: VenueRow[];
+  spaces: VenueRow[];
+  availability?: VenueRow[];
+}
+let fixtureCache: Fixture | null | undefined;
+function fixture(): Fixture | null {
+  if (fixtureCache !== undefined) return fixtureCache;
+  fixtureCache = null;
+  const file = process.env.EVENTS_FIXTURE_FILE;
+  if (!file || !showUnpublished() || getSupabaseServiceClient()) return null;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const fs = require('node:fs') as typeof import('node:fs');
+    fixtureCache = JSON.parse(fs.readFileSync(file, 'utf8')) as Fixture;
+  } catch {
+    fixtureCache = null;
+  }
+  return fixtureCache;
+}
+
 function num(v: unknown): number | undefined {
   return typeof v === 'number' && Number.isFinite(v) ? v : typeof v === 'string' && v.trim() && Number.isFinite(Number(v)) ? Number(v) : undefined;
 }
@@ -121,9 +149,16 @@ const CONTACT_COLUMNS = `${PREVIEW_COLUMNS},lead_system,fee_pct,approved_at,publ
 
 export async function listVenues(opts: { includeUnpublished?: boolean; withContacts?: boolean; ids?: string[]; slugs?: string[] } = {}): Promise<EventVenue[]> {
   const supabase = getSupabaseServiceClient();
-  if (!supabase) return [];
   const includeUnpublished = opts.includeUnpublished ?? showUnpublished();
   const withContacts = Boolean(opts.withContacts);
+  if (!supabase) {
+    const fx = fixture();
+    if (!fx || withContacts) return [];
+    const spaces = fx.spaces.map(mapSpace).filter((s) => includeUnpublished || s.published);
+    return fx.venues
+      .filter((v) => (includeUnpublished || v.published) && (!opts.slugs?.length || opts.slugs.includes(String(v.slug))) && (!opts.ids?.length || opts.ids.includes(String(v.id))))
+      .map((v) => mapVenue(v, spaces, false));
+  }
   const fromBase = withContacts || includeUnpublished;
   let q = supabase
     .from(fromBase ? 'event_venues' : 'event_venues_public')
@@ -162,7 +197,12 @@ export async function listMedia(venueId: string): Promise<EventMedia[]> {
  */
 export async function listAvailability(venueIds: string[], fromMonth: string, months = 3, opts: { includeUnpublished?: boolean } = {}): Promise<SpaceAvailability[]> {
   const supabase = getSupabaseServiceClient();
-  if (!supabase || !venueIds.length) return [];
+  if (!venueIds.length) return [];
+  if (!supabase) {
+    return (fixture()?.availability ?? [])
+      .filter((r) => venueIds.includes(String(r.venue_id)))
+      .map((r) => ({ spaceId: String(r.space_id), venueId: String(r.venue_id), month: r.month ? String(r.month).slice(0, 7) : undefined, day: r.day ? String(r.day).slice(0, 10) : undefined, status: r.status as SpaceAvailability['status'], note: str(r.note) }));
+  }
   const [y, m] = fromMonth.split('-').map(Number);
   const start = new Date(Date.UTC(y, m - 1, 1)).toISOString().slice(0, 10);
   const end = new Date(Date.UTC(y, m - 1 + months, 1)).toISOString().slice(0, 10);

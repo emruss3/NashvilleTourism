@@ -26,7 +26,7 @@ export const BUDGET_RANGES = [
   { value: '$$$', label: '$$$ · $5,000 to $10,000' },
   { value: '$$$$', label: '$$$$ · $10,000 to $25,000' },
   { value: '$$$$$', label: '$$$$$ · $25,000 and up' },
-  { value: 'undecided', label: 'Not sure yet' },
+  { value: 'undecided', label: 'Need guidance' },
 ] as const;
 export type BudgetRange = (typeof BUDGET_RANGES)[number]['value'];
 
@@ -138,14 +138,23 @@ export const VENUE_KIND_LABEL: Record<EventVenue['kind'], string> = {
   other: 'Venue',
 };
 
-/** How it works, in the order it happens. The last line is the disclosure in one sentence. */
+/**
+ * The reply promise, stated the way the SLA watchdog measures it
+ * (src/lib/events/sla.ts): each venue's `sla_hours` (24 for every listed
+ * venue today) counted in business hours, Monday to Friday 9am to 6pm
+ * Nashville time, with the desk alerted the hour a deadline passes.
+ */
+export const REPLY_PROMISE = 'Each venue replies within 24 business hours, counted Monday to Friday, 9am to 6pm Nashville time. A brief sent on a Friday afternoon has its replies by Wednesday noon, and the events desk is alerted the hour a venue runs late.';
+export const REPLY_PROMISE_SHORT = 'Replies within 24 business hours (Mon to Fri, 9am to 6pm Nashville time).';
+
+/** How it works, in three steps. The disclosure sits beside it in one sentence. */
 export const HOW_IT_WORKS = [
-  { title: 'Send one brief', body: 'Occasion, headcount, date, budget and what you need. Two minutes.' },
-  { title: 'Up to five venues get it', body: 'Your shortlist, or venues we pick for fit: capacity, minimum spend, neighborhood.' },
-  { title: 'They reply within 24 business hours', body: 'Every listed venue has promised that. We chase the ones that miss it.' },
-  { title: 'You confirm with the venue', body: 'Contract, deposit and the event itself are between you and the venue.' },
+  { title: 'Share your brief', body: 'Event type, headcount, date, time of day, budget and what matters most. A few minutes, and you review it before it goes anywhere.' },
+  { title: 'Receive suitable options', body: `Your shortlist, or up to five venues matched on capacity, price band, area and needs. ${REPLY_PROMISE_SHORT}` },
+  { title: 'Confirm with the venue', body: 'Contract, deposit and the event itself are between you and the venue. Nothing is booked until you say so.' },
 ];
 export const PAID_BY_VENUE = 'Nashville.com is paid by the venue only if you book. That never changes which venues we suggest or the order we show them in.';
+export const NO_PLANNING_FEE = 'No planning fee to you. The venue pays Nashville.com only if your event books.';
 
 /** Owned-venue disclosure, used verbatim wherever an owned venue is shown in full. */
 export const OWNED_VENUE_DISCLOSURE = "Owned by BPH Hospitality, Nashville.com's parent company. Listed on the same terms as every other venue here.";
@@ -180,6 +189,11 @@ export interface BriefPrefill {
   guests?: number;
   date?: string;
   flexible?: boolean;
+  /** Finder selections (src/lib/events/finder.ts): event type, size band, area slug or `any`, priorities. */
+  event?: string;
+  size?: string;
+  area?: string;
+  priorities?: string[];
 }
 
 /** The planner's countdown page for a sent brief. */
@@ -224,10 +238,18 @@ export function readBriefParams(params: Params): BriefParams {
   };
 }
 
-/** Link to the brief page carrying whatever state the caller has. */
-export function briefHref(input: { occasion?: string; guests?: number | string; date?: string; flexible?: boolean; shortlist?: string[]; venue?: string } = {}): string {
+/**
+ * Link to the brief page carrying whatever state the caller has, including
+ * the finder's selections (`event`, `size`, `area`, `pri`; see
+ * src/lib/events/finder.ts) so nothing a planner chose is asked twice.
+ */
+export function briefHref(input: { occasion?: string; guests?: number | string; date?: string; flexible?: boolean; shortlist?: string[]; venue?: string; event?: string; size?: string; area?: string; priorities?: string[] } = {}): string {
   const sp = new URLSearchParams();
   if (input.occasion) sp.set('occasion', input.occasion);
+  if (input.event) sp.set('event', input.event);
+  if (input.size) sp.set('size', input.size);
+  if (input.area) sp.set('area', input.area);
+  if (input.priorities?.length) sp.set('pri', input.priorities.join(','));
   if (input.guests !== undefined && input.guests !== '' && Number(input.guests) > 0) sp.set('guests', String(input.guests));
   if (input.date) sp.set('date', input.date);
   if (input.flexible) sp.set('flexible', '1');

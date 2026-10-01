@@ -32,6 +32,7 @@ export const ANALYTICS_EVENTS = {
   EVENTS_VENUE_VIEWED: 'events_venue_viewed',
   EVENTS_SHORTLIST_ADDED: 'events_shortlist_added',
   EVENTS_PACKAGE_CLICKED: 'events_package_clicked',
+  EVENTS_FINDER_RECOMMENDED: 'events_finder_recommended',
   SPONSOR_CLICKED: 'sponsor_clicked',
   MAP_OPENED: 'map_opened',
   PHONE_CLICKED: 'phone_clicked',
