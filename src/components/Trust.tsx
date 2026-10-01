@@ -65,7 +65,7 @@ export function VerificationBadge({
  * Paid-placement label. Never styled to blend into editorial content.
  */
 export function PlacementLabel({ placement, sponsorName }: { placement: PlacementType; sponsorName?: string }) {
-  // "Affiliate" is a legacy value from the Booking.com era; hotels now book on
+  // "Affiliate" is a legacy value from the old hand-off era; hotels now book on
   // our own site and the stay disclosure says so, so the label is not shown.
   if (placement === 'editorial' || placement === 'affiliate') return null;
 
