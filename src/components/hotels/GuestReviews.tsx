@@ -105,7 +105,7 @@ export default function GuestReviews({
 
       {data.reviews.length ? (
         <>
-          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter reviews by traveller type">
+          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter reviews by traveler type">
             {(
               [
                 ['all', `All (${data.reviews.length})`],

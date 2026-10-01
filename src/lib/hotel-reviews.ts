@@ -48,7 +48,7 @@ const TYPES = new Set<string>(['family', 'couple', 'solo', 'friends', 'group', '
 export const TRAVELLER_LABEL: Record<TravellerType, string> = {
   family: 'Family',
   couple: 'Couple',
-  solo: 'Solo traveller',
+  solo: 'Solo traveler',
   friends: 'Friends',
   group: 'Group',
   business: 'Business trip',

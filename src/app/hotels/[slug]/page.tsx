@@ -192,7 +192,7 @@ export default async function HotelPage(props: { params: Promise<{ slug: string 
                 <dd className="text-ink">{h.hasPool ? 'Yes' : 'No'}</dd>
               </div>
               <div>
-                <dt className="text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">Fitness centre</dt>
+                <dt className="text-2xs font-semibold uppercase tracking-[0.14em] text-ink-soft">Fitness center</dt>
                 <dd className="text-ink">{h.hasFitness ? 'Yes' : 'No'}</dd>
               </div>
             </dl>

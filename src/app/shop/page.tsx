@@ -109,7 +109,7 @@ export default async function ShopPage(props: { searchParams?: Promise<Params> }
           <h2 id="collection-title" className="text-[1.625rem] sm:text-[2rem]">
             {category === 'all' ? 'The first three.' : CATEGORIES.find((c) => c.value === category)?.label}
           </h2>
-          <p className="text-[15px] text-ink-soft">Prices, sizes and colours appear once the store is connected. No made-up prices, no countdowns.</p>
+          <p className="text-[15px] text-ink-soft">Prices, sizes and colors appear once the store is connected. No made-up prices, no countdowns.</p>
         </div>
 
         {products.length === 0 ? (
@@ -168,11 +168,11 @@ export default async function ShopPage(props: { searchParams?: Promise<Params> }
             <h2 id="story-title" className="mt-1 text-[2rem] text-paper sm:text-[2.5rem] lg:text-[3rem]">
               Made to go with you.
             </h2>
-            <p className="mt-3 max-w-md text-[16px] text-paper/80">Two colours, one mark, descriptive names. Everything else is left to the garment.</p>
+            <p className="mt-3 max-w-md text-[16px] text-paper/80">Two colors, one mark, descriptive names. Everything else is left to the garment.</p>
             <dl className="mt-6 grid gap-5 sm:grid-cols-3">
               {[
-                ['Two colours', 'Paper White and Charcoal Ink, inside and out, down to the woven label.'],
-                ['Embroidered mark', 'Cap front 55–65mm. Tee left chest 70–90mm or centred chest 220–280mm.'],
+                ["Two colors", 'Paper White and Charcoal Ink, inside and out, down to the woven label.'],
+                ['Embroidered mark', 'Cap front 55–65mm. Tee left chest 70–90mm or centered chest 220–280mm.'],
                 ['Honest names', 'No fake collaborations, no fake scarcity, no unverified bestseller tags.'],
               ].map(([term, detail]) => (
                 <div key={term} className="border-t border-paper/25 pt-3">
