@@ -93,7 +93,8 @@ export interface RoomGroup {
   size?: string;
   amenities: string[];
   photos: { url: string; caption?: string }[];
-  photosSource: 'matched' | 'hotel' | 'none';
+  /** matched: the catalog room; similar: a catalog room of the same bed or kind; hotel: the hotel gallery. */
+  photosSource: 'matched' | 'similar' | 'hotel' | 'none';
   cheapest: RoomRate;
   /** Cheapest rate per (board, refundable) kind, cheapest first; the card's option lines. */
   variants: RoomRate[];
@@ -109,7 +110,9 @@ export interface RoomGroup {
  * {classic, king}.
  */
 const STOP = new Set(['room', 'rooms', 'guest', 'guestroom', 'bed', 'beds', 'with', 'the', 'and', 'a', 'an', 'of', 'in', 'or', 'to', 'for', 'non', 'smoking', 'nonsmoking', '1', 'one', 'size', 'sized', 'type']);
-const SYNONYM: Record<string, string> = { two: '2', queens: 'queen', kings: 'king', doubles: 'double', twins: 'twin', accessibility: 'accessible', ada: 'accessible' };
+const SYNONYM: Record<string, string> = { two: '2', queens: 'queen', kings: 'king', doubles: 'double', twins: 'twin', views: 'view', accessibility: 'accessible', ada: 'accessible' };
+/** Bed and room-kind words: a room that shares one of these with a catalog room is at least similar. */
+const KIND = new Set(['king', 'queen', 'double', 'twin', 'suite', 'studio', 'penthouse', 'loft', 'apartment', 'villa']);
 /** Tokens that make a different room; a match must agree on every one of these. */
 const DISTINCT = new Set(['accessible', 'suite', 'corner', 'view', 'skyline', 'terrace', 'balcony', 'penthouse', 'studio', 'connecting', 'apartment', 'villa', 'loft']);
 
@@ -161,6 +164,29 @@ export function matchCatalogRoom(name: string, rooms: CatalogRoom[]): CatalogRoo
     const score = jaccard(tokens, rt);
     const extra = rt.length - tokens.length;
     if (score >= 0.5 && (!best || score > best.score || (score === best.score && extra < best.extra))) best = { room, score, extra };
+  }
+  return best?.room;
+}
+
+/**
+ * When no catalog room matches, the nearest room of the same bed or kind
+ * (king, queen, suite…) that agrees on the distinguishing words and has
+ * photos, fewest extra words first. Its photos are shown as "similar room",
+ * never as the room itself.
+ */
+export function similarCatalogRoom(name: string, rooms: CatalogRoom[]): CatalogRoom | undefined {
+  const tokens = nameTokens(name);
+  const kinds = tokens.filter((t) => KIND.has(t));
+  if (!kinds.length) return undefined;
+  let best: { room: CatalogRoom; shared: number; extra: number } | undefined;
+  for (const room of rooms) {
+    if (!room.photos.length) continue;
+    const rt = nameTokens(room.name);
+    if (!distinctAgree(tokens, rt)) continue;
+    const shared = kinds.filter((k) => rt.includes(k)).length;
+    if (!shared) continue;
+    const extra = rt.filter((t) => !tokens.includes(t)).length;
+    if (!best || shared > best.shared || (shared === best.shared && extra < best.extra)) best = { room, shared, extra };
   }
   return best?.room;
 }
@@ -224,11 +250,13 @@ export function groupRooms(rates: RoomRate[], detail?: Pick<HotelDetail, 'rooms'
     const variants = [...perKind.values()].sort((a, b) => a.total.amount - b.total.amount);
     let photos: RoomGroup['photos'] = [];
     let photosSource: RoomGroup['photosSource'] = 'none';
-    if (room && room.photos.length) {
-      const offset = matchedUse.get(room) ?? 0;
-      matchedUse.set(room, offset + 1);
-      photos = [...room.photos.slice(offset % room.photos.length), ...room.photos.slice(0, offset % room.photos.length)];
-      photosSource = 'matched';
+    const similar = !room?.photos.length && detail ? similarCatalogRoom(cheapest.roomName, detail.rooms) : undefined;
+    const source = room?.photos.length ? room : similar;
+    if (source && source.photos.length) {
+      const offset = matchedUse.get(source) ?? 0;
+      matchedUse.set(source, offset + 1);
+      photos = [...source.photos.slice(offset % source.photos.length), ...source.photos.slice(0, offset % source.photos.length)];
+      photosSource = room?.photos.length ? 'matched' : 'similar';
     } else if (detail?.images.length) {
       photos = detail.images.slice(0, 3).map((i) => ({ url: i.url, caption: i.caption }));
       photosSource = 'hotel';

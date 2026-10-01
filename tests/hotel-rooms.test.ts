@@ -101,6 +101,14 @@ test('photos: matched catalog photos, rotated when two cards share a room; hotel
   assert.equal(bare[0].photosSource, 'none');
 });
 
+test('with no name match, a room of the same bed kind lends its photos as "similar"', () => {
+  const groups = groupRooms([rate({ roomName: 'Pure Wellness King', total: 500 }), rate({ roomName: 'Run of House', total: 300 })], { rooms: catalog, images: [{ url: 'https://static.cupid.travel/h1.jpg' }] });
+  const king = groups.find((g) => g.name === 'Pure Wellness King')!;
+  assert.equal(king.photosSource, 'similar');
+  assert.equal(king.photos[0].url, 'https://static.cupid.travel/k1.jpg', 'the plain classic king, fewest extra words');
+  assert.equal(groups.find((g) => g.name === 'Run of House')!.photosSource, 'hotel');
+});
+
 test('a provider room mapping beats the name match', () => {
   const rooms: CatalogRoom[] = [{ id: 11, name: 'Skyline Corner One King Bed', bedTypes: [], amenities: [], photos: [{ url: 'https://static.cupid.travel/s1.jpg' }] }, ...catalog];
   const groups = groupRooms([rate({ roomName: 'King Bed', total: 400, mappedRoomId: '11' }), rate({ roomName: 'King Bed', total: 450 })], { rooms, images: [] });

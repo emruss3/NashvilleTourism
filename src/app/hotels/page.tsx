@@ -361,24 +361,35 @@ export default async function HotelsIndex(props: { searchParams?: Promise<Params
   );
 }
 
-function HotelRow({ hotel, stay, rate, datesLabel, testMode }: { hotel: Hotel; stay: { checkin: string; checkout: string; adults?: number }; rate?: LiveHotelRate; datesLabel: string; testMode?: boolean }) {
+function HotelRow({ hotel, stay, rate, datesLabel }: { hotel: Hotel; stay: { checkin: string; checkout: string; adults?: number }; rate?: LiveHotelRate; datesLabel: string; testMode?: boolean }) {
   const booking = hotelBookingHref(hotel, { surface: 'hotel', ...stay });
+  const detailHref = `/hotels/${hotel.slug}/`;
+  const roomsHref = hotel.liteApiHotelId ? hotelRoomsPath({ hotelId: hotel.liteApiHotelId, editorialSlug: hotel.slug, checkin: stay.checkin, checkout: stay.checkout, adults: stay.adults }) : detailHref;
   return (
-    <article className={`grid gap-4 py-5 ${hotel.image ? 'md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-8' : ''}`}>
-      {hotel.image ? (
-        <div className="overflow-hidden rounded-card bg-ink">
-          <ContentImage image={hotel.image} ratio="aspect-[16/9] md:aspect-[4/3]" sizes="(max-width: 767px) 100vw, 40vw" />
-        </div>
-      ) : null}
-      <div className="flex flex-col">
+    <article className="grid gap-3 py-4 md:grid-cols-[220px_minmax(0,1fr)_200px] md:gap-5">
+      {/* Our photo when we have one, else the provider's thumbnail (display only). */}
+      <Link href={detailHref} className="block overflow-hidden rounded-card bg-paper-sunk" aria-label={`${hotel.title}: hotel details`}>
+        {hotel.image ? (
+          <ContentImage image={hotel.image} ratio="aspect-[16/9] md:aspect-[4/3]" sizes="(max-width: 767px) 100vw, 220px" />
+        ) : rate?.thumbnail ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={rate.thumbnail} alt="" className="aspect-[16/9] w-full object-cover md:aspect-[4/3]" loading="lazy" referrerPolicy="no-referrer" />
+        ) : (
+          <div className="flex aspect-[16/9] items-center justify-center text-sm text-ink-soft md:aspect-[4/3]">No photo yet</div>
+        )}
+      </Link>
+      <div className="min-w-0">
         <p className="eyebrow">
           {neighborhoodName(hotel.neighborhood)} · {hotel.priceCategory}
         </p>
-        <h3 className="mt-1 text-[1.5rem] sm:text-[1.75rem]">{hotel.title}</h3>
-        <p className="mt-2 max-w-prose text-[16px] leading-relaxed text-ink">{hotel.summary}</p>
-        <p className="mt-1 max-w-prose text-[15px] text-ink-soft">{hotel.whyWeRecommend}</p>
+        <h3 className="mt-0.5 text-[1.25rem] leading-tight sm:text-[1.4rem]">
+          <Link href={detailHref} className="hover:underline underline-offset-[0.2em]">
+            {hotel.title}
+          </Link>
+        </h3>
+        <p className="mt-1 max-w-prose text-[15px] leading-snug text-ink-soft">{hotel.summary}</p>
         {hotel.amenities.length > 0 ? (
-          <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5">
+          <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
             {hotel.amenities.slice(0, 4).map((a) => (
               <li key={a} className="inline-flex items-center gap-1.5 text-sm text-ink-soft">
                 <span className="text-ink" aria-hidden="true">
@@ -389,29 +400,31 @@ function HotelRow({ hotel, stay, rate, datesLabel, testMode }: { hotel: Hotel; s
             ))}
           </ul>
         ) : null}
-        <LivePrice rate={rate} datesLabel={datesLabel} className="mt-3" />
-        <div className="mt-4 flex flex-wrap items-center gap-3 md:mt-auto md:pt-4">
-          <BookingLink
-            url={booking.url}
-            label={rate ? `See rooms from ${formatNightly(rate.nightly)}` : 'Check rates'}
-            name={hotel.title}
-            slug={hotel.slug}
-            event={ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED}
-            partner={booking.partner}
-            placement={booking.placement}
-            clientReference={booking.clientReference}
-            hotelId={booking.hotelId}
-            className="min-h-11 px-5"
-          />
-          <Link href={`/hotels/${hotel.slug}/`} className="inline-flex min-h-11 items-center text-[15px] font-semibold text-ink underline-offset-[0.2em] hover:underline">
-            View hotel details
-          </Link>
-          <SaveButton item={{ id: `hotel:${hotel.slug}`, kind: 'hotel', title: hotel.title, href: `/hotels/${hotel.slug}/`, meta: neighborhoodName(hotel.neighborhood) }} />
+        <div className="mt-2 md:hidden">
+          <LivePrice rate={rate} datesLabel={datesLabel} />
         </div>
-        {testMode && booking.placement === 'whitelabel' ? (
-          <div className="mt-2">
-            <TestModeNotice compact />
-          </div>
+      </div>
+      <div className="flex flex-row flex-wrap items-center gap-3 md:flex-col md:items-stretch md:justify-center md:border-l md:border-paper-edge md:pl-5">
+        {rate ? (
+          <p className="hidden text-right md:block" title={`Rate fetched ${new Date(rate.fetchedAt).toLocaleString('en-US', { timeZone: 'America/Chicago' })} Nashville time`}>
+            <span className="block font-sans text-[1.5rem] font-extrabold leading-none tracking-[-0.02em] text-ink">{formatNightly(rate.nightly)}</span>
+            <span className="block text-2xs text-ink-soft">
+              a night · {datesLabel}
+              {rate.refundable === 'RFN' ? ' · free cancellation' : ''}
+            </span>
+          </p>
+        ) : null}
+        <Link href={roomsHref} className="btn-primary min-h-11 px-4 md:w-full">
+          {rate ? 'See rooms' : 'Check rates'}
+        </Link>
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <Link href={detailHref} className="inline-flex min-h-9 items-center font-semibold text-ink underline-offset-[0.2em] hover:underline">
+            Details
+          </Link>
+          <SaveButton item={{ id: `hotel:${hotel.slug}`, kind: 'hotel', title: hotel.title, href: detailHref, meta: neighborhoodName(hotel.neighborhood) }} />
+        </div>
+        {booking.placement !== 'whitelabel' && booking.url ? (
+          <BookingLink url={booking.url} label="Check rates" name={hotel.title} slug={hotel.slug} event={ANALYTICS_EVENTS.HOTEL_AFFILIATE_CLICKED} partner={booking.partner} placement={booking.placement} clientReference={booking.clientReference} hotelId={booking.hotelId} variant="secondary" className="min-h-10 md:w-full" />
         ) : null}
       </div>
     </article>

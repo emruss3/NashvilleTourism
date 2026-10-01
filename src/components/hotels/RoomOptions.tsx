@@ -277,7 +277,7 @@ export default function RoomOptions({
                     ) : (
                       <div className="flex aspect-[3/2] items-center justify-center text-sm text-ink-soft lg:h-full lg:aspect-auto lg:min-h-[200px]">No room photo supplied</div>
                     )}
-                    {group.photosSource === 'hotel' && photos.length ? <span className="absolute left-2 top-2 rounded bg-ink/80 px-1.5 py-0.5 text-2xs text-paper">Hotel photo</span> : null}
+                    {photos.length && group.photosSource !== 'matched' ? <span className="absolute left-2 top-2 rounded bg-ink/80 px-1.5 py-0.5 text-2xs text-paper">{group.photosSource === 'similar' ? 'Similar room' : 'Hotel photo'}</span> : null}
                   </div>
 
                   {/* Facts. */}
