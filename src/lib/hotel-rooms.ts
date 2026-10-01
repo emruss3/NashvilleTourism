@@ -85,6 +85,8 @@ export interface RoomGroup {
   boardName?: string;
   boardType?: string;
   maxOccupancy?: number;
+  maxAdults?: number;
+  maxChildren?: number;
   /** From the catalog room when matched. */
   description?: string;
   bedTypes: string[];
@@ -237,6 +239,8 @@ export function groupRooms(rates: RoomRate[], detail?: Pick<HotelDetail, 'rooms'
       boardName: cheapest.boardName,
       boardType: cheapest.boardType,
       maxOccupancy: room?.maxOccupancy ?? cheapest.maxOccupancy,
+      maxAdults: room?.maxAdults,
+      maxChildren: room?.maxChildren,
       description: room?.description,
       bedTypes: room?.bedTypes ?? [],
       size: room?.size ? `${Math.round(room.size)} ${room.sizeUnit === 'm2' || room.sizeUnit === 'sqm' ? 'm²' : room.sizeUnit ?? 'sq ft'}` : undefined,

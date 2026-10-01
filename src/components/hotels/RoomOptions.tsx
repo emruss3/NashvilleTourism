@@ -5,17 +5,19 @@ import StayDatesField from '@/components/StayDatesField';
 import PhotoFlipper from '@/components/hotels/PhotoFlipper';
 import TestModeNotice from '@/components/hotels/TestModeNotice';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
-import { normalizedName, type RoomGroup, type RoomRate } from '@/lib/hotel-rooms';
+import type { RoomGroup, RoomRate } from '@/lib/hotel-rooms';
 import { clientReference, stayCheckoutHref, stayHotelHref } from '@/lib/stay-links';
 
 /**
- * Room options for one hotel: the KindredTrips detail list, one card per
- * room type and board with the cheapest rate up front and the other rates
- * of that room behind "More rates". Dates change in place and refetch from
- * /api/hotels/rooms/ (the service role stays on the server). Every price
- * carries its fetch time. The CTA opens our booking site on this hotel with
- * the same dates, or straight at the offer when direct checkout is enabled;
- * nothing is booked or held from here.
+ * Room options for one hotel, laid out the KindredTrips way: one row per
+ * room type with the photos (flip-through plus a thumbnail strip) on the
+ * left, the room's facts in the middle, and a stack of rate cards on the
+ * right, one per board and cancellation kind, each with its own Select
+ * button. Dates change in place and refetch from /api/hotels/rooms/ (the
+ * service role stays on the server). Every price carries its fetch time.
+ * Select opens our booking site on this hotel with the same dates, or
+ * straight at the offer when direct checkout is enabled; nothing is booked
+ * or held from here.
  */
 
 export interface RoomsPayload {
@@ -34,21 +36,30 @@ export interface RoomsPayload {
   error?: string;
 }
 
-/** Cards shown before "Show all"; a big hotel has twenty room types and nobody reads past six. */
+/** Rows shown before "Show all"; a big hotel has twenty room types and nobody reads past six. */
 const VISIBLE_CARDS = 6;
+/** Rate cards shown per room before "N more rates". */
+const VISIBLE_RATES = 3;
+const DESCRIPTION_CLAMP = 180;
 
 function usd(amount: number, currency = 'USD'): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount);
 }
 
-function chicago(iso: string): string {
-  return new Date(iso).toLocaleString('en-US', { timeZone: 'America/Chicago', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+function chicago(iso: string, withTime = true): string {
+  return new Date(iso).toLocaleString('en-US', withTime ? { timeZone: 'America/Chicago', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' } : { timeZone: 'America/Chicago', month: 'short', day: 'numeric' });
 }
 
-function cancellationLine(rate: RoomRate): string {
-  if (rate.refundable === 'RFN') return rate.cancelBy ? `Free cancellation until ${chicago(rate.cancelBy)} Nashville time` : 'Free cancellation available';
-  if (rate.refundable === 'NRFN') return 'Non-refundable';
-  return 'Cancellation terms on the booking site';
+/** "Free cancel by Nov 28" / "Non-refundable" / "Cancellation on the booking site". */
+function cancelTag(rate: RoomRate): { text: string; good: boolean } {
+  if (rate.refundable === 'RFN') return { text: rate.cancelBy ? `Free cancel by ${chicago(rate.cancelBy, false)}` : 'Free cancellation', good: true };
+  if (rate.refundable === 'NRFN') return { text: 'Non-refundable', good: false };
+  return { text: 'Cancellation on the booking site', good: false };
+}
+
+function boardTag(rate: RoomRate): { text: string; good: boolean } {
+  if (!rate.boardName || /room only/i.test(rate.boardName)) return { text: 'Room only', good: false };
+  return { text: rate.boardName, good: true };
 }
 
 /** "Includes $62 taxes and fees" and "plus $45 resort fee at the hotel", from the provider's breakdown. */
@@ -59,14 +70,16 @@ function feesLine(rate: RoomRate): string | undefined {
   const exc = rate.taxesAndFees.filter((t) => !t.included);
   const parts: string[] = [];
   if (inc.length) parts.push(`includes ${usd(sum(inc), inc[0].currency)} taxes and fees`);
-  if (exc.length) parts.push(`plus ${usd(sum(exc), exc[0].currency)} ${exc.length === 1 && exc[0].description ? exc[0].description.toLowerCase() : 'in fees'} paid at the hotel`);
+  if (exc.length) parts.push(`plus ${usd(sum(exc), exc[0].currency)} ${exc.length === 1 && exc[0].description ? exc[0].description.toLowerCase() : 'in fees'} at the hotel`);
   return parts.length ? `Total ${parts.join(', ')}` : undefined;
 }
 
-function sleepsLine(group: RoomGroup): string | undefined {
+function sleepsLine(group: RoomGroup): { main: string; detail?: string } | undefined {
   const r = group.cheapest;
-  if (r.adultCount && (r.childCount ?? 0) > 0) return `Sleeps ${r.adultCount} ${r.adultCount === 1 ? 'adult' : 'adults'} and ${r.childCount} ${r.childCount === 1 ? 'child' : 'children'}`;
-  if (group.maxOccupancy) return `Sleeps ${group.maxOccupancy}`;
+  const max = group.maxOccupancy ?? r.maxOccupancy;
+  const detail = [group.maxAdults ? `max ${group.maxAdults} ${group.maxAdults === 1 ? 'adult' : 'adults'}` : undefined, group.maxChildren ? `max ${group.maxChildren} ${group.maxChildren === 1 ? 'child' : 'children'}` : undefined].filter(Boolean).join(', ');
+  if (max) return { main: `Sleeps ${max}`, detail: detail || undefined };
+  if (r.adultCount) return { main: `Sleeps ${r.adultCount + (r.childCount ?? 0)}`, detail: detail || undefined };
   return undefined;
 }
 
@@ -74,11 +87,6 @@ function payLine(rate: RoomRate): string | undefined {
   const t = rate.paymentTypes.map((p) => p.toLowerCase());
   if (t.some((p) => /pay_later|pay at|property/.test(p))) return 'Pay at the hotel';
   return undefined;
-}
-
-function boardLine(rate: RoomRate): string | undefined {
-  if (!rate.boardName || /room only/i.test(rate.boardName)) return undefined;
-  return rate.boardName;
 }
 
 function todayISO(): string {
@@ -114,9 +122,10 @@ export default function RoomOptions({
   const [data, setData] = useState<RoomsPayload | undefined>(initial);
   const [loading, setLoading] = useState(!initial);
   const [error, setError] = useState<string | undefined>(initial && !initial.ok ? initial.error : undefined);
-  const [open, setOpen] = useState<Record<string, boolean>>({});
   const [showAll, setShowAll] = useState(false);
+  const [moreRates, setMoreRates] = useState<Record<string, boolean>>({});
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [photoIndex, setPhotoIndex] = useState<Record<string, number>>({});
   const abortRef = useRef<AbortController | null>(null);
   const firstRun = useRef(true);
 
@@ -162,7 +171,7 @@ export default function RoomOptions({
     return (rate.offerId ? stayCheckoutHref(rate.offerId, { clientReference: reference }) : undefined) ?? hotelHref;
   }
 
-  function onRoomClick(group: RoomGroup, rate: RoomRate) {
+  function onSelect(group: RoomGroup, rate: RoomRate) {
     track(ANALYTICS_EVENTS.HOTEL_ROOM_CLICKED, {
       item_id: slug,
       item_name: hotelName,
@@ -177,15 +186,23 @@ export default function RoomOptions({
     });
   }
 
+  const tag = (t: { text: string; good: boolean }) => (
+    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-2xs font-semibold ${t.good ? 'border-ink bg-paper text-ink' : 'border-paper-edge bg-paper-sunk text-ink-soft'}`}>
+      {t.good ? <span aria-hidden="true" className="mr-1">✓</span> : null}
+      {t.text}
+    </span>
+  );
+
   return (
     <section aria-labelledby={`${id}-h`} className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 id={`${id}-h`} className="text-2xl">
-            Rooms and rates
+          <h2 id={`${id}-h`} className="flex flex-wrap items-center gap-2 text-2xl">
+            Rooms
+            {data?.groups.length ? <span className="rounded-full border border-paper-edge bg-paper-sunk px-2.5 py-0.5 font-sans text-xs font-semibold text-ink-soft">{data.groups.length} {data.groups.length === 1 ? 'option' : 'options'}</span> : null}
           </h2>
           <p className="mt-1 text-sm text-ink-soft">
-            {data?.groups.length ? `${data.groups.length} room ${data.groups.length === 1 ? 'type' : 'types'}${data.rateCount && data.rateCount > data.groups.length ? ` from ${data.rateCount} rates` : ''} for ${nights} ${nights === 1 ? 'night' : 'nights'}` : 'Pick your dates to see every room'}
+            {data?.groups.length ? `For ${nights} ${nights === 1 ? 'night' : 'nights'}${data.rateCount && data.rateCount > data.groups.length ? `, from ${data.rateCount} rates` : ''}` : 'Pick your dates to see every room'}
             {fetched ? ` · prices fetched ${fetched} Nashville time` : ''}
           </p>
         </div>
@@ -228,114 +245,128 @@ export default function RoomOptions({
       ) : (
         <ul className="space-y-4">
           {(showAll ? data.groups : data.groups.slice(0, VISIBLE_CARDS)).map((group) => {
-            const more = group.variants.slice(1);
-            const isOpen = Boolean(open[group.key]);
-            const photo = group.photos[0];
-            const href = cta(group.cheapest);
+            const photos = group.photos.map((p) => ({ url: p.url, caption: p.caption || (group.photosSource === 'matched' ? group.name : `${hotelName} photo`) }));
+            const pi = Math.min(photoIndex[group.key] ?? 0, Math.max(photos.length - 1, 0));
+            const sleeps = sleepsLine(group);
+            const facts = [group.size, group.bedTypes.length ? group.bedTypes.slice(0, 2).join(' · ') : undefined].filter(Boolean);
+            const rates = moreRates[group.key] ? group.variants : group.variants.slice(0, VISIBLE_RATES);
+            const hidden = group.variants.length - rates.length;
+            const long = (group.description?.length ?? 0) > DESCRIPTION_CLAMP;
+            const descOpen = Boolean(expanded[group.key]);
             return (
               <li key={group.key} className="card overflow-hidden">
-                <div className="grid gap-0 sm:grid-cols-[220px_1fr]">
-                  <div className="relative">
-                    {photo ? (
-                      <PhotoFlipper images={group.photos.map((p) => ({ url: p.url, caption: p.caption || (group.photosSource === 'matched' ? group.name : `${hotelName} photo`) }))} name={group.name} ratio="aspect-[3/2] sm:aspect-[4/3]" rounded={false} className="sm:h-full" />
+                <div className="grid min-w-0 lg:grid-cols-[240px_minmax(0,1fr)_280px]">
+                  {/* Photos: the frame flips; the strip jumps. */}
+                  <div className="relative flex min-w-0 flex-col bg-paper-sunk">
+                    {photos.length ? (
+                      <>
+                        <PhotoFlipper images={photos} name={group.name} ratio="aspect-[3/2] lg:aspect-auto lg:min-h-[220px]" className="lg:flex-1" rounded={false} index={pi} onIndexChange={(i) => setPhotoIndex((x) => ({ ...x, [group.key]: i }))} />
+                        {photos.length > 1 ? (
+                          <ul className="flex gap-1 overflow-x-auto bg-ink/80 p-1.5" aria-label={`${group.name} photo thumbnails`}>
+                            {photos.map((p, i) => (
+                              <li key={p.url} className="shrink-0">
+                                <button type="button" onClick={() => setPhotoIndex((x) => ({ ...x, [group.key]: i }))} aria-label={`Photo ${i + 1} of ${photos.length}`} aria-current={i === pi ? 'true' : undefined} className={`relative block h-9 w-12 overflow-hidden rounded-sm ${i === pi ? 'ring-2 ring-paper' : 'opacity-60 hover:opacity-100'}`}>
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img src={p.url} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" referrerPolicy="no-referrer" draggable={false} />
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : null}
+                      </>
                     ) : (
-                      <div className="flex aspect-[3/2] items-center justify-center bg-paper-sunk text-sm text-ink-soft">No room photo supplied</div>
+                      <div className="flex aspect-[3/2] items-center justify-center text-sm text-ink-soft lg:h-full lg:aspect-auto lg:min-h-[200px]">No room photo supplied</div>
                     )}
-                    {group.photosSource === 'hotel' && photo ? <span className="absolute bottom-2 left-2 rounded bg-ink/80 px-1.5 py-0.5 text-2xs text-paper">Hotel photo</span> : null}
+                    {group.photosSource === 'hotel' && photos.length ? <span className="absolute left-2 top-2 rounded bg-ink/80 px-1.5 py-0.5 text-2xs text-paper">Hotel photo</span> : null}
                   </div>
-                  <div className="flex flex-col p-4">
-                    <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
-                      <div className="min-w-0">
-                        <h3 className="font-sans text-[17px] font-bold leading-snug text-ink">{group.name}</h3>
-                        <p className="mt-1 text-sm text-ink-soft">
-                          {[
-                            sleepsLine(group),
-                            group.bedTypes.length ? group.bedTypes.slice(0, 2).join(', ') : undefined,
-                            group.size,
-                            boardLine(group.cheapest),
-                          ]
-                            .filter(Boolean)
-                            .join(' · ')}
-                        </p>
-                      </div>
-                      <p className="text-right">
-                        <span className="block text-lg font-semibold text-ink">{usd(group.cheapest.nightly.amount, group.cheapest.nightly.currency)}</span>
-                        <span className="block text-2xs text-ink-soft">
-                          a night · {usd(group.cheapest.total.amount, group.cheapest.total.currency)} for {group.cheapest.nights} {group.cheapest.nights === 1 ? 'night' : 'nights'}
-                        </span>
-                      </p>
-                    </div>
-                    <p className="mt-2 text-2xs text-ink-soft">{[cancellationLine(group.cheapest), payLine(group.cheapest)].filter(Boolean).join(' · ')}</p>
-                    {feesLine(group.cheapest) ? <p className="mt-0.5 text-2xs text-ink-soft">{feesLine(group.cheapest)}</p> : null}
-                    {group.cheapest.perks.length ? <p className="mt-1 text-2xs text-ink-soft">{group.cheapest.perks.join(' · ')}</p> : null}
-                    {group.description ? (
-                      <p className="mt-2 text-sm text-ink-soft">
-                        {isOpen || group.description.length <= 160 ? group.description : `${group.description.slice(0, 157).trimEnd()}…`}
+
+                  {/* Facts. */}
+                  <div className="min-w-0 p-4 lg:p-5">
+                    <h3 className="font-sans text-[18px] font-bold leading-snug text-ink">{group.name}</h3>
+                    {sleeps ? (
+                      <p className="mt-1.5 text-[15px] text-ink">
+                        <span className="font-semibold">{sleeps.main}</span>
+                        {sleeps.detail ? <span className="text-ink-soft"> ({sleeps.detail})</span> : null}
                       </p>
                     ) : null}
-                    {group.cheapest.remarks ? <p className="mt-1 text-2xs text-ink-soft">Hotel note: {group.cheapest.remarks}</p> : null}
+                    {facts.length ? <p className="mt-1 text-sm text-ink-soft">{facts.join(' · ')}</p> : null}
+                    {group.description ? (
+                      <p className="mt-3 text-sm leading-relaxed text-ink-soft">
+                        {descOpen || !long ? group.description : `${group.description.slice(0, DESCRIPTION_CLAMP - 1).trimEnd()}…`}
+                        {long ? (
+                          <>
+                            {' '}
+                            <button type="button" className="font-semibold text-ink underline underline-offset-2" aria-expanded={descOpen} onClick={() => setExpanded((x) => ({ ...x, [group.key]: !descOpen }))}>
+                              {descOpen ? 'Less' : 'More'}
+                            </button>
+                          </>
+                        ) : null}
+                      </p>
+                    ) : null}
+                    {group.cheapest.remarks ? <p className="mt-2 text-2xs text-ink-soft">Hotel note: {group.cheapest.remarks}</p> : null}
                     {group.amenities.length ? (
-                      <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Room amenities">
-                        {(expanded[group.key] ? group.amenities : group.amenities.slice(0, 5)).map((a) => (
-                          <li key={a} className="rounded-full border border-paper-edge px-2 py-0.5 text-2xs text-ink-soft">
+                      <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Room amenities">
+                        {(descOpen ? group.amenities : group.amenities.slice(0, 6)).map((a) => (
+                          <li key={a} className="rounded-full border border-paper-edge bg-paper px-2.5 py-1 text-2xs text-ink">
                             {a}
                           </li>
                         ))}
-                        {group.amenities.length > 5 ? (
+                        {!descOpen && group.amenities.length > 6 ? (
                           <li>
-                            <button type="button" className="rounded-full border border-ink px-2 py-0.5 text-2xs font-semibold text-ink" aria-expanded={Boolean(expanded[group.key])} onClick={() => setExpanded((x) => ({ ...x, [group.key]: !x[group.key] }))}>
-                              {expanded[group.key] ? 'Fewer' : `+${group.amenities.length - 5} more`}
+                            <button type="button" className="rounded-full border border-ink px-2.5 py-1 text-2xs font-semibold text-ink" onClick={() => setExpanded((x) => ({ ...x, [group.key]: true }))}>
+                              +{group.amenities.length - 6} more
                             </button>
                           </li>
                         ) : null}
                       </ul>
                     ) : null}
-                    <div className="mt-auto flex flex-wrap items-center gap-3 pt-4">
-                      {href ? (
-                        <a href={href} target="_blank" rel="noopener noreferrer sponsored" className="btn-primary min-h-11" onClick={() => onRoomClick(group, group.cheapest)}>
-                          Book this room
-                          <span className="sr-only"> (opens our booking site in a new tab)</span>
-                        </a>
-                      ) : (
-                        <p className="text-sm text-ink-soft">Booking site not configured.</p>
-                      )}
-                      {more.length ? (
-                        <button type="button" className="text-sm font-semibold text-clay underline underline-offset-2" aria-expanded={isOpen} aria-controls={`${id}-${group.key.replace(/[^a-z0-9]+/gi, '-')}`} onClick={() => setOpen((o) => ({ ...o, [group.key]: !isOpen }))}>
-                          {isOpen ? 'Fewer options' : `${more.length} more ${more.length === 1 ? 'option' : 'options'}`}
-                        </button>
-                      ) : null}
-                    </div>
                   </div>
-                </div>
-                {more.length && isOpen ? (
-                  <ul id={`${id}-${group.key.replace(/[^a-z0-9]+/gi, '-')}`} className="divide-y divide-paper-edge border-t border-paper-edge bg-paper-sunk">
-                    {more.map((rate, i) => {
-                      const vhref = cta(rate);
+
+                  {/* Rate cards. */}
+                  <div className="grid content-start gap-2 border-t border-paper-edge bg-paper-sunk/60 p-3 lg:border-l lg:border-t-0">
+                    {rates.map((rate, i) => {
+                      const href = cta(rate);
+                      const board = boardTag(rate);
+                      const cancel = cancelTag(rate);
+                      const pay = payLine(rate);
+                      const fees = feesLine(rate);
                       return (
-                        <li key={rate.rateId ?? rate.offerId ?? i} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
-                          <div>
-                            <p className="text-ink">{[boardLine(rate) ?? 'Room only', cancellationLine(rate)].join(' · ')}</p>
-                            {feesLine(rate) ? <p className="text-2xs text-ink-soft">{feesLine(rate)}</p> : null}
-                            {rate.roomName && normalizedName(rate.roomName) !== normalizedName(group.cheapest.roomName) ? <p className="text-2xs text-ink-soft">Listed by the supplier as “{rate.roomName}”</p> : null}
-                            {rate.perks.length ? <p className="text-2xs text-ink-soft">{rate.perks.join(' · ')}</p> : null}
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <p className="text-right">
-                              <span className="block font-semibold text-ink">{usd(rate.nightly.amount, rate.nightly.currency)}</span>
-                              <span className="block text-2xs text-ink-soft">a night · {usd(rate.total.amount, rate.total.currency)} total</span>
+                        <div key={rate.rateId ?? rate.offerId ?? i} className="rounded-card border border-paper-edge bg-white p-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <p className="min-w-0 font-sans text-[15px] font-bold leading-snug text-ink">{board.text}</p>
+                            <p className="shrink-0 text-right">
+                              <span className="block font-sans text-lg font-extrabold leading-none text-ink">{usd(rate.total.amount, rate.total.currency)}</span>
+                              <span className="block text-2xs text-ink-soft">{usd(rate.nightly.amount, rate.nightly.currency)} / night</span>
                             </p>
-                            {vhref ? (
-                              <a href={vhref} target="_blank" rel="noopener noreferrer sponsored" className="btn-secondary min-h-10 px-3 py-1.5 text-sm" onClick={() => onRoomClick(group, rate)}>
-                                Book
-                                <span className="sr-only"> {group.name}, {boardLine(rate) ?? 'room only'} (opens our booking site in a new tab)</span>
-                              </a>
-                            ) : null}
                           </div>
-                        </li>
+                          <div className="mt-2 flex flex-wrap gap-1.5">
+                            {board.good ? tag(board) : null}
+                            {tag(cancel)}
+                            {pay ? tag({ text: pay, good: false }) : null}
+                          </div>
+                          {fees ? <p className="mt-1.5 text-2xs text-ink-soft">{fees}</p> : null}
+                          {rate.perks.length ? <p className="mt-1 text-2xs text-ink-soft">{rate.perks.join(' · ')}</p> : null}
+                          {href ? (
+                            <a href={href} target="_blank" rel="noopener noreferrer sponsored" className="btn-primary mt-3 min-h-10 w-full py-2" onClick={() => onSelect(group, rate)}>
+                              Select
+                              <span className="sr-only">
+                                {' '}
+                                {group.name}, {board.text}, {usd(rate.total.amount, rate.total.currency)} (opens our booking site in a new tab)
+                              </span>
+                            </a>
+                          ) : (
+                            <p className="mt-3 text-2xs text-ink-soft">Booking site not configured.</p>
+                          )}
+                        </div>
                       );
                     })}
-                  </ul>
-                ) : null}
+                    {hidden > 0 ? (
+                      <button type="button" className="min-h-9 text-sm font-semibold text-ink underline underline-offset-2" onClick={() => setMoreRates((x) => ({ ...x, [group.key]: true }))}>
+                        {hidden} more {hidden === 1 ? 'rate' : 'rates'} for this room
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
               </li>
             );
           })}
