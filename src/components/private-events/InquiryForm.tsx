@@ -6,7 +6,7 @@ import DateField from '@/components/DateField';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
 import { neighborhoodName, neighborhoods } from '@/lib/content/neighborhoods';
 import { PREVIEW_NOT_SENT } from '@/lib/events/delivery';
-import { ANY_AREA, FINDER_EVENT_TYPES, MAX_PRIORITIES, PRIORITIES, finderEventType, finderParams, isPriority, prioritiesToNeeds, priorityLabel, type Priority } from '@/lib/events/finder';
+import { ANY_AREA, FINDER_EVENT_TYPES, MAX_PRIORITIES, PRIORITIES, finderEventType, finderParams, isPriority, maxGuestsFor, prioritiesToNeeds, priorityLabel, type Priority } from '@/lib/events/finder';
 import { BUDGET_RANGES, SHORTLIST_MAX, START_TIME_BANDS, formatBriefDate, guestsBand, monthOptions, monthToDate, occasionToEventType, sizeBandBySlug, type BriefPrefill } from '@/lib/private-events';
 import { todayChicagoISO } from '@/lib/stay-dates';
 
@@ -91,6 +91,7 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
   const occasion = eventDef?.occasion ?? '';
   const eventLabel = eventDef?.label ?? 'Private event';
   const sizeHint = prefill.size ? sizeBandBySlug(prefill.size) : undefined;
+  const typeMax = maxGuestsFor(eventDef?.value);
   const when = dateMode === 'date' ? preferredDate : month;
   const effectiveDate = dateMode === 'month' ? monthToDate(month) : preferredDate || undefined;
   const effectiveFlexible = dateMode === 'month' ? true : flex !== 'exact';
@@ -393,6 +394,7 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
           </label>
           <input id="inq-guests" name="guests" type="number" min={1} max={5000} inputMode="numeric" required value={guests} onChange={(e) => setGuests(e.target.value)} placeholder={sizeHint ? `e.g. ${Number.isFinite(sizeHint.max) ? Math.round((sizeHint.min + sizeHint.max) / 2) : sizeHint.min + 50}` : 'e.g. 60'} {...invalid('guests')} className={field} />
           {sizeHint ? <p className="mt-1 text-2xs text-ink-soft">You chose {sizeHint.label.toLowerCase()} guests in the finder; the exact number helps venues quote.</p> : null}
+          {typeMax && Number(guests) > typeMax ? <p className="mt-1 text-2xs text-ink-soft">That is larger than a {eventLabel.toLowerCase()} usually runs (up to {typeMax}). Fine if it is right; otherwise Corporate event or Something else may fit better.</p> : null}
           {err('guests')}
         </div>
         <div className="sm:col-span-2">

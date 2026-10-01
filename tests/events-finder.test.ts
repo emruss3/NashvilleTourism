@@ -4,7 +4,7 @@
  */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { ANY_AREA, FINDER_EVENT_TYPES, MAX_PRIORITIES, PRIORITIES, chooseLayout, finderParams, matchSpaces, parsePriorities, prioritiesToNeeds, readFinderParams, recommend, type FinderVenue } from '../src/lib/events/finder.ts';
+import { ANY_AREA, FINDER_EVENT_TYPES, MAX_PRIORITIES, PRIORITIES, chooseLayout, finderParams, matchSpaces, maxGuestsFor, parsePriorities, prioritiesToNeeds, readFinderParams, recommend, sizesFor, type FinderVenue } from '../src/lib/events/finder.ts';
 import type { EventSpace } from '../src/lib/events/types.ts';
 import { isOccasion } from '../src/lib/private-events.ts';
 
@@ -63,6 +63,18 @@ test('event types map to legal occasions and promoted types lead', () => {
   assert.deepEqual(FINDER_EVENT_TYPES.filter((t) => t.promoted).map((t) => t.value), ['corporate', 'holiday', 'convention', 'offsite', 'celebration']);
   assert.equal(FINDER_EVENT_TYPES.find((t) => t.value === 'offsite')?.occasion, 'corporate');
   assert.equal(PRIORITIES.length, 6);
+});
+
+test('the event type drives the group sizes on offer', () => {
+  assert.deepEqual(sizesFor('bachelorette').map((b) => b.slug), ['up-to-25', '25-75']);
+  assert.deepEqual(sizesFor('convention').map((b) => b.slug), ['25-75', '75-200', '200-plus']);
+  assert.equal(sizesFor(undefined).length, 4, 'every band before a type is chosen');
+  assert.equal(sizesFor('corporate').length, 4);
+  assert.equal(maxGuestsFor('bachelorette'), 75);
+  assert.equal(maxGuestsFor('corporate'), undefined, 'open-ended');
+  for (const t of FINDER_EVENT_TYPES) assert.ok(t.sizes.length >= 2, t.value);
+  assert.equal(readFinderParams({ event: 'bachelorette', size: '200-plus' }).size, undefined, 'a size the type is not offered at is dropped');
+  assert.equal(readFinderParams({ event: 'bachelorette', size: '25-75' }).size, '25-75');
 });
 
 test('priorities are capped at three and map to the brief needs', () => {

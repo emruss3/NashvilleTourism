@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Chip } from '@/components/Ui';
 import { ANALYTICS_EVENTS, track } from '@/lib/analytics';
 import { neighborhoodName, neighborhoods } from '@/lib/content/neighborhoods';
-import { ANY_AREA, FINDER_EVENT_TYPES, GROUP_SIZES, MAX_PRIORITIES, PRIORITIES, finderEventType, finderParams, recommend, type FinderInput, type FinderVenue, type Priority, type SpaceMatch } from '@/lib/events/finder';
+import { ANY_AREA, FINDER_EVENT_TYPES, MAX_PRIORITIES, PRIORITIES, finderEventType, finderParams, recommend, sizesFor, type FinderInput, type FinderVenue, type Priority, type SpaceMatch } from '@/lib/events/finder';
 import { priceBandLabel, spacePriceBand } from '@/lib/events/types';
 import { VENUE_KIND_LABEL, briefHref, withShortlist } from '@/lib/private-events';
 
@@ -43,6 +43,13 @@ export default function EventFinder({ venues, initial, shortlist }: { venues: Fi
     if (next !== `${window.location.pathname}${window.location.search}${window.location.hash}`) window.history.replaceState(null, '', next);
   }, [input]);
 
+  // The event type decides which group sizes are offered: a bachelorette weekend is not a 200-person event.
+  const typeDef = finderEventType(eventType);
+  const sizes = sizesFor(typeDef?.value);
+  function onEventType(value: string) {
+    setEventType(value);
+    if (size && !sizesFor(finderEventType(value)?.value).some((b) => b.slug === size)) setSize('');
+  }
   function togglePriority(p: Priority) {
     setPriorities((list) => (list.includes(p) ? list.filter((x) => x !== p) : list.length >= MAX_PRIORITIES ? list : [...list, p]));
   }
@@ -82,7 +89,7 @@ export default function EventFinder({ venues, initial, shortlist }: { venues: Fi
           <label htmlFor="finder-event" className="field-label">
             Event type
           </label>
-          <select id="finder-event" name="event" value={eventType} onChange={(e) => setEventType(e.target.value)} aria-invalid={Boolean(errors.eventType)} aria-describedby={errors.eventType ? 'finder-event-error' : undefined} className="field-input">
+          <select id="finder-event" name="event" value={eventType} onChange={(e) => onEventType(e.target.value)} aria-invalid={Boolean(errors.eventType)} aria-describedby={errors.eventType ? 'finder-event-error' : undefined} className="field-input">
             <option value="">Select an event type</option>
             <optgroup label="Most common">
               {promoted.map((t) => (
@@ -111,12 +118,13 @@ export default function EventFinder({ venues, initial, shortlist }: { venues: Fi
           </label>
           <select id="finder-size" name="size" value={size} onChange={(e) => setSize(e.target.value)} aria-invalid={Boolean(errors.size)} aria-describedby={errors.size ? 'finder-size-error' : undefined} className="field-input">
             <option value="">Select a group size</option>
-            {GROUP_SIZES.map((b) => (
+            {sizes.map((b) => (
               <option key={b.slug} value={b.slug}>
                 {b.label} guests
               </option>
             ))}
           </select>
+          {typeDef && sizes.length < 4 ? <p className="mt-1 text-2xs text-ink-soft">The sizes a {typeDef.label.toLowerCase()} usually comes in. Bigger group? Choose Corporate event or Something else.</p> : null}
           {errors.size ? (
             <p id="finder-size-error" role="alert" className="mt-1 text-sm text-ink">
               {errors.size}

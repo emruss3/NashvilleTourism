@@ -23,19 +23,35 @@ export interface FinderEventTypeDef {
   /** Promoted types appear first in the finder and the brief. */
   promoted: boolean;
   line: string;
+  /** Group-size bands (SIZE_BANDS slugs) this kind of event comes in; the finder offers only these. */
+  sizes: string[];
 }
 
+const ALL_SIZES = ['up-to-25', '25-75', '75-200', '200-plus'];
+
 export const FINDER_EVENT_TYPES: FinderEventTypeDef[] = [
-  { value: 'corporate', label: 'Corporate event', occasion: 'corporate', promoted: true, line: 'Client dinners, milestones, awards nights and team celebrations.' },
-  { value: 'holiday', label: 'Holiday party', occasion: 'holiday', promoted: true, line: 'End-of-year parties for teams of every size.' },
-  { value: 'convention', label: 'Convention reception', occasion: 'convention', promoted: true, line: 'Welcome receptions and off-site nights for a conference crowd.' },
-  { value: 'offsite', label: 'Team off-site', occasion: 'corporate', promoted: true, line: 'A working day with a meal, away from the office.' },
-  { value: 'celebration', label: 'Private celebration', occasion: 'celebration', promoted: true, line: 'Birthdays, anniversaries and reunions.' },
-  { value: 'bachelorette', label: 'Bachelorette weekend', occasion: 'bachelorette', promoted: false, line: 'A private room or a whole floor with the band downstairs.' },
-  { value: 'rehearsal_dinner', label: 'Rehearsal dinner', occasion: 'rehearsal_dinner', promoted: false, line: 'Seated dinners the night before.' },
-  { value: 'welcome_party', label: 'Welcome party', occasion: 'welcome_party', promoted: false, line: 'Standing receptions for out-of-town guests.' },
-  { value: 'other', label: 'Something else', occasion: 'other', promoted: false, line: 'Tell us what you have in mind.' },
+  { value: 'corporate', label: 'Corporate event', occasion: 'corporate', promoted: true, line: 'Client dinners, milestones, awards nights and team celebrations.', sizes: ALL_SIZES },
+  { value: 'holiday', label: 'Holiday party', occasion: 'holiday', promoted: true, line: 'End-of-year parties for teams of every size.', sizes: ALL_SIZES },
+  { value: 'convention', label: 'Convention reception', occasion: 'convention', promoted: true, line: 'Welcome receptions and off-site nights for a conference crowd.', sizes: ['25-75', '75-200', '200-plus'] },
+  { value: 'offsite', label: 'Team off-site', occasion: 'corporate', promoted: true, line: 'A working day with a meal, away from the office.', sizes: ['up-to-25', '25-75', '75-200'] },
+  { value: 'celebration', label: 'Private celebration', occasion: 'celebration', promoted: true, line: 'Birthdays, anniversaries and reunions.', sizes: ['up-to-25', '25-75', '75-200'] },
+  { value: 'bachelorette', label: 'Bachelorette weekend', occasion: 'bachelorette', promoted: false, line: 'A private room or a whole floor with the band downstairs.', sizes: ['up-to-25', '25-75'] },
+  { value: 'rehearsal_dinner', label: 'Rehearsal dinner', occasion: 'rehearsal_dinner', promoted: false, line: 'Seated dinners the night before.', sizes: ['up-to-25', '25-75', '75-200'] },
+  { value: 'welcome_party', label: 'Welcome party', occasion: 'welcome_party', promoted: false, line: 'Standing receptions for out-of-town guests.', sizes: ['25-75', '75-200', '200-plus'] },
+  { value: 'other', label: 'Something else', occasion: 'other', promoted: false, line: 'Tell us what you have in mind.', sizes: ALL_SIZES },
 ];
+
+/** The size bands the finder offers for an event type; every band when no type is chosen yet. */
+export function sizesFor(eventType: string | undefined): SizeBand[] {
+  const allowed = finderEventType(eventType)?.sizes ?? ALL_SIZES;
+  return SIZE_BANDS.filter((b) => allowed.includes(b.slug));
+}
+
+/** The largest guest count a type is offered at, for the brief's guest-count hint; undefined when open-ended. */
+export function maxGuestsFor(eventType: string | undefined): number | undefined {
+  const top = sizesFor(eventType).at(-1);
+  return top && Number.isFinite(top.max) ? top.max : undefined;
+}
 
 export function finderEventType(value: string | undefined): FinderEventTypeDef | undefined {
   return FINDER_EVENT_TYPES.find((t) => t.value === value);
@@ -148,9 +164,11 @@ export function readFinderParams(params: Params): FinderInput {
   const eventType = one(params, 'event');
   const size = one(params, 'size');
   const area = one(params, 'area');
+  const type = isFinderEventType(eventType) ? eventType : undefined;
   return {
-    eventType: isFinderEventType(eventType) ? eventType : undefined,
-    size: size && sizeBandBySlug(size) ? size : undefined,
+    eventType: type,
+    // A size the type is not offered at is dropped, so a stale link never asks for a 200-person bachelorette.
+    size: size && sizesFor(type).some((b) => b.slug === size) ? size : undefined,
     area: area === ANY_AREA || neighborhoods.some((n) => n.slug === area) ? area : undefined,
     priorities: parsePriorities(params.pri),
   };
