@@ -27,6 +27,8 @@ type VenueRow = {
   publish_requested_at: string | null;
   approved_at: string | null;
   approved_by: string | null;
+  verified_at: string | null;
+  verified_by: string | null;
   updated_at: string;
 };
 type SpaceRow = { id: string; venue_id: string; name: string; summary: string | null; seated_capacity: number; standing_capacity: number; pricing_model: 'room_fee' | 'min_spend' | 'per_person' | 'buyout'; min_spend_cents: number | null; room_fee_cents: number | null; per_person_cents: number | null; buyout_from_cents: number | null; pricing_note: string | null; av_note: string | null; hours_note: string | null; blackout_note: string | null; published: boolean };
@@ -48,7 +50,7 @@ export default async function AdminEventsPage(props: { searchParams?: Promise<Re
   const query = (await props.searchParams) ?? {};
 
   const [venuesRes, spacesRes, membersRes, inquiriesRes] = await Promise.all([
-    client.from('event_venues').select('id,slug,name,kind,neighborhood_slug,address,summary,description,hours_note,sales_contact_name,sales_contact_email,owned_by_bph,published,publish_requested_at,approved_at,approved_by,updated_at').order('publish_requested_at', { ascending: false, nullsFirst: false }).order('name'),
+    client.from('event_venues').select('id,slug,name,kind,neighborhood_slug,address,summary,description,hours_note,sales_contact_name,sales_contact_email,owned_by_bph,published,publish_requested_at,approved_at,approved_by,verified_at,verified_by,updated_at').order('publish_requested_at', { ascending: false, nullsFirst: false }).order('name'),
     client.from('event_spaces').select('id,venue_id,name,summary,seated_capacity,standing_capacity,pricing_model,min_spend_cents,room_fee_cents,per_person_cents,buyout_from_cents,pricing_note,av_note,hours_note,blackout_note,published'),
     client.from('event_venue_users').select('id,venue_id,email,role,user_id'),
     client.from('event_inquiries').select('id', { count: 'exact', head: true }),
@@ -104,6 +106,18 @@ export default async function AdminEventsPage(props: { searchParams?: Promise<Re
                   <dd>
                     {when(v.approved_at)}
                     {v.approved_by ? ` by ${v.approved_by}` : ''}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-ink">Verified</dt>
+                  <dd>
+                    {v.verified_at ? `${when(v.verified_at)}${v.verified_by ? ` by ${v.verified_by}` : ''}` : 'Not yet'}
+                    <form method="post" action={`/api/admin/events/${v.id}/verify`} className="mt-1">
+                      {v.verified_at ? <input type="hidden" name="clear" value="1" /> : null}
+                      <button type="submit" className="text-sm underline underline-offset-[0.2em]">
+                        {v.verified_at ? 'Clear verified badge' : 'Mark verified (after a visit or call)'}
+                      </button>
+                    </form>
                   </dd>
                 </div>
                 <div>

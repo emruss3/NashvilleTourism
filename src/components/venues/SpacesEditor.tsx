@@ -35,7 +35,20 @@ type Draft = {
   hours_note: string;
   blackout_note: string;
   sort_order: string;
+  cocktail_capacity: string;
+  banquet_capacity: string;
+  theater_capacity: string;
+  classroom_capacity: string;
+  boardroom_capacity: string;
 };
+
+const LAYOUTS: Array<[keyof Draft, string, string]> = [
+  ['cocktail_capacity', 'Cocktail', 'standing, high-tops'],
+  ['banquet_capacity', 'Banquet', 'rounds, seated dinner'],
+  ['theater_capacity', 'Theater', 'rows facing a stage'],
+  ['classroom_capacity', 'Classroom', 'tables facing front'],
+  ['boardroom_capacity', 'Boardroom', 'one long table'],
+];
 
 function toDraft(s?: SpaceRow): Draft {
   return {
@@ -60,6 +73,11 @@ function toDraft(s?: SpaceRow): Draft {
     hours_note: s?.hours_note ?? '',
     blackout_note: s?.blackout_note ?? '',
     sort_order: s ? String(s.sort_order) : '0',
+    cocktail_capacity: s?.cocktail_capacity ? String(s.cocktail_capacity) : '',
+    banquet_capacity: s?.banquet_capacity ? String(s.banquet_capacity) : '',
+    theater_capacity: s?.theater_capacity ? String(s.theater_capacity) : '',
+    classroom_capacity: s?.classroom_capacity ? String(s.classroom_capacity) : '',
+    boardroom_capacity: s?.boardroom_capacity ? String(s.boardroom_capacity) : '',
   };
 }
 
@@ -89,6 +107,11 @@ function toRow(d: Draft, venueId: string, existing?: SpaceRow) {
     hours_note: text(d.hours_note),
     blackout_note: text(d.blackout_note),
     sort_order: Number(d.sort_order) || 0,
+    cocktail_capacity: d.cocktail_capacity.trim() ? Number(d.cocktail_capacity) : null,
+    banquet_capacity: d.banquet_capacity.trim() ? Number(d.banquet_capacity) : null,
+    theater_capacity: d.theater_capacity.trim() ? Number(d.theater_capacity) : null,
+    classroom_capacity: d.classroom_capacity.trim() ? Number(d.classroom_capacity) : null,
+    boardroom_capacity: d.boardroom_capacity.trim() ? Number(d.boardroom_capacity) : null,
   };
 }
 
@@ -235,6 +258,18 @@ function SpaceForm({ supabase, venue, space, onDone }: { supabase: SupabaseClien
           </select>
         </div>
       </div>
+
+      <fieldset className="grid gap-4 rounded-card border border-paper-edge bg-paper p-4 sm:grid-cols-5">
+        <legend className="px-1 font-sans text-2xs font-bold uppercase tracking-[0.14em] text-ink">Layout capacities (public, optional)</legend>
+        {LAYOUTS.map(([key, label, hint]) => (
+          <div key={key}>
+            <label htmlFor={`s-${key}`} className="field-label">
+              {label} <span className="block text-2xs font-normal text-ink-soft">{hint}</span>
+            </label>
+            <input id={`s-${key}`} type="number" min={0} inputMode="numeric" value={String(d[key])} onChange={(e) => set(key, e.target.value as never)} className={field} />
+          </div>
+        ))}
+      </fieldset>
 
       <fieldset className="grid gap-4 rounded-card border border-paper-edge bg-paper p-4 sm:grid-cols-3">
         <legend className="px-1 font-sans text-2xs font-bold uppercase tracking-[0.14em] text-ink">Exact numbers, in dollars (private)</legend>

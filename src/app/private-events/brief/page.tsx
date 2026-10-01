@@ -2,7 +2,9 @@ import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Ui';
 import EventsDisclosure from '@/components/private-events/EventsDisclosure';
 import InquiryForm from '@/components/private-events/InquiryForm';
-import { listVenues } from '@/lib/events/venues';
+import { listAvailability, listVenues } from '@/lib/events/venues';
+import { bookedDays, bookedMonths, monthKey, nextMonths } from '@/lib/events/availability';
+import type { VenueBooked } from '@/components/private-events/InquiryForm';
 import { HOW_IT_WORKS, SHORTLIST_MAX, occasionByValue, readBriefParams } from '@/lib/private-events';
 import { buildMetadata } from '@/lib/seo';
 
@@ -31,7 +33,17 @@ export default async function BriefPage(props: { searchParams?: Promise<Params> 
 
   const venues = await listVenues();
   const listed = venues.some((v) => v.published && v.spaces.some((s) => s.published));
-  const shortlisted = slugs.map((slug) => venues.find((v) => v.slug === slug)).filter((v): v is NonNullable<typeof v> => Boolean(v)).map((v) => ({ slug: v.slug, name: v.name }));
+  const shortlistedVenues = slugs.map((slug) => venues.find((v) => v.slug === slug)).filter((v): v is NonNullable<typeof v> => Boolean(v));
+  const shortlisted = shortlistedVenues.map((v) => ({ slug: v.slug, name: v.name }));
+  // Months and days each shortlisted venue has declared fully booked, for the grey-out in the form.
+  const months = nextMonths(12, monthKey());
+  const availability = shortlistedVenues.length ? await listAvailability(shortlistedVenues.map((v) => v.id), months[0], 12) : [];
+  const booked: Record<string, VenueBooked> = Object.fromEntries(
+    shortlistedVenues.map((v) => {
+      const rows = availability.filter((r) => r.venueId === v.id);
+      return [v.slug, { months: bookedMonths(rows, v.spaces, months), days: bookedDays(rows, v.spaces) }];
+    }),
+  );
   const occasion = occasionByValue(prefill.occasion);
 
   return (
@@ -74,7 +86,7 @@ export default async function BriefPage(props: { searchParams?: Promise<Params> 
         <div className="order-1 lg:order-2">
           <h1 className="text-[2.25rem] leading-[0.98] sm:text-[2.75rem] lg:sr-only">Your brief.</h1>
           <p className="mb-5 mt-2 max-w-prose text-[15px] text-ink-soft lg:hidden">Five details to send. {listed ? 'Venues reply within 24 business hours.' : 'Our events desk matches you by hand within one business day.'}</p>
-          <InquiryForm prefill={prefill} shortlist={shortlisted} venuesListed={listed} />
+          <InquiryForm prefill={prefill} shortlist={shortlisted} venuesListed={listed} booked={booked} />
         </div>
       </div>
     </>

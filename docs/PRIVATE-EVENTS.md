@@ -86,7 +86,7 @@ Verify in Resend, then set `EVENTS_FROM_EMAIL` to an address on that domain. Rep
 
 The seed migration `20260928120100_private_events_seed_owned_venues_v1.sql` loads JBJ's, Hank's and Playdate this way with `TODO` placeholders, unpublished. Replace the placeholders with real content by `update` statements, then publish.
 
-Migrations applied 2026-09-28 with the Supabase connector: `…120000` (schema, triggers, RLS), `…120100` (seed), `…120200` (cron job), `…120300` (pinned `search_path` on the trigger functions), `…120400` (public view).
+Migrations applied with the Supabase connector: 2026-09-28 `…120000` (schema, triggers, RLS), `…120100` (seed), `…120200` (cron job), `…120300` (pinned `search_path` on the trigger functions), `…120400` (public view), `…120500` (price bands), `…120600` (dashboard); 2026-10-01 `20261001120000` (layout capacities, terms, verification, media kinds, availability).
 
 ### Who can read what
 
@@ -133,6 +133,29 @@ update event_spaces set published = true where seated_capacity = 0;
 -- watchdog ran this hour
 select * from cron.job_run_details where jobid = (select jobid from cron.job where jobname = 'nashroam-events-sla') order by start_time desc limit 3;
 ```
+
+## Phase 2 PR 1: editor, bands, availability, terms, tour, floor plans, approval
+
+Spec: `docs/private-events-phase2-best-in-class-brief.md` (supersedes the Phase 2 items in the Phase 1 brief). Migration `20261001120000_private_events_phase2a_v1.sql`, applied 2026-10-01.
+
+**What a venue page shows now.** Verified badge (only when the desk set `verified_at`), a Matterport walk-through embedded in place when `tour_url` is a `my.matterport.com/show` link (any other tour URL is a plain link), then one tabbed block: Spaces (each card with both capacities, layout capacities for cocktail / banquet / theater / classroom / boardroom, the price band, the per-person range, and three months of stated availability), Floor plans (`event_media.kind = floor_plan`, one per floor with its label), Terms (deposit, cancellation, notice, service charge, outside catering, curfew, insurance, parking, transit, as the venue wrote them).
+
+**Availability.** `event_availability` holds one status per (space, month) with an optional (space, day) override: Open, Limited, Booked. No row means Ask; silence never greys a venue out. The brief page greys a shortlisted venue out, and leaves it out of the send, only when the venue said every listed space is booked for the chosen date or month. Pure helpers in `src/lib/events/availability.ts`, tested.
+
+**Onboarding a venue manager, step by step (no SQL).**
+
+1. Desk: `/admin/events/` → the venue → "Who can edit" → add the manager's work email. (Playdate and Hank's already carry the placeholder owner; replace it.)
+2. Manager: `/venues/` → "Email me a sign-in link" with that address → open the link.
+3. Venue and terms tab: name, kind, neighborhood, address, summary, description, website, virtual tour link, hours, features, the nine terms fields, sales contact and lead system. Save.
+4. Spaces tab: one entry per bookable space. Seated and standing capacities are required; layout capacities optional; exact minimum in dollars (private) with the public band previewed underneath; notes. "Save and publish" per space once its problems list is empty. Problems read as sentences ("Rooftop patio needs a standing capacity").
+5. Availability tab: tap months to set Open / Limited / Booked per space; add single dates for exceptions.
+6. Photos and plans tab: photos (rights box and credit required), floor plans (one per floor, with a floor label, PNG or PDF), the event menu as a PDF, Vimeo or YouTube links.
+7. Packages tab, optional: fixed offers with a price and the venue's own booking link.
+8. Publish tab: "Request approval". The desk approves on `/admin/events/` (and can mark the venue verified after a visit or call). After the first approval the venue publishes and unpublishes itself.
+
+**Media bucket.** `venue-media`, public read, members write under `{venue_id}/`; JPEG, PNG, WebP and PDF up to 10 MB. Object URLs are on the Supabase host, so they survive the domain cutover (`docs/CUTOVER.md`).
+
+**No new environment variables.** The Matterport embed is an iframe; availability is plain markup.
 
 ## Backlog
 

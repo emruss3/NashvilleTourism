@@ -4,7 +4,19 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { useState } from 'react';
 import { neighborhoods } from '@/lib/content/neighborhoods';
 import { VENUE_FEATURES, VENUE_KIND_LABEL } from '@/lib/private-events';
-import type { VenueRow } from './rows';
+import { TERMS_COLUMNS, TERMS_MAX, type VenueRow } from './rows';
+
+const TERMS_FIELDS: Array<[(typeof TERMS_COLUMNS)[number], string, string]> = [
+  ['deposit_terms', 'Deposit', 'e.g. 25% to hold the date, applied to the final bill'],
+  ['cancellation_terms', 'Cancellation', 'e.g. Full refund 60+ days out; 50% inside 30 days'],
+  ['minimum_notice', 'Minimum notice', 'e.g. 10 days for groups under 50; 30 days for buyouts'],
+  ['gratuity_note', 'Service charge and gratuity', 'e.g. 22% service charge on food and drink'],
+  ['outside_catering', 'Outside catering', 'e.g. Outside desserts welcome with a $3 a person fee; no outside alcohol'],
+  ['noise_curfew', 'Noise and curfew', 'e.g. Amplified music on the rooftop ends at 11 pm'],
+  ['insurance_note', 'Insurance', 'e.g. Certificate of insurance required for groups over 150'],
+  ['parking_note', 'Parking', 'e.g. Valet $20; the 5th Ave garage is a two-minute walk'],
+  ['transit_note', 'Getting there', 'e.g. Ride-share drop at the 5th Ave entrance'],
+];
 
 const KINDS = Object.entries(VENUE_KIND_LABEL) as Array<[VenueRow['kind'], string]>;
 const LEAD_SYSTEMS = [
@@ -34,6 +46,7 @@ export default function VenueForm({ supabase, venue, onSaved }: { supabase: Supa
     sales_contact_phone: venue.sales_contact_phone ?? '',
     lead_system: venue.lead_system,
     lead_system_endpoint: venue.lead_system_endpoint ?? '',
+    ...(Object.fromEntries(TERMS_COLUMNS.map((k) => [k, venue[k] ?? ''])) as Record<(typeof TERMS_COLUMNS)[number], string>),
   });
   const [state, setState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [message, setMessage] = useState('');
@@ -63,6 +76,7 @@ export default function VenueForm({ supabase, venue, onSaved }: { supabase: Supa
         sales_contact_phone: text(form.sales_contact_phone),
         lead_system: form.lead_system,
         lead_system_endpoint: text(form.lead_system_endpoint),
+        ...Object.fromEntries(TERMS_COLUMNS.map((k) => [k, text(form[k])])),
       })
       .eq('id', venue.id);
     if (error) {
@@ -173,6 +187,23 @@ export default function VenueForm({ supabase, venue, onSaved }: { supabase: Supa
           </ul>
         </fieldset>
       </div>
+
+      <fieldset className="grid gap-4 rounded-card border border-paper-edge bg-paper p-4 sm:grid-cols-2">
+        <legend className="px-1 font-sans text-2xs font-bold uppercase tracking-[0.14em] text-ink">Terms, stated up front (public)</legend>
+        <p className="text-sm text-ink-soft sm:col-span-2">Plain sentences, as you would tell a planner on the phone. All optional. Your contract still governs; this saves a round of questions.</p>
+        {TERMS_FIELDS.map(([key, label, placeholder]) => (
+          <div key={key} className={key === 'deposit_terms' || key === 'cancellation_terms' ? 'sm:col-span-2' : ''}>
+            <label htmlFor={`v-${key}`} className="field-label">
+              {label} <span className="font-normal text-ink-soft">({form[key].length}/{TERMS_MAX[key]})</span>
+            </label>
+            {TERMS_MAX[key] >= 600 ? (
+              <textarea id={`v-${key}`} rows={2} maxLength={TERMS_MAX[key]} value={form[key]} onChange={(e) => set(key, e.target.value)} className={field} placeholder={placeholder} />
+            ) : (
+              <input id={`v-${key}`} maxLength={TERMS_MAX[key]} value={form[key]} onChange={(e) => set(key, e.target.value)} className={field} placeholder={placeholder} />
+            )}
+          </div>
+        ))}
+      </fieldset>
 
       <fieldset className="grid gap-4 rounded-card border border-paper-edge bg-paper p-4 sm:grid-cols-2">
         <legend className="px-1 font-sans text-2xs font-bold uppercase tracking-[0.14em] text-ink">Where leads go</legend>

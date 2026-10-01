@@ -5,19 +5,21 @@ import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { site } from '@/lib/site';
+import AvailabilityEditor from './AvailabilityEditor';
 import MediaEditor from './MediaEditor';
 import PackagesEditor from './PackagesEditor';
 import PublishPanel from './PublishPanel';
 import SpacesEditor from './SpacesEditor';
 import VenueForm from './VenueForm';
-import type { MediaRow, PackageRow, SpaceRow, VenueRow } from './rows';
+import type { AvailabilityRow, MediaRow, PackageRow, SpaceRow, VenueRow } from './rows';
 
-type Tab = 'venue' | 'spaces' | 'packages' | 'photos' | 'publish';
+type Tab = 'venue' | 'spaces' | 'availability' | 'packages' | 'photos' | 'publish';
 const TABS: { key: Tab; label: string }[] = [
-  { key: 'venue', label: 'Venue' },
+  { key: 'venue', label: 'Venue and terms' },
   { key: 'spaces', label: 'Spaces' },
+  { key: 'availability', label: 'Availability' },
   { key: 'packages', label: 'Packages' },
-  { key: 'photos', label: 'Photos' },
+  { key: 'photos', label: 'Photos and plans' },
   { key: 'publish', label: 'Publish' },
 ];
 
@@ -26,6 +28,7 @@ export interface VenueData {
   spaces: SpaceRow[];
   packages: PackageRow[];
   media: MediaRow[];
+  availability: AvailabilityRow[];
 }
 
 /**
@@ -69,17 +72,18 @@ export default function Dashboard() {
 
   const reload = useCallback(async () => {
     if (!activeId) return;
-    const [v, s, p, m] = await Promise.all([
+    const [v, s, p, m, a] = await Promise.all([
       supabase.from('event_venues').select('*').eq('id', activeId).single(),
       supabase.from('event_spaces').select('*').eq('venue_id', activeId).order('sort_order'),
       supabase.from('event_packages').select('*').eq('venue_id', activeId).order('sort_order'),
       supabase.from('event_media').select('*').eq('venue_id', activeId).order('sort_order'),
+      supabase.from('event_availability').select('*').eq('venue_id', activeId),
     ]);
     if (v.error || !v.data) {
       setNotice(`Could not load the venue: ${v.error?.message ?? 'not found'}`);
       return;
     }
-    setData({ venue: v.data as VenueRow, spaces: (s.data ?? []) as SpaceRow[], packages: (p.data ?? []) as PackageRow[], media: (m.data ?? []) as MediaRow[] });
+    setData({ venue: v.data as VenueRow, spaces: (s.data ?? []) as SpaceRow[], packages: (p.data ?? []) as PackageRow[], media: (m.data ?? []) as MediaRow[], availability: (a.data ?? []) as AvailabilityRow[] });
   }, [activeId, supabase]);
 
   useEffect(() => {
@@ -149,6 +153,7 @@ export default function Dashboard() {
           </nav>
           {tab === 'venue' ? <VenueForm supabase={supabase} venue={data.venue} onSaved={reload} /> : null}
           {tab === 'spaces' ? <SpacesEditor supabase={supabase} venue={data.venue} spaces={data.spaces} onChanged={reload} /> : null}
+          {tab === 'availability' ? <AvailabilityEditor supabase={supabase} venue={data.venue} spaces={data.spaces} rows={data.availability} onChanged={reload} /> : null}
           {tab === 'packages' ? <PackagesEditor supabase={supabase} venue={data.venue} spaces={data.spaces} packages={data.packages} onChanged={reload} /> : null}
           {tab === 'photos' ? <MediaEditor supabase={supabase} venue={data.venue} spaces={data.spaces} media={data.media} onChanged={reload} /> : null}
           {tab === 'publish' ? <PublishPanel supabase={supabase} data={data} onChanged={reload} /> : null}

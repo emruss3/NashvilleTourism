@@ -40,7 +40,13 @@ function formatDeadline(iso?: string): string | undefined {
  * Posts to /api/private-events/; success copy appears only on a confirmed
  * response, and a disconnected intake offers a mailto instead of pretending.
  */
-export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed = false }: { prefill?: BriefPrefill; shortlist?: Array<{ slug: string; name: string }>; venuesListed?: boolean }) {
+export interface VenueBooked {
+  /** Months (YYYY-MM) and days (YYYY-MM-DD) where the venue said every space is booked. */
+  months: string[];
+  days: string[];
+}
+
+export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed = false, booked = {} }: { prefill?: BriefPrefill; shortlist?: Array<{ slug: string; name: string }>; venuesListed?: boolean; booked?: Record<string, VenueBooked>; }) {
   const [state, setState] = useState<State>('idle');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [occasion, setOccasion] = useState<string>(prefill.occasion ?? (prefill.type ? LEGACY_TO_OCCASION[prefill.type] : ''));
@@ -67,6 +73,14 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
   const months = useRef(monthOptions()).current;
 
   const occasionTitle = EVENT_OCCASIONS.find((o) => o.value === occasion)?.title ?? 'Private event';
+  // A venue is greyed out when it said every space is booked for the chosen date, or the chosen month.
+  const when = dateMode === 'date' ? preferredDate : month;
+  const isBooked = (slug: string) => {
+    const b = booked[slug];
+    if (!b || !when) return false;
+    return when.length === 7 ? b.months.includes(when) : b.days.includes(when) || b.months.includes(when.slice(0, 7));
+  };
+  const sendable = picked.filter((v) => !isBooked(v.slug));
   const needHotelRooms = needs.includes('rooms');
 
   function touch() {
@@ -137,7 +151,7 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
           needs,
           details: details.trim() || null,
           needHotelRooms,
-          venueSlugs: picked.map((v) => v.slug),
+          venueSlugs: sendable.map((v) => v.slug),
           suggest: picked.length ? suggest : true,
           howHeard: howHeard.trim() || null,
           website: honeypot,
@@ -291,8 +305,11 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
           {picked.length ? (
             <ul className="grid gap-2">
               {picked.map((v) => (
-                <li key={v.slug} className="flex items-center justify-between gap-3 text-[15px] text-ink">
-                  <span className="font-semibold">{v.name}</span>
+                <li key={v.slug} className={`flex items-center justify-between gap-3 text-[15px] ${isBooked(v.slug) ? 'text-ink-soft' : 'text-ink'}`}>
+                  <span className={isBooked(v.slug) ? 'line-through decoration-ink-soft' : 'font-semibold'}>
+                    {v.name}
+                    {isBooked(v.slug) ? <span className="ml-2 no-underline text-2xs font-semibold uppercase tracking-[0.14em]">Booked then, per the venue; not sent</span> : null}
+                  </span>
                   <button type="button" onClick={() => setPicked(picked.filter((p) => p.slug !== v.slug))} className="inline-flex min-h-9 items-center text-sm text-ink-soft underline underline-offset-[0.2em] hover:text-ink">
                     Remove
                   </button>
@@ -414,7 +431,7 @@ export default function InquiryForm({ prefill = {}, shortlist = [], venuesListed
 
       <div className="flex flex-wrap items-center gap-4">
         <button type="submit" className="btn-primary" disabled={state === 'submitting'}>
-          {state === 'submitting' ? 'Sending…' : picked.length ? `Send to ${picked.length} ${picked.length === 1 ? 'venue' : 'venues'}${suggest && picked.length < SHORTLIST_MAX ? ' and more' : ''}` : 'Send my brief'}
+          {state === 'submitting' ? 'Sending…' : sendable.length ? `Send to ${sendable.length} ${sendable.length === 1 ? 'venue' : 'venues'}${suggest && sendable.length < SHORTLIST_MAX ? ' and more' : ''}` : 'Send my brief'}
           <span aria-hidden="true">→</span>
         </button>
         <p className="text-2xs text-ink-soft">Sending a brief does not confirm availability or a booking. You confirm with the venue.</p>

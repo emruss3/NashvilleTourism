@@ -7,11 +7,16 @@ import { PreviewBanner, PreviewText } from '@/components/private-events/Preview'
 import ShortlistBar, { ShortlistButton } from '@/components/private-events/Shortlist';
 import PackageCard from '@/components/private-events/PackageCard';
 import SpaceCard from '@/components/private-events/SpaceCard';
+import TourEmbed from '@/components/private-events/TourEmbed';
+import FloorPlans from '@/components/private-events/FloorPlans';
+import TermsTab from '@/components/private-events/TermsTab';
+import VenueTabs from '@/components/private-events/VenueTabs';
 import VenueViewBeacon from '@/components/private-events/VenueViewBeacon';
 import { neighborhoodName } from '@/lib/content/neighborhoods';
 import { isSponsored, venueCapacity } from '@/lib/events/present';
 import { hasPlaceholder } from '@/lib/events/types';
-import { getVenueBySlug, listMedia, listPackages, listVenues, showUnpublished } from '@/lib/events/venues';
+import { getVenueBySlug, listAvailability, listMedia, listPackages, listVenues, showUnpublished } from '@/lib/events/venues';
+import { monthKey } from '@/lib/events/availability';
 import { OWNED_VENUE_DISCLOSURE, VENUE_KIND_LABEL, briefHref, featureLabel, parseShortlist, withShortlist } from '@/lib/private-events';
 import { buildMetadata, canonical } from '@/lib/seo';
 
@@ -46,7 +51,9 @@ export default async function VenuePage(props: { params: Promise<{ slug: string 
   const placeholder = hasPlaceholder(venue);
   if ((placeholder || !venue.published) && !showUnpublished()) notFound();
 
-  const [media, all, packages] = await Promise.all([listMedia(venue.id), listVenues(), listPackages(venue.id)]);
+  const [allMedia, all, packages, availability] = await Promise.all([listMedia(venue.id), listVenues(), listPackages(venue.id), listAvailability([venue.id], monthKey(), 3)]);
+  const media = allMedia.filter((m) => m.kind === 'photo');
+  const floorPlans = allMedia.filter((m) => m.kind === 'floor_plan');
   const shortlist = parseShortlist(query.v);
   const sponsored = isSponsored(venue);
   const cap = venueCapacity(venue);
@@ -95,9 +102,10 @@ export default async function VenuePage(props: { params: Promise<{ slug: string 
         <h1 className="mt-2 text-[2.5rem] leading-[0.98] sm:text-[3.25rem]">
           <PreviewText text={venue.name} />
         </h1>
-        {sponsored ? (
-          <p className="mt-3">
-            <Chip>Sponsored placement</Chip>
+        {sponsored || venue.verifiedAt ? (
+          <p className="mt-3 flex flex-wrap gap-1.5">
+            {venue.verifiedAt ? <Chip>Verified by Nashville.com</Chip> : null}
+            {sponsored ? <Chip>Sponsored placement</Chip> : null}
           </p>
         ) : null}
         {venue.ownedByBph ? <p className="mt-3 max-w-prose text-[15px] font-semibold text-ink">{OWNED_VENUE_DISCLOSURE}</p> : null}
@@ -115,8 +123,8 @@ export default async function VenuePage(props: { params: Promise<{ slug: string 
             </a>
           ) : null}
           {venue.tourUrl ? (
-            <a href={venue.tourUrl} target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-[0.2em]">
-              Virtual tour<span className="sr-only"> (opens in a new tab)</span>
+            <a href="#tour" className="font-semibold underline underline-offset-[0.2em]">
+              Virtual tour
             </a>
           ) : null}
         </p>
@@ -159,6 +167,17 @@ export default async function VenuePage(props: { params: Promise<{ slug: string 
         </section>
       ) : null}
 
+      {venue.tourUrl ? (
+        <section id="tour" className="shell scroll-mt-24 pt-8" aria-labelledby="tour-title">
+          <h2 id="tour-title" className="text-[1.75rem] sm:text-[2rem]">
+            Walk through {venue.name}
+          </h2>
+          <div className="mt-4">
+            <TourEmbed url={venue.tourUrl} name={venue.name} />
+          </div>
+        </section>
+      ) : null}
+
       {packages.length ? (
         <section className="shell pt-8" aria-labelledby="packages-title">
           <h2 id="packages-title" className="text-[1.75rem] sm:text-[2rem]">
@@ -177,23 +196,36 @@ export default async function VenuePage(props: { params: Promise<{ slug: string 
 
       <section className="shell section" aria-labelledby="spaces-title">
         <h2 id="spaces-title" className="text-[1.75rem] sm:text-[2rem]">
-          Spaces
+          Spaces, plans and terms
         </h2>
         <p className="mt-2 max-w-prose text-[15px] text-ink-soft">
           {cap.seated || cap.standing ? `Up to ${cap.seated.toLocaleString('en-US')} seated or ${cap.standing.toLocaleString('en-US')} standing across ${spaces.length} ${spaces.length === 1 ? 'space' : 'spaces'}. ` : ''}
-          Price bands show the scale of each space; the venue quotes exact numbers when it replies.
+          Price bands show the scale of each space; the venue quotes exact numbers when it replies. Availability is as the venue stated it, not a hold.
         </p>
-        {spaces.length ? (
-          <ul className="mt-6 grid gap-4 lg:grid-cols-2">
-            {spaces.map((s) => (
-              <li key={s.id}>
-                <SpaceCard space={s} />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="mt-6 text-[15px] text-ink-soft">No spaces published yet.</p>
-        )}
+        <div className="mt-6">
+          <VenueTabs
+            panels={[
+              {
+                id: 'spaces',
+                label: 'Spaces',
+                count: spaces.length,
+                content: spaces.length ? (
+                  <ul className="grid gap-4 lg:grid-cols-2">
+                    {spaces.map((s) => (
+                      <li key={s.id}>
+                        <SpaceCard space={s} availability={availability} />
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-[15px] text-ink-soft">No spaces published yet.</p>
+                ),
+              },
+              ...(floorPlans.length ? [{ id: 'plans', label: 'Floor plans', count: floorPlans.length, content: <FloorPlans plans={floorPlans} name={venue.name} /> }] : []),
+              { id: 'terms', label: 'Terms', content: <TermsTab terms={venue.terms} name={venue.name} /> },
+            ]}
+          />
+        </div>
       </section>
 
       {venue.description ? (
