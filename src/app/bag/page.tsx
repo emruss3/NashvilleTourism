@@ -1,3 +1,4 @@
+import CartContents from '@/components/commerce/CartContents';
 import Link from 'next/link';
 import { SmartImage } from '@/components/Media';
 import { Breadcrumbs } from '@/components/Ui';
@@ -25,30 +26,8 @@ export default function BagPage() {
   return (
     <div className="shell pb-16">
       <Breadcrumbs trail={[{ name: 'Bag', href: '/bag/' }]} />
-      <header className="pb-6">
-        <p className="eyebrow">Your bag</p>
-        <h1 className="mt-2 text-[2.5rem] leading-[0.98] sm:text-[3.25rem]">Nothing in the bag yet.</h1>
-        <p className="mt-3 max-w-prose text-[17px] text-ink-soft sm:text-lead">
-          The {site.name} store is not open for orders yet, so there is nothing to check out. The first three pieces are on the shop page; prices and sizes appear once the store connects.
-        </p>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Link href="/shop/" className="btn-primary">
-            Shop the collection
-            <span aria-hidden="true">→</span>
-          </Link>
-          <Link href="/newsletter/" className="btn-secondary">
-            Hear when it opens
-          </Link>
-        </div>
-      </header>
-
-      <div className="grid gap-4 sm:grid-cols-3">
-        {(['concept/product-cap', 'concept/product-paper-tee', 'concept/product-heavyweight-tee'] as const).map((key) => (
-          <Link key={key} href="/shop/#collection" className="block overflow-hidden rounded-card bg-paper-sunk">
-            <SmartImage imageKey={key} ratio="aspect-[4/3]" sizes="(max-width: 639px) 100vw, 33vw" />
-          </Link>
-        ))}
-      </div>
+      <h1 className="mt-4 text-3xl">Your shopping bag</h1>
+      <div className="mx-auto mt-8 max-w-3xl"><CartContents /></div>
 
       <section className="mt-12 border-t border-paper-edge pt-8" aria-labelledby="saved-title">
         <p className="eyebrow">Saved for the trip</p>
